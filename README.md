@@ -8,3 +8,6 @@ set FLASK_APP = server.py
 python -m flask run
 
 This should set up a server on port 5000.  To connect to the server, you can open a web browser and connect to localhost:5000/
+
+Install the Mysql Connector by using this in your command line
+C:\Users\Your Name\AppData\Local\Programs\Python\Python36-32\Scripts>python -m pip install mysql-connector-python

@@ -9,7 +9,6 @@ from flask import Flask, render_template, request, url_for, flash, redirect, Res
 app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0  # Always do a complete refresh (for now)
 
-
 #Establish DB Connection
 mydb = mysql.connector.connect(
   host="10.18.110.183",
@@ -153,6 +152,7 @@ def login_post():
 @app.route("/")
 def homePage():
     # Do something, Taipu
+    print('HEY IT WORKS!')
     return render_template("home.html")
 
 @app.route("/api/getHomePage")

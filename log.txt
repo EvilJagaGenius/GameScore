@@ -1,0 +1,14 @@
+ * Serving Flask app "server.py" (lazy loading)
+ * Environment: development
+ * Debug mode: on
+ * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 132-567-699
+10.31.105.16 - - [05/Feb/2021 16:58:05] "[37mGET / HTTP/1.1[0m" 200 -
+10.31.105.16 - - [05/Feb/2021 16:58:14] "[37mGET / HTTP/1.1[0m" 200 -
+10.31.105.16 - - [05/Feb/2021 16:58:15] "[37mGET / HTTP/1.1[0m" 200 -
+10.31.105.16 - - [05/Feb/2021 16:58:16] "[37mGET / HTTP/1.1[0m" 200 -
+10.31.105.16 - - [05/Feb/2021 16:58:19] "[37mGET /login/ HTTP/1.1[0m" 200 -
+10.31.105.16 - - [05/Feb/2021 16:58:36] "[37mGET /login/ HTTP/1.1[0m" 200 -
+10.31.105.16 - - [05/Feb/2021 17:00:38] "[37mGET / HTTP/1.1[0m" 200 -

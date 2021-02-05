@@ -12,9 +12,9 @@ app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0  # Always do a complete refresh (for
 
 #Establish DB Connection
 mydb = mysql.connector.connect(
-  host="10.31.105.16",
-  user="GameScore",
-  password="password",
+  host="10.18.110.183",
+  user="gamescore",
+  password="GameScore2!",
   database="gamescore"
 )
 

@@ -152,7 +152,7 @@ def login_post():
 @app.route("/")
 def homePage():
     # Do something, Taipu
-    print('HEY IT WORKS!')
+    print('HEY IT WORKS!12345')
     return render_template("home.html")
 
 @app.route("/api/getHomePage")

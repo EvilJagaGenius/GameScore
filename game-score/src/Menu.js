@@ -16,7 +16,10 @@ export default class Menu extends Component {
     const { activeIndex } = this.state
 
     return (
+      //The accordian menu
       <Accordion fluid styled>
+
+        {/* Favorited Templates accordian */}
         <Accordion.Title
           active={activeIndex === 0}
           index={0}
@@ -31,6 +34,7 @@ export default class Menu extends Component {
           </p>
         </Accordion.Content>
 
+        {/* Recently Played */}
         <Accordion.Title
           active={activeIndex === 1}
           index={1}
@@ -45,6 +49,7 @@ export default class Menu extends Component {
           </p>
         </Accordion.Content>
 
+        {/* Highest Rated Templates accordian */}
         <Accordion.Title
           active={activeIndex === 2}
           index={2}
@@ -59,6 +64,7 @@ export default class Menu extends Component {
           </p>
         </Accordion.Content>
 
+        {/* Recommended Games accordian */}
         <Accordion.Title
           active={activeIndex === 3}
           index={3}

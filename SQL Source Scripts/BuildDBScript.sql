@@ -28,18 +28,19 @@ winRate FLOAT DEFAULT 0.0,
 avatarID INT DEFAULT 0,
 hiddenProfile BOOLEAN DEFAULT false,
 email VARCHAR(100),
+credHash BLOB (1000),
 PRIMARY KEY(userID));
 
 CREATE TABLE Template (
 templateID INT NOT NULL AUTO_INCREMENT,
-gameID INT NOT NULL,
+gameID INT,
 numRatings INT DEFAULT 0,
 averageRating FLOAT default 0,
 templateName VARCHAR(100),
 userID int,
 PRIMARY KEY (templateID,gameID),
-FOREIGN KEY (gameID) REFERENCES Game(gameID),
-FOREIGN KEY (userID) REFERENCES AppUser(userID));
+CONSTRAINT fk_template_gameID_game FOREIGN KEY (gameID) REFERENCES Game(gameID),
+CONSTRAINT fk_template_userID_appuser FOREIGN KEY (userID) REFERENCES AppUser(userID));
 
 CREATE TABLE ScoringCondition (
 conditionID INT NOT NULL AUTO_INCREMENT,
@@ -53,8 +54,8 @@ scoringType ENUM ('Linear','Tabular') DEFAULT 'Linear',
 inputType ENUM ('Increment','Textbox') DEFAULT 'Increment',
 pointMultiplier FLOAT DEFAULT 1,
 PRIMARY KEY(conditionID,gameID,templateID),
-FOREIGN KEY(gameID) REFERENCES Game(gameID),
-FOREIGN KEY(templateID) REFERENCES Template(templateID));
+CONSTRAINT fk_scoringcondition_gameID_game FOREIGN KEY(gameID) REFERENCES Game(gameID),
+CONSTRAINT fk_scoringcondition_templateID_template FOREIGN KEY(templateID) REFERENCES Template(templateID));
 
 CREATE TABLE ValueRow (
 rowID INT NOT NULL AUTO_INCREMENT,
@@ -65,9 +66,9 @@ inputMax FLOAT DEFAULT 10,
 inputMin FLOAT DEFAULT 0,
 outputValue FLOAT DEFAULT 1,
 PRIMARY KEY(rowID,gameID,conditionID,templateID),
-FOREIGN KEY(conditionID) REFERENCES ScoringCondition(conditionID),
-FOREIGN KEY(gameID) REFERENCES Game(gameID),
-FOREIGN KEY(templateID) REFERENCES Template(templateID));
+CONSTRAINT fk_valuerow_conditionID_scoringcondition FOREIGN KEY(conditionID) REFERENCES ScoringCondition(conditionID),
+CONSTRAINT fk_valuerow_gameID_game FOREIGN KEY(gameID) REFERENCES Game(gameID),
+CONSTRAINT fk_valuerow_tempalteID_template FOREIGN KEY(templateID) REFERENCES Template(templateID));
 
 CREATE TABLE Report (
 reportID INT NOT NULL AUTO_INCREMENT,
@@ -76,30 +77,30 @@ reason ENUM('Template','Username') DEFAULT 'Template',
 templateID INT,
 gameID INT,
 PRIMARY KEY(reportID),
-FOREIGN KEY(gameID) REFERENCES Game(gameID),
-FOREIGN KEY(templateID) REFERENCES Template(templateID));
+CONSTRAINT fk_report_gameID_game FOREIGN KEY(gameID) REFERENCES Game(gameID),
+CONSTRAINT fk_report_templateID_template FOREIGN KEY(templateID) REFERENCES Template(templateID));
 
 CREATE TABLE ActiveMatch (
 matchID INT NOT NULL AUTO_INCREMENT,
 templateID INT,	
 gameID INT,
 PRIMARY KEY(matchID),
-FOREIGN KEY(gameID) REFERENCES Game(gameID),
-FOREIGN KEY(templateID) REFERENCES Template(templateID));
+CONSTRAINT fk_activematch_gameID_game FOREIGN KEY(gameID) REFERENCES Game(gameID),
+CONSTRAINT fk_activematch_templateID_template FOREIGN KEY(templateID) REFERENCES Template(templateID));
 
 CREATE TABLE Player (
 playerID INT NOT NULL AUTO_INCREMENT,
 userID INT,
 color ENUM('RED','BLUE') DEFAULT 'Red',
 PRIMARY KEY(playerID),
-FOREIGN KEY(userID) REFERENCES AppUser(userID));
+CONSTRAINT fk_player_userID_appuser FOREIGN KEY(userID) REFERENCES AppUser(userID));
 
 CREATE TABLE AppUserRecommendedGame (
 gameID INT,
 userID INT,
 PRIMARY KEY(gameID,userID),
-FOREIGN KEY(gameID) REFERENCES Game(gameID),
-FOREIGN KEY(userID) REFERENCES AppUser(userID));
+CONSTRAINT fk_appuserrecommendedgame_gameID_game FOREIGN KEY(gameID) REFERENCES Game(gameID),
+CONSTRAINT fk_appuserrecommnededgame_userID_appuser FOREIGN KEY(userID) REFERENCES AppUser(userID));
 
 CREATE TABLE AppUserPlayedGame (
 userID INT,
@@ -110,8 +111,8 @@ aggregateScore INT DEFAULT 50,
 winrate FLOAT DEFAULT 0.5,
 averageScore FLOAT DEFAUlT 25,
 PRIMARY KEY(userID,gameID),
-FOREIGN KEY(gameID) REFERENCES Game(gameID),
-FOREIGN KEY(userID) REFERENCES AppUser(userID));
+CONSTRAINT fk_appuserplayedgame_gameID_game FOREIGN KEY(gameID) REFERENCES Game(gameID),
+CONSTRAINT fk_appuserplayedgame_userID_appuser FOREIGN KEY(userID) REFERENCES AppUser(userID));
 
 CREATE TABLE AppUserInteractTemplate (
 userID INT,
@@ -119,18 +120,19 @@ gameID INT,
 templateID INT,
 rating FLOAT,
 favorited BOOLEAN DEFAULT true,
+lastPlayed datetime,
 PRIMARY KEY(userID,gameID,templateID),
-FOREIGN KEY(gameID) REFERENCES Game(gameID),
-FOREIGN KEY(templateID) REFERENCES Template(templateID),
-FOREIGN KEY(userID) REFERENCES AppUser(userID));
+CONSTRAINT fk_appuserinteracttemplate_gameID_game FOREIGN KEY(gameID) REFERENCES Game(gameID),
+CONSTRAINT fk_appuserinteracttemplate_templateID_template FOREIGN KEY(templateID) REFERENCES Template(templateID),
+CONSTRAINT fk_appuserinteracttemplate_userID_appuser FOREIGN KEY(userID) REFERENCES AppUser(userID));
 
 CREATE TABLE AppUserHistoryGame (
 userID INT,
 gameID INT,
 gameHistoryString VARCHAR(10000),
 PRIMARY KEY(userID,gameID),
-FOREIGN KEY(gameID) REFERENCES Game(gameID),
-FOREIGN KEY(userID) REFERENCES AppUser(userID));
+CONSTRAINT appuserhistorygame_gameID_game FOREIGN KEY(gameID) REFERENCES Game(gameID),
+CONSTRAINT appuserhistorygame_userID_appuser FOREIGN KEY(userID) REFERENCES AppUser(userID));
 
 CREATE TABLE ActiveMatchPlayerConditionScore (
 matchID INT,
@@ -140,10 +142,10 @@ gameID INT,
 templateID INT,
 score FLOAT,
 PRIMARY KEY(matchID,playerID,conditionID,gameID,templateID),
-FOREIGN KEY(gameID) REFERENCES Game(gameID),
-FOREIGN KEY(templateID) REFERENCES Template(templateID),
-FOREIGN KEY(matchID) REFERENCES ActiveMatch(matchID),
-FOREIGN KEY(conditionID) REFERENCES ScoringCondition(conditionID),
-FOREIGN KEY(playerID) REFERENCES Player(playerID));
+CONSTRAINT fk_activematchplayerconditionscore_gameID_game FOREIGN KEY(gameID) REFERENCES Game(gameID),
+CONSTRAINT fk_activematchplayerconditionscore_templateID_template FOREIGN KEY(templateID) REFERENCES Template(templateID),
+CONSTRAINT fk_activematchplayerconditionscore_matchID_activematch FOREIGN KEY(matchID) REFERENCES ActiveMatch(matchID),
+CONSTRAINT fk_activematchplayerconditionscore_conditionID_scoringcondition FOREIGN KEY(conditionID) REFERENCES ScoringCondition(conditionID),
+CONSTRAINT fk_activematchplayerconditionscore_playerID_player FOREIGN KEY(playerID) REFERENCES Player(playerID));
 
 

@@ -20,10 +20,9 @@ mydb = mysql.connector.connect(
 
 #Test DB Connection, will print out number in console
 mycursor = mydb.cursor()
-
-mycursor.execute("SELECT userID from appuser")
-
+mycursor.execute("SELECT userID from AppUser")
 myresult = mycursor.fetchall()
+mycursor.close()
 
 for x in myresult:
   print(x)
@@ -78,10 +77,11 @@ def createAccountPost():
     #Check DB for dupe email
     mycursor = mydb.cursor(prepared=True)
     stmtCheckEmail = (
-        "select userID from appuser where email = %s"
+        "select userID from UppUser where email = %s"
     )
     mycursor.execute(stmtCheckEmail,(email,))
     myresult = mycursor.fetchone()
+    mycursor.close()
 
     #If email not already in DB, create account updating DB
     if myresult == None:
@@ -89,6 +89,7 @@ def createAccountPost():
         stmtAddUser = ( "INSERT INTO AppUser(username,userPassword,email) VALUES(%s,SHA1(%s),%s)")
         mycursor.execute(stmtAddUser,(username,password,email,))
         mydb.commit()
+        mycursor.close()
         return redirect(url_for('login'))
     else:
         return redirect(url_for('createAccountGET'))
@@ -104,9 +105,10 @@ def login():
 
     #Check if user exists with that username and that credHash
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select userID from appuser where credHash = %s AND username = %s")
+    stmt = ("select userID from AppUser where credHash = %s AND username = %s")
     mycursor.execute(stmt,(credHash,username,))
     myresult = mycursor.fetchone()
+    mycursor.close()
 
     if(myresult!=None):
         return redirect(url_for('homePage'))
@@ -122,9 +124,10 @@ def login_post():
 
     #Check to see if username/password combo exists
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select userID from appuser where userPassword = SHA1(%s) AND username = %s")
+    stmt = ("select userID from AppUser where userPassword = SHA1(%s) AND username = %s")
     mycursor.execute(stmt,(password,username,))
     myresult = mycursor.fetchone()
+    mycursor.close()
 
     if myresult == None:
         response = make_response(redirect('/login'))
@@ -137,9 +140,10 @@ def login_post():
         response.set_cookie('username', username)
 
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("update appuser SET credHash = %s where userPassword = SHA1(%s) AND username = %s")
+        stmt = ("update AppUser SET credHash = %s where userPassword = SHA1(%s) AND username = %s")
         mycursor.execute(stmt,(token,password,username,))
         mydb.commit()
+        mycursor.close()
         return response
     
     return redirect(url_for('homePage'))
@@ -150,3 +154,95 @@ def login_post():
 def homePage():
     # Do something, Taipu
     return render_template("home.html")
+
+@app.route("/api/getHomePage")
+def apiGetHomePage():
+    #Create JSON framework for what we will return
+    result = {"highestRated":[]
+              ,"recommendedGames":[]
+              ,"favoritedTemplates":[]
+              ,"recentlyPlayed":[]}
+
+    ### Highest Rated Templates ###
+    
+    #Execute sql call to get appropriate data
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select pictureURL, templateName, numRatings, averageRating from Template JOIN Game ON Template.gameID=Game.gameID ORDER BY averageRating DESC LIMIT 10")
+    mycursor.execute(stmt,())
+    myresult = mycursor.fetchall()
+    mycursor.close()
+
+    #For each row returned from DB: parse and create a dictionary from it
+    for row in myresult:
+        picURL, templateName, numRatings, averageRating = row
+        template = {"pictureURL":"{}".format(picURL)
+                    ,"templateName":"{}".format(templateName)
+                    ,"NumRatings":numRatings
+                    ,"averageRating":averageRating}
+        #append each new dictionary to its appropriate list
+        result["highestRated"].append(template)
+
+
+    ### Recommended Games ###
+    
+    #Execute sql call to get appropriate data
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select pictureURL, gameName from AppUserRecommendedGame JOIN Game ON AppUserRecommendedGame.gameID=Game.gameID LIMIT 8")
+    mycursor.execute(stmt,())
+    myresult = mycursor.fetchall()
+    mycursor.close()
+
+    #For each row returned from DB: parse and create a dictionary from it
+    for row in myresult:
+        picURL, gameName = row
+        template = {"pictureURL":"{}".format(picURL)
+                    ,"gameName":"{}".format(gameName)}
+        #append each new dictionary to its appropriate list
+        result["recommendedGames"].append(template)
+
+
+
+    ### Favorited Templates ###
+    
+    #Execute sql call to get appropriate data
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select pictureURL, templateName, numRatings, averageRating from Template JOIN Game ON Template.gameID=Game.gameID JOIN AppUserInteractTemplate ON Template.templateID=AppUserInteractTemplate.templateID WHERE favorited=true ORDER BY averageRating DESC LIMIT 10")
+    mycursor.execute(stmt,())
+    myresult = mycursor.fetchall()
+    mycursor.close()
+
+    #For each row returned from DB: parse and create a dictionary from it
+    for row in myresult:
+        picURL, templateName, numRatings, averageRating = row
+        template = {"pictureURL":"{}".format(picURL)
+                    ,"templateName":"{}".format(templateName)
+                    ,"NumRatings":numRatings
+                    ,"averageRating":averageRating}
+        #append each new dictionary to its appropriate list
+        result["favoritedTemplates"].append(template)
+
+
+
+    ### Recently Played ###
+    
+    #Execute sql call to get appropriate data
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select pictureURL, templateName, numRatings, averageRating from Template JOIN Game ON Template.gameID=Game.gameID JOIN AppUserInteractTemplate ON Template.templateID=AppUserInteractTemplate.templateID ORDER BY lastPlayed DESC, averageRating DESC LIMIT 10")
+    mycursor.execute(stmt,())
+    myresult = mycursor.fetchall()
+    mycursor.close()
+
+    #For each row returned from DB: parse and create a dictionary from it
+    for row in myresult:
+        picURL, templateName, numRatings, averageRating = row
+        template = {"pictureURL":"{}".format(picURL)
+                    ,"templateName":"{}".format(templateName)
+                    ,"NumRatings":numRatings
+                    ,"averageRating":averageRating}
+        #append each new dictionary to its appropriate list
+        result["recentlyPlayed"].append(template)
+
+
+
+  
+    return result

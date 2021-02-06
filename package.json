@@ -1,0 +1,23 @@
+{
+  "name": "GameScore",
+  "version": "1.0.0",
+  "description": "Online app to provide scoring templates for board games",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EvilJagaGenius/GameScore.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EvilJagaGenius/GameScore/issues"
+  },
+  "homepage": "https://github.com/EvilJagaGenius/GameScore#readme"
+}

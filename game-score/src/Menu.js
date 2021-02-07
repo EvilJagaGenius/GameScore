@@ -1,3 +1,7 @@
+/**
+ * Menu.js-Jonathan Beels
+ */
+
 import React, { Component } from 'react'
 import { Accordion, Icon } from 'semantic-ui-react'
 

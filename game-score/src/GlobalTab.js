@@ -1,8 +1,3 @@
-/**
- * GlobalTab.js-Jonathon Lannon
- * Creates global tab menu for GameScore
- */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';

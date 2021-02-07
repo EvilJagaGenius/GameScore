@@ -4,6 +4,7 @@ import './index.css';
 import reportWebVitals from './reportWebVitals';
 
 import Menu from "./Menu";
+import Tabs from "./GlobalTab"
 
 // TODO: Switch to https://github.com/palmerhq/the-platform#stylesheet when it will be stable
 const styleLink = document.createElement("link");
@@ -13,6 +14,7 @@ document.head.appendChild(styleLink);
 
 ReactDOM.render(
   <React.StrictMode>
+    <Tabs />
     <Menu />
   </React.StrictMode>,
   document.getElementById('root')

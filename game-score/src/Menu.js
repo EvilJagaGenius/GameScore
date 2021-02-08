@@ -2,7 +2,7 @@
  * Menu.js-Jonathan Beels
  */
 
-import React, { Component } from 'react'
+import React, { Component, useState } from 'react'
 import { Accordion, Icon } from 'semantic-ui-react'
 
 export default class Menu extends Component {
@@ -49,9 +49,18 @@ export default class Menu extends Component {
           Favorited Templates
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 0}>
-          <p>
-            { favoriteTemplates }
-          </p>
+
+          {/*Table displaying the dynamic data for Favorited Templates*/}
+          <table>
+            {favoriteTemplates.map(template => (
+              <tr>
+                <td>{template.pictureURL}</td>
+                <td>{template.templateName}</td>
+                <td>{template.NumRatings}</td>
+                <td>{template.averageRating}</td>
+              </tr>
+            ))}
+          </table>
         </Accordion.Content>
 
         {/* Recently Played */}
@@ -64,9 +73,16 @@ export default class Menu extends Component {
           Recently Played
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 1}>
-          <p>
-            { recentlyPlayedTemplates }
-          </p>
+          <table>
+            {recentlyPlayedTemplates.map(template =>(
+              <tr>
+                <td>{template.pictureURL}</td>
+                <td>{template.templateName}</td>
+                <td>{template.NumRatings}</td>
+                <td>{template.averageRating}</td>
+              </tr>
+            ))}
+          </table>
         </Accordion.Content>
 
         {/* Highest Rated Templates accordian */}
@@ -79,9 +95,16 @@ export default class Menu extends Component {
           Highest Rated Templates
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 2}>
-          <p>
-            { highestRatedTemplates }
-          </p>
+          <table>
+            {highestRatedTemplates.map(template => (
+              <tr>
+                <td>{template.pictureURL}</td>
+                <td>{template.templateName}</td>
+                <td>{template.NumRatings}</td>
+                <td>{template.averageRating}</td>
+              </tr>
+            ))}
+          </table>
         </Accordion.Content>
 
         {/* Recommended Games accordian */}
@@ -94,9 +117,16 @@ export default class Menu extends Component {
           Recommended Games
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 3}>
-          <p>
-            { recommended }
-          </p>
+          <table>
+            {recommended.map(template => (
+              <tr>
+                <td>{template.pictureURL}</td>
+                <td>{template.templateName}</td>
+                <td>{template.NumRatings}</td>
+                <td>{template.averageRating}</td>
+              </tr>
+            ))}
+          </table>
         </Accordion.Content>
       </Accordion>
     )

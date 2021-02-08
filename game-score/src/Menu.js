@@ -2,8 +2,9 @@
  * Menu.js-Jonathan Beels
  */
 
-import React, { Component, useState } from 'react'
+import React, { Component } from 'react'
 import { Accordion, Icon } from 'semantic-ui-react'
+import HomeData from "./HomeData"
 
 export default class Menu extends Component {
   state = { activeIndex: 0 }
@@ -18,22 +19,6 @@ export default class Menu extends Component {
 
   render() {
     const { activeIndex } = this.state
-
-    //intialize data
-    const [favoriteTemplates, setFavoriteTemplates] = useState(0);
-    const [recentlyPlayedTemplates, setRecentlyPlayed] = useState(0);
-    const [highestRatedTemplates, setHighestRated] = useState(0);
-    const [recommended, setRecommended] = useState(0);
-
-    //request data from flask server and assign data accordingly
-    useEffect(() => {
-      fetch('/api/getHomePage').then(res => res.json()).then(data => {
-        setFavoriteTemplates(data.favoritedTemplates);
-        setRecentlyPlayed(data.recentlyPlayed);
-        setHighestRated(data.highestRated);
-        setRecommended(data.recommendedGames);
-      });
-    }, []);
 
     return (
       //The accordian menu
@@ -52,7 +37,7 @@ export default class Menu extends Component {
 
           {/*Table displaying the dynamic data for Favorited Templates*/}
           <table>
-            {favoriteTemplates.map(template => (
+            {HomeData.favoritedTemplates.map(template => (
               <tr>
                 <td>{template.pictureURL}</td>
                 <td>{template.templateName}</td>
@@ -74,7 +59,7 @@ export default class Menu extends Component {
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 1}>
           <table>
-            {recentlyPlayedTemplates.map(template =>(
+            {HomeData.recentlyPlayed.map(template =>(
               <tr>
                 <td>{template.pictureURL}</td>
                 <td>{template.templateName}</td>
@@ -96,7 +81,7 @@ export default class Menu extends Component {
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 2}>
           <table>
-            {highestRatedTemplates.map(template => (
+            {HomeData.highestRated.map(template => (
               <tr>
                 <td>{template.pictureURL}</td>
                 <td>{template.templateName}</td>
@@ -118,12 +103,10 @@ export default class Menu extends Component {
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 3}>
           <table>
-            {recommended.map(template => (
+            {HomeData.recommendedGames.map(game => (
               <tr>
-                <td>{template.pictureURL}</td>
-                <td>{template.templateName}</td>
-                <td>{template.NumRatings}</td>
-                <td>{template.averageRating}</td>
+                <td>{game.pictureURL}</td>
+                <td>{game.gameName}</td>
               </tr>
             ))}
           </table>

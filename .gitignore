@@ -6,10 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
-*.eslintcache
-
-log.txt
-game-score/nohup.out
+**/.eslintcache
+**/log.txt
+**/nohup.out
 
 # Distribution / packaging
 .Python

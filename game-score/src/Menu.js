@@ -19,6 +19,22 @@ export default class Menu extends Component {
   render() {
     const { activeIndex } = this.state
 
+    //intialize data
+    const [favoriteTemplates, setFavoriteTemplates] = useState(0);
+    const [recentlyPlayedTemplates, setRecentlyPlayed] = useState(0);
+    const [highestRatedTemplates, setHighestRated] = useState(0);
+    const [recommended, setRecommended] = useState(0);
+
+    //request data from flask server and assign data accordingly
+    useEffect(() => {
+      fetch('/api/getHomePage').then(res => res.json()).then(data => {
+        setFavoriteTemplates(data.favoritedTemplates);
+        setRecentlyPlayed(data.recentlyPlayed);
+        setHighestRated(data.highestRated);
+        setRecommended(data.recommendedGames);
+      });
+    }, []);
+
     return (
       //The accordian menu
       <Accordion fluid styled>
@@ -34,7 +50,7 @@ export default class Menu extends Component {
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 0}>
           <p>
-            Data go here
+            { favoriteTemplates }
           </p>
         </Accordion.Content>
 
@@ -49,7 +65,7 @@ export default class Menu extends Component {
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 1}>
           <p>
-            Data go here
+            { recentlyPlayedTemplates }
           </p>
         </Accordion.Content>
 
@@ -64,7 +80,7 @@ export default class Menu extends Component {
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 2}>
           <p>
-            Data go here
+            { highestRatedTemplates }
           </p>
         </Accordion.Content>
 
@@ -79,7 +95,7 @@ export default class Menu extends Component {
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 3}>
           <p>
-            Data go here!!!!!!!!
+            { recommended }
           </p>
         </Accordion.Content>
       </Accordion>

@@ -158,7 +158,7 @@ def homePage():
 
 
 
-
+##################################### homepage API ########################################
 
 @app.route("/api/getHomePage")
 def apiGetHomePage():
@@ -252,6 +252,7 @@ def apiGetHomePage():
   
     return result
 
+##################################### getScoring API ########################################
 
 @app.route("/api/getScoring")
 def apiGetScoring():
@@ -264,7 +265,7 @@ def apiGetScoring():
     
     #Get Template and GameName Info
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select ActiveMatch.gameID, ActiveMatch.templateID, gameName, templateName from ActiveMatch JOIN Template ON ActiveMatch.templateID = Template.templateID AND ActiveMatch.gameID = Template.gameID JOIN Game ON Template.gameID=Game.gameID WHERE matchID = 1")
+    stmt = ("select ActiveMatch.gameID, ActiveMatch.templateID, gameName, templateName from ActiveMatch JOIN Template ON ActiveMatch.templateID = Template.templateID AND ActiveMatch.gameID = Template.gameID JOIN Game ON Template.gameID=Game.gameID WHERE ActiveMatch.matchID = 1")
     mycursor.execute(stmt,())
     myresult = mycursor.fetchone()
     mycursor.close()
@@ -280,7 +281,8 @@ def apiGetScoring():
 
     #Get Players info
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select DISTINCT Player.playerID, Player.totalScore, Player.displayOrder from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE matchID = 1")
+    stmt = ("select DISTINCT Player.playerID, Player.totalScore, Player.displayOrder from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE Player.matchID = 1")
+
     mycursor.execute(stmt,())
     myresult = mycursor.fetchall()
     mycursor.close()
@@ -310,7 +312,7 @@ def apiGetScoring():
                     ,"players":[]}
 
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("SELECT value, Player.displayName FROM ActiveMatchPlayerConditionScore JOIN Player using(playerID) WHERE conditionID = %s AND matchID = 1")
+        stmt = ("SELECT value, Player.displayName FROM ActiveMatchPlayerConditionScore JOIN Player using(playerID) WHERE conditionID = %s AND Player.matchID = 1")
         mycursor.execute(stmt,(conditionID,))
         myresultPlayer = mycursor.fetchall()
         mycursor.close()
@@ -333,7 +335,7 @@ def apiGetScoring():
     #Assuming will get playerID
 
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select DISTINCT Player.playerID, Player.displayName from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE matchID = 1")
+    stmt = ("select DISTINCT Player.playerID, Player.displayName from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE Player.matchID = 1")
     mycursor.execute(stmt,())
     myresultPlayer = mycursor.fetchall()
     mycursor.close()
@@ -346,7 +348,7 @@ def apiGetScoring():
                     ,"conditions":[]}
 
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("select conditionName, value, score, inputType FROM ActiveMatchPlayerConditionScore JOIN ScoringCondition using(conditionID,templateID,gameID)WHERE matchID = 1 AND playerID = %s")
+        stmt = ("select conditionName, value, score, inputType FROM ActiveMatchPlayerConditionScore JOIN ScoringCondition using(conditionID,templateID,gameID)WHERE ActiveMatchPlayerConditionScore.matchID = 1 AND playerID = %s")
         mycursor.execute(stmt,(playerID,))
         myresultCondition = mycursor.fetchall()
         mycursor.close()
@@ -364,9 +366,34 @@ def apiGetScoring():
         #append each new dictionary to its appropriate list
         result["individualScoring"].append(player)
 
-  
-
     return result
 
+
+##################################### postgame API ########################################
+
+#@app.route("/api/getPostGame")
+#def apiGetPostGame():
+    #Create JSON framework for what we will return
+
+ #   mycursor = mydb.cursor(prepared=True)
+  #  stmt = ("select gameName, templateName FROM ActiveMatch JOIN Game using(gameID) JOIN Template using(templateID) WHERE matchID=1)
+  ##  mycursor.execute(stmt,())
+  #  myresult = mycursor.fetchone()
+  #  mycursor.close()
+
+   # gameName, templateName = myresult
+
+    #mycursor = mydb.cursor(prepared=True)
+   # stmt = ("select displayName FROM Player WHERE totalScore in
+
+    #        (Select max(totalScore) FROM Player JOIN ActiveMatchPlayerConditionScore using(playerID)  templateName
+
+
+   # mycursor.execute(stmt,())
+   # myresult = mycursor.fetchone()
+   # mycursor.close()
+
+    
+    
   
 

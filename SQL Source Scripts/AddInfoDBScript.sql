@@ -48,11 +48,11 @@ VALUES(NULL,1,1,1,10,0,1);
 INSERT INTO Report(reportID,description,reason,templateID,gameID)
 VALUES(NULL,'It has bad words','Template',1,1);
 
-INSERT INTO Player(playerID,userID,color, displayOrder,totalScore,displayName)
-VALUES(NULL,1,'RED',0,15,"Caustic Prince");
+INSERT INTO Player(playerID,userID,color, displayOrder,totalScore,displayName,matchID)
+VALUES(NULL,1,'RED',0,15,"Caustic Prince",1);
 
-INSERT INTO Player(playerID,userID,color,displayOrder,totalScore,displayName)
-VALUES(NULL,NULL,'BLUE',1,45,"Little Duckling");
+INSERT INTO Player(playerID,userID,color,displayOrder,totalScore,displayName,matchID)
+VALUES(NULL,NULL,'BLUE',1,45,"Little Duckling",1);
 
 INSERT INTO AppUserRecommendedGame(gameID,userID)
 VALUES(1,1);

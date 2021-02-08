@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import Home from "./Home";
+import Home from "./pages/Home";
 import { Route, Switch, Redirect } from "react-router-dom";
 
 export default function App() {

@@ -9,7 +9,7 @@ import React from "react";  //basic React framework
 import { Tabs, Tab, AppBar } from "@material-ui/core";  //Material UI for tab bar
 
 //All pages to be imported are to be used in the tabs
-import HomeMenu from './Menu';
+import HomeMenu from '../Menu';
 import MyTemplates from './MyTemplates';
 import PlayGame from './PlayGame';
 import Profile from './Profile';

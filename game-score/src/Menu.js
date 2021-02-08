@@ -4,7 +4,7 @@
 
 import React, { Component } from 'react'
 import { Accordion, Icon } from 'semantic-ui-react'
-import homeData from "./homeData"
+import HomeData from "./HomeData"
 
 export default class Menu extends Component {
   state = { activeIndex: 0 }
@@ -37,7 +37,7 @@ export default class Menu extends Component {
 
           {/*Table displaying the dynamic data for Favorited Templates*/}
           <table>
-            {homeData.favoritedTemplates.map(template => (
+            {HomeData.favoritedTemplates.map(template => (
               <tr>
                 <td>{template.pictureURL}</td>
                 <td>{template.templateName}</td>
@@ -59,7 +59,7 @@ export default class Menu extends Component {
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 1}>
           <table>
-            {homeData.recentlyPlayed.map(template =>(
+            {HomeData.recentlyPlayed.map(template =>(
               <tr>
                 <td>{template.pictureURL}</td>
                 <td>{template.templateName}</td>
@@ -81,7 +81,7 @@ export default class Menu extends Component {
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 2}>
           <table>
-            {homeData.highestRated.map(template => (
+            {HomeData.highestRated.map(template => (
               <tr>
                 <td>{template.pictureURL}</td>
                 <td>{template.templateName}</td>
@@ -103,7 +103,7 @@ export default class Menu extends Component {
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 3}>
           <table>
-            {homeData.recommendedGames.map(game => (
+            {HomeData.recommendedGames.map(game => (
               <tr>
                 <td>{game.pictureURL}</td>
                 <td>{game.gameName}</td>

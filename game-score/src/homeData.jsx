@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function homeData() {
+function HomeData() {
   //intialize data
   const [templateData, setTemplateData] = useState(0);
 
@@ -14,4 +14,4 @@ function homeData() {
   return(templateData);
 }
 
-export default homeData;
+export default HomeData;

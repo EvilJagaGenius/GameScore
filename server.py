@@ -155,6 +155,11 @@ def homePage():
     print('HEY IT WORKS!12345')
     return render_template("home.html")
 
+
+
+
+
+
 @app.route("/api/getHomePage")
 def apiGetHomePage():
     #Create JSON framework for what we will return
@@ -246,3 +251,122 @@ def apiGetHomePage():
 
   
     return result
+
+
+@app.route("/api/getScoring")
+def apiGetScoring():
+    #Create JSON framework for what we will return
+    result = {"scoringOverview":[]
+              ,"globalAwards":[]
+              ,"individualScoring":[]}
+
+    ### Scoring Overview ###
+    
+    #Get Template and GameName Info
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select ActiveMatch.gameID, ActiveMatch.templateID, gameName, templateName from ActiveMatch JOIN Template ON ActiveMatch.templateID = Template.templateID AND ActiveMatch.gameID = Template.gameID JOIN Game ON Template.gameID=Game.gameID WHERE matchID = 1")
+    mycursor.execute(stmt,())
+    myresult = mycursor.fetchone()
+    mycursor.close()
+
+    #Parse Game/Template Info
+    gameID, templateID, gameName, templateName = myresult
+    overview = {"templateName":"{}".format(templateName)
+                  ,"templateID":templateID
+                  ,"gameName":"{}".format(gameName)
+                  ,"gameID":gameID
+                  , "players":[]}
+    result["scoringOverview"] = overview
+
+    #Get Players info
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select DISTINCT Player.playerID, Player.totalScore, Player.displayOrder from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE matchID = 1")
+    mycursor.execute(stmt,())
+    myresult = mycursor.fetchall()
+    mycursor.close()
+
+    #For each row returned from DB: parse and create a dictionary from it
+    for row in myresult:
+        playerID, score, displayOrder = row
+        player = {"playerID":playerID
+                    ,"score":score
+                    ,"displayOrder":displayOrder}
+        #append each new dictionary to its appropriate list
+        result["scoringOverview"]["players"].append(player)
+
+    ### Global Awards ###
+    #Get Conditions
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select DISTINCT conditionName, maxPerGame, conditionID FROM ScoringCondition JOIN ActiveMatch using (GameID, TemplateID) WHERE matchID = 1 AND maxPerGame > 0")
+    mycursor.execute(stmt,())
+    myresult = mycursor.fetchall()
+    mycursor.close()
+
+    #For each row returned from DB: parse and create a dictionary from it
+    for row in myresult:
+        conditionName, maxPerGame, conditionID = row
+        condition = {"conditionName":"{}".format(conditionName)
+                    ,"maxPerGame":maxPerGame
+                    ,"players":[]}
+
+        mycursor = mydb.cursor(prepared=True)
+        stmt = ("SELECT value, Player.displayName FROM ActiveMatchPlayerConditionScore JOIN Player using(playerID) WHERE conditionID = %s AND matchID = 1")
+        mycursor.execute(stmt,(conditionID,))
+        myresultPlayer = mycursor.fetchall()
+        mycursor.close()
+
+        #For each row returned from DB: parse and create a dictionary from it
+        for rowPlayer in myresultPlayer:
+          value, displayName = rowPlayer
+          player = {"value":value
+                    ,"displayName":"{}".format(displayName)}
+          #append each new dictionary to its appropriate list
+          condition["players"].append(player)
+
+        
+        #append each new dictionary to its appropriate list
+        result["globalAwards"].append(condition)
+
+
+    ### Individual Scoring ###
+
+    #Assuming will get playerID
+
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select DISTINCT Player.playerID, Player.displayName from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE matchID = 1")
+    mycursor.execute(stmt,())
+    myresultPlayer = mycursor.fetchall()
+    mycursor.close()
+
+    #For each row returned from DB: parse and create a dictionary from it
+    for rowPlayer in myresultPlayer:
+        playerID, displayName = rowPlayer
+        player = {"playerID":playerID
+                    ,"displayName":"{}".format(displayName)
+                    ,"conditions":[]}
+
+        mycursor = mydb.cursor(prepared=True)
+        stmt = ("select conditionName, value, score, inputType FROM ActiveMatchPlayerConditionScore JOIN ScoringCondition using(conditionID,templateID,gameID)WHERE matchID = 1 AND playerID = %s")
+        mycursor.execute(stmt,(playerID,))
+        myresultCondition = mycursor.fetchall()
+        mycursor.close()
+
+        for rowCondition in myresultCondition:
+            conditionName, value, score, inputType = rowCondition
+            condition = {"conditionName":"{}".format(conditionName)
+                    ,"score":score
+                    ,"value":value
+                    ,"inputType":"{}".format(inputType)}
+            #append each new dictionary to its appropriate list
+            player["conditions"].append(condition)
+      
+        
+        #append each new dictionary to its appropriate list
+        result["individualScoring"].append(player)
+
+  
+
+    return result
+
+  
+

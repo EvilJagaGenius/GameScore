@@ -92,6 +92,9 @@ CREATE TABLE Player (
 playerID INT NOT NULL AUTO_INCREMENT,
 userID INT,
 color ENUM('RED','BLUE') DEFAULT 'Red',
+displayOrder INT,
+totalScore FLOAT,
+displayName VARCHAR (50),
 PRIMARY KEY(playerID),
 CONSTRAINT fk_player_userID_appuser FOREIGN KEY(userID) REFERENCES AppUser(userID));
 
@@ -141,6 +144,7 @@ conditionID INT,
 gameID INT,
 templateID INT,
 score FLOAT,
+value FLOAT,
 PRIMARY KEY(matchID,playerID,conditionID,gameID,templateID),
 CONSTRAINT fk_activematchplayerconditionscore_gameID_game FOREIGN KEY(gameID) REFERENCES Game(gameID),
 CONSTRAINT fk_activematchplayerconditionscore_templateID_template FOREIGN KEY(templateID) REFERENCES Template(templateID),

@@ -25,7 +25,7 @@ const Home = props => {
 
   //Map to route each tab index to it's appropriate path
   const tabNameToIndex = {
-    0: "homemenu",
+    0: "home",
     1: "mytemplates",
     2: "playgame",
     3: "profile"
@@ -33,7 +33,7 @@ const Home = props => {
 
   //Map to route each path name to it's corresponding index
   const indexToTabName = {
-    homemenu: 0,
+    home: 0,
     mytemplates: 1,
     playgame: 2,
     profile: 3
@@ -48,7 +48,7 @@ const Home = props => {
   //newValue: value index of new tab to be selected by the user
   //URL is changed to the selected tab, according to newValue and the above mapping scheme
   const handleChange = (event, newValue) => {
-    history.push(`/home/${tabNameToIndex[newValue]}`);
+    history.push(`/${tabNameToIndex[newValue]}`);
     setSelectedTab(newValue);
   };
 

@@ -371,29 +371,44 @@ def apiGetScoring():
 
 ##################################### postgame API ########################################
 
-#@app.route("/api/getPostGame")
-#def apiGetPostGame():
+@app.route("/api/getPostGame")
+def apiGetPostGame():
     #Create JSON framework for what we will return
 
- #   mycursor = mydb.cursor(prepared=True)
-  #  stmt = ("select gameName, templateName FROM ActiveMatch JOIN Game using(gameID) JOIN Template using(templateID) WHERE matchID=1)
-  ##  mycursor.execute(stmt,())
-  #  myresult = mycursor.fetchone()
-  #  mycursor.close()
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select gameName, templateName FROM ActiveMatch JOIN Game using(gameID) JOIN Template using(templateID) WHERE matchID=1")
+    mycursor.execute(stmt,())
+    myresult = mycursor.fetchone()
+    mycursor.close()
 
-   # gameName, templateName = myresult
+    gameName, templateName = myresult
 
-    #mycursor = mydb.cursor(prepared=True)
-   # stmt = ("select displayName FROM Player WHERE totalScore in
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select displayName FROM Player WHERE totalScore in (Select MAX(totalScore) FROM Player WHERE matchID=1 GROUP BY matchID)")
+    mycursor.execute(stmt,())
+    myresult = mycursor.fetchone()
+    mycursor.close()
 
-    #        (Select max(totalScore) FROM Player JOIN ActiveMatchPlayerConditionScore using(playerID)  templateName
+    winnerDisplayName = myresult
 
+    result = {"gameName":"{}".format(gameName)
+                    ,"templateName":"{}".format(templateName)
+                    ,"winnerDisplayName":"{}".format(winnerDisplayName)
+                    ,"scoreTable":[]}
 
-   # mycursor.execute(stmt,())
-   # myresult = mycursor.fetchone()
-   # mycursor.close()
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select RANK() OVER (PARTITION BY matchID ORDER BY totalScore desc),displayName,totalScore FROM Player WHERE matchID=1")
+    mycursor.execute(stmt,())
+    myresult = mycursor.fetchall()
+    mycursor.close()
 
+    for row in myresult:
+            rank, displayName,score = row
+            finalScoreRow = {"rank":rank
+                    ,"displayName":"{}".format(displayName)
+                    ,"score":score}
+            #append each new dictionary to its appropriate list
+            result["scoreTable"].append(finalScoreRow)
     
-    
-  
+    return result
 

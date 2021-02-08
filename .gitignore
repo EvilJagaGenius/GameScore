@@ -10,6 +10,8 @@ __pycache__/
 **/log.txt
 **/nohup.out
 
+**/*cache
+
 # Distribution / packaging
 .Python
 build/

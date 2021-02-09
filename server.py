@@ -281,7 +281,7 @@ def apiGetScoring():
 
     #Get Players info
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select DISTINCT Player.playerID, Player.totalScore, Player.displayOrder from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE Player.matchID = %s")
+    stmt = ("select DISTINCT Player.playerID, Player.totalScore, Player.displayOrder, displayName from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE Player.matchID = %s")
 
     mycursor.execute(stmt,(matchID,))
     myresult = mycursor.fetchall()
@@ -289,10 +289,11 @@ def apiGetScoring():
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-        playerID, score, displayOrder = row
+        playerID, score, displayOrder, displayName = row
         player = {"playerID":playerID
                     ,"score":score
-                    ,"displayOrder":displayOrder}
+                    ,"displayOrder":displayOrder
+                    ,"displayName":"{}".format(displayName)}
         #append each new dictionary to its appropriate list
         result["scoringOverview"]["players"].append(player)
 

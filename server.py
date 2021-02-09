@@ -504,6 +504,47 @@ def apiPostUpdateScore():
     mydb.commit()
     return redirect(url_for('apiGetScoring'))
 
+
+
+##################################### Leave Game API ########################################
+
+@app.route("/api/postLeaveGame")
+def apiPostLeaveGame():
+
+    #Assuming only main player/host is leaving
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("SELECT matchID FROM AppUser JOIN Player using(userID) WHERE userID=%s ORDER BY matchID DESC LIMIT 1")
+    mycursor.execute(stmt,(1,))
+    myresult = mycursor.fetchone()
+    matchID, = myresult
+    mycursor.close()
+
+    destroyMatch(matchID)
+    
+    return "success"
+
+
+#Destroys match given the matchID
+def destroyMatch(matchID):
+  
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("DELETE FROM ActiveMatchPlayerConditionScore WHERE matchID=%s")
+    mycursor.execute(stmt,(matchID,))
+    mycursor.close()
+    
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("DELETE FROM Player WHERE matchID=%s")
+    mycursor.execute(stmt,(matchID,))
+    mycursor.close()
+
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("DELETE FROM ActiveMatch WHERE matchID=%s")
+    mycursor.execute(stmt,(matchID,))
+    mycursor.close()
+    mydb.commit()
+    return "success"
+
+    
       
 ##################################### edit Template API ########################################
 

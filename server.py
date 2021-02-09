@@ -450,3 +450,24 @@ def editConditionName():
 	cursor.close()
 	
 	return redirect(url_for("editConditionGET"))
+	
+@app.route("/edit/addCondition", methods=["POST"])
+def addCondition():
+	# Skeleton function
+	# Needs some way to get all those parameters, presumably from a form.
+	templateID = session["templateID"]
+	conditionName = request.form.get("condition_name")
+	description = request.form.get("description")
+	maxPerGame = request.form.get("max_per_game")
+	maxPerPlayer = request.form.get("max_per_player")
+	scoringType = request.form.get("scoring_type")
+	inputType = request.form.get("input_type")
+	pointMultiplier = request.form.get("point_multiplier")
+	statement = """
+	INSERT INTO ScoringCondition (gameID, templateID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier)
+	VALUES (%s, %s, "%s", "%s", %s, %s, '%s', '%s', %s)
+	"""
+	result = cursor.execute(statement, (gameID, templateID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier))
+	# We need a way to get the new conditionID
+	return redirect(url_for("editConditionGET"))
+	

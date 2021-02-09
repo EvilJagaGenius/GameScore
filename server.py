@@ -5,7 +5,7 @@ import mysql.connector
 import secrets
 
 # Setup
-from flask import Flask, render_template, request, url_for, flash, redirect, Response,make_response
+from flask import flash, Flask, jsonify, make_response, redirect, render_template, request, Response, session, url_for
 app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0  # Always do a complete refresh (for now)
 
@@ -416,8 +416,34 @@ def apiGetPostGame():
 # Edit template stuff
 @app.route("/edit/", methods=["GET"])
 def editTemplateGET():
-	# This function returns the page displaying all the conditions to edit
-	return "Edit Template goes here"
+	# Skeleton function.  Returns all the conditions for this specific template in JSON form.
+	templateID = session.get("templateID", None)
+	if templateID == None:
+		return "templateID not set"
+	cursor = mydb.cursor(prepared=True)
+	statement = """
+	SELECT conditionID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier
+	FROM ScoringCondition WHERE templateID = %s;
+	"""
+	cursor.execute(statement, (templateID,))
+	result = cursor.fetchall()
+	print(result)  # Result is a list of tuples
+	
+	response = {}
+	for t in result:
+		# Add that tuple to our response
+		dictionary = {
+		"conditionName": t[1],
+		"description": t[2],
+		"maxPerGame": t[3],
+		"maxPerPlayer": t[4],
+		"scoringType": t[5],
+		"pointMultiplier": t[6]
+		}
+		response.update({t[0]: dictionary})  # Use conditionID as a key
+	
+	#return "Edit Template goes here"  # Comment out once jsonify() and response are implemented
+	return jsonify(response)
 	
 @app.route("/edit/condition", methods=["GET"])
 def editConditionGET():
@@ -427,8 +453,12 @@ def editConditionGET():
 def deleteCondition():
 	# Skeleton function.  Called after the "Are you sure?" dialog when deleting a template
 	# Needs conditionID and templateID from somewhere.  Assuming they're stored in session
-	conditionID = session["conditionID"]
-	templateID = session["templateID"]
+	conditionID = session.get("conditionID", None)
+	templateID = session.get("templateID", None)
+	if templateID == None:
+		return "templateID not set"
+	if conditionID == None:
+		return "conditionID not set"
 	cursor = mydb.cursor(prepared=True)
 	statement = "DELETE FROM ScoringCondition WHERE conditionID = %s AND templateID = %s"
 	result = cursor.execute(statement, (conditionID, templateID))
@@ -441,8 +471,12 @@ def deleteCondition():
 def editConditionName():
 	# Skeleton function
 	# Needs conditionID and templateID from somewhere.  Assuming they're stored in session
-	conditionID = session["conditionID"]
-	templateID = session["templateID"]
+	conditionID = session.get("conditionID", None)
+	templateID = session.get("templateID", None)
+	if templateID == None:
+		return "templateID not set"
+	if conditionID == None:
+		return "conditionID not set"
 	newName = request.form.get("new_name")
 	cursor = mydb.cursor(prepared=True)
 	statement = 'UPDATE ScoringCondition SET conditionName = "%s" WHERE conditionID = %s AND templateID = %s'
@@ -455,7 +489,9 @@ def editConditionName():
 def addCondition():
 	# Skeleton function
 	# Needs some way to get all those parameters, presumably from a form.
-	templateID = session["templateID"]
+	templateID = session.get("templateID", None)
+	if templateID == None:
+		return "templateID not set"
 	conditionName = request.form.get("condition_name")
 	description = request.form.get("description")
 	maxPerGame = request.form.get("max_per_game")

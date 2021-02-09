@@ -450,7 +450,9 @@ def apiPostCreateNewGame():
     
     mydb.commit()
     
-    return {"result":"successful","matchID":matchID,"gameID":gameID,"templateID":templateID}
+    #return {"result":"successful","matchID":matchID,"gameID":gameID,"templateID":templateID}
+
+    return redirect(url_for('apiGetScoring'))
 
 ##################################### update Scoring API ########################################
 
@@ -468,7 +470,7 @@ def apiPostUpdateScore():
     matchID, = myresult
     mycursor.close()
 
-    score = int(value) * 5
+    score = int(value) * 10
 
     mycursor = mydb.cursor(prepared=True)
     stmt = ("UPDATE ActiveMatchPlayerConditionScore SET score=%s, value=%s WHERE conditionID=%s AND playerID=%s AND matchID = %s")
@@ -476,7 +478,7 @@ def apiPostUpdateScore():
     mycursor.fetchone()
     mycursor.close()
     mydb.commit()
-    return "successful"
+    return redirect(url_for('apiGetScoring'))
 
 ##################################### edit Template API ########################################
 

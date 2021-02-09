@@ -394,13 +394,16 @@ def apiGetPostGame():
     result = {"gameName":"{}".format(gameName)
                     ,"templateName":"{}".format(templateName)
                     ,"winnerDisplayName":"{}".format(winnerDisplayName)
-                    ,"scoreTable":[]}
+                    ,"scoreTable":[]
+                    ,"numOfPlayers":[]}
 
     mycursor = mydb.cursor(prepared=True)
     stmt = ("select RANK() OVER (PARTITION BY matchID ORDER BY totalScore desc),displayName,totalScore FROM Player WHERE matchID=1")
     mycursor.execute(stmt,())
     myresult = mycursor.fetchall()
     mycursor.close()
+
+    result["numOfPlayers"] = len(myresult)
 
     for row in myresult:
             rank, displayName,score = row
@@ -412,6 +415,70 @@ def apiGetPostGame():
     
     return result
 
+
+##################################### start game API ########################################
+
+@app.route("/api/postCreateNewGame")
+def apiPostCreateNewGame():
+
+    templateID = request.args.get('templateID')
+    gameID = request.args.get('gameID')
+    numPlayers = request.args.get('numOfPlayers')
+
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("INSERT INTO ActiveMatch(templateID, gameID) VALUES(%s,%s)")
+    mycursor.execute(stmt,(templateID,gameID))
+    mycursor.close()
+
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("SELECT LAST_INSERT_ID()")
+    mycursor.execute(stmt,())
+    myresult = mycursor.fetchone()
+    matchID, = myresult
+    mycursor.close()
+  
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("INSERT INTO Player(userID,color,displayOrder,totalScore,displayName,matchID) VALUES(1,%s,1,0,%s,%s)")
+    mycursor.execute(stmt,("red","Caustic Prince",matchID))
+    mycursor.close()
+
+    for x in range(2, int(numPlayers)+1):
+        mycursor = mydb.cursor(prepared=True)
+        stmt = ("INSERT INTO Player(userID,color,displayOrder,totalScore,displayName,matchID) VALUES(NULL,'RED',%s,0,%s,%s)")
+        mycursor.execute(stmt,(x,"Player"+str(x),matchID))
+        mycursor.close()
+    
+    mydb.commit()
+    
+    return {"result":"successful","matchID":matchID,"gameID":gameID,"templateID":templateID}
+
+##################################### update Scoring API ########################################
+
+@app.route("/api/postUpdateScore")
+def apiPostUpdateScore():
+  
+    conditionID = request.args.get('conditionID')
+    value = request.args.get('value')
+    playerID = request.args.get('playerID')
+    mycursor = mydb.cursor(prepared=True)
+    
+    stmt = ("SELECT matchID FROM AppUser JOIN Player using(userID) WHERE userID=%s ORDER BY matchID ASC LIMIT 1")
+    mycursor.execute(stmt,(1,))
+    myresult = mycursor.fetchone()
+    matchID, = myresult
+    mycursor.close()
+
+    score = int(value) * 5
+
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("UPDATE ActiveMatchPlayerConditionScore SET score=%s, value=%s WHERE conditionID=%s AND playerID=%s AND matchID = %s")
+    mycursor.execute(stmt,(score,value,conditionID,playerID,matchID))
+    mycursor.fetchone()
+    mycursor.close()
+    mydb.commit()
+    return "successful"
+
+##################################### edit Template API ########################################
 
 # Edit template stuff
 @app.route("/edit/", methods=["GET"])

@@ -412,3 +412,41 @@ def apiGetPostGame():
     
     return result
 
+
+# Edit template stuff
+@app.route("/edit/", methods=["GET"])
+def editTemplateGET():
+	# This function returns the page displaying all the conditions to edit
+	return "Edit Template goes here"
+	
+@app.route("/edit/condition", methods=["GET"])
+def editConditionGET():
+	return "Edit Condition goes here"
+	
+@app.route("/edit/deleteCondition")
+def deleteCondition():
+	# Skeleton function.  Called after the "Are you sure?" dialog when deleting a template
+	# Needs conditionID and templateID from somewhere.  Assuming they're stored in session
+	conditionID = session["conditionID"]
+	templateID = session["templateID"]
+	cursor = mydb.cursor(prepared=True)
+	statement = "DELETE FROM ScoringCondition WHERE conditionID = %s AND templateID = %s"
+	result = cursor.execute(statement, (conditionID, templateID))
+	# Do we need a commit() before we close()?
+	cursor.close()
+	
+	return redirect(url_for("editTemplateGET"))  # Redirect back to Edit Template
+	
+@app.route("/edit/conditionName", methods=["POST"])
+def editConditionName():
+	# Skeleton function
+	# Needs conditionID and templateID from somewhere.  Assuming they're stored in session
+	conditionID = session["conditionID"]
+	templateID = session["templateID"]
+	newName = request.form.get("new_name")
+	cursor = mydb.cursor(prepared=True)
+	statement = 'UPDATE ScoringCondition SET conditionName = "%s" WHERE conditionID = %s AND templateID = %s'
+	result = cursor.execute(statement, (newName, conditionID, templateID))
+	cursor.close()
+	
+	return redirect(url_for("editConditionGET"))

@@ -98,7 +98,7 @@ displayName VARCHAR (50),
 matchID INT,
 PRIMARY KEY(playerID),
 CONSTRAINT fk_player_matchID_match FOREIGN KEY(matchID) REFERENCES ActiveMatch(matchID),
-CONSTRAINT fk_player_userID_appuser FOREIGN KEY(userID) REFERENCES AppUser(userID));
+FOREIGN KEY(userID) REFERENCES AppUser(userID));
 
 CREATE TABLE AppUserRecommendedGame (
 gameID INT,

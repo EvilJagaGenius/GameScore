@@ -265,13 +265,13 @@ def apiGetScoring():
     
     #Get Template and GameName Info
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select ActiveMatch.gameID, ActiveMatch.templateID, gameName, templateName from ActiveMatch JOIN Template ON ActiveMatch.templateID = Template.templateID AND ActiveMatch.gameID = Template.gameID JOIN Game ON Template.gameID=Game.gameID WHERE ActiveMatch.matchID = 1")
+    stmt = ("select matchID, ActiveMatch.gameID, ActiveMatch.templateID, gameName, templateName from ActiveMatch JOIN Template ON ActiveMatch.templateID = Template.templateID AND ActiveMatch.gameID = Template.gameID JOIN Game ON Template.gameID=Game.gameID ORDER BY matchID DESC LIMIT 1")
     mycursor.execute(stmt,())
     myresult = mycursor.fetchone()
     mycursor.close()
 
     #Parse Game/Template Info
-    gameID, templateID, gameName, templateName = myresult
+    matchID, gameID, templateID, gameName, templateName = myresult
     overview = {"templateName":"{}".format(templateName)
                   ,"templateID":templateID
                   ,"gameName":"{}".format(gameName)
@@ -281,9 +281,9 @@ def apiGetScoring():
 
     #Get Players info
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select DISTINCT Player.playerID, Player.totalScore, Player.displayOrder from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE Player.matchID = 1")
+    stmt = ("select DISTINCT Player.playerID, Player.totalScore, Player.displayOrder from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE Player.matchID = %s")
 
-    mycursor.execute(stmt,())
+    mycursor.execute(stmt,(matchID,))
     myresult = mycursor.fetchall()
     mycursor.close()
 
@@ -299,8 +299,8 @@ def apiGetScoring():
     ### Global Awards ###
     #Get Conditions
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select DISTINCT conditionName, maxPerGame, conditionID FROM ScoringCondition JOIN ActiveMatch using (GameID, TemplateID) WHERE matchID = 1 AND maxPerGame > 0")
-    mycursor.execute(stmt,())
+    stmt = ("select DISTINCT conditionName, maxPerGame, conditionID FROM ScoringCondition JOIN ActiveMatch using (GameID, TemplateID) WHERE matchID = %s AND maxPerGame > 0")
+    mycursor.execute(stmt,(matchID,))
     myresult = mycursor.fetchall()
     mycursor.close()
 
@@ -312,8 +312,8 @@ def apiGetScoring():
                     ,"players":[]}
 
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("SELECT value, Player.displayName FROM ActiveMatchPlayerConditionScore JOIN Player using(playerID) WHERE conditionID = %s AND Player.matchID = 1")
-        mycursor.execute(stmt,(conditionID,))
+        stmt = ("SELECT value, Player.displayName FROM ActiveMatchPlayerConditionScore JOIN Player using(playerID) WHERE conditionID = %s AND Player.matchID = %s")
+        mycursor.execute(stmt,(conditionID,matchID))
         myresultPlayer = mycursor.fetchall()
         mycursor.close()
 
@@ -331,12 +331,9 @@ def apiGetScoring():
 
 
     ### Individual Scoring ###
-
-    #Assuming will get playerID
-
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select DISTINCT Player.playerID, Player.displayName from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE Player.matchID = 1")
-    mycursor.execute(stmt,())
+    stmt = ("select DISTINCT Player.playerID, Player.displayName from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE Player.matchID = %s")
+    mycursor.execute(stmt,(matchID,))
     myresultPlayer = mycursor.fetchall()
     mycursor.close()
 
@@ -348,8 +345,8 @@ def apiGetScoring():
                     ,"conditions":[]}
 
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("select conditionName, value, score, inputType FROM ActiveMatchPlayerConditionScore JOIN ScoringCondition using(conditionID,templateID,gameID)WHERE ActiveMatchPlayerConditionScore.matchID = 1 AND playerID = %s")
-        mycursor.execute(stmt,(playerID,))
+        stmt = ("select conditionName, value, score, inputType FROM ActiveMatchPlayerConditionScore JOIN ScoringCondition using(conditionID,templateID,gameID)WHERE ActiveMatchPlayerConditionScore.matchID = %s AND playerID = %s")
+        mycursor.execute(stmt,(matchID,playerID))
         myresultCondition = mycursor.fetchall()
         mycursor.close()
 
@@ -436,17 +433,43 @@ def apiPostCreateNewGame():
     myresult = mycursor.fetchone()
     matchID, = myresult
     mycursor.close()
-  
-    mycursor = mydb.cursor(prepared=True)
-    stmt = ("INSERT INTO Player(userID,color,displayOrder,totalScore,displayName,matchID) VALUES(1,%s,1,0,%s,%s)")
-    mycursor.execute(stmt,("red","Caustic Prince",matchID))
-    mycursor.close()
 
-    for x in range(2, int(numPlayers)+1):
+    #Find Condition IDs for Template
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("Select conditionID FROM ScoringCondition WHERE templateID=%s")
+    mycursor.execute(stmt,(templateID,))
+    conditionList = mycursor.fetchall()
+    mycursor.close()
+  
+    for x in range(1, int(numPlayers)+1):
+
+        displayName = "Player"+str(x)
+        if x==1:
+            displayName = "Caustic Prince"
+
+        userID = None
+        if x==1:
+            userID = 1
+        #Create Players in the DB
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("INSERT INTO Player(userID,color,displayOrder,totalScore,displayName,matchID) VALUES(NULL,'RED',%s,0,%s,%s)")
-        mycursor.execute(stmt,(x,"Player"+str(x),matchID))
+        stmt = ("INSERT INTO Player(userID,color,displayOrder,totalScore,displayName,matchID) VALUES(%s,'RED',%s,0,%s,%s)")
+        mycursor.execute(stmt,(userID,x,displayName,matchID))
         mycursor.close()
+
+        #Find new PlayerID
+        mycursor = mydb.cursor(prepared=True)
+        stmt = ("SELECT LAST_INSERT_ID()")
+        mycursor.execute(stmt,())
+        myresult = mycursor.fetchone()
+        playerID, = myresult
+        mycursor.close()
+
+        for row in conditionList:
+            conditionID, = row
+            mycursor = mydb.cursor(prepared=True)
+            stmt = ("INSERT INTO ActiveMatchPlayerConditionScore(matchID,playerID,conditionID,gameID,templateID,value,score) VALUES(%s,%s,%s,%s,%s,0,0)")
+            mycursor.execute(stmt,(matchID,playerID,conditionID,gameID,templateID))
+            mycursor.close()
     
     mydb.commit()
     
@@ -464,7 +487,7 @@ def apiPostUpdateScore():
     playerID = request.args.get('playerID')
     mycursor = mydb.cursor(prepared=True)
     
-    stmt = ("SELECT matchID FROM AppUser JOIN Player using(userID) WHERE userID=%s ORDER BY matchID ASC LIMIT 1")
+    stmt = ("SELECT matchID FROM AppUser JOIN Player using(userID) WHERE userID=%s ORDER BY matchID DESC LIMIT 1")
     mycursor.execute(stmt,(1,))
     myresult = mycursor.fetchone()
     matchID, = myresult
@@ -480,6 +503,7 @@ def apiPostUpdateScore():
     mydb.commit()
     return redirect(url_for('apiGetScoring'))
 
+      
 ##################################### edit Template API ########################################
 
 # Edit template stuff

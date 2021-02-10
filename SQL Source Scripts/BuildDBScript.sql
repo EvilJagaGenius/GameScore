@@ -132,10 +132,11 @@ CONSTRAINT fk_appuserinteracttemplate_templateID_template FOREIGN KEY(templateID
 CONSTRAINT fk_appuserinteracttemplate_userID_appuser FOREIGN KEY(userID) REFERENCES AppUser(userID));
 
 CREATE TABLE AppUserHistoryGame (
+historyID INT NOT NULL AUTO_INCREMENT,
 userID INT,
 gameID INT,
 gameHistoryString VARCHAR(10000),
-PRIMARY KEY(userID,gameID),
+PRIMARY KEY(historyID,userID,gameID),
 CONSTRAINT appuserhistorygame_gameID_game FOREIGN KEY(gameID) REFERENCES Game(gameID),
 CONSTRAINT appuserhistorygame_userID_appuser FOREIGN KEY(userID) REFERENCES AppUser(userID));
 

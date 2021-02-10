@@ -3,6 +3,7 @@
 
 import mysql.connector
 import secrets
+import json
 
 # Setup
 from flask import flash, Flask, jsonify, make_response, redirect, render_template, request, Response, session, url_for
@@ -486,14 +487,21 @@ def apiPostUpdateScore():
     conditionID = request.args.get('conditionID')
     value = request.args.get('value')
     playerID = request.args.get('playerID')
-    mycursor = mydb.cursor(prepared=True)
     
+    mycursor = mydb.cursor(prepared=True)
     stmt = ("SELECT matchID FROM AppUser JOIN Player using(userID) WHERE userID=%s ORDER BY matchID DESC LIMIT 1")
     mycursor.execute(stmt,(1,))
     myresult = mycursor.fetchone()
     matchID, = myresult
     mycursor.close()
 
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("SELECT matchID FROM AppUser JOIN Player using(userID) WHERE userID=%s ORDER BY matchID DESC LIMIT 1")
+    mycursor.execute(stmt,(1,))
+    myresult = mycursor.fetchone()
+    matchID, = myresult
+    mycursor.close()
+    
     score = int(value) * 10
 
     mycursor = mydb.cursor(prepared=True)
@@ -505,6 +513,110 @@ def apiPostUpdateScore():
     return redirect(url_for('apiGetScoring'))
 
 
+##################################### Finalize Score API ####################################
+@app.route("/api/postFinalizeScore")
+def apiPostFinalizeScore():
+
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("SELECT matchID, Template.templateID, Template.gameID,templateName,gameName FROM AppUser JOIN Player using(userID) JOIN ActiveMatch using(matchID) JOIN Template using(templateID) JOIN Game on Template.gameID=Game.gameID WHERE AppUser.userID=%s ORDER BY matchID DESC LIMIT 1")
+    mycursor.execute(stmt,(1,))
+    myresult = mycursor.fetchone()
+    matchID,templateID,gameID,templateName,gameName = myresult
+    mycursor.close()
+
+
+    #Find winning player ID
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select playerID FROM Player WHERE totalScore in (Select MAX(totalScore) FROM Player WHERE matchID=%s GROUP BY matchID) LIMIT 1")
+    mycursor.execute(stmt,(matchID,))
+    myresult = mycursor.fetchone()
+    winningPlayerID = myresult
+    mycursor.close()
+
+
+    #Find all Actual Users for that current match
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("SELECT userID, totalScore, playerID FROM AppUser JOIN Player using(userID) WHERE matchID=%s ORDER BY totalScore DESC")
+    mycursor.execute(stmt,(matchID,))
+    listUsers = mycursor.fetchall()
+    mycursor.close()
+
+
+    #Find all Players for that current match
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("SELECT displayName,totalScore FROM Player WHERE matchID=%s ORDER BY totalScore DESC")
+    mycursor.execute(stmt,(matchID,))
+    listPlayers = mycursor.fetchall()
+    mycursor.close()
+
+    #Create JSON for storing scores
+    result = {"gameName":"{}".format(gameName)
+                  ,"templateName":"{}".format(templateName)
+                  ,"players":[]}
+    for row in listPlayers:
+          displayName,totalScore = row
+          player = {"displayName":"{}".format(displayName)
+                    ,"totalScore":totalScore}
+          result["players"].append(player)
+   
+        
+
+    for row in listUsers:
+          userID,totalScore,playerID= row
+          #See if entry already exists (interacted with template)
+          mycursor = mydb.cursor(prepared=True)
+          stmt = ("SELECT userID FROM AppUserInteractTemplate WHERE templateID=%s AND userID=%s")
+          mycursor.execute(stmt,(templateID,userID))
+          myresult = mycursor.fetchall()
+          mycursor.close()
+
+          #If no entry exists
+          if(len(myresult)<=0):
+              mycursor = mydb.cursor(prepared=True)
+              stmt = ("INSERT INTO AppUserInteractTemplate(userID,gameID,templateID,lastPlayed) VALUES(%s,%s,%s,now())")
+              mycursor.execute(stmt,(userID,gameID,templateID))
+              mycursor.close()
+          else:
+              mycursor = mydb.cursor(prepared=True)
+              stmt = ("UPDATE AppUserInteractTemplate SET lastPlayed=now() WHERE templateID=%s AND userID=%s")
+              mycursor.execute(stmt,(templateID,userID))
+              mycursor.close()
+
+
+          #See if entry already exists (played this game)
+          mycursor = mydb.cursor(prepared=True)
+          stmt = ("SELECT userID FROM AppUserPlayedGame WHERE gameID=%s AND userID=%s")
+          mycursor.execute(stmt,(gameID,userID))
+          myresult = mycursor.fetchall()
+          mycursor.close()
+
+          #If no entry exists, create blank entry (for game stats)
+          if(len(myresult)<=0):
+              mycursor = mydb.cursor(prepared=True)
+              stmt = ("INSERT INTO AppUserPlayedGame(userID,gameID) VALUES(%s,%s)")
+              mycursor.execute(stmt,(userID,gameID))
+              mycursor.close()
+
+          if playerID == winningPlayerID:
+                wonCount = 1
+          else:
+                wonCount = 0              
+          mycursor = mydb.cursor(prepared=True)
+          
+          stmt = ("UPDATE AppUserPlayedGame SET gamesPlayed = gamesPlayed + 1, gamesWon = gamesWon + %s, aggregateScore = aggregateScore + %s WHERE gameID=%s AND userID=%s")
+          mycursor.execute(stmt,(wonCount,totalScore,gameID,userID))
+          mycursor.close()
+
+
+          mycursor = mydb.cursor(prepared=True)
+          stmt = ("INSERT INTO AppUserHistoryGame(userID,gameID,gameHistoryString) VALUES(%s,%s,%s)")
+          mycursor.execute(stmt,(userID,gameID,json.dumps(result)))
+          mycursor.close()
+
+    
+    mydb.commit()
+    destroyMatch(matchID)
+    return "success"
 
 ##################################### Leave Game API ########################################
 

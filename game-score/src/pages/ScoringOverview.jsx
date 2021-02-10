@@ -8,6 +8,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { BrowserRouter as Router, Link } from 'react-router-dom';
 import { Button } from '@material-ui/core';
 import DoneIcon from '@material-ui/icons/Done';
+import AccountCircle from '@material-ui/icons/AccountCircle';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -65,6 +66,7 @@ function ScoringOverview() {
         </AccordionSummary>
         {numbers.map(num => (
           <AccordionDetails className={classes.details}>
+            <AccountCircle fontsize = "medium"></AccountCircle>
           <div className={classes.column}>
             <Link to={{pathname: "/profile/individualscoring", state:{message: 'Called'}}} className={classes.link}>
                 Learn more

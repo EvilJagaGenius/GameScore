@@ -13,3 +13,14 @@ begin
 SET new.averageScore = (new.aggregateScore/new.gamesPlayed);
 SET new.winRate = (new.gamesWon/new.gamesPlayed);
 END@@@;
+
+
+CREATE EVENT purgeActiveMatches
+ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL 1 HOUR
+ON COMPLETION PRESERVE
+
+DO BEGIN
+	  DELETE ActiveMatchPlayerConditionScore FROM ActiveMatchPlayerConditionScore JOIN ActiveMatch using(matchID) WHERE creationDate < DATE_SUB(NOW(), INTERVAL 3 HOUR);
+	  DELETE Player FROM Player JOIN ActiveMatch using(matchID) WHERE creationDate < DATE_SUB(NOW(), INTERVAL 3 HOUR);
+	  DELETE ActiveMatch FROM ActiveMatch WHERE creationDate < DATE_SUB(NOW(), INTERVAL 3 HOUR);
+END@@@;

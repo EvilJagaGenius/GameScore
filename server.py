@@ -485,7 +485,7 @@ def apiPostCreateNewGame():
 def apiPostUpdateScore():
   
     conditionID = request.args.get('conditionID')
-    value = request.args.get('value')
+    value = float(request.args.get('value'))
     playerID = request.args.get('playerID')
     
     mycursor = mydb.cursor(prepared=True)
@@ -496,13 +496,27 @@ def apiPostUpdateScore():
     mycursor.close()
 
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("SELECT matchID FROM AppUser JOIN Player using(userID) WHERE userID=%s ORDER BY matchID DESC LIMIT 1")
-    mycursor.execute(stmt,(1,))
+    stmt = ("SELECT scoringType, pointMultiplier FROM ScoringCondition WHERE conditionID=%s")
+    mycursor.execute(stmt,(conditionID,))
     myresult = mycursor.fetchone()
-    matchID, = myresult
+    scoringType, pointMultiplier = myresult
     mycursor.close()
-    
-    score = int(value) * 10
+
+    if scoringType == 'Linear':
+        score = value * float(pointMultiplier)
+    elif scoringType == 'Tabular':
+        mycursor = mydb.cursor(prepared=True)
+        stmt = ("SELECT inputMax, inputMin, outputValue FROM ValueRow WHERE conditionID=%s ORDER BY inputMin ASC")
+        mycursor.execute(stmt,(conditionID,))
+        valueRows = mycursor.fetchall()
+        mycursor.close()
+
+        score = 0
+        for row in valueRows:
+            inputMax,inputMin,outputValue
+            if value >= minValue and value <maxValue:
+                score = outputValue
+                break
 
     mycursor = mydb.cursor(prepared=True)
     stmt = ("UPDATE ActiveMatchPlayerConditionScore SET score=%s, value=%s WHERE conditionID=%s AND playerID=%s AND matchID = %s")

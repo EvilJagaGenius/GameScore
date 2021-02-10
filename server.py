@@ -768,14 +768,84 @@ def addCondition():
 	scoringType = request.form.get("scoring_type")
 	inputType = request.form.get("input_type")
 	pointMultiplier = request.form.get("point_multiplier")
+	cursor = get_cursor()
 	statement = """
 	INSERT INTO ScoringCondition (gameID, templateID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier)
 	VALUES (%s, %s, "%s", "%s", %s, %s, '%s', '%s', %s)
 	"""
 	result = cursor.execute(statement, (gameID, templateID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier))
+	cursor.close()
 	# We need a way to get the new conditionID
 	return redirect(url_for("editConditionGET"))
 
+@app.route("/edit/conditionTable", methods=["POST"])
+def editConditionTable():
+	# Edit a row in the condition's scoring table
+	conditionID = session.get("conditionID", None)
+	templateID = session.get("templateID", None)
+	rowID = 0 #session.get("rowID", None)  # Dummy value.  How do we get this?
+	if templateID == None:
+		return "templateID not set"
+	if conditionID == None:
+		return "conditionID not set"
+	if rowID == None:
+		return "rowID not set"
+	min = request.form.get("min")
+	max = request.form.get("max")
+	outputValue = request.form.get("output_value")
+	cursor = get_cursor()
+	statement = "UPDATE ValueRow SET min = %s, max = %s, outputValue = %s WHERE templateID = %s AND conditionID = %s AND rowID = %s"
+	cursor.execute(statement, (min, max, outputValue, templateID, conditionID, rowID))
+	cursor.close()
+	
+	return redirect(url_for("editConditionGET"))
+	
+@app.route("/edit/conditionValues", methods=["POST"])
+def editConditionValues():
+	# I'm not sure if we should split this up into multiple functions, like editing the name above
+	conditionID = session.get("conditionID", None)
+	templateID = session.get("templateID", None)
+	if templateID == None:
+		return "templateID not set"
+	if conditionID == None:
+		return "conditionID not set"
+	description = request.form.get("description")
+	maxPerGame = request.form.get("max_per_game")
+	maxPerPlayer = request.form.get("max_per_player")
+	scoringType = request.form.get("scoring_type")
+	inputType = request.form.get("input_type")
+	pointMultiplier = request.form.get("point_multiplier")
+	cursor = get_cursor()
+	statement = """
+	UPDATE ScoringCondition SET description = %s, maxPerGame = %s, maxPerPlayer = %s, scoringType = %s, inputType = %s, pointMultiplier = %s
+	WHERE templateID = %s AND conditionID = %s
+	"""
+	cursor.execute(statement, (description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier, templateID, conditionID))
+	cursor.close()
+	
+	return redirect(url_for("editConditionGET"))
 
-
+@app.route("/newTemplate/", methods=["POST"])
+def createNewTemplate():
+	gameID = request.form.get("game")
+	templateName = request.form.get("template_name")
+	userID = session.get("userID", None)
+	if userID == None:
+		return "userID not set"
+	cursor = get_cursor()
+	statement = """
+	INSERT INTO Template (gameID, numRatings, templateName, userID)
+	VALUES (%s, 0, %s, %s)
+	"""
+	cursor.execute(statement, (gameID, templateName, userID))
+	cursor.close()
+	
+	# Need a way to get the new template ID and store it in the session
+	return redirect(url_for("editTemplateGET"))
+	
+@app.route("/edit/upload")
+def uploadTemplate():
+	# Do something, Taipu
+	# I'm not sure how one uploads a template.  Do we commit to the DB, do we set the template as public, do we do something else?
+	pass
 	

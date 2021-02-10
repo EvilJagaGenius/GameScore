@@ -14,6 +14,7 @@ export default function FavoritedData() {
   return(
     <div className="FavoritedData">
       <table>
+        {/* Iterate through favorited templates and render the data in a tabular format */}
         {Object.keys(templateData).map(key => (
           <tr key={key}>
             <td><img src={templateData[key].pictureURL}/></td>

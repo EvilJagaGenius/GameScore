@@ -8,27 +8,32 @@
     constructor (props) {
         super(props)
     }
-    state = { edit: 0 }
 
     onSubmit = () => {
-
+        fetch("")
     }
 
     createCondition() {
-
+        
     }
 
     render() {
-        const {activeIndex} = this.state;
+        const edit = this.props.edit;
 
-        return (
-            <form ref="form" onSubmit={this.handleSubmit}>
-                <input type="text" id="title" name="title" placeholder="Type the Title Here" />
-                <div className="Condition list">
-                </div>
-                <button type="submit">Upload Template</button>
-                <button type="button" onClick={createCondition}>New Condition</button>
-            </form>
-        )
+        if (edit == 0) {
+            return (
+                <form ref="form" onSubmit={this.handleSubmit}>
+                    <input type="text" id="title" name="title" placeholder="Type the Title Here" />
+                    <div className="Condition list">
+                    </div>
+                    <button type="submit">Upload Template</button>
+                    <button type="button" onClick={createCondition}>New Condition</button>
+                </form>
+            )
+        }
+
+        else {
+            
+        }
     }
  }

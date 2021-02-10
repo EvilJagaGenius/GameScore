@@ -12,7 +12,7 @@ import { Tabs, Tab, AppBar } from "@material-ui/core";  //Material UI for tab ba
 import HomeMenu from '../Menu';
 import MyTemplates from './MyTemplates';
 import PlayGame from './PlayGame';
-import Profile from './Profile';
+import Profile from './ScoringOverview';
 
 /**
  * Home component: creates tab bar system

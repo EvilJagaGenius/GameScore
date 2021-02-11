@@ -9,6 +9,7 @@ import { BrowserRouter as Router, Link } from 'react-router-dom';
 import { Button } from '@material-ui/core';
 import DoneIcon from '@material-ui/icons/Done';
 import AccountCircle from '@material-ui/icons/AccountCircle';
+import { useState, useEffect } from 'react';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -54,6 +55,13 @@ const useStyles = makeStyles((theme) => ({
 function ScoringOverview() {
   const classes = useStyles();
   const numbers = [1, 2, 3, 4];
+  const [currentData, setCurrentData] = useState(0);
+  useEffect(() => {
+    fetch("/time").then(res => res.json()).then(data => {
+      console.log(data);
+      setCurrentData(data);
+    });
+  }, []);
 /* <Accordion disabled> */
   return (
     <div className={classes.root}>
@@ -66,7 +74,7 @@ function ScoringOverview() {
         </AccordionSummary>
         {numbers.map(num => (
           <AccordionDetails className={classes.details}>
-            <AccountCircle fontsize = "medium"></AccountCircle>
+            <AccountCircle alt = "tempAlt" fontsize = "medium"></AccountCircle>
           <div className={classes.column}>
             <Link to={{pathname: "/profile/individualscoring", state:{message: 'Called'}}} className={classes.link}>
                 Learn more
@@ -101,6 +109,7 @@ function ScoringOverview() {
       <Link to='/profile/postgame'>
       <Button className={classes.button} startIcon={<DoneIcon />} variant = "contained" color="primary" size = "large" onClick={()=>console.log("clicked button")}>Finalize Score</Button>
       </Link>
+      <p>{currentData}</p>
     </div>
   );
 }

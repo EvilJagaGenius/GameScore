@@ -55,11 +55,9 @@ const useStyles = makeStyles((theme) => ({
 function ScoringOverview() {
   const classes = useStyles();
   const numbers = [1, 2, 3, 4];
-  const [currentData, setCurrentData] = useState(0);
   useEffect(() => {
-    fetch("/time").then(res => res.json()).then(data => {
+    fetch("/api/getScoring").then(res => res.json()).then(data => {
       console.log(data);
-      setCurrentData(data);
     });
   }, []);
 /* <Accordion disabled> */
@@ -109,7 +107,6 @@ function ScoringOverview() {
       <Link to='/profile/postgame'>
       <Button className={classes.button} startIcon={<DoneIcon />} variant = "contained" color="primary" size = "large" onClick={()=>console.log("clicked button")}>Finalize Score</Button>
       </Link>
-      <p>{currentData}</p>
     </div>
   );
 }

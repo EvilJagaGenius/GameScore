@@ -9,6 +9,7 @@ import json
 from flask import flash, Flask, jsonify, make_response, redirect, render_template, request, Response, session, url_for
 app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0  # Always do a complete refresh (for now)
+SERVER_NAME = 'flask-api:5000'
 
 #### DB Functions ###
 connection = None

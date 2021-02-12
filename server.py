@@ -788,8 +788,60 @@ def addCondition():
     # We need a way to get the new conditionID
     return redirect(url_for("editConditionGET"))
 
+@app.route("/edit/conditionTable/swapRows", methods=["POST"])
+def swapTableRowsPOST():
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    rowA = request.form.get("row_a")
+    rowB = request.form.get("row_b")
+    templateID = session.get("templateID", None)
+    conditionID = session.net("conditionID", None)
+    if templateID == None:
+        return "templateID not set"
+    if conditionID == None:
+        return "conditionID not set"
+    
+    cursor = mydb.cursor(prepared=True)
+    # Dang that's an ugly-looking prepared statement
+    statement = """
+    UPDATE ValueRow SET rowID = -1 WHERE rowID = %s AND templateID = %s AND conditionID = %s;
+    UPDATE ValueRow SET rowID = %s WHERE rowID = %s AND templateID = %s AND conditionID = %s;
+    UPDATE ValueRow SET rowID = %s WHERE rowID = -1 AND templateID = %s AND conditionID = %s;
+    """
+    cursor.execute(statement, (rowA, templateID, conditionID, rowA, rowB, templateID, conditionID, rowB, templateID, conditionID))
+    
+    cursor.close()
+    mydb.close()
+    return "ok"
+    
+@app.route("/edit/conditionTable", methods=["GET"])
+def editConditionTableGET():
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    templateID = session.get("templateID", None)
+    conditionID = session.net("conditionID", None)
+    if templateID == None:
+        return "templateID not set"
+    if conditionID == None:
+        return "conditionID not set"
+    cursor = mydb.cursor(prepared=True)
+    statement = "SELECT (rowID, inputMax, inputMin, outputValue) FROM ValueRow WHERE templateID = %s AND conditionID = %s"
+    cursor.execute(statement, (templateID, conditionID))
+    result = cursor.fetchall()  # List of tuples
+    
+    response = {}
+    for t in result:
+        dictionary = {
+        "inputMax": t[1],
+        "inputMin": t[2],
+        "outputValue": t[3]
+        }
+        response.update({t[0]: dictionary})
+    
+    cursor.close()
+    mydb.close()
+    return jsonify(response)
+
 @app.route("/edit/conditionTable", methods=["POST"])
-def editConditionTable():
+def editConditionTablePOST():
     mydb = mysql.connector.connect(pool_name = "mypool")
     # Edit a row in the condition's scoring table
     conditionID = session.get("conditionID", None)

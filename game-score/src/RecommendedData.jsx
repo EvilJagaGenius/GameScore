@@ -13,12 +13,12 @@ export default function RecommendedData() {
 
   return(
     <table>
-      {gameData.map(game => (
-        <tr>
-            <td>{game.pictureURL}</td>
-            <td>{game.gameName}</td>
-        </tr>
-      ))}
+      {Object.keys(gameData).map(key => (
+          <tr key={key}>
+            <td><img src={gameData[key].pictureURL}/></td>
+            <td>{gameData[key].templateName}</td>
+          </tr>
+        ))}
     </table>  
   );
 }

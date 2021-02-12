@@ -13,14 +13,14 @@ export default function HighestData() {
 
   return(
     <table>
-      {templateData.map(template => (
-        <tr>
-            <td>{template.pictureURL}</td>
-            <td>{template.templateName}</td>
-            <td>{template.NumRatings}</td>
-            <td>{template.averageRating}</td>
-        </tr>
-      ))}
+      {Object.keys(templateData).map(key => (
+          <tr key={key}>
+            <td><img src={templateData[key].pictureURL}/></td>
+            <td>{templateData[key].templateName}</td>
+            <td>{templateData[key].NumRatings}</td>
+            <td>{templateData[key].averageRating}</td>
+          </tr>
+        ))}
     </table>  
   );
 }

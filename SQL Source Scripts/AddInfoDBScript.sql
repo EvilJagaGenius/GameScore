@@ -1,4 +1,6 @@
 
+
+
 INSERT INTO Game (gameID,gameName)
 VALUES(NULL,'Terraforming Mars');
 

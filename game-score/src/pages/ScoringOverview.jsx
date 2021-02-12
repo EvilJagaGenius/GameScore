@@ -10,6 +10,7 @@ import { Button } from '@material-ui/core';
 import DoneIcon from '@material-ui/icons/Done';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import { useState, useEffect } from 'react';
+import ScoringOverviewData from "./ScoringOverviewData.jsx"
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -52,17 +53,39 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+
+
 function ScoringOverview() {
+  const [playerData, setPlayerData] = useState([{}]);
+  const [summaryData, setSummaryData] = useState([{}]);
+  const [awardsData, setAwardsData] = useState([{}]);
   const classes = useStyles();
   const numbers = [1, 2, 3, 4];
+
   useEffect(() => {
     fetch("/api/getScoring").then(res => res.json()).then(data => {
+      setPlayerData(data.scoringOverview.players);
+      setAwardsData(data.globalAwards);
+      setSummaryData(data.scoringOverview);
       console.log(data);
     });
   }, []);
+
 /* <Accordion disabled> */
   return (
+
     <div className={classes.root}>
+
+      <>
+        <div style={{display: 'flex',  justifyContent:'center'}}>
+          <h2>{summaryData.gameName}</h2>
+        </div>
+
+        <div style={{display: 'flex',  justifyContent:'center'}}>
+         <h4>{summaryData.templateName}</h4>
+        </div>
+      </>
+
       <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -70,16 +93,16 @@ function ScoringOverview() {
           id="panel1a-header">
           <Typography variant="h5">Score Overview</Typography>
         </AccordionSummary>
-        {numbers.map(num => (
+        {Object.keys(playerData).map(key => (
           <AccordionDetails className={classes.details}>
             <AccountCircle alt = "tempAlt" fontsize = "medium"></AccountCircle>
           <div className={classes.column}>
-            <Link to={{pathname: "/profile/individualscoring", state:{message: 'Called'}}} className={classes.link}>
-                Learn more
+            <Link to={{pathname: "/profile/individualscoring" , state:{message: 'Called',individualPlayerID:playerData[key].playerID}}} className={classes.column}>
+              {playerData[key].displayName}
             </Link>
             </div>
-            <div>
-              <Typography className={classes.heading}>Bazinga!</Typography>
+            <div className={classes.column}>
+              <Typography className={classes.heading}>{playerData[key].score}</Typography>
             </div>
           </AccordionDetails>
         ))}
@@ -91,19 +114,57 @@ function ScoringOverview() {
           id="panel1a-header">
           <Typography variant="h5">Global Awards</Typography>
         </AccordionSummary>
-        {numbers.map(num => (
-          <AccordionDetails className={classes.details}>
+
+        <AccordionDetails className={classes.details}>
+
           <div className={classes.column}>
-            <Link to={{pathname: "/profile/individualscoring", state:{message: 'Called'}}} className={classes.link}>
-                Learn more
-            </Link>
-            </div>
-            <div>
-              <Typography className={classes.heading}>Bazinga!</Typography>
-            </div>
-          </AccordionDetails>
-        ))}
+              <Typography>Condition</Typography>
+          </div>
+
+          {
+          Object.keys((awardsData[0])).length > 0 &&
+          Object.keys((awardsData[0]["players"])).length > 0 &&
+          <>
+          {Object.keys((awardsData[0].players)).map(key => (
+              <div  className={classes.column}>
+                <Typography>{awardsData[0]["players"][key].displayName}</Typography>
+              </div>
+              ))}
+
+          </>
+          }
+         </AccordionDetails>
+
+        {
+        Object.keys(awardsData).length > 0 &&
+        <div>
+        {Object.keys(awardsData).map(key => (
+              <AccordionDetails className={classes.details}>
+              <div className={classes.column}>
+                <Typography>{awardsData[key].conditionName}</Typography>
+              </div>
+
+              {
+              Object.keys((awardsData[key])).length > 0 &&
+              Object.keys((awardsData[key]["players"])).length > 0 &&
+              <>
+              {Object.keys((awardsData[key]["players"])).map(key2 => (
+                <div className={classes.column}>
+                  <Typography>{awardsData[key]["players"][key2].value}</Typography>
+                </div>
+
+                ))}
+                </>
+                }
+
+            </AccordionDetails>
+          ))}
+        </div>
+        }
+
+
       </Accordion>
+
       <Link to='/profile/postgame'>
       <Button className={classes.button} startIcon={<DoneIcon />} variant = "contained" color="primary" size = "large" onClick={()=>console.log("clicked button")}>Finalize Score</Button>
       </Link>

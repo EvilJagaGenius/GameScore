@@ -1,5 +1,6 @@
 DROP TRIGGER IF EXISTS calcTotalScore;
 DROP TRIGGER IF EXISTS calcGameStats;
+DROP EVENT IF EXISTS purgeActiveMatches;
 DELIMITER @@@;
 
 
@@ -20,7 +21,7 @@ ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL 1 HOUR
 ON COMPLETION PRESERVE
 
 DO BEGIN
-	  DELETE ActiveMatchPlayerConditionScore FROM ActiveMatchPlayerConditionScore JOIN ActiveMatch using(matchID) WHERE creationDate < DATE_SUB(NOW(), INTERVAL 3 HOUR);
-	  DELETE Player FROM Player JOIN ActiveMatch using(matchID) WHERE creationDate < DATE_SUB(NOW(), INTERVAL 3 HOUR);
-	  DELETE ActiveMatch FROM ActiveMatch WHERE creationDate < DATE_SUB(NOW(), INTERVAL 3 HOUR);
+	  DELETE ActiveMatchPlayerConditionScore FROM ActiveMatchPlayerConditionScore JOIN ActiveMatch using(matchID) WHERE creationTime < DATE_SUB(NOW(), INTERVAL 3 HOUR) and active = false;
+	  DELETE Player FROM Player JOIN ActiveMatch using(matchID) WHERE creationTime < DATE_SUB(NOW(), INTERVAL 3 HOUR) AND active = false;
+	  DELETE ActiveMatch FROM ActiveMatch WHERE creationTime < DATE_SUB(NOW(), INTERVAL 3 HOUR) AND active = false;
 END@@@;

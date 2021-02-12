@@ -85,6 +85,7 @@ matchID INT NOT NULL AUTO_INCREMENT,
 templateID INT,	
 gameID INT,
 creationTime DateTime default now(),
+active BOOLEAN DEFAULT true,
 PRIMARY KEY(matchID),
 CONSTRAINT fk_activematch_gameID_game FOREIGN KEY(gameID) REFERENCES Game(gameID),
 CONSTRAINT fk_activematch_templateID_template FOREIGN KEY(templateID) REFERENCES Template(templateID));

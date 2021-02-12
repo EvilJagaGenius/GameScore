@@ -355,16 +355,17 @@ def apiGetScoring():
                     ,"totalScore":totalScore}
 
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("select conditionName, value, score, inputType FROM ActiveMatchPlayerConditionScore JOIN ScoringCondition using(conditionID,templateID,gameID)WHERE ActiveMatchPlayerConditionScore.matchID = %s AND playerID = %s")
+        stmt = ("select conditionName, conditionID, value, score, inputType FROM ActiveMatchPlayerConditionScore JOIN ScoringCondition using(conditionID,templateID,gameID)WHERE ActiveMatchPlayerConditionScore.matchID = %s AND playerID = %s")
         mycursor.execute(stmt,(matchID,playerID))
         myresultCondition = mycursor.fetchall()
         mycursor.close()
 
         for rowCondition in myresultCondition:
-            conditionName, value, score, inputType = rowCondition
+            conditionName, conditionID, value, score, inputType = rowCondition
             condition = {"conditionName":"{}".format(conditionName)
                     ,"score":score
                     ,"value":value
+                    ,"conditionID":conditionID
                     ,"inputType":"{}".format(inputType)}
             #append each new dictionary to its appropriate list
             player["conditions"].append(condition)
@@ -373,7 +374,10 @@ def apiGetScoring():
         #append each new dictionary to its appropriate list
         result["individualScoring"].append(player)
     mydb.close()
-    return result
+
+    response = jsonify(result)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 
 ##################################### postgame API ########################################

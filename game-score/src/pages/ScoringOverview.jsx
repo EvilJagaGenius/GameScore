@@ -10,7 +10,6 @@ import { Button } from '@material-ui/core';
 import DoneIcon from '@material-ui/icons/Done';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import { useState, useEffect } from 'react';
-import ScoringOverviewData from "./ScoringOverviewData.jsx"
 
 const useStyles = makeStyles((theme) => ({
   root: {

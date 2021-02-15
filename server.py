@@ -723,9 +723,46 @@ def editTemplateGET():
     mydb.close()
     return jsonify(response)
     
+@app.route("/edit/name", methods=["POST"])
+def editTemplateName():
+    # Do something, Taipu
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    templateID = session.get("templateID", None)
+    if templateID == None:
+        return "templateID not set"
+    newName = request.form.get("new_name")
+    cursor = mydb.cursor(prepared=True)
+    statement = "UPDATE Template SET templateName = %s WHERE templateID = %s"
+    cursor.execute(statement, (newName, templateID))
+    
+    return redirect(url_for("editTemplateGET"))
+    
 @app.route("/edit/condition", methods=["GET"])
 def editConditionGET():
-    return "Edit Condition goes here"
+    # Get the condition data from the database and send it over
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    conditionID = session.get("conditionID", None)
+    templateID = session.get("templateID", None)
+    if templateID == None:
+        return "templateID not set"
+    if conditionID == None:
+        return "conditionID not set"
+    cursor = mydb.cursor(prepared=True)
+    statement = "SELECT (conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier) FROM ScoringCondition WHERE conditionID = %s AND templateID = %s"
+    cursor.execute(statement, (conditionID, templateID))
+    result = cursor.fetchall()
+    
+    response = {
+    "conditionName": result[0],
+    "description": result[1],
+    "maxPerGame": result[2],
+    "maxPerPlayer": result[3],
+    "scoringType": result[4],
+    "inputType": result[5],
+    "pointMultiplier": result[6]
+    }
+    
+    return jsonify(response)
     
 @app.route("/edit/deleteCondition")
 def deleteCondition():
@@ -740,7 +777,7 @@ def deleteCondition():
         return "conditionID not set"
     cursor = mydb.cursor(prepared=True)
     statement = "DELETE FROM ScoringCondition WHERE conditionID = %s AND templateID = %s"
-    result = cursor.execute(statement, (conditionID, templateID))
+    cursor.execute(statement, (conditionID, templateID))
     # Do we need a commit() before we close()?
     cursor.close()
     mydb.close()

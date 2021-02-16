@@ -16,10 +16,12 @@ import Paper from '@material-ui/core/Paper';
 
 
 
+
 export default class Menu extends Component {
   state = { activeIndex: 0,
             data:{},
-            loaded:"False"
+            loaded:"False",
+            selectedTemplate:{accPos:0,rowPos:0}
           }
 
   handleClick = (e, titleProps) => {
@@ -50,6 +52,30 @@ export default class Menu extends Component {
 
 
 
+  selectTemplate(newAccPos,newRowPos)
+  {
+    this.setState({
+      selectedTemplate:{accPos:newAccPos,rowPos:newRowPos}
+    })
+
+    console.log(this.state.selectedTemplate.accPos)
+    console.log(this.state.selectedTemplate.rowPos)
+  }
+
+  isSelected(checkAccPos,checkRowPos)
+  {
+    if(checkAccPos == this.state.selectedTemplate.accPos
+      && checkRowPos == this.state.selectedTemplate.rowPos)
+    {
+      return true
+    }
+    else
+    {
+      return false
+    }
+  }
+
+
   render() {
     const { activeIndex } = this.state
 
@@ -76,12 +102,17 @@ export default class Menu extends Component {
                   <> 
                     {/* Iterate through favorited templates and render the data in a tabular format */}
                     {Object.keys(this.state.data.favoritedTemplates).map(key => (
-                      <TemplateRow rowPos={key} accPos="0" 
-                      pictureURL = {this.state.data["favoritedTemplates"][key].pictureURL} 
-                      templateName = {this.state.data["favoritedTemplates"][key].templateName}
-                      numRatings = {this.state.data["favoritedTemplates"][key].numRatings}
-                      averageRating = {this.state.data["favoritedTemplates"][key].averageRating}
-                      />
+                      <div onClick={()=>this.selectTemplate(0,key)}>
+                        <TemplateRow rowPos={key} accPos="0" 
+                        pictureURL = {this.state.data["favoritedTemplates"][key].pictureURL} 
+                        templateName = {this.state.data["favoritedTemplates"][key].templateName}
+                        numRatings = {this.state.data["favoritedTemplates"][key].numRatings}
+                        averageRating = {this.state.data["favoritedTemplates"][key].averageRating}
+                        templateID = {this.state.data["favoritedTemplates"][key].templateID}
+                        gameID = {this.state.data["favoritedTemplates"][key].gameID}
+                        selected = {this.isSelected(0,key)}
+                        />
+                      </div>
                     ))}
                   </>
                 </div>

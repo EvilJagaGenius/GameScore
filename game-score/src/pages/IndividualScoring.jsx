@@ -100,7 +100,7 @@ componentDidMount() {
               <TableCell align="center">Score</TableCell>
             </TableRow>
           </TableHead>
-            {Object.keys(this.state.individualData).map(condPos=> (
+            {Object.keys(this.state.individualData[this.state.key]["conditions"]).map(condPos=> (
               <TableRow> 
                 <TableCell align="left">{this.state.individualData[this.state.key]["conditions"][condPos].conditionName}</TableCell>
                 <TableCell align="center">

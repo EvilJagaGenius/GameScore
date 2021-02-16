@@ -10,7 +10,7 @@ import { Button } from '@material-ui/core';
 import DoneIcon from '@material-ui/icons/Done';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import { useState, useEffect } from 'react';
-import { useHistory } from "react-router-dom";
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -122,6 +122,7 @@ function ScoringOverview() {
           </div>
 
           {
+          Object.keys((awardsData)).length > 0 &&
           Object.keys((awardsData[0])).length > 0 &&
           Object.keys((awardsData[0]["players"])).length > 0 &&
           <>

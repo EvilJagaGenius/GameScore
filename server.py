@@ -387,12 +387,12 @@ def apiGetPostGame():
     #Create JSON framework for what we will return
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select gameName, templateName,matchID FROM ActiveMatch JOIN Game using(gameID) JOIN Template using(templateID) ORDER BY matchID DESC LIMIT 1")
+    stmt = ("select gameName, templateName,matchID,Game.gameID,Template.templateID FROM ActiveMatch JOIN Game using(gameID) JOIN Template using(templateID) ORDER BY matchID DESC LIMIT 1")
     mycursor.execute(stmt,())
     myresult = mycursor.fetchone()
     mycursor.close()
 
-    gameName,templateName,matchID = myresult
+    gameName,templateName,matchID,gameID,templateID = myresult
 
     mycursor = mydb.cursor(prepared=True)
     stmt = ("select displayName FROM Player WHERE totalScore in (Select MAX(totalScore) FROM Player WHERE matchID=%s GROUP BY matchID) LIMIT 1")
@@ -400,11 +400,13 @@ def apiGetPostGame():
     myresult = mycursor.fetchone()
     mycursor.close()
 
-    winnerDisplayName = myresult
+    winnerDisplayName, = myresult
 
     result = {"gameName":"{}".format(gameName)
                     ,"templateName":"{}".format(templateName)
                     ,"winnerDisplayName":"{}".format(winnerDisplayName)
+                    ,"gameID":"{}".format(gameID)
+                    ,"templateID":"{}".format(templateID)
                     ,"scoreTable":[]
                     ,"numOfPlayers":[]}
 
@@ -424,7 +426,11 @@ def apiGetPostGame():
             #append each new dictionary to its appropriate list
             result["scoreTable"].append(finalScoreRow)
     mydb.close()
-    return result
+
+    response = jsonify(result)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
 
 
 ##################################### start game API ########################################

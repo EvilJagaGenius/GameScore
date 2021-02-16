@@ -10,6 +10,7 @@ import { Button } from '@material-ui/core';
 import DoneIcon from '@material-ui/icons/Done';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import { useState, useEffect } from 'react';
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -117,7 +118,7 @@ function ScoringOverview() {
         <AccordionDetails className={classes.details}>
 
           <div className={classes.column}>
-              <Typography>Condition</Typography>
+              <Typography><b>Condition</b></Typography>
           </div>
 
           {
@@ -126,7 +127,7 @@ function ScoringOverview() {
           <>
           {Object.keys((awardsData[0].players)).map(key => (
               <div  className={classes.column}>
-                <Typography>{awardsData[0]["players"][key].displayName}</Typography>
+                <Typography><b>{awardsData[0]["players"][key].displayName}</b></Typography>
               </div>
               ))}
 
@@ -140,7 +141,7 @@ function ScoringOverview() {
         {Object.keys(awardsData).map(key => (
               <AccordionDetails className={classes.details}>
               <div className={classes.column}>
-                <Typography>{awardsData[key].conditionName}</Typography>
+                <Typography><b>{awardsData[key].conditionName}</b> &nbsp;&nbsp;&nbsp;&nbsp;(Max: {awardsData[key].maxPerGame})</Typography>
               </div>
 
               {

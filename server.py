@@ -190,7 +190,7 @@ def apiGetHomePage():
         picURL, templateName, numRatings, averageRating = row
         template = {"pictureURL":"{}".format(picURL)
                     ,"templateName":"{}".format(templateName)
-                    ,"NumRatings":numRatings
+                    ,"numRatings":numRatings
                     ,"averageRating":averageRating}
         #append each new dictionary to its appropriate list
         result["highestRated"].append(template)
@@ -229,7 +229,7 @@ def apiGetHomePage():
         picURL, templateName, numRatings, averageRating = row
         template = {"pictureURL":"{}".format(picURL)
                     ,"templateName":"{}".format(templateName)
-                    ,"NumRatings":numRatings
+                    ,"numRatings":numRatings
                     ,"averageRating":averageRating}
         #append each new dictionary to its appropriate list
         result["favoritedTemplates"].append(template)
@@ -250,7 +250,7 @@ def apiGetHomePage():
         picURL, templateName, numRatings, averageRating = row
         template = {"pictureURL":"{}".format(picURL)
                     ,"templateName":"{}".format(templateName)
-                    ,"NumRatings":numRatings
+                    ,"numRatings":numRatings
                     ,"averageRating":averageRating}
         #append each new dictionary to its appropriate list
 

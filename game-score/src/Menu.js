@@ -4,13 +4,23 @@
 
 import React, { Component } from 'react'
 import { Accordion, Icon } from 'semantic-ui-react'
-import FavoritedData from "./FavoritedData"
-import RecentData from "./RecentData"
-import HighestData from "./HighestData"
-import RecommendedData from "./RecommendedData"
+import GameRow from "./GameRow"
+import TemplateRow from "./TemplateRow"
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
+
+
 
 export default class Menu extends Component {
-  state = { activeIndex: 0 }
+  state = { activeIndex: 0,
+            data:{},
+            loaded:"False"
+          }
 
   handleClick = (e, titleProps) => {
     const { index } = titleProps
@@ -18,6 +28,24 @@ export default class Menu extends Component {
     const newIndex = activeIndex === index ? -1 : index
 
     this.setState({ activeIndex: newIndex })
+  }
+
+
+  componentDidMount() {
+    fetch("/api/getHomePage")
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            data: result,
+            loaded: "True"
+          }
+          );
+        },
+        // Note: it's important to handle errors here
+        // instead of a catch() block so that we don't swallow
+        // exceptions from actual bugs in components.
+      )
   }
 
 
@@ -39,9 +67,27 @@ export default class Menu extends Component {
           Favorited Templates
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 0}>
-
-          {/*Table displaying the dynamic data for Favorited Templates*/}
-          <FavoritedData />
+         <TableContainer component={Paper}>
+          <Table size="small">
+                {/*Table displaying the dynamic data for Favorited Templates*/}
+                {
+                this.state.loaded == "True" &&
+                <div className="FavoritedData">
+                  <> 
+                    {/* Iterate through favorited templates and render the data in a tabular format */}
+                    {Object.keys(this.state.data.favoritedTemplates).map(key => (
+                      <TemplateRow rowPos={key} accPos="0" 
+                      pictureURL = {this.state.data["favoritedTemplates"][key].pictureURL} 
+                      templateName = {this.state.data["favoritedTemplates"][key].templateName}
+                      numRatings = {this.state.data["favoritedTemplates"][key].numRatings}
+                      averageRating = {this.state.data["favoritedTemplates"][key].averageRating}
+                      />
+                    ))}
+                  </>
+                </div>
+              }
+          </Table>
+        </TableContainer>
         </Accordion.Content>
 
         {/* Recently Played */}
@@ -54,7 +100,27 @@ export default class Menu extends Component {
           Recently Played
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 1}>
-          <RecentData />
+         <TableContainer component={Paper}>
+          <Table size="small">
+                {/*Table displaying the dynamic data for Favorited Templates*/}
+                {
+                this.state.loaded == "True" &&
+                <div className="RecentlyPlayed">
+                  <> 
+                    {/* Iterate through favorited templates and render the data in a tabular format */}
+                    {Object.keys(this.state.data.recentlyPlayed).map(key => (
+                      <TemplateRow rowPos={key} accPos="1" 
+                      pictureURL = {this.state.data["recentlyPlayed"][key].pictureURL} 
+                      templateName = {this.state.data["recentlyPlayed"][key].templateName}
+                      numRatings = {this.state.data["recentlyPlayed"][key].numRatings}
+                      averageRating = {this.state.data["recentlyPlayed"][key].averageRating}
+                      />
+                    ))}
+                  </>
+                </div>
+              }
+          </Table>
+        </TableContainer>
         </Accordion.Content>
 
         {/* Highest Rated Templates accordian */}
@@ -67,7 +133,27 @@ export default class Menu extends Component {
           Highest Rated Templates
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 2}>
-          <HighestData />
+         <TableContainer component={Paper}>
+          <Table size="small">
+                {/*Table displaying the dynamic data for Favorited Templates*/}
+                {
+                this.state.loaded == "True" &&
+                <div className="HighestData">
+                  <> 
+                    {/* Iterate through favorited templates and render the data in a tabular format */}
+                    {Object.keys(this.state.data.highestRated).map(key => (
+                      <TemplateRow rowPos={key} accPos="2" 
+                      pictureURL = {this.state.data["highestRated"][key].pictureURL} 
+                      templateName = {this.state.data["highestRated"][key].templateName}
+                      numRatings = {this.state.data["highestRated"][key].numRatings}
+                      averageRating = {this.state.data["highestRated"][key].averageRating}
+                      />
+                    ))}
+                  </>
+                </div>
+              }
+          </Table>
+        </TableContainer>
         </Accordion.Content>
 
         {/* Recommended Games accordian */}
@@ -80,7 +166,25 @@ export default class Menu extends Component {
           Recommended Games
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 3}>
-          <RecommendedData />
+         <TableContainer component={Paper}>
+          <Table size="small">
+                {/*Table displaying the dynamic data for Favorited Templates*/}
+                {
+                this.state.loaded == "True" &&
+                <div className="RecommendedGames">
+                  <> 
+                    {/* Iterate through favorited templates and render the data in a tabular format */}
+                    {Object.keys(this.state.data.recommendedGames).map(key => (
+                      <GameRow rowPos={key} accPos="3" 
+                      pictureURL = {this.state.data["recommendedGames"][key].pictureURL} 
+                      gameName = {this.state.data["recommendedGames"][key].gameName}
+                      />
+                    ))}
+                  </>
+                </div>
+              }
+          </Table>
+        </TableContainer>
         </Accordion.Content>
       </Accordion>
     )

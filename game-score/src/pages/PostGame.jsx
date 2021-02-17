@@ -17,6 +17,7 @@
  import { useHistory } from "react-router-dom";
  import { makeStyles } from '@material-ui/core/styles';
  import SportsEsports from '@material-ui/icons/SportsEsports';
+  import HomeIcon from '@material-ui/icons/Home';
   import Home from "./Home"
 
  const useStyles = makeStyles((theme) => ({
@@ -102,15 +103,21 @@
          <h5>What did you think of {postGameData.templateName}?</h5>
         </div>
         <div style={{display: 'flex',  justifyContent:'center'}}>
-       		<Button  className={classes.button} variant = "contained" color="primary" size = "large" style={{marginTop:12}} startIcon={<SportsEsports />}
+       		<Button  className={classes.button} variant = "contained" color="primary" size = "large" style={{marginTop:12,marginRight:8}} startIcon={<SportsEsports />}
           onClick={()=>
        			 	 fetch(`/api/postCreateNewGame?templateID=${postGameData.templateID}&gameID=${postGameData.gameID}&numOfPlayers=${postGameData.numOfPlayers}`)
  					.then(res => res.json()).then(data => {
  					console.log(data)
- 					history.push('/play/overview')
+ 					history.push('/play/overview')  
 					})
 
 					}> Replay Game</Button>
+
+          <Button className={classes.button} variant = "contained" color="primary" size = "large" style={{marginTop:12,marginLeft:8}} startIcon={<HomeIcon />}
+          onClick={()=>
+          history.push('/home')
+
+          }> Return Home</Button>
        	</div>
      </div>
    );

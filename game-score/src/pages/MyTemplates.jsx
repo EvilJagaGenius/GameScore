@@ -9,7 +9,7 @@ import TemplateRow from "../TemplateRow";
 import Table from '@material-ui/core/Table';
 import TableContainer from '@material-ui/core/TableContainer';
 import Paper from '@material-ui/core/Paper';
-import { Container, Button } from 'react-floating-action-button';
+import { Container, Link } from 'react-floating-action-button';
 import { useHistory } from "react-router-dom";
 
 export default class MyTemplates extends Component {
@@ -60,11 +60,13 @@ export default class MyTemplates extends Component {
     }
   }
 
-  routeTemplateEditor() {
+  /*
+  function RouteTemplateEditor() {
     let path = '/mytemplates/templatecreator';
     let history = useHistory();
     history.push(path);
   }
+  */
 
   render() {
 
@@ -97,11 +99,9 @@ export default class MyTemplates extends Component {
           </Table>
         </TableContainer>
         <Container>
-          <Button
+        <Link href="/mytemplates/templatecreator"
             tooltip="Create New Template"
-            icon="fas fa-plus"
-            rotate={true}
-            onClick={routeTemplateEditor()} />
+            icon="fas fa-plus"/>
         </Container>
       </div>
     )

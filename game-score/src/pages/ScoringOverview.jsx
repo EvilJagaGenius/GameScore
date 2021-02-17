@@ -10,6 +10,13 @@ import { Button } from '@material-ui/core';
 import DoneIcon from '@material-ui/icons/Done';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import { useState, useEffect } from 'react';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -30,6 +37,7 @@ const useStyles = makeStyles((theme) => ({
   },
   details: {
     alignItems: 'center',
+    marginTop:-12
   },
   column: {
     flexBasis: '33.33%',
@@ -60,7 +68,6 @@ function ScoringOverview() {
   const [summaryData, setSummaryData] = useState([{}]);
   const [awardsData, setAwardsData] = useState([{}]);
   const classes = useStyles();
-  const numbers = [1, 2, 3, 4];
 
   useEffect(() => {
     fetch("/api/getScoring").then(res => res.json()).then(data => {
@@ -77,35 +84,53 @@ function ScoringOverview() {
     <div className={classes.root}>
 
       <>
-        <div style={{display: 'flex',  justifyContent:'center'}}>
+        <div style={{display: 'flex',  justifyContent:'center',marginTop:14}}>
           <h2>{summaryData.gameName}</h2>
         </div>
 
-        <div style={{display: 'flex',  justifyContent:'center'}}>
+        <div style={{display: 'flex',  justifyContent:'center',marginBottom:10}}>
          <h4>{summaryData.templateName}</h4>
         </div>
       </>
 
-      <Accordion>
+      <Accordion defaultExpanded="true">
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
           id="panel1a-header">
           <Typography variant="h5">Score Overview</Typography>
         </AccordionSummary>
+
+        <AccordionDetails className={classes.details}>
+        <TableContainer component={Paper}>
+         <Table size="small">
+          <TableHead>
+              <TableRow>
+                <TableCell align="left">Name</TableCell>
+                <TableCell align="center">Score</TableCell>
+              </TableRow>
+          </TableHead>
         {Object.keys(playerData).map(key => (
-          <AccordionDetails className={classes.details}>
-            <AccountCircle alt = "tempAlt" fontsize = "medium"></AccountCircle>
-          <div className={classes.column}>
-            <Link to={{pathname: "/profile/individualscoring" , state:{message: 'Called',individualPlayerID:playerData[key].playerID}}} className={classes.column}>
-              {playerData[key].displayName}
-            </Link>
-            </div>
-            <div className={classes.column}>
-              <Typography className={classes.heading}>{playerData[key].score}</Typography>
-            </div>
-          </AccordionDetails>
+            <TableRow>
+                <TableCell>
+                      <div style={{float:"left",marginTop:4}}>
+                          <AccountCircle style={{width:30,height:30}} alt = "tempAlt" fontsize = "medium"></AccountCircle>
+                     </div>
+                     <div style={{float:"left",marginTop:7,marginLeft:12}}>
+                          <Typography style={{fontSize:17}}className={classes.heading}>{playerData[key].displayName}</Typography>
+                      </div>
+                </TableCell>
+               <TableCell align="center">
+                  <Link to={{pathname: "/profile/individualscoring" , state:{message: 'Called',individualPlayerID:playerData[key].playerID}}} className={classes.column} style={{fontSize:17}}>
+                   {Math.round(playerData[key].score/0.01)*0.01}
+                  </Link>
+                </TableCell>
+            </TableRow>
         ))}
+
+        </Table>
+        </TableContainer>
+        </AccordionDetails>
       </Accordion>
       <Accordion>
         <AccordionSummary
@@ -114,56 +139,61 @@ function ScoringOverview() {
           id="panel1a-header">
           <Typography variant="h5">Global Awards</Typography>
         </AccordionSummary>
+        <AccordionDetails>
 
-        <AccordionDetails className={classes.details}>
+        <TableContainer component={Paper}>
+         <Table size="small">
+          <TableHead>
+              <TableRow>
+                 <TableCell align="center"> 
+                      <Typography>Condition</Typography>
+                    </TableCell>
+                {
+                Object.keys((awardsData)).length > 0 &&
+                Object.keys((awardsData[0])).length > 0 &&
+                Object.keys((awardsData[0]["players"])).length > 0 &&
+                <>
+                {Object.keys((awardsData[0].players)).map(key => (
+                    <TableCell align="center"> 
+                      <Typography>{awardsData[0]["players"][key].displayName}</Typography>
+                    </TableCell>
+                    ))}
 
-          <div className={classes.column}>
-              <Typography><b>Condition</b></Typography>
-          </div>
-
+                </>
+                  }
+            </TableRow>
+           </TableHead>
           {
-          Object.keys((awardsData)).length > 0 &&
-          Object.keys((awardsData[0])).length > 0 &&
-          Object.keys((awardsData[0]["players"])).length > 0 &&
+          Object.keys(awardsData).length > 0 &&
           <>
-          {Object.keys((awardsData[0].players)).map(key => (
-              <div  className={classes.column}>
-                <Typography><b>{awardsData[0]["players"][key].displayName}</b></Typography>
-              </div>
-              ))}
+          {Object.keys(awardsData).map(key => (
+              <TableRow>
+                <TableCell align="center">
+                  <Typography><b>{awardsData[key].conditionName}</b></Typography>
+                  <Typography>(Max: {awardsData[key].maxPerGame})</Typography>
+                </TableCell>
 
+                  {
+                  Object.keys((awardsData[key])).length > 0 &&
+                  Object.keys((awardsData[key]["players"])).length > 0 &&
+                  <>
+                    {Object.keys((awardsData[key]["players"])).map(key2 => (
+                      <TableCell align="center">
+                        <Typography>{Math.round(awardsData[key]["players"][key2].value/0.01)*0.01}</Typography>
+                      </TableCell>
+
+                      ))}
+                  </>
+                  }
+              </TableRow>
+            ))}
           </>
           }
-         </AccordionDetails>
+          
 
-        {
-        Object.keys(awardsData).length > 0 &&
-        <div>
-        {Object.keys(awardsData).map(key => (
-              <AccordionDetails className={classes.details}>
-              <div className={classes.column}>
-                <Typography><b>{awardsData[key].conditionName}</b> &nbsp;&nbsp;&nbsp;&nbsp;(Max: {awardsData[key].maxPerGame})</Typography>
-              </div>
-
-              {
-              Object.keys((awardsData[key])).length > 0 &&
-              Object.keys((awardsData[key]["players"])).length > 0 &&
-              <>
-              {Object.keys((awardsData[key]["players"])).map(key2 => (
-                <div className={classes.column}>
-                  <Typography>{awardsData[key]["players"][key2].value}</Typography>
-                </div>
-
-                ))}
-                </>
-                }
-
-            </AccordionDetails>
-          ))}
-        </div>
-        }
-
-
+        </Table>
+        </TableContainer>
+        </AccordionDetails>
       </Accordion>
 
       <Link to='/profile/postgame'>

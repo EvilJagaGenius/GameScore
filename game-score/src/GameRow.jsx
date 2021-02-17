@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
+import ImagePlaceholder from '@material-ui/icons/Casino';
 
 export default function GameRow(props) {
         return(
-          <TableRow rowPos={props.rowPos} accPos={props.accPos}>
-            <TableCell><img src={props.pictureURL} style={{width: 64,  height:64}}/></TableCell>
-            <TableCell>{props.gameName}</TableCell>
+          <TableRow>
+            <TableCell style = {{width:125,padding:5}} align="left">
+            	<ImagePlaceholder style={{width: 58,  height:58}}/>
+            </TableCell>
+            <TableCell align="left" style={{padding:5}}>
+            	<p style={{marginLeft:-65,fontSize:17}}>{props.gameName}</p>
+            </TableCell>
           </TableRow>
             );
 }

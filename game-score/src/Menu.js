@@ -6,6 +6,7 @@ import React, { Component } from 'react'
 import { Accordion, Icon } from 'semantic-ui-react'
 import GameRow from "./GameRow"
 import TemplateRow from "./TemplateRow"
+import BottomUI from "./BottomUI"
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -13,23 +14,32 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-
-
+import { withStyles } from "@material-ui/core/styles";
+import { makeStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import Star from '@material-ui/icons/Star';
 
 
 export default class Menu extends Component {
-  state = { activeIndex: 0,
+
+constructor(props) {
+    super(props);
+    this.state = { activeIndex: 0,
             data:{},
             loaded:"False",
-            selectedTemplate:{accPos:0,rowPos:0}
-          }
+            selectedTemplate:{accPos:0,rowPos:-1}
+          };
+     const { match, history, classes } = this.props;
+    };
+
+  
 
   handleClick = (e, titleProps) => {
     const { index } = titleProps
     const { activeIndex } = this.state
     const newIndex = activeIndex === index ? -1 : index
 
-    this.setState({ activeIndex: newIndex })
+    this.setState({ activeIndex: newIndex,selectedTemplate:{accPos:index,rowPos:-1} })
   }
 
 
@@ -78,9 +88,10 @@ export default class Menu extends Component {
 
   render() {
     const { activeIndex } = this.state
-
+    const { classes } = this.props;
     return (
       //The accordian menu
+
       <Accordion fluid styled>
 
         {/* Favorited Templates accordian */}
@@ -93,32 +104,39 @@ export default class Menu extends Component {
           Favorited Templates
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 0}>
-         <TableContainer component={Paper}>
-          <Table size="small">
-                {/*Table displaying the dynamic data for Favorited Templates*/}
-                {
+        <TableContainer component={Paper}>
+         <Table>
+            {
                 this.state.loaded == "True" &&
-                <div className="FavoritedData">
                   <> 
-                    {/* Iterate through favorited templates and render the data in a tabular format */}
                     {Object.keys(this.state.data.favoritedTemplates).map(key => (
-                      <div onClick={()=>this.selectTemplate(0,key)}>
-                        <TemplateRow rowPos={key} accPos="0" 
-                        pictureURL = {this.state.data["favoritedTemplates"][key].pictureURL} 
-                        templateName = {this.state.data["favoritedTemplates"][key].templateName}
-                        numRatings = {this.state.data["favoritedTemplates"][key].numRatings}
-                        averageRating = {this.state.data["favoritedTemplates"][key].averageRating}
-                        templateID = {this.state.data["favoritedTemplates"][key].templateID}
-                        gameID = {this.state.data["favoritedTemplates"][key].gameID}
-                        selected = {this.isSelected(0,key)}
-                        />
-                      </div>
+                        <>
+                          <TableRow onClick={()=>this.selectTemplate(0,key)}>
+                            <TemplateRow 
+                            pictureURL = {this.state.data["favoritedTemplates"][key].pictureURL} 
+                            templateName = {this.state.data["favoritedTemplates"][key].templateName}
+                            numRatings = {this.state.data["favoritedTemplates"][key].numRatings}
+                            averageRating = {this.state.data["favoritedTemplates"][key].averageRating}
+                            />
+                          </TableRow>
+                            {
+                            this.isSelected(0,key) == true &&
+                            <>
+                              <BottomUI
+                                templateName = {this.state.data["favoritedTemplates"][key].templateName}
+                                templateID = {this.state.data["favoritedTemplates"][key].templateID}
+                                gameID = {this.state.data["favoritedTemplates"][key].gameID}
+                                selected = {this.isSelected(0,key)}>
+                                </BottomUI>
+                            </>
+                          }
+                      </>
                     ))}
                   </>
-                </div>
+
               }
           </Table>
-        </TableContainer>
+          </TableContainer>
         </Accordion.Content>
 
         {/* Recently Played */}
@@ -133,22 +151,37 @@ export default class Menu extends Component {
         <Accordion.Content active={activeIndex === 1}>
          <TableContainer component={Paper}>
           <Table size="small">
-                {/*Table displaying the dynamic data for Favorited Templates*/}
                 {
                 this.state.loaded == "True" &&
-                <div className="RecentlyPlayed">
                   <> 
-                    {/* Iterate through favorited templates and render the data in a tabular format */}
                     {Object.keys(this.state.data.recentlyPlayed).map(key => (
-                      <TemplateRow rowPos={key} accPos="1" 
-                      pictureURL = {this.state.data["recentlyPlayed"][key].pictureURL} 
-                      templateName = {this.state.data["recentlyPlayed"][key].templateName}
-                      numRatings = {this.state.data["recentlyPlayed"][key].numRatings}
-                      averageRating = {this.state.data["recentlyPlayed"][key].averageRating}
-                      />
+                        <>
+                          <TableRow onClick={()=>this.selectTemplate(1,key)}>
+                            <TemplateRow
+                            pictureURL = {this.state.data["recentlyPlayed"][key].pictureURL} 
+                            templateName = {this.state.data["recentlyPlayed"][key].templateName}
+                            numRatings = {this.state.data["recentlyPlayed"][key].numRatings}
+                            averageRating = {this.state.data["recentlyPlayed"][key].averageRating}
+                            templateID = {this.state.data["recentlyPlayed"][key].templateID}
+                            gameID = {this.state.data["recentlyPlayed"][key].gameID}
+                            selected = {this.isSelected(1,key)}
+                            />
+                          </TableRow>
+                            {
+                            this.isSelected(1,key) == true &&
+                            <>
+                              <BottomUI
+                                templateName = {this.state.data["recentlyPlayed"][key].templateName}
+                                templateID = {this.state.data["recentlyPlayed"][key].templateID}
+                                gameID = {this.state.data["recentlyPlayed"][key].gameID}
+                                selected = {this.isSelected(1,key)}>
+                                </BottomUI>
+                            </>
+                          }
+                      </>
                     ))}
                   </>
-                </div>
+
               }
           </Table>
         </TableContainer>
@@ -166,22 +199,37 @@ export default class Menu extends Component {
         <Accordion.Content active={activeIndex === 2}>
          <TableContainer component={Paper}>
           <Table size="small">
-                {/*Table displaying the dynamic data for Favorited Templates*/}
-                {
+               {
                 this.state.loaded == "True" &&
-                <div className="HighestData">
                   <> 
-                    {/* Iterate through favorited templates and render the data in a tabular format */}
                     {Object.keys(this.state.data.highestRated).map(key => (
-                      <TemplateRow rowPos={key} accPos="2" 
-                      pictureURL = {this.state.data["highestRated"][key].pictureURL} 
-                      templateName = {this.state.data["highestRated"][key].templateName}
-                      numRatings = {this.state.data["highestRated"][key].numRatings}
-                      averageRating = {this.state.data["highestRated"][key].averageRating}
-                      />
+                        <>
+                          <TableRow onClick={()=>this.selectTemplate(2,key)}>
+                            <TemplateRow
+                            pictureURL = {this.state.data["highestRated"][key].pictureURL} 
+                            templateName = {this.state.data["highestRated"][key].templateName}
+                            numRatings = {this.state.data["highestRated"][key].numRatings}
+                            averageRating = {this.state.data["highestRated"][key].averageRating}
+                            templateID = {this.state.data["highestRated"][key].templateID}
+                            gameID = {this.state.data["highestRated"][key].gameID}
+                            selected = {this.isSelected(2,key)}
+                            />
+                          </TableRow>
+                            {
+                            this.isSelected(2,key) == true &&
+                            <>
+                              <BottomUI
+                                templateName = {this.state.data["highestRated"][key].templateName}
+                                templateID = {this.state.data["highestRated"][key].templateID}
+                                gameID = {this.state.data["highestRated"][key].gameID}
+                                selected = {this.isSelected(2,key)}>
+                                </BottomUI>
+                            </>
+                          }
+                      </>
                     ))}
                   </>
-                </div>
+
               }
           </Table>
         </TableContainer>

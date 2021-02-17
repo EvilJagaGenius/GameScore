@@ -15,13 +15,34 @@
  import TableRow from '@material-ui/core/TableRow';
  import Paper from '@material-ui/core/Paper';
  import { useHistory } from "react-router-dom";
+ import { makeStyles } from '@material-ui/core/styles';
+ import SportsEsports from '@material-ui/icons/SportsEsports';
+  import Home from "./Home"
+
+ const useStyles = makeStyles((theme) => ({
+
+  modal: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    paper: {
+        position: 'absolute',
+        width: "90%",
+        backgroundColor: theme.palette.background.paper,
+        boxShadow: theme.shadows[5],
+        padding: theme.spacing(2, 4, 3),
+        padding:18  
+    },
+}));
 
  //create componenet
- function PostGame() {
+ function PostGame(props) {
 
    const [postGameData, setPostGameData] = useState([{}]);
    const [loaded, setLoaded] = useState("False");
    let history = useHistory()
+   const classes = useStyles()
 
      useEffect(() => {
 	    fetch("/api/getPostGame").then(res => res.json()).then(data => {
@@ -35,7 +56,7 @@
 
 
      <div >
-      	<div style={{display: 'flex',  justifyContent:'center'}}>
+      	<div style={{display: 'flex',  justifyContent:'center',marginTop:15}}>
           <h1>Game Results</h1>
         </div>
 
@@ -43,12 +64,12 @@
          <h3>{postGameData.gameName}</h3>
         </div>
 
-        <div style={{display: 'flex',  justifyContent:'center'}}>
+        <div style={{display: 'flex',  justifyContent:'center',marginTop:25}}>
          <h3>Congratulations {postGameData.winnerDisplayName}!</h3>
         </div>
 
-        <div style={{display: 'flex',  justifyContent:'center'}}>
-         <h5>May your victory be remembered for ages!</h5>
+        <div style={{display: 'flex',  justifyContent:'center',marginBottom:15,marginTop:5}}>
+         <h5 style={{fontSize:13}}>May your victory be remembered for ages!</h5>
         </div>
 
        <TableContainer component={Paper}>
@@ -69,7 +90,7 @@
 	              <TableRow> 
 	                <TableCell align="left">{postGameData["scoreTable"][key].rank}</TableCell>
 	                <TableCell align="center">{postGameData["scoreTable"][key].displayName}</TableCell>
-	                <TableCell align="center">{postGameData["scoreTable"][key].score}</TableCell>
+	                <TableCell align="center">{postGameData["scoreTable"][key].score.toFixed(2)}</TableCell>
 	              </TableRow>
 	           ))}
 	        </>
@@ -77,11 +98,12 @@
         	</Table>
         </TableContainer>
 
-        <div style={{display: 'flex',  justifyContent:'center'}}>
+        <div style={{display: 'flex',  justifyContent:'center',marginTop:35}}>
          <h5>What did you think of {postGameData.templateName}?</h5>
         </div>
         <div style={{display: 'flex',  justifyContent:'center'}}>
-       		<Button onClick={()=>
+       		<Button  className={classes.button} variant = "contained" color="primary" size = "large" style={{marginTop:12}} startIcon={<SportsEsports />}
+          onClick={()=>
        			 	 fetch(`/api/postCreateNewGame?templateID=${postGameData.templateID}&gameID=${postGameData.gameID}&numOfPlayers=${postGameData.numOfPlayers}`)
  					.then(res => res.json()).then(data => {
  					console.log(data)

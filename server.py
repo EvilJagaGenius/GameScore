@@ -11,7 +11,6 @@ app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0  # Always do a complete refresh (for now)
 SERVER_NAME = 'flask-api:5000'
 
-
 mydb = mysql.connector.connect(
       host="10.18.110.183",
       port="3306",
@@ -191,7 +190,7 @@ def apiGetHomePage():
         template = {"pictureURL":"{}".format(picURL)
                     ,"templateName":"{}".format(templateName)
                     ,"numRatings":numRatings
-                    ,"averageRating":averageRating
+                    ,"averageRating":float(averageRating)
                     ,"gameID":"{}".format(gameID)
                     ,"templateID":"{}".format(templateID)}
         #append each new dictionary to its appropriate list
@@ -232,7 +231,7 @@ def apiGetHomePage():
         template = {"pictureURL":"{}".format(picURL)
                     ,"templateName":"{}".format(templateName)
                     ,"numRatings":numRatings
-                    ,"averageRating":averageRating
+                    ,"averageRating":round(float(averageRating),2)
                     ,"gameID":"{}".format(gameID)
                     ,"templateID":"{}".format(templateID)}
         #append each new dictionary to its appropriate list
@@ -255,7 +254,7 @@ def apiGetHomePage():
         template = {"pictureURL":"{}".format(picURL)
                     ,"templateName":"{}".format(templateName)
                     ,"numRatings":numRatings
-                    ,"averageRating":averageRating
+                    ,"averageRating":round(float(averageRating),2)
                     ,"gameID":"{}".format(gameID)
                     ,"templateID":"{}".format(templateID)}
         #append each new dictionary to its appropriate list
@@ -358,7 +357,7 @@ def apiGetScoring():
         player = {"playerID":playerID
                     ,"displayName":"{}".format(displayName)
                     ,"conditions":[]
-                    ,"totalScore":totalScore}
+                    ,"totalScore":round(totalScore,2)}
 
         mycursor = mydb.cursor(prepared=True)
         stmt = ("select conditionName, conditionID, value, score, inputType FROM ActiveMatchPlayerConditionScore JOIN ScoringCondition using(conditionID,templateID,gameID)WHERE ActiveMatchPlayerConditionScore.matchID = %s AND playerID = %s")
@@ -369,8 +368,8 @@ def apiGetScoring():
         for rowCondition in myresultCondition:
             conditionName, conditionID, value, score, inputType = rowCondition
             condition = {"conditionName":"{}".format(conditionName)
-                    ,"score":score
-                    ,"value":value
+                    ,"score":round(score,2)
+                    ,"value":round(value,2)
                     ,"conditionID":conditionID
                     ,"inputType":"{}".format(inputType)}
             #append each new dictionary to its appropriate list

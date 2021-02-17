@@ -722,12 +722,14 @@ def editTemplateGET():
     for t in result:
         # Add that tuple to our response
         dictionary = {
+        "conditionID": t[0],
         "conditionName": t[1],
         "description": t[2],
         "maxPerGame": t[3],
         "maxPerPlayer": t[4],
         "scoringType": t[5],
-        "pointMultiplier": t[6]
+        "pointMultiplier": t[6],
+        "inputType": t[7]
         }
         response.update({t[0]: dictionary})  # Use conditionID as a key
     
@@ -926,6 +928,7 @@ def editConditionValues():
         return "templateID not set"
     if conditionID == None:
         return "conditionID not set"
+    conditionName = request.form.get("conditionName")
     description = request.form.get("description")
     maxPerGame = request.form.get("max_per_game")
     maxPerPlayer = request.form.get("max_per_player")
@@ -934,10 +937,10 @@ def editConditionValues():
     pointMultiplier = request.form.get("point_multiplier")
     cursor = mydb.cursor(prepared=True)
     statement = """
-    UPDATE ScoringCondition SET description = %s, maxPerGame = %s, maxPerPlayer = %s, scoringType = %s, inputType = %s, pointMultiplier = %s
+    UPDATE ScoringCondition SET conditionName = %s description = %s, maxPerGame = %s, maxPerPlayer = %s, scoringType = %s, inputType = %s, pointMultiplier = %s
     WHERE templateID = %s AND conditionID = %s
     """
-    cursor.execute(statement, (description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier, templateID, conditionID))
+    cursor.execute(statement, (conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier, templateID, conditionID))
     cursor.close()
     mydb.close()
     return redirect(url_for("editConditionGET"))

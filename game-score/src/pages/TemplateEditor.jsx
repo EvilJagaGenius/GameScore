@@ -3,18 +3,21 @@
  */
 
  import React, { Component } from 'react'
+ import { Link } from "react-router-dom"
 
  export default class TemplateEditor extends Component {
     constructor (props) {
         super(props)
     }
 
+    /**
     onSubmit = () => {
         fetch("")
     }
+    */ 
 
     createCondition() {
-        
+        fetch("")
     }
 
     render() {
@@ -27,7 +30,9 @@
                     <div className="Condition list">
                     </div>
                     <button type="submit">Upload Template</button>
-                    <button type="button" onClick={createCondition}>New Condition</button>
+                    <Link to="/mytemplates/conditioneditor">
+                        <button type="button" onClick={createCondition()}>New Condition</button>
+                    </Link>
                 </form>
             )
         }

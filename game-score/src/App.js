@@ -8,6 +8,7 @@ import { Route, Switch, Redirect } from "react-router-dom";
 import Scoring from './pages/IndividualScoring';
 import Finalize from './pages/PostGame';
 import Overview from './pages/ScoringOverview';
+import ConditionEditor from './pages/ConditionEditor';
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
       <Route path="/profile/individualscoring" component ={Scoring}/>
       <Route path="/profile/postgame" component={Finalize}/>
       <Route path="/profile" component={Overview}/>
+      <Route path="/mytemplates/conditioneditor" component = {ConditionEditor}/>
     </Switch>
   );
 }

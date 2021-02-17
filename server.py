@@ -1027,7 +1027,7 @@ def templateGameList():
     results = cursor.fetchall()
     for t in results:
         dictionary = {
-            "gameID": t[0]
+            "gameID": t[0],
             "gameName": t[1]
         }
         response.update({t[0]:dictionary})

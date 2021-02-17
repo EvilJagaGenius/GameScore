@@ -9,6 +9,8 @@ import { BrowserRouter as Router, Link } from 'react-router-dom';
 import { Button } from '@material-ui/core';
 import DoneIcon from '@material-ui/icons/Done';
 import AccountCircle from '@material-ui/icons/AccountCircle';
+import HelpIcon from '@material-ui/icons/Help';
+import SettingsIcon from '@material-ui/icons/Settings';
 import { useState, useEffect } from 'react';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -17,6 +19,8 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import Modal from '@material-ui/core/Modal';
+import TextField from '@material-ui/core/TextField';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -59,15 +63,38 @@ const useStyles = makeStyles((theme) => ({
   margin: {
     margin: theme.spacing(1),
   },
+  modal: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    paper: {
+        position: 'absolute',
+        width: "90%",
+        backgroundColor: theme.palette.background.paper,
+        boxShadow: theme.shadows[5],
+        padding: theme.spacing(2, 4, 3),
+        padding:18  
+    },
 }));
 
-
+function getModalStyle() {
+    const top = 50;
+    const left = 50;
+    return {
+        top: `${top}%`,
+        left: `${left}%`,
+        transform: `translate(-${top}%, -${left}%)`,
+    };
+}
 
 function ScoringOverview() {
   const [playerData, setPlayerData] = useState([{}]);
   const [summaryData, setSummaryData] = useState([{}]);
   const [awardsData, setAwardsData] = useState([{}]);
+  const [showManagePlayers,setShowManagePlayers] = useState(false)
   const classes = useStyles();
+  const [modalStyle] = React.useState(getModalStyle);
 
   useEffect(() => {
     fetch("/api/getScoring").then(res => res.json()).then(data => {
@@ -196,9 +223,97 @@ function ScoringOverview() {
         </AccordionDetails>
       </Accordion>
 
-      <Link to='/play/postgame'>
-      <Button className={classes.button} startIcon={<DoneIcon />} variant = "contained" color="primary" size = "large" onClick={()=>console.log("clicked button")}>Finalize Score</Button>
-      </Link>
+        <Modal
+              open={showManagePlayers}
+              aria-labelledby="simple-modal-title"
+              aria-describedby="simple-modal-description"
+            >
+            <div style={modalStyle} className={classes.paper}>
+                <h3 style={{textAlign:"center"}}>Manage Players</h3>
+  
+                <TableContainer component={Paper}>
+                 <Table size="small">
+                  <TableHead>
+                      <TableRow>
+                        <TableCell align="left">Name</TableCell>
+                      </TableRow>
+                    </TableHead>
+
+                {Object.keys(playerData).map(key => (
+                  <TableRow>
+                    <TableCell>
+                       
+                        {
+                        playerData[key].userID!=null && 
+                          <>
+                           <AccountCircle style={{width:30,height:30,float:"left",marginLeft:-8}} alt = "tempAlt" fontsize = "medium"></AccountCircle>
+                          <Typography style={{marginLeft:30,fontSize:14,marginTop:5}} >{playerData[key].displayName}</Typography>
+                         </>
+                       }
+                        {
+                         playerData[key].userID==null &&
+                          <>
+                            <HelpIcon style={{width:30,height:30,float:"left",marginLeft:-8}} alt = "tempAlt" fontsize = "medium"></HelpIcon>
+                            <TextField id={playerData[key].playerID} style={{width:"50%",marginLeft:8,fontSize:15}}defaultValue={playerData[key].displayName}></TextField>
+                          </>
+                        }
+                    </TableCell>
+                  </TableRow>
+                 ))}
+                  </Table>
+                </TableContainer>
+
+                 <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
+                    <Button className={classes.button}  variant = "contained" color="primary" size = "large" onClick={()=>{
+                        
+                          var str = ``
+                          var isFirst = true
+                              for(var i=1;i<(Object.keys(playerData)).length;i++)
+                              {
+                                  if(playerData[i].displayName!=document.getElementById(playerData[i].playerID).value)
+                                    {
+                                      if(isFirst==false)
+                                      {
+                                        str = str + `&`
+                                      }
+
+                                      str = str + `playerID=${encodeURIComponent(playerData[i].playerID)}&newDisplayName=${encodeURIComponent(document.getElementById(playerData[i].playerID).value)}`
+                                      isFirst = false
+                                    }
+                              }
+                              console.log(str)
+                              
+                            if(str!=``)
+                            {
+                           fetch(`/api/postUpdatePlayerName?`+str)
+                            .then(res => res.json()).then(data => {
+                                  setPlayerData(data.scoringOverview.players);
+                                  setAwardsData(data.globalAwards);
+                                  setSummaryData(data.scoringOverview);
+                                  setShowManagePlayers(false);
+                            })
+                            }
+                            else
+                            {
+                              setShowManagePlayers(false);
+                            }
+                            
+
+                    }}>Save Changes</Button>
+
+                    <Button className={classes.button}variant = "contained" color="primary" size = "large" onClick={()=>setShowManagePlayers(false)
+                    }>Cancel</Button>
+                </div>
+
+              </div>
+            </Modal>
+      <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
+          <Link to='/play/postgame'>
+          <Button className={classes.button} startIcon={<DoneIcon />} variant = "contained" color="primary" size = "large" onClick={()=>console.log("clicked button")}>Finalize Score</Button>
+          </Link>
+
+          <Button className={classes.button} startIcon={<SettingsIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowManagePlayers(true)}>Manage Players</Button>
+      </div>
     </div>
   );
 }

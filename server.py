@@ -295,7 +295,7 @@ def apiGetScoring():
 
     #Get Players info
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select DISTINCT Player.playerID, Player.totalScore, Player.displayOrder, displayName from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE Player.matchID = %s")
+    stmt = ("select DISTINCT Player.playerID, Player.totalScore, Player.displayOrder, displayName, userID from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE Player.matchID = %s")
 
     mycursor.execute(stmt,(matchID,))
     myresult = mycursor.fetchall()
@@ -303,10 +303,11 @@ def apiGetScoring():
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-        playerID, score, displayOrder, displayName = row
+        playerID, score, displayOrder, displayName, userID = row
         player = {"playerID":playerID
                     ,"score":score
                     ,"displayOrder":displayOrder
+                    ,"userID":userID
                     ,"displayName":"{}".format(displayName)}
         #append each new dictionary to its appropriate list
         result["scoringOverview"]["players"].append(player)
@@ -697,7 +698,29 @@ def destroyMatch(matchID):
     mydb.close()
     return "success"
 
+
+##################################### updateName API ########################################
+@app.route("/api/postUpdatePlayerName")
+def apiPostUpdatePlayerName():
+
+    changedPlayerIDs = request.args.getlist("playerID")
+    changedNames = request.args.getlist("newDisplayName")
+
+    for x in range(0,len(changedPlayerIDs)):
+        mydb = mysql.connector.connect(pool_name = "mypool")
+        mycursor = mydb.cursor(prepared=True)
+        stmt = ("UPDATE Player SET displayName=%s WHERE playerID=%s")
+        mycursor.execute(stmt,(str(changedNames[x]),int(changedPlayerIDs[x])))
+        mycursor.close()
+        print(changedNames[x])
+        print(changedPlayerIDs[x])
+        mydb.commit()
+
+    print(changedNames)
+    print(changedPlayerIDs)
     
+    return redirect(url_for('apiGetScoring'))
+
       
 ##################################### edit Template API ########################################
 

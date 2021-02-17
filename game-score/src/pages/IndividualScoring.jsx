@@ -1,6 +1,5 @@
 /**
  * IndividualScoring.jsx-Jonathon Lannon
- * As of now, this is a placeholder for future code
  */
 
 //import resources
@@ -22,12 +21,7 @@ import { withStyles } from "@material-ui/core/styles";
 import BackIcon from '@material-ui/icons/ArrowBackIos';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 
-
-
-export default class ScoringPage extends React.Component
-{
-  
-
+export default class ScoringPage extends React.Component{
    constructor(props) {
     super(props);
     this.state = {
@@ -38,7 +32,7 @@ export default class ScoringPage extends React.Component
      const { match, history, classes } = this.props;
     };
 
-componentDidMount() {
+componentDidMount(){
     fetch("/api/getScoring")
       .then(res => res.json())
       .then(
@@ -51,7 +45,7 @@ componentDidMount() {
 
           for(var i=0;i<Object.keys(result["individualScoring"]).length;i++)
           {
-            if(result["individualScoring"][i].playerID==this.props.location.state.individualPlayerID)
+            if(result["individualScoring"][i].playerID===this.props.location.state.individualPlayerID)
             {
               this.setState({key:i})
               console.log(i)
@@ -64,8 +58,7 @@ componentDidMount() {
       )
   }
 
-  recallAPI()
-  {
+  recallAPI(){
       fetch(`/api/postUpdateScore?conditionID=${ScoringPage.updatedConditionID}&playerID=${ScoringPage.updatedPlayerID}&value=${this.roundValues(ScoringPage.updatedValue)}`)
         .then(res => res.json())
         .then(
@@ -81,23 +74,17 @@ componentDidMount() {
         )
   }
 
-  roundValues(num)
-  {
+  roundValues(num){
     return Math.round(num/0.01)*0.01
   }
 
-
-  render()
-  {
+  render(){
       var playerID = this.props.location.state.individualPlayerID
-
       const { classes } = this.props;
       return(
       <div>
-
-
       {
-      this.state.loaded == "True" && 
+      this.state.loaded === "True" && 
       <>
         <div style={{whiteSpace:"nowrap"}}>
           <div style={{textAlign:"center",display:"inlineBlock",marginTop:15,marginBottom:10}} aligxn="center" textAlign= "center">
@@ -107,9 +94,7 @@ componentDidMount() {
           <div style={{paddingLeft:0,left:5,top:15,position:"absolute"}} align="left">
               <Button startIcon={<BackIcon/>} onClick={()=>this.props.history.goBack()}></Button>
           </div>
-          
         </div>
-      
       <TableContainer component={Paper}>
         {console.log(this.state.individualData)}
         <Table size="small">
@@ -146,24 +131,18 @@ componentDidMount() {
     </div>
     );
   }
-
-
     handleChange(name,condPos,playerPos) {
     ScoringPage.updatedValue = this.roundValues(name)
     ScoringPage.updatedConditionID=this.state.individualData[playerPos]["conditions"][condPos].conditionID
     ScoringPage.updatedPlayerID= this.props.location.state.individualPlayerID;
 
-
-      this.setState(prevState => {
-      let individualData = Object.assign({}, prevState.individualData);  // creating copy of state variable jasper
-      individualData[playerPos]["conditions"][condPos].value = this.roundValues(name);                     // update the name property, assign a new value                 
-      return { individualData };                                 // return new object jasper object
-      },() => this.recallAPI())
+    this.setState(prevState => {
+    let individualData = Object.assign({}, prevState.individualData);  // creating copy of state variable jasper
+    individualData[playerPos]["conditions"][condPos].value = this.roundValues(name);                     // update the name property, assign a new value                 
+    return { individualData };                                 // return new object jasper object
+    },() => this.recallAPI())
   }
-
-
 }
-
 ScoringPage.updatedCondition = 4
 ScoringPage.updatedValue = 51
 ScoringPage.updatedPlayer = 13
@@ -173,18 +152,11 @@ class Textbox extends React.Component {
     super(props);
     this.state = {value: 4};
     }
-
     handleInputChange = event => {
     this.props.onNameChange(event.target.value,this.props.condPos,this.props.playerPos)}
-
   render() { 
     return (
       <TextField type="number" id="outlined-basic" label="" variant="outlined" onBlur={this.handleInputChange} defaultValue={this.props.defaultValue}/>
     );
   }
 }
-
-
-
-
-

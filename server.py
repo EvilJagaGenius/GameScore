@@ -819,32 +819,42 @@ def editConditionName():
     #return redirect(url_for("editConditionGET"))
     return "ok"
     
-@app.route("/edit/addCondition", methods=["POST"])
+#@app.route("/edit/addCondition", methods=["POST"])
+@app.route("/edit/addCondition")
 def addCondition():
     # Skeleton function
     # Needs some way to get all those parameters, presumably from a form.
     mydb = mysql.connector.connect(pool_name = "mypool")
     templateID = session.get("templateID", None)
+    gameID = session.get("gameID", None)
     if templateID == None:
         return "templateID not set"
-    conditionName = request.form.get("condition_name")
-    description = request.form.get("description")
-    maxPerGame = request.form.get("max_per_game")
-    maxPerPlayer = request.form.get("max_per_player")
-    scoringType = request.form.get("scoring_type")
-    inputType = request.form.get("input_type")
-    pointMultiplier = request.form.get("point_multiplier")
+    if gameID == None:
+        return "gameID not set"
+    # Below values are nullable, not needed
+    #conditionName = request.form.get("condition_name")
+    #description = request.form.get("description")
+    #maxPerGame = request.form.get("max_per_game")
+    #maxPerPlayer = request.form.get("max_per_player")
+    #scoringType = request.form.get("scoring_type")
+    #inputType = request.form.get("input_type")
+    #pointMultiplier = request.form.get("point_multiplier")
     cursor = mydb.cursor(prepared=True)
     statement = """
     INSERT INTO ScoringCondition (gameID, templateID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier)
     VALUES (%s, %s, "%s", "%s", %s, %s, '%s', '%s', %s)
     """
-    result = cursor.execute(statement, (gameID, templateID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier))
+    
+    cursor.execute(statement, (gameID, templateID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier))
+    
+    lastRowID = cursor.lastrowid
+    print(lastRowID)
+    response = {"id": lastRowID}
+    
     cursor.close()
     mydb.close()
-    # We need a way to get the new conditionID
-    #return redirect(url_for("editConditionGET"))
-    return "ok"
+    
+    return jsonify(response)
 
 @app.route("/edit/conditionTable/swapRows", methods=["POST"])
 def swapTableRowsPOST():
@@ -945,6 +955,7 @@ def editConditionValues():
     WHERE templateID = %s AND conditionID = %s
     """
     cursor.execute(statement, (conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier, templateID, conditionID))
+    
     cursor.close()
     mydb.close()
     #return redirect(url_for("editConditionGET"))
@@ -964,11 +975,14 @@ def createNewTemplate():
     VALUES (%s, 0, %s, %s)
     """
     cursor.execute(statement, (gameID, templateName, userID))
+    lastRowID = cursor.lastrowid
+    response = {"id": lastRowID}
+    
     cursor.close()
     mydb.close()
     # Need a way to get the new template ID and store it in the session
     #return redirect(url_for("editTemplateGET"))
-    return "ok"
+    return jsonify(response)
     
 @app.route("/edit/upload")
 def uploadTemplate():

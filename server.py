@@ -10,6 +10,7 @@ from flask import flash, Flask, jsonify, make_response, redirect, render_templat
 app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0  # Always do a complete refresh (for now)
 SERVER_NAME = 'flask-api:5000'
+# app.secret_key = 'pepperoni secret'
 
 
 mydb = mysql.connector.connect(
@@ -1014,4 +1015,25 @@ def myTemplates():
     cursor.close()
     mydb.close()
     
+    return jsonify(response)
+
+#Template Creation Screen
+@app.route("/edit/templateGameList")
+def templateGameList():
+    mydb = mySQL.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    statement = "SELECT (gameID, gameName) FROM Game"
+    cursor.execute(statement)
+    response = {}
+    results = cursor.fetchall()
+    for t in results:
+        dictionary = {
+            "gameID": t[0]
+            "gameName": t[1]
+        }
+        response.update({t[0]:dictionary})
+
+    cursor.close()
+    mydb.close()
+
     return jsonify(response)

@@ -9,6 +9,10 @@ import Scoring from './pages/IndividualScoring';
 import Finalize from './pages/PostGame';
 import Overview from './pages/ScoringOverview';
 import ConditionEditor from './pages/ConditionEditor';
+import MyTemplates from './pages/MyTemplates';
+import TemplateCreator from './pages/TemplateCreator';
+import TemplateEditor from './pages/TemplateEditor';
+
 
 export default function App() {
   return (
@@ -18,7 +22,10 @@ export default function App() {
       <Route path="/profile/individualscoring" component ={Scoring}/>
       <Route path="/profile/postgame" component={Finalize}/>
       <Route path="/profile" component={Overview}/>
-      <Route path="/mytemplates/conditioneditor" component = {ConditionEditor}/>
+      <Route path="/mytemplates/conditioneditor" render = {props => <ConditionEditor {...props}/>} />
+      <Route path="/mytemplates" component = {MyTemplates}/>
+      <Route path="/mytemplates/templatecreator" component = {TemplateCreator}/>
+      <Route path="/mytemplates/templateeditor" render = {props => <TemplateEditor {...props}/>} />
     </Switch>
   );
 }

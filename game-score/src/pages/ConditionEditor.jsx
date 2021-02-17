@@ -38,8 +38,9 @@ export default class ConditionEditor extends Component {
        };
        fetch('/edit/addCondition', requestOptions)
         .then(response => response.json())
-        .then(data => this.setState({ postId: data.id }))
+        .then(data => this.setState({ loaded: "True" }))
 
+        event.preventDefault();
     }
 
     handleInputChange(event) {
@@ -53,7 +54,14 @@ export default class ConditionEditor extends Component {
     }
 
     handleDelete(event) {
-        fetch("/edit/deleteCondition").then(response => response.json()).then(data => {(this.setState({loaded: "True"}))});
+        fetch("/edit/deleteCondition")
+            .then(response => response.json())
+            .then(data => {
+                (this.setState(
+                    {loaded: "True"}
+                ))
+            });
+        event.preventDefault();
     }
 
     render() {
@@ -89,13 +97,13 @@ export default class ConditionEditor extends Component {
                 <input type="number" id="maxPerPlayer" name="maxPerPlayer" value={this.state.data.maxPerPlayer} onChange={this.handleInputChange}/>
                 
                 <label for="description">Description:</label><br/>
-                <input type="text" id="description" name="description" placeholder="Give a brief description" /><br/>
+                <textarea value={this.state.data.descrition} onChange={this.handleInputChange} placeholder="Give a brief description"/><br/>
 
-                <Link to="/mytemplates/templateeditor">
+                <Link to="/mytemplates/templateeditor" onClick={this.handleSubmit}>
                     <input type="submit">Save Condition</input>
                 </Link>
-                <Link to="/mytemplates/templateeditor">
-                    <input type="button" onClick={this.handleDelete}>Delete Condition</input>
+                <Link to="/mytemplates/templateeditor" onClick={this.handleDelete}>
+                    <input type="button">Delete Condition</input>
                 </Link>
             </form>
         );

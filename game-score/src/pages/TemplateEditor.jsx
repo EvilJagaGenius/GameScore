@@ -3,7 +3,7 @@
  */
 
  import React, { Component } from 'react'
- import { Link } from "react-router-dom"
+ import { Link, useHistory } from "react-router-dom"
 
  export default class TemplateEditor extends Component {
     constructor (props) {
@@ -12,7 +12,8 @@
             templateID: this.props.templateID,
             templateName: this.props.templateName,
             data: {},
-            loaded: "False"
+            loaded: "False",
+            newCondition: 0
         };
         this.handleLoad();
     }
@@ -27,16 +28,48 @@
                        loaded: "True"
                    });
                }
-           )
+           );
     }
-    /**
-    onSubmit = () => {
-        fetch("")
-    }
-    */ 
 
+    handleSubmit(event) {
+        fetch("/edit/upload")
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    this.setState({
+                        loaded:"True"
+                    })
+                }
+            )
+        
+        this.routeToMyTemplates();
+    }
+    
     createCondition() {
-        fetch("")
+        fetch("/edit/addCondition")
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    this.setState({
+                        loaded: "True",
+                        newCondition: result
+                    });
+                }
+            );
+
+        this.routeToConditionEditor();
+    }
+
+    routeToConditionEditor() {
+        let path = '/mytemplates/conditioneditor';
+        let history = useHistory();
+        history.push(path, this.state.newCondition);
+    }
+
+    routeToMyTemplates() {
+        let path = '/mytemplates';
+        let history = useHistory();
+        history.push(path);
     }
 
     render() {
@@ -82,9 +115,7 @@
                         ))}
                     </div>
                     <button type="submit">Upload Template</button>
-                    <Link to="/mytemplates/conditioneditor" >
-                        <button type="button" onClick={createCondition()}>New Condition</button>
-                    </Link>
+                    <button type="button" onClick={this.createCondition()}>New Condition</button>
                 </form>
             )
         }

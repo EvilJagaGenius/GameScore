@@ -2,7 +2,7 @@
  * Condition Editor - Jonathan Beels
  */
 
- import React, { Component } from React
+ import React, { Component } from 'react'
  
  export default class ConditionEditor extends Component {
      constructor (props) {

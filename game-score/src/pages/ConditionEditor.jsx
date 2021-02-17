@@ -36,7 +36,9 @@ export default class ConditionEditor extends Component {
            headers: { 'Content-Type': 'application/json' },
            body: JSON.stringify(this.state)
        };
-
+       fetch('/edit/addCondition', requestOptions)
+        .then(response => response.json())
+        .then(data => this.setState({ postId: data.id }))
 
     }
 
@@ -51,7 +53,7 @@ export default class ConditionEditor extends Component {
     }
 
     handleDelete(event) {
-        fetch("/edit/deleteCondition").then
+        fetch("/edit/deleteCondition").then(response => response.json()).then(data => {(this.setState({loaded: "True"}))});
     }
 
     render() {

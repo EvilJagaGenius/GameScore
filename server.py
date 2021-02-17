@@ -846,7 +846,6 @@ def addCondition():
     """
     
     cursor.execute(statement, (gameID, templateID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier))
-    
     lastRowID = cursor.lastrowid
     print(lastRowID)
     response = {"id": lastRowID}
@@ -990,3 +989,29 @@ def uploadTemplate():
     # I'm not sure how one uploads a template.  Do we commit to the DB, do we set the template as public, do we do something else?
     pass
     
+# My Templates page
+@app.route("/api/myTemplates")
+def myTemplates():
+    # Do something, Taipu
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    userID = session.get("userID", None)
+    if userID == None:
+        return "userID not set"
+        
+    cursor = mydb.cursor(prepared=True)
+    statement = "SELECT (templateID, templateName, averageRating, numRatings) FROM Template WHERE userID = %s"
+    cursor.execute(statement, (userID, ))
+    response = {}
+    results = cursor.fetchall()
+    for t in results:
+        dictionary = {
+        "templateName": t[1],
+        "averageRating": t[2],
+        "numRatings": t[3]
+        }
+        response.update({t[0]: dictionary})
+    
+    cursor.close()
+    mydb.close()
+    
+    return jsonify(response)

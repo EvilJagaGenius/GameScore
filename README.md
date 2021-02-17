@@ -11,3 +11,6 @@ This should set up a server on port 5000.  To connect to the server, you can ope
 
 Install the Mysql Connector by using this in your command line
 C:\Users\Your Name\AppData\Local\Programs\Python\Python36-32\Scripts>python -m pip install mysql-connector-python
+
+Install react-floating-action-button by running the following command in the command line
+npm install react-floating-action-button

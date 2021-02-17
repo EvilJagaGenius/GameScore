@@ -5,7 +5,7 @@
  import React from 'react'
  import { Link, useHistory } from "react-router-dom"
 
-const [state, setState] = {}
+const [state, setState] = [{}]
 
  function Constructor (props) {
     state.setState({

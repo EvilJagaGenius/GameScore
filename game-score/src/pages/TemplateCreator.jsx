@@ -2,17 +2,17 @@ import { FormInput } from "semantic-ui-react";
 import React from 'react';
 import { useHistory } from "react-router-dom";
 
-const [state, setState] = {
+const [state, setState] = [{
     data:{},
-    loaded:"False",
-}
+    loaded:"False"
+}]
 
 function HandleInputChange(event) {
     const target = event.target;
     const value = target.value;
     const name = target.name;
 
-    this.setState({
+    state.setState({
       [name]: value
     });
 }

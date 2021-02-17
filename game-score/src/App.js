@@ -19,7 +19,7 @@ export default function App() {
   return (
     <Switch>
       <Redirect exact from="/" to="/home" />
-      <Route exact path="/:pages?" render={props => <Home {...props} />} />
+      <Route exact path="/:page?" render={props => <Home {...props} />} />
       <Route path="/play/individualscoring" component ={Scoring}/>
       <Route path="/play/overview" component ={Overview}/>
       <Route path="/play/postgame" component={Finalize}/>

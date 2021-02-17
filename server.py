@@ -749,7 +749,8 @@ def editTemplateName():
     statement = "UPDATE Template SET templateName = %s WHERE templateID = %s"
     cursor.execute(statement, (newName, templateID))
     
-    return redirect(url_for("editTemplateGET"))
+    #return redirect(url_for("editTemplateGET"))
+    return "ok"
     
 @app.route("/edit/condition", methods=["GET"])
 def editConditionGET():
@@ -780,7 +781,7 @@ def editConditionGET():
     
 @app.route("/edit/deleteCondition")
 def deleteCondition():
-    # Skeleton function.  Called after the "Are you sure?" dialog when deleting a template
+    # Skeleton function.  Called after the "Are you sure?" dialog when deleting a condition
     # Needs conditionID and templateID from somewhere.  Assuming they're stored in session
     mydb = mysql.connector.connect(pool_name = "mypool")
     conditionID = session.get("conditionID", None)
@@ -815,7 +816,8 @@ def editConditionName():
     result = cursor.execute(statement, (newName, conditionID, templateID))
     cursor.close()
     mydb.close()
-    return redirect(url_for("editConditionGET"))
+    #return redirect(url_for("editConditionGET"))
+    return "ok"
     
 @app.route("/edit/addCondition", methods=["POST"])
 def addCondition():
@@ -841,7 +843,8 @@ def addCondition():
     cursor.close()
     mydb.close()
     # We need a way to get the new conditionID
-    return redirect(url_for("editConditionGET"))
+    #return redirect(url_for("editConditionGET"))
+    return "ok"
 
 @app.route("/edit/conditionTable/swapRows", methods=["POST"])
 def swapTableRowsPOST():
@@ -916,7 +919,8 @@ def editConditionTablePOST():
     cursor.execute(statement, (min, max, outputValue, templateID, conditionID, rowID))
     cursor.close()
     mydb.close()
-    return redirect(url_for("editConditionGET"))
+    #return redirect(url_for("editConditionGET"))
+    return "ok"
     
 @app.route("/edit/conditionValues", methods=["POST"])
 def editConditionValues():
@@ -943,7 +947,8 @@ def editConditionValues():
     cursor.execute(statement, (conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier, templateID, conditionID))
     cursor.close()
     mydb.close()
-    return redirect(url_for("editConditionGET"))
+    #return redirect(url_for("editConditionGET"))
+    return "ok"
 
 @app.route("/newTemplate/", methods=["POST"])
 def createNewTemplate():
@@ -962,7 +967,8 @@ def createNewTemplate():
     cursor.close()
     mydb.close()
     # Need a way to get the new template ID and store it in the session
-    return redirect(url_for("editTemplateGET"))
+    #return redirect(url_for("editTemplateGET"))
+    return "ok"
     
 @app.route("/edit/upload")
 def uploadTemplate():

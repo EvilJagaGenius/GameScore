@@ -112,7 +112,7 @@ export default function BottomUI(props) {
 										  			fetch(`/api/postCreateNewGame?templateID=${props.templateID}&gameID=${props.gameID}&numOfPlayers=${numPlayers}`)
 								 					.then(res => res.json()).then(data => {
 								 					console.log(data)
-								 					history.push('/profile')
+								 					history.push('/play/overview')
 								 					window.location.reload(true);
 													});
 												}

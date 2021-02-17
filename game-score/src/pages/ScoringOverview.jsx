@@ -121,7 +121,7 @@ function ScoringOverview() {
                       </div>
                 </TableCell>
                <TableCell align="center">
-                  <Link to={{pathname: "/profile/individualscoring" , state:{message: 'Called',individualPlayerID:playerData[key].playerID}}} className={classes.column} style={{fontSize:17}}>
+                  <Link to={{pathname: "/play/individualscoring" , state:{message: 'Called',individualPlayerID:playerData[key].playerID}}} className={classes.column} style={{fontSize:17}}>
                    {Math.round(playerData[key].score/0.01)*0.01}
                   </Link>
                 </TableCell>
@@ -196,7 +196,7 @@ function ScoringOverview() {
         </AccordionDetails>
       </Accordion>
 
-      <Link to='/profile/postgame'>
+      <Link to='/play/postgame'>
       <Button className={classes.button} startIcon={<DoneIcon />} variant = "contained" color="primary" size = "large" onClick={()=>console.log("clicked button")}>Finalize Score</Button>
       </Link>
     </div>

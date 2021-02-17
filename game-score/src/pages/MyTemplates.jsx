@@ -65,6 +65,7 @@ export default class MyTemplates extends Component {
     let path = '/mytemplates/templatecreator';
     let history = useHistory();
     history.push(path);
+
   }
   */
 

@@ -12,8 +12,7 @@ import { Tabs, Tab, AppBar } from "@material-ui/core";  //Material UI for tab ba
 import HomeMenu from '../Menu';
 import MyTemplates from './MyTemplates';
 import PlayGame from './PlayGame';
-import Profile from './ScoringOverview';
-import PostGame from './PostGame';
+import Profile from './Profile';
 
 /**
  * Home component: creates tab bar system
@@ -69,7 +68,7 @@ const Home = props => {
       {selectedTab === 0 && <HomeMenu />}
       {selectedTab === 1 && <MyTemplates />}
       {selectedTab === 2 && <PlayGame />}
-      {selectedTab === 3 && <PostGame/>}
+      {selectedTab === 3 && <Profile/>}
     </>
   );
 };

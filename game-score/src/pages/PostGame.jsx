@@ -107,7 +107,7 @@
        			 	 fetch(`/api/postCreateNewGame?templateID=${postGameData.templateID}&gameID=${postGameData.gameID}&numOfPlayers=${postGameData.numOfPlayers}`)
  					.then(res => res.json()).then(data => {
  					console.log(data)
- 					history.push('/profile')
+ 					history.push('/play/overview')
 					})
 
 					}> Replay Game</Button>

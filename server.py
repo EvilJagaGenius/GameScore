@@ -58,101 +58,7 @@ def myTemplatesGET():
 def postGameGET():
     return render_template("postgame.html")
 
-@app.route("/logout/")
-def logoutGET():
-    #Clear Auth Cookies
-    response = make_response(redirect('/home/'))
-    response.set_cookie('credHash',"",max_age=0)
-    response.set_cookie('username',"",max_age=0) 
-    return response
 
-@app.route('/createaccount/')
-def createAccountGET():
-    return render_template('createaccount.html')
-
-@app.route('/createaccount/', methods=['POST'])
-def createAccountPost():
-    mydb = mysql.connector.connect(pool_name = "mypool")
-    #Get Values
-    username = request.form.get('username')
-    password = request.form.get('password')
-    email = request.form.get('email')
-
-    #Check DB for dupe email
-    mycursor = mydb.cursor(prepared=True)
-    stmtCheckEmail = (
-        "select userID from UppUser where email = %s"
-    )
-    mycursor.execute(stmtCheckEmail,(email,))
-    myresult = mycursor.fetchone()
-    mycursor.close()
-
-    #If email not already in DB, create account updating DB
-    if myresult == None:
-        mycursor = mydb.cursor(prepared=True)
-        stmtAddUser = ( "INSERT INTO AppUser(username,userPassword,email) VALUES(%s,SHA1(%s),%s)")
-        mycursor.execute(stmtAddUser,(username,password,email,))
-        mydb.commit()
-        mycursor.close()
-        return redirect(url_for('login'))
-    else:
-        return redirect(url_for('createAccountGET'))
-    mydb.close()
-    return redirect(url_for('homePage'))
-
-
-@app.route('/login/')
-def login():
-    mydb = mysql.connector.connect(pool_name = "mypool")
-    #Check Cookies
-    credHash = request.cookies.get('credHash')
-    username = request.cookies.get('username')
-
-    #Check if user exists with that username and that credHash
-    mycursor = mydb.cursor(prepared=True)
-    stmt = ("select userID from AppUser where credHash = %s AND username = %s")
-    mycursor.execute(stmt,(credHash,username,))
-    myresult = mycursor.fetchone()
-    mycursor.close()
-    mydb.close()
-    if(myresult!=None):
-        return redirect(url_for('homePage'))
-    else:
-        return render_template('login.html')
-
-@app.route('/login/', methods=['POST'])
-def login_post():
-    mydb = mysql.connector.connect(pool_name = "mypool")
-    #Get Form Info
-    username = request.form.get('username')
-    password = request.form.get('password')
-    remember = True if request.form.get('remember') else False
-
-    #Check to see if username/password combo exists
-    mycursor = mydb.cursor(prepared=True)
-    stmt = ("select userID from AppUser where userPassword = SHA1(%s) AND username = %s")
-    mycursor.execute(stmt,(password,username,))
-    myresult = mycursor.fetchone()
-    mycursor.close()
-
-    if myresult == None:
-        response = make_response(redirect('/login'))
-        return response
-    else: #Add cookies, and add credHash to DB
-        response = make_response(redirect('/home/'))
-
-        token = secrets.token_hex(32)
-        response.set_cookie('credHash',token)
-        response.set_cookie('username', username)
-
-        mycursor = mydb.cursor(prepared=True)
-        stmt = ("update AppUser SET credHash = %s where userPassword = SHA1(%s) AND username = %s")
-        mycursor.execute(stmt,(token,password,username,))
-        mydb.commit()
-        mycursor.close()
-        return response
-    mydb.close()
-    return redirect(url_for('homePage'))
 
 # /home/ (default route)
 @app.route("/home/")
@@ -162,8 +68,112 @@ def homePage():
     print('HEY IT WORKS!12345')
     return render_template("home.html")
 
+@app.route('/createaccount/')
+def createAccountGET():
+    return render_template('createaccount.html')
 
 
+
+##################################### login API ########################################
+
+@app.route('/api/postLogin')
+def login_post():
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    #Get Form Info
+    username = request.form.get('username')
+    password = request.form.get('password')
+
+    #Check to see if username/password combo exists
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select userID from AppUser where userPassword = SHA1(%s) AND username = %s")
+    mycursor.execute(stmt,(password,username,))
+    myresult = mycursor.fetchone()
+    mycursor.close()
+
+    if myresult == None:
+        result = {"successful":False,"error":100,"error description":"No such username/password combination."}
+        response = jsonify(result)
+        mydb.close()
+        return response
+    else: #Add cookies, and add credHash to DB
+        token = secrets.token_hex(32)
+        result = {"successful":True,"credHash":token}
+        response = jsonify(result)
+        response.set_cookie('credHash',token)
+        response.set_cookie('username', username)
+
+        mycursor = mydb.cursor(prepared=True)
+        stmt = ("update AppUser SET credHash = %s where userPassword = SHA1(%s) AND username = %s")
+        mycursor.execute(stmt,(token,password,username,))
+        mydb.commit()
+        mycursor.close()
+        mydb.close()
+        return response
+
+
+##################################### logout API ########################################
+
+@app.route("/api/postLogout")
+def logoutGET():
+    #Clear Auth Cookies
+    result = {"successful":True}
+    response = jsonify(result)
+    response.set_cookie('credHash',"",max_age=0)
+    response.set_cookie('username',"",max_age=0) 
+    return response
+
+##################################### create new User API ########################################
+
+@app.route('/api/postCreateAccount')
+def createAccountPost():
+    
+    #Get Values
+    username = request.form.get('username')
+    password = request.form.get('password')
+    email = request.form.get('email')
+
+    #Check DB for dupe email
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    mycursor = mydb.cursor(prepared=True)
+    stmtCheckEmail = (
+        "select userID from AppUser where email = %s"
+    )
+    mycursor.execute(stmtCheckEmail,(email,))
+    myresult = mycursor.fetchone()
+    mycursor.close()
+
+    #If Email is already in DB
+    if myresult != None:
+        result = {"successful":False,"error":101,"errorMessage":"Email is already linked to a GameScore account."}
+        response = jsonify(result)
+        mydb.close()
+        return response
+        
+    else: #if email not in DB
+        mycursor = mydb.cursor(prepared=True)
+        stmtCheckEmail = (
+            "select userID from AppUser where username = %s"
+        )
+        mycursor.execute(stmtCheckEmail,(username,))
+        myresult = mycursor.fetchone()
+        mycursor.close()
+
+        if myresult != None: #if username already in DB
+            result = {"successful":False,"error":102,"errorMessage":"Username is already in use."}
+            response = jsonify(result)
+            mydb.close()
+            return response
+
+        else: #if username is not in use
+            mycursor = mydb.cursor(prepared=True)
+            stmtAddUser = ( "INSERT INTO AppUser(username,userPassword,email) VALUES(%s,SHA1(%s),%s)")
+            mycursor.execute(stmtAddUser,(username,password,email))
+            mydb.commit()
+            mycursor.close()
+            result = {"successful":True}
+            response = jsonify(result)
+            mydb.close()
+            return response
 
 ##################################### homepage API ########################################
 
@@ -272,7 +282,9 @@ def apiGetScoring():
     #Create JSON framework for what we will return
     result = {"scoringOverview":[]
               ,"globalAwards":[]
-              ,"individualScoring":[]}
+              ,"individualScoring":[]
+              ,"finalizeScore":{"players":[],"awards":[]}}
+
 
     ### Scoring Overview ###
     
@@ -315,17 +327,34 @@ def apiGetScoring():
     ### Global Awards ###
     #Get Conditions
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select DISTINCT conditionName, maxPerGame, conditionID FROM ScoringCondition JOIN ActiveMatch using (GameID, TemplateID) WHERE matchID = %s AND maxPerGame > 0")
+    stmt = ("select DISTINCT conditionName, maxPerGame, ScoringCondition.conditionID FROM ScoringCondition JOIN ActiveMatch using (GameID, TemplateID) WHERE matchID = %s AND maxPerGame > 0")
     mycursor.execute(stmt,(matchID,))
     myresult = mycursor.fetchall()
     mycursor.close()
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-        conditionName, maxPerGame, conditionID = row
+        conditionName, maxPerGame, conditionID= row
         condition = {"conditionName":"{}".format(conditionName)
                     ,"maxPerGame":maxPerGame
                     ,"players":[]}
+
+
+        mycursor = mydb.cursor(prepared=True)
+        stmt = ("select Sum(value) FROM ActiveMatchPlayerConditionScore WHERE matchID = %s AND conditionID = %s GROUP BY conditionID")
+        mycursor.execute(stmt,(matchID,conditionID))
+        myresult = mycursor.fetchone()
+        mycursor.close()
+
+        sumValue, = myresult
+
+        if sumValue > maxPerGame:
+            result["finalizeScore"]["awards"].append({
+                "name":"{}".format(conditionName),
+                "sumValue":sumValue,
+                "maxPerGame":maxPerGame
+                })
+
 
         mycursor = mydb.cursor(prepared=True)
         stmt = ("SELECT value, Player.displayName FROM ActiveMatchPlayerConditionScore JOIN Player using(playerID) WHERE conditionID = %s AND Player.matchID = %s")
@@ -356,30 +385,47 @@ def apiGetScoring():
     #For each row returned from DB: parse and create a dictionary from it
     for rowPlayer in myresultPlayer:
         playerID, displayName,totalScore = rowPlayer
+        playerFinalizeScore = {"displayName":"{}".format(displayName)
+        ,"conditions":[]}
         player = {"playerID":playerID
                     ,"displayName":"{}".format(displayName)
                     ,"conditions":[]
                     ,"totalScore":round(totalScore,2)}
 
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("select conditionName, conditionID, value, score, inputType FROM ActiveMatchPlayerConditionScore JOIN ScoringCondition using(conditionID,templateID,gameID)WHERE ActiveMatchPlayerConditionScore.matchID = %s AND playerID = %s")
+        stmt = ("select conditionName, conditionID, value, score, inputType, maxPerPlayer FROM ActiveMatchPlayerConditionScore JOIN ScoringCondition using(conditionID,templateID,gameID)WHERE ActiveMatchPlayerConditionScore.matchID = %s AND playerID = %s")
         mycursor.execute(stmt,(matchID,playerID))
         myresultCondition = mycursor.fetchall()
         mycursor.close()
 
         for rowCondition in myresultCondition:
-            conditionName, conditionID, value, score, inputType = rowCondition
+            conditionName, conditionID, value, score, inputType, maxPerPlayer = rowCondition
+            
+            isHigher = False
+            if value>maxPerPlayer and maxPerPlayer>0:
+                playerFinalizeScore["conditions"].append({
+                    "conditionName":"{}".format(conditionName)
+                    ,"value":"{}".format(value)
+                    ,"maxPerPlayer":"{}".format(maxPerPlayer)
+                    })
+                isHigher = True
+
             condition = {"conditionName":"{}".format(conditionName)
                     ,"score":round(score,2)
                     ,"value":round(value,2)
                     ,"conditionID":conditionID
-                    ,"inputType":"{}".format(inputType)}
+                    ,"inputType":"{}".format(inputType)
+                    ,"exceedsLimits":isHigher}
             #append each new dictionary to its appropriate list
             player["conditions"].append(condition)
-      
+            
         
         #append each new dictionary to its appropriate list
         result["individualScoring"].append(player)
+
+        if len(playerFinalizeScore["conditions"])>0:
+            result["finalizeScore"]["players"].append(playerFinalizeScore)
+
     mydb.close()
 
     response = jsonify(result)

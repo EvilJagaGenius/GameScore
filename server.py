@@ -4,7 +4,12 @@
 import mysql.connector
 import secrets
 import json
+
+# Email stuff
 import smtplib
+import traceback
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # Setup
 from flask import flash, Flask, jsonify, make_response, redirect, render_template, request, Response, session, url_for
@@ -30,6 +35,23 @@ myresult = mycursor.fetchall()
 mycursor.close()
 print(myresult)
 mydb.close()
+
+# Function for loading email credentials from a text file.
+def loadEmailCreds(filename):
+    file = open(filename, 'r')
+    credentials = {}
+    for line in file:
+        line = line.strip()
+        if line.startswith("//"):  # Ignore comments
+            pass
+        elif line.startswith("emailAddress"):
+            credentials.update({"emailAddress": line.split(":")[1]})
+        elif line.startswith("username:"):
+            credentials.update({"username": line.split(":")[1]})
+        elif line.startswith("password:"):
+            credentials.update({"password": line.split(":")[1]})
+    file.close()
+    return credentials
 
 
 # Cleanup function
@@ -111,7 +133,7 @@ def login_post():
         mydb.close()
         return response
 
-@app.route("/api/postResetPasswordEmail", methods=["POST"])
+@app.route("/api/postResetPasswordEmail")
 def sendPasswordEmail():
     # Skeleton function
     # See if the username is in the database
@@ -125,35 +147,37 @@ def sendPasswordEmail():
     if len(result) == 0:  # If we got an empty result
         return "username not in database"  # That's an error
     userEmailAddress = result[0][0]
+    print(userEmailAddress)
     
     try:
-        # We're gonna need some sort of email account for this, currently set to use GMail.  Could we make this a simple function call like we do for the DB?
         # Log in to the email service
-        mailUsername = ""
-        mailPassword = ""
-        mailAddress = ""
+        emailCreds = loadEmailCreds("emailCredentials.txt")
         mailer = smtplib.SMTP_SSL("smtp.gmail.com", 465)
         mailer.ehlo()
-        mailer.login(mailUsername, mailPassword)
+        mailer.login(emailCreds["username"], emailCreds["password"])
         
         # Construct the message
-        messageBody = ""
-        message = """
-        From: %s
-        To: %s
-        Subject: %s
-        
-        %s
-        """ % ("Gamescore Accounts", userEmailAddress, "GameScore - Reset Password")
+        message = MIMEMultipart("alternative")
+        message["Subject"] = "GameScore - Reset Password"
+        message["From"] = "GameScore Accounts"
+        message["To"] = userEmailAddress
+        messageText = """
+Reset password email
+Do something, Taipu
+"""
+        part1 = MIMEText(messageText, "plain")
+        message.attach(part1)
         
         # Send the message
-        mailer.sendmail(mailAddress, userEmailAddress, message, messageBody)
+        mailer.sendmail("GameScore Accounts", userEmailAddress, message.as_string())
         mailer.close()
         print("Reset password email sent")
-        
+        return "Reset password email sent"
+    
     except:
-        print("Failure to send email")
-        return "Failure to send email"
+        print("Error sending email")
+        traceback.print_exc()
+        return "Error sending email"
     
 @app.route("/api/postResetPassword", methods=["POST"])
 def resetPassword():
@@ -184,33 +208,34 @@ def sendUsernameEmail():
     userEmailAddress = result[0][0]
     
     try:
-        # We're gonna need some sort of email account for this, currently set to use GMail
         # Log in to the email service
-        mailUsername = ""
-        mailPassword = ""
-        mailAddress = ""
+        emailCreds = loadEmailCreds("emailCredentials.txt")
         mailer = smtplib.SMTP_SSL("smtp.gmail.com", 465)
         mailer.ehlo()
-        mailer.login(mailUsername, mailPassword)
+        mailer.login(emailCreds["username"], emailCreds["password"])
         
         # Construct the message
-        messageBody = ""
-        message = """
-        From: %s
-        To: %s
-        Subject: %s
-        
-        %s
-        """ % ("Gamescore Accounts", userEmailAddress, "GameScore - Reset Username", messageBody)
+        message = MIMEMultipart("alternative")
+        message["Subject"] = "GameScore - Reset Username"
+        message["From"] = "GameScore Accounts"
+        message["To"] = userEmailAddress
+        messageText = """
+Reset username email
+Do something, Taipu
+"""
+        part1 = MIMEText(messageText, "plain")
+        message.attach(part1)
         
         # Send the message
-        mailer.sendmail(mailAddress, userEmailAddress, message)
+        mailer.sendmail("GameScore Accounts", userEmailAddress, message.as_string())
         mailer.close()
         print("Reset username email sent")
+        return "Reset username email sent"
         
     except:
-        print("Failure to send email")
-        return "Failure to send email"
+        print("Error sending email")
+        traceback.print_exc()
+        return "Error sending email"
     
 @app.route("/api/postResetUsername", methods=["POST"])
 def resetUsername():

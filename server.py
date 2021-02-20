@@ -4,6 +4,7 @@
 import mysql.connector
 import secrets
 import json
+import smtplib
 
 # Setup
 from flask import flash, Flask, jsonify, make_response, redirect, render_template, request, Response, session, url_for
@@ -110,6 +111,121 @@ def login_post():
         mydb.close()
         return response
 
+@app.route("/api/postResetPasswordEmail", methods=["POST"])
+def sendPasswordEmail():
+    # Skeleton function
+    # See if the username is in the database
+    username = request.form.get("username")
+    userEmailAddress = ""
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    statement = "SELECT email FROM AppUser WHERE username = %s"
+    cursor.execute(statement, (username, ))
+    result = cursor.fetchall()  # List of single-element tuples (in theory, only one tuple holding a single string)
+    if len(result) == 0:  # If we got an empty result
+        return "username not in database"  # That's an error
+    userEmailAddress = result[0][0]
+    
+    try:
+        # We're gonna need some sort of email account for this, currently set to use GMail.  Could we make this a simple function call like we do for the DB?
+        # Log in to the email service
+        mailUsername = ""
+        mailPassword = ""
+        mailAddress = ""
+        mailer = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+        mailer.ehlo()
+        mailer.login(mailUsername, mailPassword)
+        
+        # Construct the message
+        messageBody = ""
+        message = """
+        From: %s
+        To: %s
+        Subject: %s
+        
+        %s
+        """ % ("Gamescore Accounts", userEmailAddress, "GameScore - Reset Password")
+        
+        # Send the message
+        mailer.sendmail(mailAddress, userEmailAddress, message, messageBody)
+        mailer.close()
+        print("Reset password email sent")
+        
+    except:
+        print("Failure to send email")
+        return "Failure to send email"
+    
+@app.route("/api/postResetPassword", methods=["POST"])
+def resetPassword():
+    # Skeleton function
+    newPassword = request.form.get("new_password")
+    userID = 1  # Dummy value
+    # Do whatever extra authentication we need to here
+    # Do checking/hashing the password here
+    
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    statement = "UPDATE AppUser SET userPassword = %s WHERE userID = %s"
+    cursor.execute(statement, (newPassword, userID))
+    cursor.close()
+    mydb.close()
+    
+@app.route("/api/postResetUsernameEmail", methods=["POST"])
+def sendUsernameEmail():
+    # Skeleton function
+    userEmailAddress = request.form.get("user_email")
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    statement = "SELECT email FROM AppUser WHERE email = %s"
+    cursor.execute(statement, (userEmailAddress, ))
+    result = cursor.fetchall()  # List of single-element tuples (in theory, only one tuple holding a single string)
+    if len(result) == 0:  # If we got an empty result
+        return "Email address not in database"  # That's an error
+    userEmailAddress = result[0][0]
+    
+    try:
+        # We're gonna need some sort of email account for this, currently set to use GMail
+        # Log in to the email service
+        mailUsername = ""
+        mailPassword = ""
+        mailAddress = ""
+        mailer = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+        mailer.ehlo()
+        mailer.login(mailUsername, mailPassword)
+        
+        # Construct the message
+        messageBody = ""
+        message = """
+        From: %s
+        To: %s
+        Subject: %s
+        
+        %s
+        """ % ("Gamescore Accounts", userEmailAddress, "GameScore - Reset Username", messageBody)
+        
+        # Send the message
+        mailer.sendmail(mailAddress, userEmailAddress, message)
+        mailer.close()
+        print("Reset username email sent")
+        
+    except:
+        print("Failure to send email")
+        return "Failure to send email"
+    
+@app.route("/api/postResetUsername", methods=["POST"])
+def resetUsername():
+    # Skeleton function
+    newUsername = request.form.get("new_username")
+    userID = 1  # Dummy value
+    # Do whatever extra authentication we need to here
+    # Do checking/hashing the password here
+    
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    statement = "UPDATE AppUser SET username = %s WHERE userID = %s"
+    cursor.execute(statement, (newUsername, userID))
+    cursor.close()
+    mydb.close()
 
 ##################################### logout API ########################################
 

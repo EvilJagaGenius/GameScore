@@ -145,9 +145,18 @@ def sendPasswordEmail():
     cursor.execute(statement, (username, ))
     result = cursor.fetchall()  # List of single-element tuples (in theory, only one tuple holding a single string)
     if len(result) == 0:  # If we got an empty result
-        return "username not in database"  # That's an error
+        # Error
+        result = {"successful":False,"error":103,"errorMessage":"Username not in database"}
+        response = jsonify(result)
+        cursor.close()
+        mydb.close()
+        return response
+        
     userEmailAddress = result[0][0]
     print(userEmailAddress)
+    
+    cursor.close()
+    mydb.close()
     
     try:
         # Log in to the email service
@@ -172,12 +181,17 @@ Do something, Taipu
         mailer.sendmail("GameScore Accounts", userEmailAddress, message.as_string())
         mailer.close()
         print("Reset password email sent")
-        return "Reset password email sent"
+        
+        result = {"successful":True}
+        response = jsonify(result)
+        return response
     
     except:
         print("Error sending email")
         traceback.print_exc()
-        return "Error sending email"
+        result = {"successful":False,"error":105,"errorMessage":"Error sending email"}
+        response = jsonify(result)
+        return response
     
 @app.route("/api/postResetPassword", methods=["POST"])
 def resetPassword():
@@ -193,6 +207,9 @@ def resetPassword():
     cursor.execute(statement, (newPassword, userID))
     cursor.close()
     mydb.close()
+    result = {"successful":True}
+    response = jsonify(result)
+    return response
     
 @app.route("/api/postResetUsernameEmail", methods=["POST"])
 def sendUsernameEmail():
@@ -204,8 +221,14 @@ def sendUsernameEmail():
     cursor.execute(statement, (userEmailAddress, ))
     result = cursor.fetchall()  # List of single-element tuples (in theory, only one tuple holding a single string)
     if len(result) == 0:  # If we got an empty result
-        return "Email address not in database"  # That's an error
+        result = {"successful":False,"error":104,"errorMessage":"Email address not in database"}
+        response = jsonify(result)
+        cursor.close()
+        mydb.close()
+        return response
     userEmailAddress = result[0][0]
+    cursor.close()
+    mydb.close()
     
     try:
         # Log in to the email service
@@ -235,7 +258,9 @@ Do something, Taipu
     except:
         print("Error sending email")
         traceback.print_exc()
-        return "Error sending email"
+        result = {"successful":False,"error":105,"errorMessage":"Error sending email"}
+        response = jsonify(result)
+        return response
     
 @app.route("/api/postResetUsername", methods=["POST"])
 def resetUsername():
@@ -251,6 +276,9 @@ def resetUsername():
     cursor.execute(statement, (newUsername, userID))
     cursor.close()
     mydb.close()
+    result = {"successful":True}
+    response = jsonify(result)
+    return response
 
 ##################################### logout API ########################################
 

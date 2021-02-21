@@ -13,7 +13,9 @@ import MyTemplates from './pages/MyTemplates';
 import TemplateCreator from './pages/TemplateCreator';
 import TemplateEditor from './pages/TemplateEditor';
 import Profile from './pages/Profile';
-
+import Login from './pages/Login';
+import ForgetPassword from './pages/ForgetPassword';
+import CreateAccount from './pages/CreateAccount';
 
 export default function App() {
   return (
@@ -28,6 +30,9 @@ export default function App() {
       <Route path="/mytemplates" component = {MyTemplates}/>
       <Route path="/mytemplates/templatecreator" component = {TemplateCreator}/>
       <Route path="/mytemplates/templateeditor" render = {props => <TemplateEditor {...props}/>} />
+      <Route path="/home/login" component ={Login}/>
+      <Route path="/login/forgetpassword" component={ForgetPassword}/>
+      <Route path="/login/createaccount" component={CreateAccount}/>
     </Switch>
   );
 }

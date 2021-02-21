@@ -6,7 +6,8 @@
 
  //import resources
 import React from "react";  //basic React framework
-import { Tabs, Tab, AppBar } from "@material-ui/core";  //Material UI for tab bar
+import { Tabs, Tab, AppBar, Button } from "@material-ui/core";  //Material UI for tab bar
+import { BrowserRouter as Router, Link } from 'react-router-dom';
 
 //All pages to be imported are to be used in the tabs
 import HomeMenu from '../Menu';
@@ -65,6 +66,7 @@ const Home = props => {
           <Tab label="Profile" />
         </Tabs>
       </AppBar>
+      <Link to = "/home/login"><Button>Click here to log in for full functionality</Button></Link>
       {selectedTab === 0 && <HomeMenu />}
       {selectedTab === 1 && <MyTemplates />}
       {selectedTab === 2 && <PlayGame />}

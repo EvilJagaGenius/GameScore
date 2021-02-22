@@ -9,6 +9,7 @@ import {Button} from "@material-ui/core";  //Material UI for tab bar
 import Box from '@material-ui/core/Box';
 import { BrowserRouter as Router, Link } from 'react-router-dom';
 import { Component } from "react";
+import Logo from '../../images/GameScore App Logo.png';
 
 export default class ForgetPassword extends Component{
   constructor(props){
@@ -93,8 +94,9 @@ export default class ForgetPassword extends Component{
 }));
 return (
   <form className={classes.root} noValidate autoComplete="off">
-    <h1>Login Page</h1>
     <Box m={2} pt={3}>
+    <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
+    <h1>Forget Password</h1>
     <div>
       <TextField required id="standard-required" label="Username" onChange={this.usernameHandler} error={this.state.usernameError}/>
     </div>

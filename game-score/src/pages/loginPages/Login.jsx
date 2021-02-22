@@ -93,7 +93,7 @@ export default class Login extends Component{
         </div>
         <Link to="/home"><Button onClick={()=>{this.confirmSubmission()}}>Login</Button></Link>
         <Link to="/login/forgetpassword"><Button>Forget Password?</Button></Link>
-        <Button>Create Account</Button>
+        <Link to="/login/createaccount"><Button>Create Account</Button></Link>
       </form>
     );
   }

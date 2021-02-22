@@ -84,7 +84,7 @@
           	</TableHead>
 
 
-	       	{ loaded == "True" && 
+	       	{ loaded === "True" && 
 	       	Object.keys((postGameData)).length > 0 &&
 	       	<>
 	       	{Object.keys((postGameData["scoreTable"])).map(key=> (

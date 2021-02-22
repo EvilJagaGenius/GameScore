@@ -85,7 +85,7 @@ export default function BottomUI(props) {
 									  				{
 									  					setNumPlayers(2)
 									  				}
-									  				else if(isNaN(e.target.value)==true)
+									  				else if(isNaN(e.target.value)===true)
 									  				{
 									  					setNumPlayers(2)
 									  				}

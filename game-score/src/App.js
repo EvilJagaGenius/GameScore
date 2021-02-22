@@ -13,9 +13,9 @@ import MyTemplates from './pages/MyTemplates';
 import TemplateCreator from './pages/TemplateCreator';
 import TemplateEditor from './pages/TemplateEditor';
 import Profile from './pages/Profile';
-import Login from './pages/Login';
-import ForgetPassword from './pages/ForgetPassword';
-import CreateAccount from './pages/CreateAccount';
+import Login from './pages/loginPages/Login';
+import ForgetPassword from './pages/loginPages/ForgetPassword';
+import CreateAccount from './pages/loginPages/CreateAccount';
 
 export default function App() {
   return (

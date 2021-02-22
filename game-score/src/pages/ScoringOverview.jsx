@@ -270,9 +270,9 @@ function ScoringOverview() {
                           var isFirst = true
                               for(var i=1;i<(Object.keys(playerData)).length;i++)
                               {
-                                  if(playerData[i].displayName!=document.getElementById(playerData[i].playerID).value)
+                                  if(playerData[i].displayName!==document.getElementById(playerData[i].playerID).value)
                                     {
-                                      if(isFirst==false)
+                                      if(isFirst===false)
                                       {
                                         str = str + `&`
                                       }
@@ -283,7 +283,7 @@ function ScoringOverview() {
                               }
                               console.log(str)
                               
-                            if(str!=``)
+                            if(str!==``)
                             {
                            fetch(`/api/postUpdatePlayerName?`+str)
                             .then(res => res.json()).then(data => {

@@ -20,7 +20,9 @@ export default class CreateAccount extends Component{
       usernameError: false,
       emailError: false,
       passwordError: false,
-      confrimPasswordError: false
+      confrimPasswordError: false,
+      usernameHelper: "",
+      emailHelper: ""
     }
   }
 
@@ -29,10 +31,22 @@ export default class CreateAccount extends Component{
    * @param {*} event 
    */
   usernameHandler=(event)=>{
+    var name = String(event.target.value);
+    if(name.length > 30 || name.length < 4){
+      this.setState({
+        usernameError: true,
+        usernameHelper: "Length requirements not met"
+      });
+    }
+    else{
+      this.setState({
+        usernameError: false,
+        usernameHelper: ""
+      });
+    }
     this.setState({
       username: event.target.value
     });
-    console.log(this.state.username);
   }
 
   /**
@@ -40,24 +54,36 @@ export default class CreateAccount extends Component{
    * @param {*} event 
    */
   emailHandler=(event)=>{
-    let email = event.target.value;
-    if(email.includes("@") && email.includes(".")){
+    let email = String(event.target.value);
+    if(!(email.includes("@")) && (!(email.includes(".")))){
       this.setState({
-        email: event.target.value
+        email: "",
+        emailError: true,
+        emailHelper: "Invalid email entered"
       })
     }
     else{
       this.setState({
-        email: "",
-        emailError: true
+        email: event.target.value,
+        emailError: false,
+        emailHelper: ""
       })
     }
+  }
+
+  /**
+   * passwordHandler
+   * @param {*} event 
+   */
+  passwordHandler=(event)=>{
+
   }
 
   /**
    * confirmSubmission: function for handling submission events
    */
   confirmSubmission(){
+    //username 4-30 characters
     if(this.state.username === ""){
       alert("No username and password entered\nPlease enter your login information");
       this.setState({
@@ -96,10 +122,10 @@ return (
     <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
     <h1>Create Account</h1>
     <div>
-      <TextField required id="standard-required" name = "username" label="Username" onChange={this.usernameHandler} error={this.state.usernameError}/>
+      <TextField required id="standard-required" name = "username" label="Username" onChange={this.usernameHandler} error={this.state.usernameError} helperText ={this.state.usernameHelper}/>
     </div>
     <div>
-      <TextField required id="standard-required" name = "email" label="Email Address" onChange={this.emailHandler} error={this.state.emailError}/>
+      <TextField required id="standard-required" name = "email" label="Email Address" onChange={this.emailHandler} error={this.state.emailError} helperText={this.state.emailHelper}/>
     </div>
     <div>
       <TextField required id="standard-required" name = "password" label="Password" type="password" onChange={this.passwordHandler} value={this.state.password} error={this.state.passwordError}/>

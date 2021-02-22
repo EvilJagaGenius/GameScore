@@ -26,7 +26,7 @@ const Home = props => {
   //Map to route each tab index to it's appropriate path
   const tabNameToIndex = {
     0: "home",
-    1: "mytemplates",
+    1: "mytemplates/menu",
     2: "playgame",
     3: "profile"
   };

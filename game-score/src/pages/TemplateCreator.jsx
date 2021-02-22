@@ -30,7 +30,6 @@ fetch('/edit/', requestOptions)
      newTemplate: data
  }))
 
-event.preventDefault();
 RouteTemplateEditor();
 }
 
@@ -67,6 +66,7 @@ export default function TemplateCreator() {
     
 
         return (
+          <div>
             <form ref="form" onSubmit={HandleSubmit()}>
                 <label for="gameName">Scoring Type: </label><br/>
                 <select name="gameName" id="gameName" value={state.data.gameName} onChange={HandleInputChange()}>
@@ -80,5 +80,6 @@ export default function TemplateCreator() {
                 <input type="submit">Create Template</input>
                 <input type="button" onClick={GoBack()}>Cancel</input>
             </form>
+          </div>
         );
 }

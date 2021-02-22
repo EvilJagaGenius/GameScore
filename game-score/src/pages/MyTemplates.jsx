@@ -9,8 +9,10 @@ import TemplateRow from "../TemplateRow";
 import Table from '@material-ui/core/Table';
 import TableContainer from '@material-ui/core/TableContainer';
 import Paper from '@material-ui/core/Paper';
-import { Container, Link } from 'react-floating-action-button';
-import { useHistory } from "react-router-dom";
+// import { Container, Link } from 'react-floating-action-button';
+import Fab from '@material-ui/core/Fab';
+import AddIcon from '@material-ui/icons/Add';
+import { Link } from 'react-router-dom'
 
 export default class MyTemplates extends Component {
 
@@ -19,6 +21,7 @@ export default class MyTemplates extends Component {
     loaded:"False",
     selectedTemplate:{accPos:0,rowPos:0}
   }
+
 
   componentDidMount() {
     fetch("/api/myTemplates") //Needs an actual route
@@ -49,8 +52,8 @@ export default class MyTemplates extends Component {
 
   isSelected(checkAccPos,checkRowPos)
   {
-    if(checkAccPos == this.state.selectedTemplate.accPos
-      && checkRowPos == this.state.selectedTemplate.rowPos)
+    if(checkAccPos === this.state.selectedTemplate.accPos
+      && checkRowPos === this.state.selectedTemplate.rowPos)
     {
       return true
     }
@@ -69,6 +72,10 @@ export default class MyTemplates extends Component {
   }
   */
 
+  handleClick() {
+
+  }
+
   render() {
 
     return (
@@ -77,7 +84,7 @@ export default class MyTemplates extends Component {
           <Table size="small">
                 {/*Table displaying the dynamic data for the users created templates*/}
                 {
-                this.state.loaded == "True" &&
+                this.state.loaded === "True" &&
                 <div className="MyTemplates">
                   <> 
                     {/* Iterate through created templates and render the data in a tabular format */}
@@ -99,11 +106,11 @@ export default class MyTemplates extends Component {
               }
           </Table>
         </TableContainer>
-        <Container>
-        <Link href="/mytemplates/templatecreator"
-            tooltip="Create New Template"
-            icon="fas fa-plus"/>
-        </Container>
+        <Link to="/mytemplates/templatecreator">
+          <Fab color="primary" aria-label="add">
+            <AddIcon />
+          </Fab>
+        </Link>
       </div>
     )
   }

@@ -15,10 +15,16 @@ export default class ForgetPassword extends Component{
     super();
     this.state = {
       username: "",
-      email: ""
+      email: "",
+      usernameError: false,
+      emailError: false
     }
   }
 
+  /**
+   * usernameHandler
+   * @param {*} event 
+   */
   usernameHandler=(event)=>{
     this.setState({
       username: event.target.value
@@ -26,6 +32,10 @@ export default class ForgetPassword extends Component{
     console.log(this.state.username);
   }
 
+  /**
+   * emailHandler
+   * @param {*} event 
+   */
   emailHandler=(event)=>{
     let email = event.target.value;
     if(email.includes("@") && email.includes(".")){
@@ -35,7 +45,8 @@ export default class ForgetPassword extends Component{
     }
     else{
       this.setState({
-        email: ""
+        email: "",
+        emailError: true
       })
     }
   }
@@ -43,8 +54,32 @@ export default class ForgetPassword extends Component{
   /**
    * confirmSubmission: function for handling submission events
    */
-  confirmSubmission(){
-    alert(this.state.email);
+  confirmSubmission(type){
+    if(type === "username"){
+      if(this.state.username === ""){
+        alert("No username and password entered\nPlease enter your login information");
+        this.setState({
+          usernameError: true,
+          emailError: true
+        });
+      }
+      //all tests passed
+      else{
+        //potential server code
+      }
+    }
+    else{
+      if(this.state.email===""){
+        alert("Please enter your email address");
+        this.setState({
+          emailError: true
+        });
+      }
+    //all tests passed
+      else{
+        //potential server code
+      }
+    }
   }
 
   render(){
@@ -61,18 +96,16 @@ return (
     <h1>Login Page</h1>
     <Box m={2} pt={3}>
     <div>
-      <TextField required id="standard-required" label="Username" onChange={this.usernameHandler}/>
+      <TextField required id="standard-required" label="Username" onChange={this.usernameHandler} error={this.state.usernameError}/>
     </div>
     <div>
-      <Link to="/home/login"><Button onClick={()=>{alert(this.state.username)}}>Reset</Button></Link>
+      <Link to="/home/login"><Button onClick={()=>{this.confirmSubmission("username")}}>Reset</Button></Link>
     </div>
     <div>
-      <TextField required id="standard-required" label="Email Address" onChange={this.emailHandler}/>
+      <TextField required id="standard-required" label="Email Address" onChange={this.emailHandler} error={this.state.emailError}/>
     </div>
     <div>
-      <Link to="/home/login"><Button onClick={()=>{
-        this.confirmSubmission()
-        }}>Reset</Button></Link>
+      <Link to="/home/login"><Button onClick={()=>{this.confirmSubmission("email")}}>Reset</Button></Link>
     </div>
     </Box>
   </form>

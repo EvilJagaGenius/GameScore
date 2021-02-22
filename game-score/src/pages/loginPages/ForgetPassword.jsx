@@ -75,7 +75,7 @@ export default class ForgetPassword extends Component{
           emailError: true
         });
       }
-    //all tests passed
+      //all tests passed
       else{
         //potential server code
       }

@@ -133,6 +133,8 @@ def login_post():
         mydb.close()
         return response
 
+##################################### Reset Password Email ########################################
+
 @app.route("/api/postResetPasswordEmail")
 def sendPasswordEmail():
     # Skeleton function
@@ -165,25 +167,35 @@ def sendPasswordEmail():
         mailer.ehlo()
         mailer.login(emailCreds["username"], emailCreds["password"])
         
+        token = secrets.token_hex(32)
+
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = "GameScore - Reset Password"
+        msg['From'] = "GameScore Accounts"
+        msg['To'] = userEmailAddress
         # Construct the message
-        message = MIMEMultipart("alternative")
-        message["Subject"] = "GameScore - Reset Password"
-        message["From"] = "GameScore Accounts"
-        message["To"] = userEmailAddress
-        messageText = """
-Reset password email
-Do something, Taipu
-"""
-        part1 = MIMEText(messageText, "plain")
-        message.attach(part1)
+        text = """<p>You have requested to reset your GameScore password.  Click <a href="http://localhost:3000?token={}">here</a> to reset your password.</p>
+""".format(token)
+        part1 = MIMEText(text,'html')
+        msg.attach(part1)
         
         # Send the message
-        mailer.sendmail("GameScore Accounts", userEmailAddress, message.as_string())
+        mailer.sendmail("GameScore Accounts", userEmailAddress,msg.as_string())
         mailer.close()
         print("Reset password email sent")
         
         result = {"successful":True}
         response = jsonify(result)
+
+        mydb = mysql.connector.connect(pool_name = "mypool")
+        cursor = mydb.cursor(prepared=True)
+        statement = "UPDATE AppUser SET resetPasswordToken=%s WHERE username = %s"
+        cursor.execute(statement, (token,username))
+        result = cursor.fetchall()  # List of single-element tuples (in theory, only one tuple holding a single string)
+        mydb.commit()
+        mydb.close()
+
+
         return response
     
     except:
@@ -193,28 +205,41 @@ Do something, Taipu
         response = jsonify(result)
         return response
     
+
+
+##################################### Reset Password ########################################
+
 @app.route("/api/postResetPassword", methods=["POST"])
 def resetPassword():
     # Skeleton function
-    newPassword = request.form.get("new_password")
-    userID = 1  # Dummy value
-    # Do whatever extra authentication we need to here
-    # Do checking/hashing the password here
+    newPassword = request.form.get("newPassword")
+    token = request.form.get("token")
+
     
     mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)
-    statement = "UPDATE AppUser SET userPassword = %s WHERE userID = %s"
-    cursor.execute(statement, (newPassword, userID))
+    statement = "UPDATE AppUser SET userPassword = SHA1(%s),resetPasswordToken = %s WHERE resetPasswordToken=%s AND resetPasswordToken IS NOT NULL"
+    cursor.execute(statement, (newPassword,None,token))
+    rowsChanged = cursor.rowcount
     cursor.close()
+    mydb.commit()
     mydb.close()
-    result = {"successful":True}
+
+
+    if rowsChanged > 0:
+         result = {"successful":True}
+    else:
+        result = {"successful":False,"error":106,"errorMessage":"Invalid Token - No Passwords Changed."}
     response = jsonify(result)
     return response
     
+
+##################################### Reset Username Email API########################################
+
 @app.route("/api/postResetUsernameEmail", methods=["POST"])
 def sendUsernameEmail():
     # Skeleton function
-    userEmailAddress = request.form.get("user_email")
+    userEmailAddress = request.form.get("userEmail")
     mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)
     statement = "SELECT email FROM AppUser WHERE email = %s"
@@ -237,22 +262,32 @@ def sendUsernameEmail():
         mailer.ehlo()
         mailer.login(emailCreds["username"], emailCreds["password"])
         
+        token = secrets.token_hex(32)
+
         # Construct the message
-        message = MIMEMultipart("alternative")
-        message["Subject"] = "GameScore - Reset Username"
-        message["From"] = "GameScore Accounts"
-        message["To"] = userEmailAddress
-        messageText = """
-Reset username email
-Do something, Taipu
-"""
-        part1 = MIMEText(messageText, "plain")
-        message.attach(part1)
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = "GameScore - Reset Username"
+        msg['From'] = "GameScore Accounts"
+        msg['To'] = userEmailAddress
+        
+        text = """<p>You have requested to reset your GameScore Username.  Click <a href="http://localhost:3000?token={}">here</a> to reset your username.</p>
+""".format(token)
+        part1 = MIMEText(text,'html')
+        msg.attach(part1)
         
         # Send the message
-        mailer.sendmail("GameScore Accounts", userEmailAddress, message.as_string())
+        mailer.sendmail("GameScore Accounts", userEmailAddress, msg.as_string())
         mailer.close()
         print("Reset username email sent")
+
+        mydb = mysql.connector.connect(pool_name = "mypool")
+        cursor = mydb.cursor(prepared=True)
+        statement = "UPDATE AppUser SET resetUsernameToken=%s WHERE email = %s"
+        cursor.execute(statement, (token,userEmailAddress))
+        result = cursor.fetchall()  # List of single-element tuples (in theory, only one tuple holding a single string)
+        mydb.commit()
+        mydb.close()
+
         return "Reset username email sent"
         
     except:
@@ -262,21 +297,30 @@ Do something, Taipu
         response = jsonify(result)
         return response
     
+##################################### Reset Username API ########################################
+
 @app.route("/api/postResetUsername", methods=["POST"])
 def resetUsername():
     # Skeleton function
-    newUsername = request.form.get("new_username")
-    userID = 1  # Dummy value
+    newUsername = request.form.get("newUsername")
+    token = request.form.get("token")
     # Do whatever extra authentication we need to here
     # Do checking/hashing the password here
     
     mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)
-    statement = "UPDATE AppUser SET username = %s WHERE userID = %s"
-    cursor.execute(statement, (newUsername, userID))
+    statement = "UPDATE AppUser SET username = %s, resetUsernameToken = %s WHERE resetUsernameToken= %s AND resetUsernameToken IS NOT NULL"
+    cursor.execute(statement, (newUsername, None,token))
+    rowsChanged = cursor.rowcount
     cursor.close()
+    mydb.commit()
     mydb.close()
-    result = {"successful":True}
+    
+    if rowsChanged > 0:
+         result = {"successful":True}
+    else:
+        result = {"successful":False,"error":106,"errorMessage":"Invalid Token - No Username Changed."}
+
     response = jsonify(result)
     return response
 
@@ -291,7 +335,7 @@ def logoutGET():
     response.set_cookie('username',"",max_age=0) 
     return response
 
-##################################### create new User API ########################################
+##################################### Create Account API ########################################
 
 @app.route('/api/postCreateAccount')
 def createAccountPost():

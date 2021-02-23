@@ -343,7 +343,7 @@ def logoutGET():
     result = {"successful":True}
     response = jsonify(result)
     response.set_cookie('credHash',"",max_age=0)
-    response.set_cookie('username',"",max_age=0) 
+    response.set_cookie('username',"",max_age=0)
     return response
 
 ##################################### Create Account API ########################################
@@ -352,7 +352,6 @@ def logoutGET():
 def createAccountPost():
     
     #Get Values
-
     content = request.json
     username = content['username']
     password = content['password']

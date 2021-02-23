@@ -1389,10 +1389,20 @@ def doReports():
 def rateTemplate():
     # Do something, Taipu
     templateID = 1  # We need some way to get this.  Form?  Session?
-    newRating = request.form.get("rating", None)
+    gameID = 1
+    rating = request.form.get("rating", None)
     
-    # What's the math we need to do?
-    # ((Previous avg. rating * numRatings) + newRating) / (numRatings + 1)
-    # numRatings += 1
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    statement = "SELECT numRatings, averageRating FROM Template WHERE templateID = %s AND gameID = %s"
+    cursor.execute(statement, (templateID, gameID))
+    result = cursor.fetchone()
+    numberOfRatings = result[0]
+    prevTotalRating = numberOfRatings * result[1]
+    newRating = (prevTotalRating + rating) / numberOfRatings + 1
+    numberOfRatings += 1
+    
+    statement = "UPDATE Template SET numRatings = %s, averageRating = %s WHERE templateID = %s AND gameID = %s"
+    cursor.execute(statement, (numberOfRatings, newRating, templateID, gameID))
     
     return "ok"

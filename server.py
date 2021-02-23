@@ -112,8 +112,13 @@ def createAccountGET():
 def login_post():
     mydb = mysql.connector.connect(pool_name = "mypool")
     #Get Form Info
-    username = request.form.get('username')
-    password = request.form.get('password')
+    content = request.json
+
+    username = content['username']
+    password = content['password']
+
+    print(username)
+    print(password)
 
     #Check to see if username/password combo exists
     mycursor = mydb.cursor(prepared=True)

@@ -18,6 +18,15 @@ app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0  # Always do a complete refresh (for
 SERVER_NAME = 'flask-api:5000'
 # app.secret_key = 'pepperoni secret'
 
+
+@app.after_request
+def after_request(response):
+  response.headers.add('Access-Control-Allow-Origin', '*')
+  response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+  response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+  return response
+
+
 mydb = mysql.connector.connect(
       host="10.18.110.183",
       port="3306",

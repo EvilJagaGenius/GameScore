@@ -133,7 +133,8 @@ return (
   <form className={classes.root} noValidate autoComplete="off">
     <Box m={2} pt={3}>
     <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
-    <h1>Reset Password</h1>
+    <h1>Reset Password {this.props.location.search.substr(this.props.location.search.indexOf("=")+1)}
+</h1>
     <div>
       <TextField required id="standard-required" name = "password" label="Password" type="password" onChange={this.passwordHandler} value={this.state.password} error={this.state.passwordError}/>
     </div>

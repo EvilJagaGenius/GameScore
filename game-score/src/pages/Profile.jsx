@@ -21,6 +21,7 @@ export default class Profile extends Component{
     // POST request using fetch with async/await
     const requestOptions = {
         method: 'POST',
+        credentials: 'include',
         headers: {'Content-Type': 'application/json'}
     };
     const response = await fetch('http://localhost:5000/api/postLogout', requestOptions);

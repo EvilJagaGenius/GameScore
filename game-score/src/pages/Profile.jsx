@@ -5,10 +5,14 @@
 
 //import resources
 import React from "react";
+import { Component } from "react";
+import {Button} from "@material-ui/core";  //Material UI for tab bar
 
 //create component
-const Profile = () => {
-  return <div>This is the Profile tab</div>;
-};
-
-export default Profile;
+export default class Profile extends Component(){
+  render(){
+    return(
+      <Button onClick={console.log("Sign out button clicked")}>Sign Out</Button>
+    );
+  }
+}

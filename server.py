@@ -10,6 +10,7 @@ from flask import flash, Flask, jsonify, make_response, redirect, render_templat
 app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0  # Always do a complete refresh (for now)
 SERVER_NAME = 'flask-api:5000'
+session['userID'] = 1
 # app.secret_key = 'pepperoni secret'
 
 mydb = mysql.connector.connect(

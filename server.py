@@ -19,17 +19,36 @@ SERVER_NAME = 'flask-api:5000'
 # app.secret_key = 'pepperoni secret'
 
 
+def getUserID():
+    token = request.cookies.get('credHash')
+    username = request.cookies.get('username')
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select userID from AppUser where credHash=%s AND username=%s")
+    mycursor.execute(stmt,(token,username))
+    myresult = mycursor.fetchone()
+    userID=-1
+    if myresult != None:
+        userID, = myresult
+    mycursor.close()
+    mydb.close()
+    print(userID)
+    print(token)
+    return userID
+
+
 @app.after_request
 def after_request(response):
-  response.headers.add('Access-Control-Allow-Origin', '*')
+  response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
   response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
   response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+  response.headers.add('Access-Control-Allow-Credentials', 'true')
   return response
 
 
 mydb = mysql.connector.connect(
-      #host="10.18.110.183",
-      host="10.31.106.126",
+      host="10.18.110.183",
+      #host="10.31.106.126",
       port="3306",
       user="gamescore",
       password="GameScore2!",
@@ -73,6 +92,7 @@ def cleanup(exception):
 #Routes
 @app.route("/profile/")
 def profileGET():
+    getUserID()
     return render_template("profile.html")
 
 @app.route("/join/")
@@ -104,7 +124,6 @@ def homePage():
 @app.route('/createaccount/')
 def createAccountGET():
     return render_template('createaccount.html')
-
 
 
 ##################################### login API ########################################
@@ -521,7 +540,7 @@ def apiGetScoring():
               ,"individualScoring":[]
               ,"finalizeScore":{"players":[],"awards":[]}}
 
-
+    getUserID()    
     ### Scoring Overview ###
     
     #Get Template and GameName Info

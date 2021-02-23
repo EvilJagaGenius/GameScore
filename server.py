@@ -348,7 +348,7 @@ def logoutGET():
 
 ##################################### Create Account API ########################################
 
-@app.route('/api/postCreateAccount')
+@app.route('/api/postCreateAccount', methods=["POST"])
 def createAccountPost():
     
     #Get Values

@@ -9,12 +9,27 @@ import { Component } from "react";
 import {Button} from "@material-ui/core";  //Material UI for tab bar
 
 //create component
+
 export default class Profile extends Component{
+  async sendRequest() {
+    // POST request using fetch with async/await
+    const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'}
+    };
+    const response = await fetch('http://localhost:5000/api/postLogout', requestOptions);
+    const data = await response.json();
+    this.setState({data: data.successful});
+    //errors and error message
+    console.log(this.state.data);
+  }
   render(){
     return(
-      <div>
-        <Button onClick={console.log("Sign out button clicked")}>Sign Out</Button>
-      </div>
+      <form>
+        <div>
+          <Button onClick={()=>{this.sendRequest()}}>Sign Out</Button>
+        </div>
+      </form>
     );
   }
 }

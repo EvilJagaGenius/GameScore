@@ -146,11 +146,15 @@ def login_post():
 
 ##################################### Reset Password Email ########################################
 
-@app.route("/api/postResetPasswordEmail")
+@app.route("/api/postResetPasswordEmail", methods=["POST"])
 def sendPasswordEmail():
     # Skeleton function
     # See if the username is in the database
-    username = request.form.get("username")
+    content = request.json
+    username = content['username']
+    password = content['password']
+
+
     userEmailAddress = ""
     mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)

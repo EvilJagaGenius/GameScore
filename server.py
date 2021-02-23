@@ -228,8 +228,8 @@ def resetPassword():
     # Skeleton function
 
     content = request.json
-    token  = content['token']
-    token  = content['newPassword']
+    token = content['token']
+    newPassword = content['newPassword']
 
     
     mydb = mysql.connector.connect(pool_name = "mypool")
@@ -255,7 +255,9 @@ def resetPassword():
 @app.route("/api/postResetUsernameEmail", methods=["POST"])
 def sendUsernameEmail():
     # Skeleton function
-    userEmailAddress = request.form.get("userEmail")
+    content = request.json
+    userEmailAddress = content['userEmail']
+
     mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)
     statement = "SELECT email FROM AppUser WHERE email = %s"
@@ -318,8 +320,11 @@ def sendUsernameEmail():
 @app.route("/api/postResetUsername", methods=["POST"])
 def resetUsername():
     # Skeleton function
-    newUsername = request.form.get("newUsername")
-    token = request.form.get("token")
+
+    content = request.json
+    token = content['token']
+    newUsername = content['newUsername']
+
     # Do whatever extra authentication we need to here
     # Do checking/hashing the password here
     

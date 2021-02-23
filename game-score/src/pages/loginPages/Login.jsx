@@ -85,7 +85,7 @@ export default class Login extends Component{
     };
     const response = await fetch('http://localhost:5000/api/postLogin', requestOptions);
     const data = await response.json();
-    this.setState({ data: data.id });
+    this.setState({ data: data.successful });
     console.log(this.state.data);
   }
 

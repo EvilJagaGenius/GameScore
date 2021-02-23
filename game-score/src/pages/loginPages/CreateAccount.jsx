@@ -81,38 +81,62 @@ export default class CreateAccount extends Component{
    * @param {*} event 
    */
   passwordHandler=(event)=>{
-    let tempPass = String(event.target.value);
-    var passCheck = false;
-    var errorString = "";
-    //if password meets requirement length
-    if(tempPass.length <= 30 && tempPass.length >= 4){
-      //if password meets number inclusion requirement
-      if(tempPass.includes("1") || tempPass.includes("2") || tempPass.includes("3") || tempPass.includes("4") || tempPass.includes("5") || tempPass.includes("6")|| tempPass.includes("7")|| tempPass.includes("8")|| tempPass.includes("9")|| tempPass.includes("0")){
-        passCheck = true;
-      }
-      else{
-        errorString += "Number requirement not met\n";
-      }
-    }
-    else{
-      errorString += "Length reqirements not met\n";
-    }
-    //if the password fails to meet any of the following above tests, throw error
-    if(!passCheck){
-      this.setState({
-        password: "",
-        passwordError: true,
-        passwordHelper: errorString
-      })
-    }
-    //if all tests pass
-    else{
-      this.setState({
-        password: "",
-        passwordError: false,
-        passwordHelper: ""
-      })
-    }
+    this.setState({
+      password: event.target.value
+    });
+    // let tempPass = String(event.target.value);
+    // var passCheck = false;
+    // var errorString = "";
+    // //if password meets requirement length
+    // if(tempPass.length <= 30 && tempPass.length >= 4){
+    //   //if password meets number inclusion requirement
+    //   if(tempPass.includes("1") || tempPass.includes("2") || tempPass.includes("3") || tempPass.includes("4") || tempPass.includes("5") || tempPass.includes("6")|| tempPass.includes("7")|| tempPass.includes("8")|| tempPass.includes("9")|| tempPass.includes("0")){
+    //     passCheck = true;
+    //   }
+    //   else{
+    //     errorString += "Number requirement not met\n";
+    //   }
+    // }
+    // else{
+    //   errorString += "Length reqirements not met\n";
+    // }
+    // //if the password fails to meet any of the following above tests, throw error
+    // if(!passCheck){
+    //   this.setState({
+    //     password: "",
+    //     passwordError: true,
+    //     passwordHelper: errorString
+    //   })
+    // }
+    // //if all tests pass
+    // else{
+    //   this.setState({
+    //     password: "",
+    //     passwordError: false,
+    //     passwordHelper: ""
+    //   })
+    // }
+  }
+
+  async sendRequest() {
+    console.log(this.state.username);
+    console.log(this.state.email);
+    console.log(this.state.password);
+    // POST request using fetch with async/await
+    const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          username: this.state.username,
+          password: this.state.password,
+          email: this.state.email
+        })
+    };
+    const response = await fetch('http://localhost:5000/api/postCreateAccount', requestOptions);
+    const data = await response.json();
+    this.setState({data: data.successful});
+    //errors and error message
+    console.log(this.state.data);
   }
 
   /**
@@ -139,7 +163,7 @@ export default class CreateAccount extends Component{
     }
     //all tests passed
     else{
-      //potential server code
+      this.sendRequest();
     }
   }
 
@@ -170,7 +194,7 @@ return (
       <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.passwordHandler} value={this.state.password} error={this.state.passwordError}/>
     </div>
     <div>
-      <Link to="/home/login"><Button onClick={()=>{this.confirmSubmission("email")}}>Reset</Button></Link>
+      <Button onClick={()=>{this.confirmSubmission("email")}}>Create Account</Button>
     </div>
     </Box>
   </form>

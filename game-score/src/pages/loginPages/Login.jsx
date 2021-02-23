@@ -108,7 +108,7 @@ export default class Login extends Component{
         <div>
           <TextField required id="standard-required" label="Password" type="password" onChange={this.passwordHandler} value={this.state.password} error={this.state.passwordError}/>
         </div>
-        <Link to="/home"><Button onClick={()=>{this.confirmSubmission()}}>Login</Button></Link>
+        <Button onClick={()=>{this.confirmSubmission()}}>Login</Button>
         <Link to="/login/forgetpassword"><Button>Forget Password?</Button></Link>
         <Link to="/login/createaccount"><Button>Create Account</Button></Link>
       </form>

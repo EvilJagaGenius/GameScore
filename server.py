@@ -28,7 +28,8 @@ def after_request(response):
 
 
 mydb = mysql.connector.connect(
-      host="10.18.110.183",
+      #host="10.18.110.183",
+      host="10.31.106.126",
       port="3306",
       user="gamescore",
       password="GameScore2!",
@@ -256,7 +257,7 @@ def resetPassword():
 def sendUsernameEmail():
     # Skeleton function
     content = request.json
-    userEmailAddress = content['userEmail']
+    userEmailAddress = content['email']
 
     mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)

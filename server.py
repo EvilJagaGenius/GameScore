@@ -188,7 +188,7 @@ def sendPasswordEmail():
         msg['From'] = "GameScore Accounts"
         msg['To'] = userEmailAddress
         # Construct the message
-        text = """<p>You have requested to reset your GameScore password.  Click <a href="http://localhost:3000?token={}">here</a> to reset your password.</p>
+        text = """<p>You have requested to reset your GameScore password.  Click <a href="http://localhost:3000/login/resetpassword?token={}">here</a> to reset your password.</p>
 """.format(token)
         part1 = MIMEText(text,'html')
         msg.attach(part1)
@@ -226,8 +226,10 @@ def sendPasswordEmail():
 @app.route("/api/postResetPassword", methods=["POST"])
 def resetPassword():
     # Skeleton function
-    newPassword = request.form.get("newPassword")
-    token = request.form.get("token")
+
+    content = request.json
+    token  = content['token']
+    token  = content['newPassword']
 
     
     mydb = mysql.connector.connect(pool_name = "mypool")

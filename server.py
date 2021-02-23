@@ -99,7 +99,7 @@ def createAccountGET():
 
 ##################################### login API ########################################
 
-@app.route('/api/postLogin')
+@app.route('/api/postLogin', methods=["POST"])
 def login_post():
     mydb = mysql.connector.connect(pool_name = "mypool")
     #Get Form Info

@@ -26,7 +26,7 @@ mydb = mysql.connector.connect(
       database="gamescore",
       raise_on_warnings= True
       ,pool_name = "mypool",
-      pool_size = 32)
+      pool_size = 16)
 
 
 mycursor = mydb.cursor()

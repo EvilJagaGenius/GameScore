@@ -113,12 +113,9 @@ def login_post():
     mydb = mysql.connector.connect(pool_name = "mypool")
     #Get Form Info
     content = request.json
-
     username = content['username']
     password = content['password']
 
-    print(username)
-    print(password)
 
     #Check to see if username/password combo exists
     mycursor = mydb.cursor(prepared=True)
@@ -355,9 +352,11 @@ def logoutGET():
 def createAccountPost():
     
     #Get Values
-    username = request.form.get('username')
-    password = request.form.get('password')
-    email = request.form.get('email')
+
+    content = request.json
+    username = content['username']
+    password = content['password']
+    email = content['email']
 
     #Check DB for dupe email
     mydb = mysql.connector.connect(pool_name = "mypool")

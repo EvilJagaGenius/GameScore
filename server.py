@@ -289,7 +289,7 @@ def sendUsernameEmail():
         msg['From'] = "GameScore Accounts"
         msg['To'] = userEmailAddress
         
-        text = """<p>You have requested to reset your GameScore Username.  Click <a href="http://localhost:3000?token={}">here</a> to reset your username.</p>
+        text = """<p>You have requested to reset your GameScore Username.  Click <a href="http://localhost:3000/login/resetusername?token={}">here</a> to reset your username.</p>
 """.format(token)
         part1 = MIMEText(text,'html')
         msg.attach(part1)

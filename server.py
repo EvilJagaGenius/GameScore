@@ -1318,3 +1318,27 @@ def templateGameList():
     mydb.close()
 
     return jsonify(response)
+    
+    
+##################################### Report API ########################################
+@app.route("/api/reportTemplate")
+def reportTemplate():
+    # Do something, Taipu
+    # Right now, until I understand this better, we're just going to report templates..?  It looks like that's all the DB supports right now
+    # So we need the game ID, template ID and description
+    gameID = request.form.get("game_id")
+    templateID = request.form.get("template_id")
+    description = request.form.get("description")
+    
+    mydb = mySQL.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    statement = """
+    INSERT INTO Report (description, reason, templateID, gameID)
+    VALUES %s, Template, %s, %s
+    """
+    cursor.execute(statement)
+    
+    cursor.close()
+    mydb.close()
+    # What should we send as a response?
+    return jsonify({"successful": True})

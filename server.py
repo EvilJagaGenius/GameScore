@@ -337,7 +337,7 @@ def resetUsername():
 
 ##################################### logout API ########################################
 
-@app.route("/api/postLogout")
+@app.route("/api/postLogout", methods=["POST"])
 def logoutGET():
     #Clear Auth Cookies
     result = {"successful":True}

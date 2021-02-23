@@ -27,7 +27,8 @@ export default class CreateAccount extends Component{
       usernameHelper: "",
       emailHelper: "",
       passwordHelper: "",
-      token: ""
+      token: "",
+      data: ""
     }
   }
 

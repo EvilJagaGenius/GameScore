@@ -18,7 +18,8 @@ export default class ForgetPassword extends Component{
       username: "",
       email: "",
       usernameError: false,
-      emailError: false
+      emailError: false,
+      data: ""
     }
   }
 
@@ -83,6 +84,40 @@ export default class ForgetPassword extends Component{
     }
   }
 
+  async sendRequest1() {
+    console.log("This is username\n");
+    console.log(this.state.username);
+    // POST request using fetch with async/await
+    const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          username: this.state.username
+        })
+    };
+    const response = await fetch('http://localhost:5000/api/postResetPasswordEmail', requestOptions);
+    const data = await response.json();
+    this.setState({data: data.successful});
+    //errors and error message
+    console.log(this.state.data);
+  }
+
+  async sendRequest2() {
+    // POST request using fetch with async/await
+    const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          username: this.state.username
+        })
+    };
+    const response = await fetch('http://localhost:5000/api/postCreateAccount', requestOptions);
+    const data = await response.json();
+    this.setState({data: data.successful});
+    //errors and error message
+    console.log(this.state.data);
+  }
+
   render(){
   const classes = makeStyles((theme) => ({
   root: {
@@ -101,13 +136,13 @@ return (
       <TextField required id="standard-required" label="Username" onChange={this.usernameHandler} error={this.state.usernameError}/>
     </div>
     <div>
-      <Link to="/home/login"><Button onClick={()=>{this.confirmSubmission("username")}}>Reset</Button></Link>
+      <Button onClick={()=>{this.sendRequest1()}}>Reset</Button>
     </div>
     <div>
       <TextField required id="standard-required" label="Email Address" onChange={this.emailHandler} error={this.state.emailError}/>
     </div>
     <div>
-      <Link to="/home/login"><Button onClick={()=>{this.confirmSubmission("email")}}>Reset</Button></Link>
+      <Button onClick={()=>{this.confirmSubmission("email")}}>Reset</Button>
     </div>
     </Box>
   </form>

@@ -11,6 +11,12 @@ import {Button} from "@material-ui/core";  //Material UI for tab bar
 //create component
 
 export default class Profile extends Component{
+  constructor(props){
+    super();
+    this.state = {
+      data: ""
+    }
+  }
   async sendRequest() {
     // POST request using fetch with async/await
     const requestOptions = {

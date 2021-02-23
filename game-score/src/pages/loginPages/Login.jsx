@@ -17,7 +17,8 @@ export default class Login extends Component{
       username: "",
       password: "",
       usernameError: false,
-      passwordError: false
+      passwordError: false,
+      data: ""
     }
   }
 
@@ -68,8 +69,24 @@ export default class Login extends Component{
     }
     //all tests passed
     else{
-      //potential server code
+      this.sendRequest();
     }
+  }
+
+  async sendRequest() {
+    // POST request using fetch with async/await
+    const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          username: this.state.username,
+          password: this.state.password
+        })
+    };
+    const response = await fetch('http://localhost:5000/api/postLogin', requestOptions);
+    const data = await response.json();
+    this.setState({ data: data.id });
+    console.log(this.state.data);
   }
 
   render(){

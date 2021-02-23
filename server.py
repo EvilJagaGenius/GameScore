@@ -152,7 +152,6 @@ def sendPasswordEmail():
     # See if the username is in the database
     content = request.json
     username = content['username']
-    password = content['password']
 
 
     userEmailAddress = ""

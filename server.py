@@ -108,7 +108,7 @@ def login_post():
 
     #Check to see if username/password combo exists
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select userID from AppUser where userPassword = SHA1(%s) AND username = %s")
+    stmt = ("select userID, admin from AppUser where userPassword = SHA1(%s) AND username = %s")
     mycursor.execute(stmt,(password,username,))
     myresult = mycursor.fetchone()
     mycursor.close()
@@ -124,6 +124,12 @@ def login_post():
         response = jsonify(result)
         response.set_cookie('credHash',token)
         response.set_cookie('username', username)
+        
+        # See if the user is an admin
+        adminStatus = bool(myresult[1])  # Is this already a bool?  I don't know
+        if adminStatus:
+            response.set_cookie("admin", adminStatus)  # I think we can do this in the session, not using cookies
+            #session["admin"] = adminStatus
 
         mycursor = mydb.cursor(prepared=True)
         stmt = ("update AppUser SET credHash = %s where userPassword = SHA1(%s) AND username = %s")
@@ -1301,7 +1307,7 @@ def myTemplates():
 #Template Creation Screen
 @app.route("/edit/templateGameList")
 def templateGameList():
-    mydb = mySQL.connector.connect(pool_name = "mypool")
+    mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)
     statement = "SELECT (gameID, gameName) FROM Game"
     cursor.execute(statement)
@@ -1321,24 +1327,72 @@ def templateGameList():
     
     
 ##################################### Report API ########################################
+# Submit reports
 @app.route("/api/reportTemplate")
 def reportTemplate():
-    # Do something, Taipu
     # Right now, until I understand this better, we're just going to report templates..?  It looks like that's all the DB supports right now
     # So we need the game ID, template ID and description
     gameID = request.form.get("game_id")
     templateID = request.form.get("template_id")
     description = request.form.get("description")
     
-    mydb = mySQL.connector.connect(pool_name = "mypool")
+    mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)
     statement = """
     INSERT INTO Report (description, reason, templateID, gameID)
     VALUES %s, Template, %s, %s
     """
-    cursor.execute(statement)
+    cursor.execute(statement, (description, templateID, gameID))
     
     cursor.close()
     mydb.close()
     # What should we send as a response?
     return jsonify({"successful": True})
+    
+# List reports
+@app.route("/api/listReports")
+def listReports():
+    adminStatus = request.cookies.get("admin", None)
+    if adminStatus != True:
+        return "Current user is not an admin"
+
+    # Get a list of reports and send them to the user in JSON format
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    statement = "SELECT reportID, description, reason, templateID, gameID FROM Report"
+    cursor.execute(statement, ())
+    reports = cursor.fetchall()
+    response = {}
+    for t in reports:
+        dictionary = {
+        "description": t[1],
+        "reason": t[2],
+        "templateID": t[3],
+        "gameID": t[4]
+        }
+        response.update({t[0]: dictionary})
+        
+    cursor.close()
+    mydb.close()
+    
+    return jsonify(response)
+    
+# Do something about the report
+@app.route("/api/doReports")  # Change this to something more sensible once you think of it
+def doReports():
+    # Do something, Taipu
+    return "ok"
+
+
+# Rate Bottom UI (move this)
+@app.route("/api/rateTemplate")
+def rateTemplate():
+    # Do something, Taipu
+    templateID = 1  # We need some way to get this.  Form?  Session?
+    newRating = request.form.get("rating", None)
+    
+    # What's the math we need to do?
+    # ((Previous avg. rating * numRatings) + newRating) / (numRatings + 1)
+    # numRatings += 1
+    
+    return "ok"

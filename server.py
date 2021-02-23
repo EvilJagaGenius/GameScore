@@ -651,7 +651,6 @@ def apiGetScoring():
     mydb.close()
 
     response = jsonify(result)
-    response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 
@@ -703,7 +702,6 @@ def apiGetPostGame():
     mydb.close()
 
     response = jsonify(result)
-    response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 

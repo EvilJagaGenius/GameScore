@@ -142,6 +142,7 @@ return (
     </div>
     <div>
       <Button onClick={()=>{this.sendRequest()}}>Create Account</Button>
+      <Button onClick={()=>{console.log(window.location.href)}}>Token</Button>
     </div>
     </Box>
   </form>

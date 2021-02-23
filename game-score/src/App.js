@@ -34,7 +34,7 @@ export default function App() {
       <Route path="/home/login" component ={Login}/>
       <Route path="/login/forgetpassword" component={ForgetPassword}/>
       <Route path="/login/createaccount" component={CreateAccount}/>
-      <Route path="/login/resetpassword" component={ResetPasswordUsername}></Route>
+      <Route path="/login/resetpassword" component={ResetPasswordUsername}/>
     </Switch>
   );
 }

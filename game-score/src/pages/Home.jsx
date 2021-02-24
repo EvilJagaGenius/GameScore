@@ -15,6 +15,11 @@ import MyTemplates from './MyTemplates';
 import PlayGame from './PlayGame';
 import Profile from './Profile';
 
+function getCookieValue(name) {
+  let result = document.cookie.match("(^|[^;]+)\\s*" + name + "\\s*=\\s*([^;]+)")
+  return result ? result.pop() : ""
+}
+
 /**
  * Home component: creates tab bar system
  * @param {*} props 
@@ -53,6 +58,14 @@ const Home = props => {
     setSelectedTab(newValue);
   };
 
+  let button;
+  if(getCookieValue("username").length !== 0){
+    button = <h3>Signed In</h3>
+  }
+  else{
+    button = <Link to = "/home/login"><Button>Click here to log in for full functionality</Button></Link>
+  }
+
   //return elements to be rendered from component
   //...in this case...the tab bar or "AppBar" as it's known in MaterialUI
   //65-68 return the appropriate React component needed to be displayed, based on the value of the selected tab
@@ -66,7 +79,7 @@ const Home = props => {
           <Tab label="Profile" />
         </Tabs>
       </AppBar>
-      <Link to = "/home/login"><Button>Click here to log in for full functionality</Button></Link>
+      <div>{button}</div>
       {selectedTab === 0 && <HomeMenu />}
       {selectedTab === 1 && <MyTemplates />}
       {selectedTab === 2 && <PlayGame />}

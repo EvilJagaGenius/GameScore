@@ -7,11 +7,10 @@ import TextField from '@material-ui/core/TextField';
 import {makeStyles} from '@material-ui/core/styles';
 import {Button} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
-import { BrowserRouter as Router, Link } from 'react-router-dom';
 import { Component } from "react";
 import Logo from '../../images/GameScore App Logo.png';
 
-export default class CreateAccount extends Component{
+export default class ResetPassword extends Component{
   constructor(props){
     super();
     this.state = {

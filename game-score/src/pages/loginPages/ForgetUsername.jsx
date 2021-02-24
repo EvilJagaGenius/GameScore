@@ -27,24 +27,66 @@ export default class ForgetUsername extends Component{
     });
   }
 
-  //4-30 characters, one number, one captial letter
   /**
-   * passwordHandler
+   * usernameHandler
    * @param {*} event 
    */
   usernameHandler=(event)=>{
     this.setState({
       username: event.target.value
     });
-    if(String(event.target.value).length === 0){
-        this.setState({
-            usernameError: true
-        })
+    console.log("username is")
+    console.log(event.target.value);
+    var name = String(event.target.value);
+    var capCheck = false;
+    var validCharCheck = false;
+    var errorText = "";
+    if(name.length > 30 || name.length < 4){
+      console.log("length not met");
+      errorText += "Length requirements not met. ";
+      console.log(errorText)
+    }
+    for(var i = 0; i < name.length; i++){
+      var tempCode = name.charCodeAt(i);
+      //use ASCII code to attempt to detect lowercase characters
+      if(tempCode >= 97 && tempCode <= 122){
+        //lowercase found
+        console.log("lower case found")
+        validCharCheck = true;
+        if(capCheck){
+          capCheck = true;
+        }
+        else{
+          capCheck = false;
+        }
+      }
+      else if(tempCode >= 65 && tempCode <= 90){
+        //capital found
+        console.log("captial found");
+        capCheck = true;
+      }
+      else{
+        console.log("lower case check failed");
+        validCharCheck = false;
+      }
+    }
+    if(!validCharCheck){
+      errorText += "Invalid character found. ";
+    }
+    if(!capCheck){
+      errorText += "Capital letter not found. ";
+    }
+    if(errorText.length !== 0){
+      this.setState({
+        usernameError: true,
+        usernameHelper: errorText
+      });
     }
     else{
-        this.setState({
-            usernameError: false
-        })
+      this.setState({
+        usernameError: false,
+        usernameHelper: ""
+      });
     }
   }
 

@@ -27,47 +27,47 @@ export default class ResetPassword extends Component{
     });
   }
 
-  //4-30 characters, one number, one captial letter
   /**
    * passwordHandler
    * @param {*} event 
    */
   passwordHandler=(event)=>{
+    console.log(event.target.value)
+    var pass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{4,30}/
+    if(String(event.target.value).match(pass)){
+      this.setState({
+        passwordError: false,
+        password: event.target.value
+      });
+      console.log("requirements met");
+    }
+    else{
+      console.log("requirments not met")
+      this.setState({
+        password: event.target.value,
+        passwordError: true
+      });
+    }
+  }
+
+  /**
+   * confirmPasswordHandler
+   * @param {*} event 
+   */
+  confirmPasswordHandler=(event)=>{
     this.setState({
-      password: event.target.value
+      confirmPassword: event.target.value
     });
-    // let tempPass = String(event.target.value);
-    // var passCheck = false;
-    // var errorString = "";
-    // //if password meets requirement length
-    // if(tempPass.length <= 30 && tempPass.length >= 4){
-    //   //if password meets number inclusion requirement
-    //   if(tempPass.includes("1") || tempPass.includes("2") || tempPass.includes("3") || tempPass.includes("4") || tempPass.includes("5") || tempPass.includes("6")|| tempPass.includes("7")|| tempPass.includes("8")|| tempPass.includes("9")|| tempPass.includes("0")){
-    //     passCheck = true;
-    //   }
-    //   else{
-    //     errorString += "Number requirement not met\n";
-    //   }
-    // }
-    // else{
-    //   errorString += "Length reqirements not met\n";
-    // }
-    // //if the password fails to meet any of the following above tests, throw error
-    // if(!passCheck){
-    //   this.setState({
-    //     password: "",
-    //     passwordError: true,
-    //     passwordHelper: errorString
-    //   })
-    // }
-    // //if all tests pass
-    // else{
-    //   this.setState({
-    //     password: "",
-    //     passwordError: false,
-    //     passwordHelper: ""
-    //   })
-    // }
+    if(String(event.target.value) !== String(this.state.password)){
+      this.setState({
+        confrimPasswordError: true
+      });
+    }
+    else{
+      this.setState({
+        confrimPasswordError: false
+      });
+    }
   }
 
   async sendRequest() {
@@ -116,16 +116,15 @@ return (
   <form className={classes.root} noValidate autoComplete="off">
     <Box m={2} pt={3}>
     <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
-    <h1>Reset Password {this.props.location.search.substr(this.props.location.search.indexOf("=")+1)}
-</h1>
+    <h1>Reset Password</h1>
     <div>
-      <TextField required id="standard-required" name = "password" label="Password" type="password" onChange={this.passwordHandler} value={this.state.password} error={this.state.passwordError}/>
+      <TextField required id="standard-required" name = "password" label="Password" type="password" onChange={this.passwordHandler}  error={this.state.passwordError}/>
     </div>
     <div>
-      <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.passwordHandler} value={this.state.password} error={this.state.passwordError}/>
+      <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.passwordError}/>
     </div>
     <div>
-      <Button onClick={()=>{this.sendRequest()}}>Create Account</Button>
+      <Button onClick={()=>{this.confirmSubmission()}}>Reset Password</Button>
     </div>
     </Box>
   </form>

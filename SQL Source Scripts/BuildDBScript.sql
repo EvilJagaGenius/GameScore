@@ -29,6 +29,8 @@ avatarID INT DEFAULT 0,
 hiddenProfile BOOLEAN DEFAULT false,
 email VARCHAR(100),
 credHash BLOB (1000),
+resetPasswordToken BLOB(1000),
+resetUsernameToken BLOB(1000),
 PRIMARY KEY(userID));
 
 CREATE TABLE Template (

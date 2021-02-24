@@ -22,6 +22,12 @@ export default class CreateAccount extends Component{
     }
   }
 
+  componentDidMount(){
+    this.setState({
+      token: this.props.location.search.substr(this.props.location.search.indexOf("=")+1)
+    });
+  }
+
   //4-30 characters, one number, one captial letter
   /**
    * passwordHandler
@@ -82,12 +88,6 @@ export default class CreateAccount extends Component{
     console.log(this.state.data);
   }
 
-  updateToken(data){
-    this.setState({
-        token: data
-    })
-  }
-
   /**
    * confirmSubmission: function for handling submission events
    */
@@ -127,7 +127,6 @@ return (
     </div>
     <div>
       <Button onClick={()=>{this.sendRequest()}}>Create Account</Button>
-      <Button onClick={()=>{this.updateToken(this.props.location.search.substr(this.props.location.search.indexOf("=")+1))}}>Token</Button>
     </div>
     </Box>
   </form>

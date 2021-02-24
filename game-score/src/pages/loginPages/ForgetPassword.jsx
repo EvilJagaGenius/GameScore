@@ -127,7 +127,8 @@ export default class ForgetPassword extends Component{
     //errors and error message
     console.log(this.state.passwordData);
     if(this.state.passwordData){
-      alert("Your password reset email has been sent to the email address connected with your account")
+      alert("Your password reset email has been sent to the email address connected with your account");
+      this.props.history.push("/home/login");
     }
     else{
       alert("Username has not been found. Please try again");
@@ -146,11 +147,12 @@ export default class ForgetPassword extends Component{
     };
     const response = await fetch('http://localhost:5000/api/postResetUsernameEmail', requestOptions);
     const data = await response.json();
-    this.setState({data: data.successful});
+    this.setState({emailData: data.successful});
     //errors and error message
     console.log(this.state.emailData);
     if(this.state.emailData){
-      alert("Your reset email has been sent")
+      alert("Your reset email has been sent");
+      this.props.history.push("/home/login");
     }
     else{
       alert("Email has not been found. Please try again");

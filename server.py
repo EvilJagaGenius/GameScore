@@ -140,7 +140,7 @@ def login_post():
 
     #Check to see if username/password combo exists
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select userID, admin from AppUser where userPassword = SHA1(%s) AND username = %s")
+    stmt = ("select userID from AppUser where userPassword = SHA1(%s) AND username = %s")
     mycursor.execute(stmt,(password,username,))
     myresult = mycursor.fetchone()
     mycursor.close()
@@ -157,11 +157,6 @@ def login_post():
         response.set_cookie('credHash',token)
         response.set_cookie('username', username)
         
-        # See if the user is an admin
-        adminStatus = bool(myresult[1])  # Is this already a bool?  I don't know
-        if adminStatus:
-            response.set_cookie("admin", adminStatus)  # I think we can do this in the session, not using cookies
-            #session["admin"] = adminStatus
 
         mycursor = mydb.cursor(prepared=True)
         stmt = ("update AppUser SET credHash = %s where userPassword = SHA1(%s) AND username = %s")

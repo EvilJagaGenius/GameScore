@@ -38,12 +38,22 @@ export default class ScoringPage extends React.Component{
      const { match, history, classes } = this.props;
     };
 
-componentDidMount = () => {
+
+
+    componentDidMount = () => {
 
     if(this.props.location.state.indvidiualData !=null)
     {
       this.setState({individualData:this.props.location.state.indvidiualData})
     }
+
+     Socket.on("sendNewScores", scores => {
+      console.log(scores)
+        this.setState({
+          individualData:scores.individualScoring,
+          data:scores
+        });
+      });
 
     fetch("/api/getScoring")
       .then(res => res.json())
@@ -53,8 +63,8 @@ componentDidMount = () => {
             individualData: result.individualScoring,
             data:result,
             loaded: "True"
-          }
-          );
+          })
+        
           console.log("Calling API")
           for(var i=0;i<Object.keys(result["individualScoring"]).length;i++)
           {
@@ -64,48 +74,16 @@ componentDidMount = () => {
               console.log(i)
             }
           }
+          console.log("DONE")
         },
       )
 
-
-
-  Socket.on("sendNewScores", scores => {
-    console.log(scores)
-      this.setState({
-        individualData:scores.individualScoring,
-        data:scores
-      });
-    });
-  }
+    }
 
   componentWillUnmount()
   {
     Socket.removeAllListeners("sendNewScores")
   }
-
-
-/*
- const requestOptions = {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        credentials: 'include',
-        body: JSON.stringify({
-          conditionID: ScoringPage.updatedConditionID,
-          playerID: ScoringPage.updatedPlayerID,
-          value:ScoringPage.updatedValue
-        })
-         fetch('/api/postUpdateScore', requestOptions)
-        .then(res => res.json())
-        .then(
-          (result) => {
-            this.setState({
-              individualData: result.individualScoring,
-              loaded: "True"
-            });
-            console.log(result)
-          },
-        )
-*/
 
 
 
@@ -179,21 +157,21 @@ componentDidMount = () => {
     </div>
     );
   }
-    handleChange(name,condPos,playerPos) {
+
+
+handleChange(name,condPos,playerPos) {
     ScoringPage.updatedValue = this.roundValues(name)
     ScoringPage.updatedConditionID=this.state.individualData[playerPos]["conditions"][condPos].conditionID
     ScoringPage.updatedPlayerID= this.props.location.state.individualPlayerID;
 
     this.setState(prevState => {
     let individualData = Object.assign({}, prevState.individualData);  // creating copy of state variable jasper
-    individualData[playerPos]["conditions"][condPos].value = this.roundValues(name);                     // update the name property, assign a new value                 
-    return { individualData };                                 // return new object jasper object
+    individualData[playerPos]["conditions"][condPos].value = this.roundValues(name);       
+    return { individualData };                        
     },() => this.recallAPI())
   }
 }
-ScoringPage.updatedCondition = 4
-ScoringPage.updatedValue = 51
-ScoringPage.updatedPlayer = 13
+
 
 class Textbox extends React.Component {
   constructor(props) {

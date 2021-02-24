@@ -1385,12 +1385,15 @@ def doReports():
 
 
 # Rate Bottom UI (move this)
-@app.route("/api/rateTemplate")
+@app.route("/api/rateTemplate", methods=["POST"])
 def rateTemplate():
     # Do something, Taipu
+    print("Recieved rateTemplate")
     templateID = 1  # We need some way to get this.  Form?  Session?
     gameID = 1
-    rating = request.form.get("rating", None)
+    rating = float(request.form.get("rating", None))
+    print("Rating: " + str(rating))
+    
     
     mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)
@@ -1405,4 +1408,9 @@ def rateTemplate():
     statement = "UPDATE Template SET numRatings = %s, averageRating = %s WHERE templateID = %s AND gameID = %s"
     cursor.execute(statement, (numberOfRatings, newRating, templateID, gameID))
     
-    return "ok"
+    cursor.close()
+    mydb.close()
+    
+    response = {"successful": True}
+    
+    return jsonify(response)

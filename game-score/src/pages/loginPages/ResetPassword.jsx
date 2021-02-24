@@ -1,5 +1,5 @@
 /**
- * CreateAccount.jsx-Jonathon Lannon
+ * ResetPassword.jsx-Jonathon Lannon
  */
 
 import React from "react";  //basic React framework
@@ -11,22 +11,12 @@ import { BrowserRouter as Router, Link } from 'react-router-dom';
 import { Component } from "react";
 import Logo from '../../images/GameScore App Logo.png';
 
-
-
 export default class CreateAccount extends Component{
   constructor(props){
     super();
     this.state = {
-      username: "",
-      email: "",
       password: "",
-      usernameError: false,
-      emailError: false,
       passwordError: false,
-      confrimPasswordError: false,
-      usernameHelper: "",
-      emailHelper: "",
-      passwordHelper: "",
       token: "",
       data: ""
     }
@@ -81,7 +71,7 @@ export default class CreateAccount extends Component{
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          password: this.state.password,
+          newPassword: this.state.password,
           token: this.state.token
         })
     };
@@ -92,33 +82,27 @@ export default class CreateAccount extends Component{
     console.log(this.state.data);
   }
 
+  updateToken(data){
+    this.setState({
+        token: data
+    })
+  }
+
   /**
    * confirmSubmission: function for handling submission events
    */
-//   confirmSubmission(){
-//     //username 4-30 characters
-//     if(this.state.username === ""){
-//       alert("No username and password entered\nPlease enter your login information");
-//       this.setState({
-//         usernameError: true,
-//         emailError: true
-//       });
-//     }
-//     //all tests passed
-//     else{
-//       //potential server code
-//     }
-//     if(this.state.email===""){
-//       alert("Please enter your email address");
-//       this.setState({
-//         emailError: true
-//       });
-//     }
-//     //all tests passed
-//     else{
-//       this.sendRequest();
-//     }
-//   }
+  confirmSubmission(){
+    if(this.state.password === ""){
+      alert("No username and password entered\nPlease enter your login information");
+      this.setState({
+        passwordError: true
+      });
+    }
+    //all tests passed
+    else{
+      //potential server code
+    }
+  }
 
   render(){
   const classes = makeStyles((theme) => ({
@@ -143,7 +127,7 @@ return (
     </div>
     <div>
       <Button onClick={()=>{this.sendRequest()}}>Create Account</Button>
-      <Button onClick={()=>{console.log(window.location.href)}}>Token</Button>
+      <Button onClick={()=>{this.updateToken(this.props.location.search.substr(this.props.location.search.indexOf("=")+1))}}>Token</Button>
     </div>
     </Box>
   </form>

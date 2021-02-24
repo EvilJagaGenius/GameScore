@@ -5,8 +5,9 @@
 import React from "react";  //basic React framework
 import TextField from '@material-ui/core/TextField';
 import {makeStyles} from '@material-ui/core/styles';
-import {Button} from "@material-ui/core";  //Material UI for tab bar
-import { BrowserRouter as Router, Link } from 'react-router-dom';
+import {Button} from "@material-ui/core";
+import Box from '@material-ui/core/Box';
+import { BrowserRouter as Link } from 'react-router-dom';
 import Logo from '../../images/GameScore App Logo.png';
 import { Component } from "react";
 
@@ -18,7 +19,8 @@ export default class Login extends Component{
       password: "",
       usernameError: false,
       passwordError: false,
-      data: ""
+      data: false,
+      testing: 0
     }
   }
 
@@ -27,6 +29,17 @@ export default class Login extends Component{
    * @param {*} event 
    */
   usernameHandler=(event)=>{
+    var tempName = String(event.target.value);
+    if(tempName.length === 0){
+      this.setState({
+        usernameError: true
+      });
+    }
+    else{
+      this.setState({
+        usernameError: false
+      });
+    }
     this.setState({
       username: event.target.value
     });
@@ -38,6 +51,17 @@ export default class Login extends Component{
    * @param {*} event 
    */
   passwordHandler=(event)=>{
+    var tempPass = String(event.target.value);
+    if(tempPass.length === 0){
+      this.setState({
+        passwordError: true
+      });
+    }
+    else{
+      this.setState({
+        passwordError: false
+      });
+    }
     this.setState({
       password: event.target.value
     });
@@ -47,7 +71,7 @@ export default class Login extends Component{
   /**
    * confirmSubmisson
    */
-  confirmSubmission(){
+  confirmSubmission = e =>{
     if(this.state.username === "" && this.state.password === ""){
       alert("No username and password entered\nPlease enter your login information");
       this.setState({
@@ -88,7 +112,15 @@ export default class Login extends Component{
     const data = await response.json();
     this.setState({ data: data.successful });
     console.log(this.state.data);
+    if(this.state.data === false){
+      alert("Incorrect login information\nPlease try again");
+    }
+    else{
+      this.props.history.push("/");
+    }
   }
+
+  printTest
 
   render(){
     const classes = makeStyles((theme) => ({
@@ -101,6 +133,7 @@ export default class Login extends Component{
     }));
     return (
       <form className={classes.root} noValidate autoComplete="off">
+        <Box m={2} pt={3}>
         <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
         <h1>Login Page</h1>
         <div>
@@ -112,6 +145,8 @@ export default class Login extends Component{
         <Button onClick={()=>{this.confirmSubmission()}}>Login</Button>
         <Link to="/login/forgetpassword"><Button>Forget Password?</Button></Link>
         <Link to="/login/createaccount"><Button>Create Account</Button></Link>
+        <Button onClick={()=>{}}>Log Change</Button>
+        </Box>
       </form>
     );
   }

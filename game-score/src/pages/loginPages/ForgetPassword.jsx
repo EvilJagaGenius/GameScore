@@ -7,7 +7,6 @@ import TextField from '@material-ui/core/TextField';
 import {makeStyles} from '@material-ui/core/styles';
 import {Button} from "@material-ui/core";  //Material UI for tab bar
 import Box from '@material-ui/core/Box';
-import { BrowserRouter as Router, Link } from 'react-router-dom';
 import { Component } from "react";
 import Logo from '../../images/GameScore App Logo.png';
 

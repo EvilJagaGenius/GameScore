@@ -19,8 +19,7 @@ export default class Login extends Component{
       password: "",
       usernameError: false,
       passwordError: false,
-      data: false,
-      testing: 0
+      data: false
     }
   }
 
@@ -120,8 +119,6 @@ export default class Login extends Component{
     }
   }
 
-  printTest
-
   render(){
     const classes = makeStyles((theme) => ({
       root: {
@@ -145,7 +142,6 @@ export default class Login extends Component{
         <Button onClick={()=>{this.confirmSubmission()}}>Login</Button>
         <Link to="/login/forgetpassword"><Button>Forget Password?</Button></Link>
         <Link to="/login/createaccount"><Button>Create Account</Button></Link>
-        <Button onClick={()=>{}}>Log Change</Button>
         </Box>
       </form>
     );

@@ -10,6 +10,7 @@ import smtplib
 import traceback
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from flask_socketio import SocketIO
 
 # Setup
 from flask import flash, Flask, jsonify, make_response, redirect, render_template, request, Response, session, url_for
@@ -17,6 +18,20 @@ app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0  # Always do a complete refresh (for now)
 SERVER_NAME = 'flask-api:5000'
 # app.secret_key = 'pepperoni secret'
+
+socketio = SocketIO(app)
+
+
+def messageReceived(methods=['GET', 'POST']):
+    print('message was received!!!')
+
+@socketio.on('my event')
+def handle_my_custom_event(data, methods=['GET', 'POST']):
+    print('received my event: ' + str(data))
+    socketio.emit('my response', data, callback=messageReceived)
+
+if __name__ == '__main__':
+    socketio.run(app, debug=True)
 
 
 def getUserID():

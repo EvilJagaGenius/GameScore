@@ -5,9 +5,11 @@
 
  //import resources
 import React, { Component } from "react";
+import GameRow from "../GameRow"
 import TemplateRow from "../TemplateRow";
 import Table from '@material-ui/core/Table';
 import TableContainer from '@material-ui/core/TableContainer';
+import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 // import { Container, Link } from 'react-floating-action-button';
 import Fab from '@material-ui/core/Fab';
@@ -89,7 +91,7 @@ export default class MyTemplates extends Component {
                 <> 
                     {/* Iterate through created templates and render the data in a tabular format */}
                     {Object.keys(this.state.data).map(key => (
-                      <div onClick={()=>this.selectTemplate(0,key)}>
+                      <TableRow onClick={()=>this.selectTemplate(0,key)}>
                         <TemplateRow rowPos={key} accPos="0" 
                         pictureURL = {this.state.data[key].pictureURL} 
                         templateName = {this.state.data[key].templateName}
@@ -99,7 +101,7 @@ export default class MyTemplates extends Component {
                         gameID = {this.state.data[key].gameID}
                         selected = {this.isSelected(0,key)}
                         />
-                      </div>
+                      </TableRow>
                     ))}
                   </>
               }

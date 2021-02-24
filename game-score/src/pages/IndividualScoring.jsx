@@ -158,7 +158,7 @@ componentDidMount = () => {
                 <TableCell align="left">{this.state.individualData[this.state.key]["conditions"][condPos].conditionName}</TableCell>
                 <TableCell align="center">
                   <Textbox playerID={this.state.individualData[this.state.key].playerID} conditionID={this.state.individualData[this.state.key]["conditions"][condPos].conditionID} onNameChange={(e) => {
-     this.handleChange(e,condPos,this.state.key)}} defaultValue={this.state.individualData[this.state.key]["conditions"][condPos].value} key={`${Math.floor((Math.random() * 1000))}-min`} condPos={condPos} playerPos={this.state.key}/>
+     this.handleChange(e,condPos,this.state.key)}} defaultValue={this.state.individualData[this.state.key]["conditions"][condPos].value} condPos={condPos} playerPos={this.state.key}/>
                 </TableCell>
                 <TableCell align="center">{this.roundValues(this.state.individualData[this.state.key]["conditions"][condPos].score).toFixed(2)}</TableCell>
               </TableRow>

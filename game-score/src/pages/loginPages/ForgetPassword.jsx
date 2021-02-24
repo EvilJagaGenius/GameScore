@@ -18,7 +18,8 @@ export default class ForgetPassword extends Component{
       email: "",
       usernameError: false,
       emailError: false,
-      data: ""
+      passwordData: false,
+      emailData: false
     }
   }
 
@@ -27,10 +28,21 @@ export default class ForgetPassword extends Component{
    * @param {*} event 
    */
   usernameHandler=(event)=>{
+    var tempName = String(event.target.value);
+    if(tempName.length === 0){
+      this.setState({
+        usernameError: true
+      });
+    }
+    else{
+      this.setState({
+        usernameError: false
+      });
+    }
     this.setState({
       username: event.target.value
     });
-    console.log(this.state.username);
+    //note: console.log used here is no good, because by the time the function is called, setState is still updating, so it's delayed
   }
 
   /**
@@ -38,52 +50,67 @@ export default class ForgetPassword extends Component{
    * @param {*} event 
    */
   emailHandler=(event)=>{
-    let email = event.target.value;
-    if(email.includes("@") && email.includes(".")){
+    let tempEmail = String(event.target.value);
+    if(tempEmail === 0){
       this.setState({
-        email: event.target.value
+        emailError: true
+      });
+    }
+    else if(!tempEmail.includes("@") && !tempEmail.includes(".")){
+      this.setState({
+        emailError: true
       })
     }
     else{
       this.setState({
-        email: "",
-        emailError: true
+        emailError: false
       })
     }
+    this.setState({
+      email: event.target.value
+    });
   }
 
   /**
    * confirmSubmission: function for handling submission events
    */
   confirmSubmission(type){
-    if(type === "username"){
+    if(type === "password"){
       if(this.state.username === ""){
-        alert("No username and password entered\nPlease enter your login information");
+        alert("No username entered");
         this.setState({
-          usernameError: true,
-          emailError: true
+          usernameError: true
         });
       }
       //all tests passed
       else{
-        //potential server code
+        this.passwordSendRequest();
       }
     }
+    //email checks
     else{
-      if(this.state.email===""){
-        alert("Please enter your email address");
+      let tempEmail = String(this.state.email);
+      console.log("Tempemail is");
+      console.log(tempEmail);
+      //if error found, handle it
+      if(tempEmail.length === 0){
         this.setState({
           emailError: true
-        });
+        })
+        alert("Invalid email")
       }
-      //all tests passed
+      //no errors found
       else{
-        //potential server code
+        this.setState({
+          emailError: false
+        });
+        //send request
+        this.emailSendRequest();
       }
     }
   }
 
-  async sendRequest1() {
+  async passwordSendRequest() {
     console.log("This is username\n");
     console.log(this.state.username);
     // POST request using fetch with async/await
@@ -96,25 +123,38 @@ export default class ForgetPassword extends Component{
     };
     const response = await fetch('http://localhost:5000/api/postResetPasswordEmail', requestOptions);
     const data = await response.json();
-    this.setState({data: data.successful});
+    this.setState({passwordData: data.successful});
     //errors and error message
-    console.log(this.state.data);
+    console.log(this.state.passwordData);
+    if(this.state.passwordData){
+      alert("Your password reset email has been sent to the email address connected with your account")
+    }
+    else{
+      alert("Username has not been found. Please try again");
+    }
   }
 
-  async sendRequest2() {
+  async emailSendRequest() {
+    console.log("In email send request");
     // POST request using fetch with async/await
     const requestOptions = {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          username: this.state.username
+          email: this.state.email
         })
     };
-    const response = await fetch('http://localhost:5000/api/postCreateAccount', requestOptions);
+    const response = await fetch('http://localhost:5000/api/postResetUsernameEmail', requestOptions);
     const data = await response.json();
     this.setState({data: data.successful});
     //errors and error message
-    console.log(this.state.data);
+    console.log(this.state.emailData);
+    if(this.state.emailData){
+      alert("Your reset email has been sent")
+    }
+    else{
+      alert("Email has not been found. Please try again");
+    }
   }
 
   render(){
@@ -135,7 +175,7 @@ return (
       <TextField required id="standard-required" label="Username" onChange={this.usernameHandler} error={this.state.usernameError}/>
     </div>
     <div>
-      <Button onClick={()=>{this.sendRequest1()}}>Reset</Button>
+      <Button onClick={()=>{this.confirmSubmission("password")}}>Reset</Button>
     </div>
     <div>
       <TextField required id="standard-required" label="Email Address" onChange={this.emailHandler} error={this.state.emailError}/>

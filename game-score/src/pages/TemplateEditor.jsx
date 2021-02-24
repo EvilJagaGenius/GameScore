@@ -1,121 +1,68 @@
-/**
- * TemplateEditor.jsx - Jonathan Beels
- */
+import React,  {useReducer, useState} from 'react'
+import { Link, useHistory } from "react-router-dom"
 
- import React from 'react'
- import { Link, useHistory } from "react-router-dom"
-
-const [state, setState] = [{}]
-
- function Constructor (props) {
-    state.setState({
-        templateID: props.templateID,
-        templateName: props.templateName,
-        data: {},
-        loaded: "False",
-        newCondition: 0
-    });
-    HandleLoad();
+const formReducer = (state, event) => {
+    return {
+      ...state,
+      [event.name]: event.value
+    }
 }
 
-function HandleLoad() {
-    fetch("/edit/")
-       .then(res => res.json())
-       .then(
-           (result) => {
-               state.setState({
-                   data: result,
-                   loaded: "True"
-               });
-           }
-       );
-}
+export default function TemplateEditor(props) {
+    const [data, setData] = useState({})
 
-function HandleSubmit(event) {
-    fetch("/edit/upload")
-        .then(res => res.json())
-        .then(
-            (result) => {
-                state.setState({
-                    loaded:"True"
-                })
-            }
-        )
+    const [loaded, setLoaded] = useState(false)
     
-    RouteToMyTemplates();
-}
-
-function CreateCondition() {
-    fetch("/edit/addCondition")
+    fetch("/edit/") //Needs an actual route
         .then(res => res.json())
-        .then(
-            (result) => {
-                state.setState({
-                    loaded: "True",
-                    newCondition: result
-                });
-            }
-        );
+        .then(result => {
+            setData(result);
+            setLoaded(true)
+        },
+            // Note: it's important to handle errors here
+            // instead of a catch() block so that we don't swallow
+            // exceptions from actual bugs in components.
+        )
 
-    RouteToConditionEditor();
-}
-
-function RouteToConditionEditor() {
-    let path = '/mytemplates/conditioneditor';
-    let history = useHistory();
-    history.push(path, state.newCondition);
-}
-
-function RouteToMyTemplates() {
-    let path = '/mytemplates';
-    let history = useHistory();
-    history.push(path);
-}
-
- export default function TemplateEditor(props) {
-    Constructor(props);
-    const edit = this.props.edit;
-
-        return (
-                
-            <form ref="form" onSubmit={HandleSubmit()}>
-                <input type="text" id="title" name="title" placeholder="Type the Title Here" value={state.templateName}/>
-                <div className="Condition list">
-                    {Object.keys(this.state.data).map(key => (
-                        <Link to="/mytemplates/conditioneditor" templateID={state.templateID} conditionID={state.data[key].conditionID}>
-                            <table className="Condition">
-                                <tr>
-                                    <td>{state.data[key].conditionName}</td>
-                                </tr>
-                                <tr>
-                                    <td>{state.data[key].description}</td>
-                                </tr>
-                                <tr>
-                                    <td>Scoring Type: </td> 
-                                    <td>{state.data[key].scoringType}</td>
-                                </tr>
-                                <tr>
-                                    <td>Points: </td>
-                                    <td>1x = {state.data[key].pointMultiplier}</td>
-                                </tr>
-                                <tr>
-                                    <td>Max # per Player: </td>
-                                    <td>{state.data[key].maxPerPlayer}</td>
-                                </tr>
-                                <tr>
-                                    <td>Max # per Game: </td>
-                                    <td>{state.data[key].maxPerGame}</td>
-                                </tr>
-                                <tr>
-                                    <td>Input Type: </td>
-                                    <td>{state.data[key].inputType}</td>
-                                </tr>
-                            </table>
-                        </Link>
-                    ))}
-                </div>
-                <button type="submit" onClick={RouteToMyTemplates()}>Upload Template</button>
-                <button type="button" onClick={CreateCondition()}>New Condition</button>
-            </form>
-            )
-        }
+    return (
+        <form>
+            <input type="text" id="title" placeholder="Type the Title Here"/>
+            <div className="conditionList">
+                {Object.keys(data).map(key => (
+                    <Link to="/mytemplates/conditioneditor" templateID={props.templateID} conditionID={data[key].conditionID}>
+                        <table className="condition">
+                            <tr>
+                                <td>{data[key].conditionName}</td>
+                            </tr>
+                            <tr>
+                                <td>{data[key].description}</td>
+                            </tr>
+                            <tr>
+                                <td>Scoring Type: </td>
+                                <td>{data[key].scoringType}</td>
+                            </tr>
+                            <tr>
+                                <td>Points: </td>
+                                <td>1x = {data[key].pointMultiplier}</td>
+                            </tr>
+                            <tr>
+                                <td>Max # per Player: </td>
+                                <td>{data[key].maxPerPlayer}</td>
+                            </tr>
+                            <tr>
+                                <td>Max # per Game: </td>
+                                <td>{data[key].maxPerGame}</td>
+                            </tr>
+                            <tr>
+                                <td>Input Type: </td>
+                                <td>{data[key].inputType}</td>
+                            </tr>
+                        </table>
+                    </Link>
+                ))}
+            </div>
+            <button type="submit" value="Upload Template"/>
+            <button type="button" value="New Condition" />
+        </form>
+    )
+ }

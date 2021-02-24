@@ -1,3 +1,4 @@
+/**
 import React, { useState, useReducer } from 'react';
 import { useHistory } from "react-router-dom";
 
@@ -25,7 +26,7 @@ function HandleInputChange(event) {
       [name]: value
     });
 }
-*/  
+ 
 
 /**
 function RouteTemplateEditor() {
@@ -39,11 +40,11 @@ function GoBack() {
   let history = useHistory();
   history.push(path);
 }
-*/
+
 
 export default function TemplateCreator() {
 
-  fetch("/api/createTemplate") //Needs an actual route
+  fetch("/edit/templateGameList") //Needs an actual route
     .then(res => res.json())
     .then(
       (result) => {
@@ -102,7 +103,7 @@ export default function TemplateCreator() {
     let history = useHistory();
     history.push(path, state.newTemplate);
   }
-  */
+  
 
   return (
     <div>
@@ -121,4 +122,4 @@ export default function TemplateCreator() {
       </form>
     </div>
   );
-}
+} */

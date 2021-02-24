@@ -1017,7 +1017,6 @@ def uploadTemplate():
 def myTemplates():
     # Do something, Taipu
     mydb = mysql.connector.connect(pool_name = "mypool")
-    # userID = session.get("userID", None)
     userID = 1
     if userID == None:
         return "userID not set"
@@ -1043,9 +1042,9 @@ def myTemplates():
 #Template Creation Screen
 @app.route("/edit/templateGameList")
 def templateGameList():
-    mydb = mySQL.connector.connect(pool_name = "mypool")
+    mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)
-    statement = "SELECT (gameID, gameName) FROM Game"
+    statement = "SELECT gameID, gameName FROM Game"
     cursor.execute(statement)
     response = {}
     results = cursor.fetchall()
@@ -1056,7 +1055,22 @@ def templateGameList():
         }
         response.update({t[0]:dictionary})
 
+    statement = "SELECT templateID, templateName FROM Template"
+    cursor.execute(statement)
+    response2 = {}
+    results = cursor.fetchall()
+    for t in results:
+        dictionary = {
+            "templateID": t[0],
+            "templateName": t[1]
+        }
+        response2.update({t[0]:dictionary})
+
+    data = {
+        "games": response,
+        "templates": response2
+    }
     cursor.close()
     mydb.close()
 
-    return jsonify(response)
+    return jsonify(data)

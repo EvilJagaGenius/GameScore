@@ -54,7 +54,7 @@ export default class ForgetUsername extends Component{
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          newPassword: this.state.password,
+          newUsername: this.state.username,
           token: this.state.token
         })
     };

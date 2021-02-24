@@ -17,6 +17,7 @@ export default class CreateAccount extends Component{
       username: "",
       email: "",
       password: "",
+      confirmPassword: "",
       usernameError: false,
       emailError: false,
       passwordError: false,
@@ -81,38 +82,76 @@ export default class CreateAccount extends Component{
     this.setState({
       password: event.target.value
     });
-    // let tempPass = String(event.target.value);
-    // var passCheck = false;
-    // var errorString = "";
-    // //if password meets requirement length
-    // if(tempPass.length <= 30 && tempPass.length >= 4){
-    //   //if password meets number inclusion requirement
-    //   if(tempPass.includes("1") || tempPass.includes("2") || tempPass.includes("3") || tempPass.includes("4") || tempPass.includes("5") || tempPass.includes("6")|| tempPass.includes("7")|| tempPass.includes("8")|| tempPass.includes("9")|| tempPass.includes("0")){
-    //     passCheck = true;
-    //   }
-    //   else{
-    //     errorString += "Number requirement not met\n";
-    //   }
-    // }
-    // else{
-    //   errorString += "Length reqirements not met\n";
-    // }
-    // //if the password fails to meet any of the following above tests, throw error
-    // if(!passCheck){
-    //   this.setState({
-    //     password: "",
-    //     passwordError: true,
-    //     passwordHelper: errorString
-    //   })
-    // }
-    // //if all tests pass
-    // else{
-    //   this.setState({
-    //     password: "",
-    //     passwordError: false,
-    //     passwordHelper: ""
-    //   })
-    // }
+    let tempPass = String(event.target.value);
+    var passCheck = false;
+    var errorString = "";
+    //if password meets requirement length
+    if(tempPass.length <= 30 && tempPass.length >= 4){
+      //if password meets number inclusion requirement
+      if(tempPass.includes("1") || tempPass.includes("2") || tempPass.includes("3") || tempPass.includes("4") || tempPass.includes("5") || tempPass.includes("6")|| tempPass.includes("7")|| tempPass.includes("8")|| tempPass.includes("9")|| tempPass.includes("0")){
+        passCheck = true;
+      }
+      else{
+        errorString += "Number requirement not met\n";
+      }
+    }
+    else{
+      errorString += "Length reqirements not met\n";
+    }
+    //if the password fails to meet any of the following above tests, throw error
+    if(!passCheck){
+      this.setState({
+        passwordError: true,
+        passwordHelper: errorString
+      })
+    }
+    //if all tests pass
+    else{
+      this.setState({
+        passwordError: false,
+        passwordHelper: ""
+      })
+    }
+  }
+
+  /**
+   * confirmPasswordHandler
+   * @param {*} event 
+   */
+  confirmPasswordHandler=(event)=>{
+    this.setState({
+      confirmPassword: event.target.value
+    });
+    let tempPass = String(event.target.value);
+    var passCheck = false;
+    var errorString = "";
+    //if password meets requirement length
+    if(tempPass.length <= 30 && tempPass.length >= 4){
+      //if password meets number inclusion requirement
+      if(tempPass.includes("1") || tempPass.includes("2") || tempPass.includes("3") || tempPass.includes("4") || tempPass.includes("5") || tempPass.includes("6")|| tempPass.includes("7")|| tempPass.includes("8")|| tempPass.includes("9")|| tempPass.includes("0")){
+        passCheck = true;
+      }
+      else{
+        errorString += "Number requirement not met\n";
+      }
+    }
+    else{
+      errorString += "Length reqirements not met\n";
+    }
+    //if the password fails to meet any of the following above tests, throw error
+    if(!passCheck){
+      this.setState({
+        confirmPasswordError: true,
+        confirmPasswordHelper: errorString
+      })
+    }
+    //if all tests pass
+    else{
+      this.setState({
+        confirmPasswordError: false,
+        confirmPasswordHelper: ""
+      })
+    }
   }
 
   async sendRequest() {
@@ -188,7 +227,7 @@ return (
       <TextField required id="standard-required" name = "password" label="Password" type="password" onChange={this.passwordHandler} value={this.state.password} error={this.state.passwordError}/>
     </div>
     <div>
-      <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.passwordHandler} value={this.state.password} error={this.state.passwordError}/>
+      <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.confirmPasswordHandler} value={this.state.confirmPassword} error={this.state.confrimPasswordError}/>
     </div>
     <div>
       <Button onClick={()=>{this.confirmSubmission("email")}}>Create Account</Button>

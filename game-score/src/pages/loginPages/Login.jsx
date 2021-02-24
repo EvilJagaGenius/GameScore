@@ -7,7 +7,6 @@ import TextField from '@material-ui/core/TextField';
 import {makeStyles} from '@material-ui/core/styles';
 import {Button} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
-import { BrowserRouter as Link } from 'react-router-dom';
 import Logo from '../../images/GameScore App Logo.png';
 import { Component } from "react";
 
@@ -141,7 +140,7 @@ export default class Login extends Component{
         </div>
         <Button onClick={()=>{this.confirmSubmission()}}>Login</Button>
         <Button onClick={()=>{this.props.history.push("/login/forgetpassword")}}>Forget Password?</Button>
-        <Link to="/login/createaccount"><Button>Create Account</Button></Link>
+        <Button onClick={()=>{this.props.history.push("/login/createaccount")}}>Create Account</Button>
         </Box>
       </form>
     );

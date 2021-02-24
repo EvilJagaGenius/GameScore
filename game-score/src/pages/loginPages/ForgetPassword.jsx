@@ -180,6 +180,9 @@ return (
       <Button onClick={()=>{this.confirmSubmission("password")}}>Reset</Button>
     </div>
     <div>
+      <h1>Reset Username</h1>
+    </div>
+    <div>
       <TextField required id="standard-required" label="Email Address" onChange={this.emailHandler} error={this.state.emailError}/>
     </div>
     <div>

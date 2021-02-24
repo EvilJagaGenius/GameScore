@@ -22,9 +22,7 @@ export default class CreateAccount extends Component{
       emailError: false,
       passwordError: false,
       confrimPasswordError: false,
-      usernameHelper: "",
-      emailHelper: "",
-      passwordHelper: ""
+      data: false
     }
   }
 
@@ -36,6 +34,8 @@ export default class CreateAccount extends Component{
     this.setState({
       username: event.target.value
     });
+    console.log("username is")
+    console.log(event.target.value);
     var name = String(event.target.value);
     var capCheck = false;
     var validCharCheck = false;
@@ -98,15 +98,13 @@ export default class CreateAccount extends Component{
     if(!(email.includes("@")) && (!(email.includes(".")))){
       this.setState({
         email: "",
-        emailError: true,
-        emailHelper: "Invalid email entered"
+        emailError: true
       })
     }
     else{
       this.setState({
         email: event.target.value,
-        emailError: false,
-        emailHelper: ""
+        emailError: false
       })
     }
   }
@@ -117,38 +115,21 @@ export default class CreateAccount extends Component{
    * @param {*} event 
    */
   passwordHandler=(event)=>{
-    this.setState({
-      password: event.target.value
-    });
-    let tempPass = String(event.target.value);
-    var passCheck = false;
-    var errorString = "";
-    //if password meets requirement length
-    if(tempPass.length <= 30 && tempPass.length >= 4){
-      //if password meets number inclusion requirement
-      if(tempPass.includes("1") || tempPass.includes("2") || tempPass.includes("3") || tempPass.includes("4") || tempPass.includes("5") || tempPass.includes("6")|| tempPass.includes("7")|| tempPass.includes("8")|| tempPass.includes("9")|| tempPass.includes("0")){
-        passCheck = true;
-      }
-      else{
-        errorString += "Number requirement not met\n";
-      }
-    }
-    else{
-      errorString += "Length reqirements not met\n";
-    }
-    //if the password fails to meet any of the following above tests, throw error
-    if(!passCheck){
-      this.setState({
-        passwordError: true,
-        passwordHelper: errorString
-      })
-    }
-    //if all tests pass
-    else{
+    console.log(event.target.value)
+    var pass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{4,30}/
+    if(String(event.target.value).match(pass)){
       this.setState({
         passwordError: false,
-        passwordHelper: ""
-      })
+        password: event.target.value
+      });
+      console.log("requirements met");
+    }
+    else{
+      console.log("requirments not met")
+      this.setState({
+        password: event.target.value,
+        passwordError: true
+      });
     }
   }
 
@@ -160,35 +141,15 @@ export default class CreateAccount extends Component{
     this.setState({
       confirmPassword: event.target.value
     });
-    let tempPass = String(event.target.value);
-    var passCheck = false;
-    var errorString = "";
-    //if password meets requirement length
-    if(tempPass.length <= 30 && tempPass.length >= 4){
-      //if password meets number inclusion requirement
-      if(tempPass.includes("1") || tempPass.includes("2") || tempPass.includes("3") || tempPass.includes("4") || tempPass.includes("5") || tempPass.includes("6")|| tempPass.includes("7")|| tempPass.includes("8")|| tempPass.includes("9")|| tempPass.includes("0")){
-        passCheck = true;
-      }
-      else{
-        errorString += "Number requirement not met\n";
-      }
+    if(String(event.target.value) !== String(this.state.password)){
+      this.setState({
+        confrimPasswordError: true
+      });
     }
     else{
-      errorString += "Length reqirements not met\n";
-    }
-    //if the password fails to meet any of the following above tests, throw error
-    if(!passCheck){
       this.setState({
-        confirmPasswordError: true,
-        confirmPasswordHelper: errorString
-      })
-    }
-    //if all tests pass
-    else{
-      this.setState({
-        confirmPasswordError: false,
-        confirmPasswordHelper: ""
-      })
+        confrimPasswordError: false
+      });
     }
   }
 
@@ -209,25 +170,32 @@ export default class CreateAccount extends Component{
     const response = await fetch('http://localhost:5000/api/postCreateAccount', requestOptions);
     const data = await response.json();
     this.setState({data: data.successful});
-    //errors and error message
     console.log(this.state.data);
+    if(this.state.data){
+      this.props.history.push("/");
+    }
+    else{
+      alert("Unable to create account");
+    }
+    
   }
 
   /**
    * confirmSubmission: function for handling submission events
    */
   confirmSubmission(){
+    var userCheck = false
+    var emailCheck = false
+    var passCheck = false
     //username 4-30 characters
     if(this.state.username === ""){
-      alert("No username and password entered\nPlease enter your login information");
+      alert("No username entered. Please enter a username");
       this.setState({
-        usernameError: true,
-        emailError: true
+        usernameError: true
       });
     }
-    //all tests passed
     else{
-      //potential server code
+      userCheck = true
     }
     if(this.state.email===""){
       alert("Please enter your email address");
@@ -235,8 +203,17 @@ export default class CreateAccount extends Component{
         emailError: true
       });
     }
-    //all tests passed
     else{
+      emailCheck = true
+    }
+    //all tests passed
+    if(this.state.passwordError === true && this.state.confrimPasswordError === true){
+      alert("Errors detected with password")
+    }
+    else{
+      passCheck = true
+    }
+    if(userCheck && emailCheck && passCheck){
       this.sendRequest();
     }
   }
@@ -256,16 +233,16 @@ return (
     <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
     <h1>Create Account</h1>
     <div>
-      <TextField required id="standard-required" name = "username" label="Username" onChange={this.usernameHandler} error={this.state.usernameError} helperText ={this.state.usernameHelper}/>
+      <TextField required id="standard-required" name = "username" label="Username" onChange={this.usernameHandler} error={this.state.usernameError}/>
     </div>
     <div>
-      <TextField required id="standard-required" name = "email" label="Email Address" onChange={this.emailHandler} error={this.state.emailError} helperText={this.state.emailHelper}/>
+      <TextField required id="standard-required" name = "email" label="Email Address" onChange={this.emailHandler} error={this.state.emailError}/>
     </div>
     <div>
-      <TextField required id="standard-required" name = "password" label="Password" type="password" onChange={this.passwordHandler} value={this.state.password} error={this.state.passwordError}/>
+      <TextField required id="standard-required" name = "password" label="Password" type="password" onChange={this.passwordHandler} error={this.state.passwordError}/>
     </div>
     <div>
-      <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.confirmPasswordHandler} value={this.state.confirmPassword} error={this.state.confrimPasswordError}/>
+      <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
     </div>
     <div>
       <Button onClick={()=>{this.confirmSubmission("email")}}>Create Account</Button>

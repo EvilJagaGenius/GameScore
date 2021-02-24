@@ -82,9 +82,9 @@ export default function TemplateCreator() {
             <label for="templateName">Clone a template:</label><br/>
             <select name="templateName" id="templateName" onChange={handleChange} value={formData.templateName || null}>
                 <option value={null}>-- Do not clone --</option>
-                {/*Object.keys(templates).map(key => (
+                {Object.keys(templates).map(key => (
                     <option value={templates[key].templateID}>{templates[key].templateName}</option>
-                ))*/}
+                ))}
             </select><br/>
 
             <input type="submit" value="Create Template"/>

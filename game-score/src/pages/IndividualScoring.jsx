@@ -44,7 +44,8 @@ export default class ScoringPage extends React.Component{
 
     if(this.props.location.state.indvidiualData !=null)
     {
-      this.setState({individualData:this.props.location.state.indvidiualData})
+      this.setState({individualData:this.props.location.state.indvidiualData,
+      loaded:"True"})
     }
 
      Socket.on("sendNewScores", scores => {

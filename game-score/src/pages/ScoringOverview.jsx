@@ -21,6 +21,9 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import Modal from '@material-ui/core/Modal';
 import TextField from '@material-ui/core/TextField';
+import io from "socket.io-client";
+import {Socket} from "./Socket"
+import {useLocation} from 'react-router-dom'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -89,6 +92,8 @@ function getModalStyle() {
 }
 
 function ScoringOverview() {
+
+  const location = useLocation() 
   const [playerData, setPlayerData] = useState([{}]);
   const [summaryData, setSummaryData] = useState([{}]);
   const [awardsData, setAwardsData] = useState([{}]);
@@ -96,13 +101,49 @@ function ScoringOverview() {
   const classes = useStyles();
   const [modalStyle] = React.useState(getModalStyle);
 
-  useEffect(() => {
+
+   
+
+
+    useEffect(() => {
+
+      if(location.state !=null)
+      {
+        if(location.state.playerData !=null)
+        {
+          setPlayerData(location.state.playerData)
+        }
+
+        if (location.state.summaryData !=null)
+        {
+          setSummaryData(location.state.summaryData)
+        }
+
+        if (location.state.awardsData !=null)
+        {
+          setAwardsData(location.state.awardsData)
+        }
+      }
+
+          const eventHandler = (scores) => {
+          console.log(scores)
+          setPlayerData(scores.scoringOverview.players)
+          setAwardsData(scores.globalAwards)
+          setSummaryData(scores.scoringOverview)
+      };
+
     fetch("/api/getScoring").then(res => res.json()).then(data => {
       setPlayerData(data.scoringOverview.players);
       setAwardsData(data.globalAwards);
       setSummaryData(data.scoringOverview);
       console.log(data);
     });
+
+    Socket.on("sendNewScores", scores => eventHandler(scores));
+
+    return () => {
+      Socket.off("sendNewScores",eventHandler)
+    }
   }, []);
 
 /* <Accordion disabled> */
@@ -148,7 +189,7 @@ function ScoringOverview() {
                       </div>
                 </TableCell>
                <TableCell align="center">
-                  <Link to={{pathname: "/play/individualscoring" , state:{message: 'Called',individualPlayerID:playerData[key].playerID}}} className={classes.column} style={{fontSize:17}}>
+                  <Link to={{pathname: "/play/individualscoring" , state:{message: 'Called',individualPlayerID:playerData[key].playerID,individualData:playerData[key]}}} className={classes.column} style={{fontSize:17}}>
                    {Math.round(playerData[key].score/0.01)*0.01}
                   </Link>
                 </TableCell>

@@ -20,6 +20,11 @@ import {render} from 'react-dom';
 import { withStyles } from "@material-ui/core/styles";
 import BackIcon from '@material-ui/icons/ArrowBackIos';
 import AccountCircle from '@material-ui/icons/AccountCircle';
+import io from "socket.io-client";
+import {Socket} from "./Socket"
+import { Link } from 'react-router-dom'
+import Cookies from 'js-cookie';
+
 
 export default class ScoringPage extends React.Component{
    constructor(props) {
@@ -28,21 +33,29 @@ export default class ScoringPage extends React.Component{
       key: 0,
       individualData:"",
       loaded: "False",
+      data:""
     };
      const { match, history, classes } = this.props;
     };
 
-componentDidMount(){
+componentDidMount = () => {
+
+    if(this.props.location.state.indvidiualData !=null)
+    {
+      this.setState({individualData:this.props.location.state.indvidiualData})
+    }
+
     fetch("/api/getScoring")
       .then(res => res.json())
       .then(
         (result) => {
           this.setState({
             individualData: result.individualScoring,
+            data:result,
             loaded: "True"
           }
           );
-
+          console.log("Calling API")
           for(var i=0;i<Object.keys(result["individualScoring"]).length;i++)
           {
             if(result["individualScoring"][i].playerID===this.props.location.state.individualPlayerID)
@@ -53,10 +66,35 @@ componentDidMount(){
           }
         },
       )
+
+
+
+  Socket.on("sendNewScores", scores => {
+    console.log(scores)
+      this.setState({
+        individualData:scores.individualScoring,
+        data:scores
+      });
+    });
   }
 
-  recallAPI(){
-      fetch(`/api/postUpdateScore?conditionID=${ScoringPage.updatedConditionID}&playerID=${ScoringPage.updatedPlayerID}&value=${this.roundValues(ScoringPage.updatedValue)}`)
+  componentWillUnmount()
+  {
+    Socket.removeAllListeners("sendNewScores")
+  }
+
+
+/*
+ const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        credentials: 'include',
+        body: JSON.stringify({
+          conditionID: ScoringPage.updatedConditionID,
+          playerID: ScoringPage.updatedPlayerID,
+          value:ScoringPage.updatedValue
+        })
+         fetch('/api/postUpdateScore', requestOptions)
         .then(res => res.json())
         .then(
           (result) => {
@@ -64,9 +102,22 @@ componentDidMount(){
               individualData: result.individualScoring,
               loaded: "True"
             });
+            console.log(result)
           },
         )
-  }
+*/
+
+
+
+  recallAPI(){
+        Socket.emit("updateScoreValue", JSON.stringify({
+          conditionID: ScoringPage.updatedConditionID,
+          playerID: ScoringPage.updatedPlayerID,
+          value:ScoringPage.updatedValue,
+          token:Cookies.get('credHash'),
+          username:Cookies.get('username')
+        }));
+    };
 
   roundValues(num){
     return Math.round(num/0.01)*0.01
@@ -86,7 +137,10 @@ componentDidMount(){
                  <AccountCircle style={{width:30,height:30,marginBottom:-7,marginLeft:10}}></AccountCircle>
           </div>
           <div style={{paddingLeft:0,left:5,top:15,position:"absolute"}} align="left">
-              <Button startIcon={<BackIcon/>} onClick={()=>this.props.history.goBack()}></Button>
+                <Link to={{pathname: "/play/overview" , state:{playerData:this.state.data["scoringOverview"]["players"],awardsData:this.state.data["globalAwards"],summaryData:this.state.data["scoringOverview"]}}}>
+                    <Button startIcon={<BackIcon/>}>
+                    </Button>
+              </Link>
           </div>
         </div>
       <TableContainer component={Paper}>

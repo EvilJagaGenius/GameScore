@@ -10,7 +10,7 @@ import smtplib
 import traceback
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO,join_room, leave_room
 
 # Setup
 from flask import flash, Flask, jsonify, make_response, redirect, render_template, request, Response, session, url_for
@@ -19,19 +19,15 @@ app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0  # Always do a complete refresh (for
 SERVER_NAME = 'flask-api:5000'
 # app.secret_key = 'pepperoni secret'
 
-socketio = SocketIO(app)
+socketIo = SocketIO(app, cors_allowed_origins="*")
 
-
-def messageReceived(methods=['GET', 'POST']):
-    print('message was received!!!')
-
-@socketio.on('my event')
-def handle_my_custom_event(data, methods=['GET', 'POST']):
-    print('received my event: ' + str(data))
-    socketio.emit('my response', data, callback=messageReceived)
-
-if __name__ == '__main__':
-    socketio.run(app, debug=True)
+@app.after_request
+def after_request(response):
+  response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
+  response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+  response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+  response.headers.add('Access-Control-Allow-Credentials', 'true')
+  return response
 
 
 def getUserID():
@@ -53,13 +49,7 @@ def getUserID():
 
 
 
-@app.after_request
-def after_request(response):
-  response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
-  response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-  response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-  response.headers.add('Access-Control-Allow-Credentials', 'true')
-  return response
+
 
 
 mydb = mysql.connector.connect(
@@ -131,7 +121,6 @@ def postGameGET():
 
 # /home/ (default route)
 @app.route("/home/")
-@app.route("/")
 def homePage():
     # Do something, Taipu
     print('HEY IT WORKS!12345')
@@ -718,7 +707,7 @@ def getScoring(userID):
         mydb.close()
         result["successful"] = True
         response = jsonify(result)
-        return response
+        return result
 
 
 @app.route("/api/getScoring")
@@ -885,12 +874,17 @@ def apiPostCreateNewGame():
 
 ##################################### update Scoring API ########################################
 
-@app.route("/api/postUpdateScore")
+@app.route("/api/postUpdateScore", methods=["POST"])
 def apiPostUpdateScore():
 
-    conditionID = request.args.get('conditionID')
-    value = float(request.args.get('value'))
-    playerID = request.args.get('playerID')
+    content = request.json
+    conditionID = content['conditionID']
+    value = content['value']
+    playerID = content['playerID']
+
+    print(conditionID)
+    print(value)
+    print(playerID)
 
     userID = getUserID()
 
@@ -1507,3 +1501,123 @@ def templateGameList():
     mydb.close()
 
     return jsonify(response)
+
+
+
+# --------------------------- Async Stuffs ----------------------#
+
+@socketIo.on('join')
+def joinRoom(token,username):
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select userID from AppUser where credHash=%s AND username=%s")
+    mycursor.execute(stmt,(token,username))
+    myresult = mycursor.fetchone()
+    userID=-1
+    if myresult != None:
+        userID, = myresult
+    mycursor.close()
+    mydb.close()
+
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select matchID FROM ActiveMatch JOIN Game using(gameID) JOIN Template using(templateID) JOIN Player using (matchID) WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1")
+    mycursor.execute(stmt,(userID,))
+    myresult = mycursor.fetchone()
+    mycursor.close()
+    mydb.close()
+
+    if myresult != None:
+        matchID,=myresult
+        print(matchID)
+        join_room(matchID)
+
+
+
+@socketIo.on('updateScoreValue')
+def handle_my_custom_event(content, methods=['GET', 'POST']):
+
+    print(content)
+    content = json.loads(content)
+    conditionID = content["conditionID"]
+    value = content["value"]
+    playerID = content["playerID"]
+    token = content["token"]
+    username = content["username"]
+
+    print(conditionID)
+    print(value)
+    print(playerID)
+
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select userID from AppUser where credHash=%s AND username=%s")
+    mycursor.execute(stmt,(token,username))
+    myresult = mycursor.fetchone()
+    userID=-1
+    if myresult != None:
+        userID, = myresult
+    mycursor.close()
+    mydb.close()
+
+
+    if userID == -1:
+        result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
+        response = jsonify(result)
+        response.set_cookie('credHash',"",max_age=0)
+        response.set_cookie('username',"",max_age=0)
+        return response
+    else:
+
+        mydb = mysql.connector.connect(pool_name = "mypool")        
+        mycursor = mydb.cursor(prepared=True)
+        stmt = ("SELECT matchID FROM AppUser JOIN Player using(userID) WHERE userID=%s ORDER BY matchID DESC LIMIT 1")
+        mycursor.execute(stmt,(userID,))
+        myresult = mycursor.fetchone()
+        matchID, = myresult
+        mycursor.close()
+
+
+        if myresult == None:
+            result = {"successful":False,"error":111,"errorMessage":"No game found."}
+            response = jsonify(result)
+            mydb.close()
+            return response
+        else:
+            mycursor = mydb.cursor(prepared=True)
+            stmt = ("SELECT scoringType, pointMultiplier FROM ScoringCondition WHERE conditionID=%s")
+            mycursor.execute(stmt,(conditionID,))
+            myresult = mycursor.fetchone()
+            scoringType, pointMultiplier = myresult
+            mycursor.close()
+
+            if scoringType == 'Linear':
+                score = value * float(pointMultiplier)
+            elif scoringType == 'Tabular':
+                mycursor = mydb.cursor(prepared=True)
+                stmt = ("SELECT inputMax, inputMin, outputValue FROM ValueRow WHERE conditionID=%s ORDER BY inputMin ASC")
+                mycursor.execute(stmt,(conditionID,))
+                valueRows = mycursor.fetchall()
+                mycursor.close()
+
+                score = 0
+                for row in valueRows:
+                    inputMax,inputMin,outputValue
+                    if value >= minValue and value <maxValue:
+                        score = outputValue
+                        break
+
+            mycursor = mydb.cursor(prepared=True)
+            stmt = ("UPDATE ActiveMatchPlayerConditionScore SET score=%s, value=%s WHERE conditionID=%s AND playerID=%s AND matchID = %s")
+            mycursor.execute(stmt,(score,value,conditionID,playerID,matchID))
+            mycursor.fetchone()
+            mycursor.close()
+            mydb.commit()
+            mydb.close()
+
+    print('received my event: ' + str(content))
+    socketIo.emit('sendNewScores',getScoring(userID), room=matchID)
+
+if __name__ == '__main__':
+    socketIo.run(app, debug=True)
+

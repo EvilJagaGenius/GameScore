@@ -17,6 +17,7 @@ import Login from './pages/loginPages/Login';
 import ForgetPassword from './pages/loginPages/ForgetPassword';
 import CreateAccount from './pages/loginPages/CreateAccount';
 import ResetPasswordUsername from './pages/loginPages/ResetPassword';
+import ResetUsernameEmail from './pages/loginPages/ForgetUsername';
 
 export default function App() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
       <Route path="/login/forgetpassword" component={ForgetPassword}/>
       <Route path="/login/createaccount" component={CreateAccount}/>
       <Route path="/login/resetpassword" component={ResetPasswordUsername}/>
+      <Route path="/login/resetusername" component={ResetUsernameEmail}/>
     </Switch>
   );
 }

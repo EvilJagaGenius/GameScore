@@ -139,7 +139,7 @@ export default class Login extends Component{
           <TextField required id="standard-required" label="Password" type="password" onChange={this.passwordHandler} value={this.state.password} error={this.state.passwordError}/>
         </div>
         <Button onClick={()=>{this.confirmSubmission()}}>Login</Button>
-        <Button onClick={()=>{this.props.history.push("/login/forgetpassword")}}>Forget Password?</Button>
+        <Button onClick={()=>{this.props.history.push("/login/forgetpassword")}}>Forget Login?</Button>
         <Button onClick={()=>{this.props.history.push("/login/createaccount")}}>Create Account</Button>
         </Box>
       </form>

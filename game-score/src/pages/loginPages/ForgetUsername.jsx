@@ -100,7 +100,7 @@ export default class ForgetUsername extends Component{
           token: this.state.token
         })
     };
-    const response = await fetch('http://localhost:5000/api/postResetUsername', requestOptions);
+    const response = await fetch('api/postResetUsername', requestOptions);
     const data = await response.json();
     this.setState({data: data.successful});
     //errors and error message

@@ -33,6 +33,7 @@ export default class MyTemplates extends Component {
             loaded: "True"
           }
           );
+          console.log(result)
         },
         // Note: it's important to handle errors here
         // instead of a catch() block so that we don't swallow
@@ -77,16 +78,15 @@ export default class MyTemplates extends Component {
   }
 
   render() {
-
+    const { classes } = this.props;
     return (
-      <div>
+      <>
         <TableContainer component={Paper}>
           <Table size="small">
                 {/*Table displaying the dynamic data for the users created templates*/}
                 {
                 this.state.loaded === "True" &&
-                <div className="MyTemplates">
-                  <> 
+                <> 
                     {/* Iterate through created templates and render the data in a tabular format */}
                     {Object.keys(this.state.data).map(key => (
                       <div onClick={()=>this.selectTemplate(0,key)}>
@@ -102,16 +102,15 @@ export default class MyTemplates extends Component {
                       </div>
                     ))}
                   </>
-                </div>
               }
           </Table>
         </TableContainer>
-        <Link to="/mytemplates/templatecreator">
+        <Link to="/mytemplates/creator">
           <Fab color="primary" aria-label="add">
             <AddIcon />
           </Fab>
         </Link>
-      </div>
+      </>
     )
   }
 }

@@ -10,7 +10,6 @@ from flask import flash, Flask, jsonify, make_response, redirect, render_templat
 app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0  # Always do a complete refresh (for now)
 SERVER_NAME = 'flask-api:5000'
-session['userID'] = 1
 # app.secret_key = 'pepperoni secret'
 
 mydb = mysql.connector.connect(
@@ -1018,12 +1017,13 @@ def uploadTemplate():
 def myTemplates():
     # Do something, Taipu
     mydb = mysql.connector.connect(pool_name = "mypool")
-    userID = session.get("userID", None)
+    # userID = session.get("userID", None)
+    userID = 1
     if userID == None:
         return "userID not set"
         
     cursor = mydb.cursor(prepared=True)
-    statement = "SELECT (templateID, templateName, averageRating, numRatings) FROM Template WHERE userID = %s"
+    statement = "SELECT templateID, templateName, averageRating, numRatings FROM Template WHERE userID = %s"
     cursor.execute(statement, (userID, ))
     response = {}
     results = cursor.fetchall()

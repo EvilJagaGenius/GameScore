@@ -25,9 +25,9 @@ export default function App() {
       <Route path="/play/postgame" component={Finalize}/>
       <Route path="/profile" component={Profile}/>
       <Route path="/mytemplates/conditioneditor" render = {props => <ConditionEditor {...props}/>} />
-      <Route path="/mytemplates/menu" component = {MyTemplates}/>
-      <Route path="/mytemplates/templatecreator" component = {TemplateCreator}/>
-      <Route path="/mytemplates/templateeditor" render = {props => <TemplateEditor {...props}/>} />
+      <Route exact path="/mytemplates" component = {MyTemplates}/>
+      <Route exact path="/mytemplates/creator" component = {TemplateCreator}/>
+      <Route exact path="/mytemplates/editor" render = {props => <TemplateEditor {...props}/>} />
     </Switch>
   );
 }

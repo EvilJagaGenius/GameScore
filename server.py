@@ -327,7 +327,8 @@ def sendUsernameEmail():
         mydb.commit()
         mydb.close()
 
-        return "Reset username email sent"
+        response = jsonify({"successful":True})
+        return response
         
     except:
         print("Error sending email")

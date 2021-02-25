@@ -24,11 +24,12 @@ export default class Profile extends Component{
         credentials: 'include',
         headers: {'Content-Type': 'application/json'}
     };
-    const response = await fetch('http://localhost:5000/api/postLogout', requestOptions);
+    const response = await fetch('/api/postLogout', requestOptions);
     const data = await response.json();
     this.setState({data: data.successful});
     //errors and error message
     console.log(this.state.data);
+    document.cookie ="credHash=; expires=Thu, 01 Jan 1970 00:00:00 UTC;"
   }
   render(){
     return(

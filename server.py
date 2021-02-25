@@ -49,7 +49,13 @@ def getUserID():
 
 
 
-
+@app.after_request
+def after_request(response):
+  response.headers.add('Access-Control-Allow-Origin', request.environ.get('HTTP_ORIGIN', 'default value'))
+  response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+  response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+  response.headers.add('Access-Control-Allow-Credentials', 'true')
+  return response
 
 
 mydb = mysql.connector.connect(
@@ -160,6 +166,7 @@ def login_post():
         response = jsonify(result)
         response.set_cookie('credHash',token)
         response.set_cookie('username', username)
+        
 
         mycursor = mydb.cursor(prepared=True)
         stmt = ("update AppUser SET credHash = %s where userPassword = SHA1(%s) AND username = %s")
@@ -331,7 +338,8 @@ def sendUsernameEmail():
         mydb.commit()
         mydb.close()
 
-        return "Reset username email sent"
+        response = jsonify({"successful":True})
+        return response
         
     except:
         print("Error sending email")
@@ -1484,7 +1492,7 @@ def myTemplates():
 #Template Creation Screen
 @app.route("/edit/templateGameList")
 def templateGameList():
-    mydb = mySQL.connector.connect(pool_name = "mypool")
+    mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)
     statement = "SELECT (gameID, gameName) FROM Game"
     cursor.execute(statement)
@@ -1501,8 +1509,6 @@ def templateGameList():
     mydb.close()
 
     return jsonify(response)
-
-
 
 # --------------------------- Async Stuffs ----------------------#
 
@@ -1620,4 +1626,94 @@ def handle_my_custom_event(content, methods=['GET', 'POST']):
 
 if __name__ == '__main__':
     socketIo.run(app, debug=True)
+    
+    
+##################################### Report API ########################################
+# Submit reports
+@app.route("/api/reportTemplate")
+def reportTemplate():
+    # Right now, until I understand this better, we're just going to report templates..?  It looks like that's all the DB supports right now
+    # So we need the game ID, template ID and description
+    gameID = request.form.get("game_id")
+    templateID = request.form.get("template_id")
+    description = request.form.get("description")
+    
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    statement = """
+    INSERT INTO Report (description, reason, templateID, gameID)
+    VALUES %s, Template, %s, %s
+    """
+    cursor.execute(statement, (description, templateID, gameID))
+    
+    cursor.close()
+    mydb.close()
+    # What should we send as a response?
+    return jsonify({"successful": True})
+    
+# List reports
+@app.route("/api/listReports")
+def listReports():
+    adminStatus = request.cookies.get("admin", None)
+    if adminStatus != True:
+        return "Current user is not an admin"
+
+    # Get a list of reports and send them to the user in JSON format
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    statement = "SELECT reportID, description, reason, templateID, gameID FROM Report"
+    cursor.execute(statement, ())
+    reports = cursor.fetchall()
+    response = {}
+    for t in reports:
+        dictionary = {
+        "description": t[1],
+        "reason": t[2],
+        "templateID": t[3],
+        "gameID": t[4]
+        }
+        response.update({t[0]: dictionary})
+        
+    cursor.close()
+    mydb.close()
+    
+    return jsonify(response)
+    
+# Do something about the report
+@app.route("/api/doReports")  # Change this to something more sensible once you think of it
+def doReports():
+    # Do something, Taipu
+    return "ok"
+
+
+# Rate Bottom UI (move this)
+@app.route("/api/rateTemplate", methods=["POST"])
+def rateTemplate():
+    # Do something, Taipu
+    print("Recieved rateTemplate")
+    templateID = 1  # We need some way to get this.  Form?  Session?
+    gameID = 1
+    rating = float(request.form.get("rating", None))
+    print("Rating: " + str(rating))
+    
+    
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    statement = "SELECT numRatings, averageRating FROM Template WHERE templateID = %s AND gameID = %s"
+    cursor.execute(statement, (templateID, gameID))
+    result = cursor.fetchone()
+    numberOfRatings = result[0]
+    prevTotalRating = numberOfRatings * result[1]
+    newRating = (prevTotalRating + rating) / numberOfRatings + 1
+    numberOfRatings += 1
+    
+    statement = "UPDATE Template SET numRatings = %s, averageRating = %s WHERE templateID = %s AND gameID = %s"
+    cursor.execute(statement, (numberOfRatings, newRating, templateID, gameID))
+    
+    cursor.close()
+    mydb.close()
+    
+    response = {"successful": True}
+    
+    return jsonify(response)
 

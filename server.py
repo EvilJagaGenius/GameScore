@@ -40,10 +40,10 @@ def getUserID():
 
 @app.after_request
 def after_request(response):
-  response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
+  response.headers.add('Access-Control-Allow-Origin', '*')
   response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
   response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-  response.headers.add('Access-Control-Allow-Credentials', 'true')
+  #response.headers.add('Access-Control-Allow-Credentials', 'true')
   return response
 
 
@@ -1057,8 +1057,9 @@ def apiPostFinalizeScore():
             mydb.close()
             return getPostGame(userID)
 
-##################################### Leave Game API ########################################
 
+
+##################################### Leave Game API ########################################
 @app.route("/api/postLeaveGame")
 def apiPostLeaveGame():
 
@@ -1493,3 +1494,25 @@ def templateGameList():
     mydb.close()
 
     return jsonify(response)
+
+
+
+
+##################################### React Training ########################################
+@app.route("/api/postReactTesting", methods=["POST"])
+def apiPostReactTesting():
+    content = request.json
+    name = content['username']
+    password = content['password']
+    age = content['age']
+    email = content['email']
+    favoriteCharacter = content['favoriteCharacter']
+
+    result = {"username":"{}".format(name)
+            ,"password":"{}".format(password)
+            ,"age":"{}".format(age)
+            ,"email":"{}".format(email)
+            ,"favoriteCharacter":"{}".format(favoriteCharacter)}
+    response = jsonify(result)
+    return response;
+

@@ -4,6 +4,7 @@
 import mysql.connector
 import secrets
 import json
+import random
 
 # Email stuff
 import smtplib
@@ -47,6 +48,12 @@ def getUserID():
     print(token)
     return userID
 
+
+def generateRandom(size=3, chars='ABCDEFGHIJKLMNPQRSTUVWXYZ123456789'):
+    return str(''.join(random.choice(chars) for _ in range(size)))
+
+def createJoinCode():
+    return generateRandom() + "-" + generateRandom() + "-" + generateRandom()
 
 
 @app.after_request
@@ -824,9 +831,24 @@ def apiPostCreateNewGame():
         gameID = request.args.get('gameID')
         numPlayers = request.args.get('numOfPlayers')
 
+        uniqueCode = False
+        
+        while uniqueCode == False:
+            currentCode = createJoinCode()
+            mycursor = mydb.cursor(prepared=True)
+            stmt = ("Select matchID FROM ActiveMatch where joinCode=%s")
+            mycursor.execute(stmt,(currentCode,))
+            myresult = mycursor.fetchall()
+            num = mycursor.rowcount
+            mycursor.close()
+
+            if num ==0:
+                uniqueCode = True;
+
+
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("INSERT INTO ActiveMatch(templateID, gameID) VALUES(%s,%s)")
-        mycursor.execute(stmt,(templateID,gameID))
+        stmt = ("INSERT INTO ActiveMatch(templateID, gameID,joinCode) VALUES(%s,%s,%s)")
+        mycursor.execute(stmt,(templateID,gameID,currentCode))
         mycursor.close()
 
         mycursor = mydb.cursor(prepared=True)
@@ -1171,7 +1193,102 @@ def apiPostUpdatePlayerName():
             
             return getScoring(userID)
 
-      
+##################################### Get Invite INFO API ############################################
+
+@app.route("/api/getInviteInfo")
+def apiGetInviteInfo():
+    userID = getUserID()
+
+    if userID == -1:
+        result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
+        response = jsonify(result)
+        response.set_cookie('credHash',"",max_age=0)
+        response.set_cookie('username',"",max_age=0)
+        return response
+    else:
+        mydb = mysql.connector.connect(pool_name = "mypool")
+        mycursor = mydb.cursor(prepared=True)
+        stmt = ("SELECT ActiveMatch.matchID, ActiveMatch.joinCode FROM AppUser JOIN Player using(userID) JOIN ActiveMatch using(matchID) WHERE userID=%s ORDER BY matchID DESC LIMIT 1")
+        mycursor.execute(stmt,(userID,))
+        myresult = mycursor.fetchone()
+        mycursor.close()
+
+        if myresult == None:
+            result = {"successful":False,"error":111,"errorMessage":"No game found."}
+            response = jsonify(result)
+            mydb.close()
+            return response
+        else:
+            matchID,joinCode = myresult
+
+
+            mydb.close()
+            result = {"successful":True,
+            "joinCode":joinCode}
+            response = jsonify(result)
+            return response
+
+
+
+##################################### Join Game API ############################################
+
+@app.route("/api/postJoinGame", methods=["POST"])
+def apiPostJoinGame():
+    userID = getUserID()
+
+    content = request.json
+    joinCode = content['joinCode']
+    username = request.cookies.get('username')
+
+    if userID == -1:
+        result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
+        response = jsonify(result)
+        response.set_cookie('credHash',"",max_age=0)
+        response.set_cookie('username',"",max_age=0)
+        return response
+    else:
+
+        mydb = mysql.connector.connect(pool_name = "mypool")
+        mycursor = mydb.cursor(prepared=True)
+        stmt = ("SELECT matchID FROM ActiveMatch WHERE joinCode=%s")
+        mycursor.execute(stmt,(joinCode,))
+        myresult = mycursor.fetchone()
+        mycursor.close()
+
+        if myresult == None:
+            result = {"successful":False,"error":111,"errorMessage":"No game found."}
+            response = jsonify(result)
+            mydb.close()
+            return response
+        else:
+            matchID, = myresult
+
+            mycursor = mydb.cursor(prepared=True)
+            stmt = ("SELECT playerID from Player join ActiveMatch using(matchID) WHERE matchID=%s AND Player.userID IS NULL ORDER BY playerID ASC LIMIT 1")
+            mycursor.execute(stmt,(matchID,))
+            myresult = mycursor.fetchone()
+            mycursor.close()
+
+            if myresult == None:
+                result = {"successful":False,"error":113,"errorMessage":"Game is full!"}
+                response = jsonify(result)
+                mydb.close()
+                return response
+            else:
+                playerID, = myresult
+                mycursor = mydb.cursor(prepared=True)
+                stmt = ("UPDATE Player SET userID=%s,displayName=%s WHERE playerID=%s")
+                mycursor.execute(stmt,(userID,username,playerID))
+                myresult = mycursor.fetchone()
+                mycursor.close()
+                mydb.commit()
+                mydb.close()
+                result = {"successful":True,
+                "matchID":matchID}
+                response = jsonify(result)
+                return response 
+
+
 ##################################### edit Template API ########################################
 
 # Edit template stuff

@@ -30,7 +30,7 @@ export default function App() {
       <Route path="/play/overview" component ={Overview}/>
       <Route path="/play/postgame" component={Finalize}/>
       <Route path="/play/invite" component={InviteFriends}/>
-      <Route path="/play" component={JoinGame}/>
+      <Route path="/play/" component={JoinGame}/>}/>
       <Route path="/profile" component={Profile}/>
       <Route path="/mytemplates/conditioneditor" render = {props => <ConditionEditor {...props}/>} />
       <Route path="/mytemplates" component = {MyTemplates}/>

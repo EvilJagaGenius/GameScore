@@ -20,10 +20,26 @@ export default class JoinGame extends React.Component {
 	    super(props);
 	    this.state = {
 	      joinCode: "",
+	      sentQR:false
 	    };
+	    JoinGame.dashedValue = ""
+	  }
 
-	  JoinGame.dashedValue = ""
-    };
+
+
+
+  componentDidMount()
+  {
+  	if(this.props.location.search.indexOf("=")!=-1 && this.state.sentQR == false)
+  	{
+	   var token = this.props.location.search.substr(this.props.location.search.indexOf("=")+1)
+	   this.joinGameAPICall(token)
+	   this.setState({
+	   sentQR:true
+	   });
+    }
+  }
+
 
 
    handleChange = () =>
@@ -60,14 +76,19 @@ export default class JoinGame extends React.Component {
 	   	return ans
    }
 
-   joinGameAPICall = () =>
+   handleSubmit = () =>
+   {
+   		this.joinGameAPICall(this.state.joinCode)
+   }
+
+   joinGameAPICall(joinCode)
    {
 		const requestOptions = {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         credentials: 'include',
         body: JSON.stringify({
-          joinCode: this.state.joinCode
+          joinCode: joinCode
         })
     	};
 
@@ -84,7 +105,7 @@ export default class JoinGame extends React.Component {
   	return(
 	  <>
 	  	<TextField id="10" defaultValue={this.state.joinCode} value={JoinGame.dashedValue} onChange={this.handleChange}></TextField>
-	  	<Button variant = "contained" color="primary" size = "large" onClick={this.joinGameAPICall} >Join Game</Button>
+	  	<Button variant = "contained" color="primary" size = "large" onClick={this.handleSubmit} >Join Game</Button>
 	  </>
 	  )
   }

@@ -27,6 +27,7 @@ import {Socket} from "./Socket"
 import {useLocation} from 'react-router-dom'
 import BackIcon from '@material-ui/icons/ArrowBackIos';
 
+var QRCode = require('qrcode.react');
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -129,7 +130,10 @@ function InviteFriends() {
       </div>
       {
       loaded == true &&
-      <Typography>Join Code: {data.joinCode.toUpperCase()}</Typography>
+      <>
+        <Typography>Join Code: {data.joinCode.toUpperCase()}</Typography>
+        <QRCode value={"gamescord.gcc.edu:3000/play?joinCode="+data.joinCode.toUpperCase()}/>
+      </>
       }
   </>
   );

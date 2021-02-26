@@ -80,7 +80,7 @@ export default class ResetPassword extends Component{
           token: this.state.token
         })
     };
-    const response = await fetch('http://localhost:5000/api/postResetPassword', requestOptions);
+    const response = await fetch('api/postResetPassword', requestOptions);
     const data = await response.json();
     this.setState({data: data.successful});
     //errors and error message

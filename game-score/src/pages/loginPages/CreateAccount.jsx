@@ -167,12 +167,12 @@ export default class CreateAccount extends Component{
           email: this.state.email
         })
     };
-    const response = await fetch('http://localhost:5000/api/postCreateAccount', requestOptions);
+    const response = await fetch('/api/postCreateAccount', requestOptions);
     const data = await response.json();
     this.setState({data: data.successful});
     console.log(this.state.data);
     if(this.state.data){
-      this.props.history.push("/");
+      this.props.history.push("/home/login");
     }
     else{
       alert("Unable to create account");

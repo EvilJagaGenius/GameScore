@@ -172,7 +172,7 @@ export default class CreateAccount extends Component{
     this.setState({data: data.successful});
     console.log(this.state.data);
     if(this.state.data){
-      this.props.history.push("/");
+      this.props.history.push("/home/login");
     }
     else{
       alert("Unable to create account");

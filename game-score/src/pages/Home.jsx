@@ -13,7 +13,7 @@ import { BrowserRouter as Router, Link } from 'react-router-dom';
 import HomeMenu from '../Menu';
 import MyTemplates from './MyTemplates';
 import PlayGame from './PlayGame';
-import Profile from './Profile';
+import Profile from './profilePages/Profile';
 
 function getCookieValue(name) {
   let result = document.cookie.match("(^|[^;]+)\\s*" + name + "\\s*=\\s*([^;]+)")

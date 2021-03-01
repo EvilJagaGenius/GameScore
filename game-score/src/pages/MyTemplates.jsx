@@ -33,8 +33,7 @@ export default class MyTemplates extends Component {
           this.setState({
             data: result,
             loaded: "True"
-          }
-          );
+          });
           console.log(result)
         },
         // Note: it's important to handle errors here

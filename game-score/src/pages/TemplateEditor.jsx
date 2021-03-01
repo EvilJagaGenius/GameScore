@@ -48,7 +48,7 @@ export default class TemplateEditor extends Component {
     }
 
     handleNewCondition = (e) => {
-        
+
         fetch('/edit/addCondition')
             .then(response => response.json())
             .then(result => {
@@ -75,7 +75,7 @@ export default class TemplateEditor extends Component {
                 <input type="text" id="title" placeholder="Type the Title Here" value={this.state.templateName} onChange={this.handleNameChange}/>
                 <div className="conditionList">
                     {Object.keys(this.state.data).map(key => (
-                        <Link to="/mytemplates/conditioneditor" templateID={this.state.templateID} conditionID={this.state.data[key].conditionID}>
+                        <Link to="/mytemplates/conditioneditor" templateID={this.state.templateID} conditionID={this.state.data[key].conditionID} templateName={this.state.templateName}>
                             <table className="condition">
                                 <tr>
                                     <td>{this.state.data[key].conditionName}</td>

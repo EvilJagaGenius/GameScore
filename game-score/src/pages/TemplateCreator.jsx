@@ -32,9 +32,10 @@ export default class TemplateCreator extends Component {
         fetch('/newTemplate/', requestOptions)
             .then(response => response.json())
             .then(result => {
-                setLoaded(true)
-                setNewTemplate(result)
-                setEdit(false)
+                this.setState({
+                    loaded: true,
+                    templateID: result.id
+                })
             },)
         
 

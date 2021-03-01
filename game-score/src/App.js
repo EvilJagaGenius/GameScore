@@ -13,6 +13,7 @@ import MyTemplates from './pages/MyTemplates';
 import TemplateCreator from './pages/TemplateCreator';
 import TemplateEditor from './pages/TemplateEditor';
 import Profile from './pages/Profile';
+import TestPage from './pages/TestPage';
 
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
       <Route path="/mytemplates/creator" component = {TemplateCreator}/>
       <Route path="/mytemplates/editor" render = {props => <TemplateEditor {...props}/>} />
       <Route path="/mytemplates" component = {MyTemplates}/>
+      <Route path="/testpage" render = {props => <TestPage {...props}/>} />
     </Switch>
   );
 }

@@ -9,15 +9,14 @@ export default class ConditionEditor extends Component {
     constructor (props) {
         super(props);
         this.state = {
-            conditionID: this.props.conditionID,
-            templateID: this.props.templateID,
+            conditionID: this.props.location.state.conditionID,
+            templateID: this.props.location.state.templateID,
             data: {},
             loaded:"False"
         };
-        this.handleLoad();
     }
 
-    handleLoad() {
+    componentDidMount() {
         fetch("/edit/condition")
            .then(res => res.json())
            .then(
@@ -67,7 +66,7 @@ export default class ConditionEditor extends Component {
     render() {
         
         return(
-            <form ref="form" onSubmit={this.handleSubmit}>
+            <form onSubmit={this.handleSubmit}>
                 <Link to="/mytemplates/templateeditor">
                     <input type="button">Back</input>
                 </Link>

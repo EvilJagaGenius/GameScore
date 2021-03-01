@@ -1,15 +1,6 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
 
-/*
-const formReducer = (state, event) => {
-    return {
-      ...state,
-      [event.name]: event.value
-    }
-}
-*/
-
 export default class TemplateCreator extends Component {
 
     constructor(props) {
@@ -18,31 +9,12 @@ export default class TemplateCreator extends Component {
             gameID: 0,
             templateName: "",
             cloneID: 0,
-            templateID: 0,
+            templateID: 1,
             games: {},
             templates: {},
             loaded: false
         }
     }
-    /*
-    const [data, setData] = useState({}) 
-
-    const [loaded, setLoaded] = useState(false)
-
-    const [newTemplate, setNewTemplate] = useState(0)
-
-    const [formData, setFormData] = useState({
-        gameID: null,
-        templateName: "",
-        cloneID: null
-    });
-
-    const [path, setPath] = useState("/mytemplates/editor")
-    
-    const [edit, setEdit] = useState(false)
-
-    const [templates, setTemplates] = useState({})
-    */
 
     handleSubmit = (e) => {
         
@@ -56,14 +28,7 @@ export default class TemplateCreator extends Component {
             })
         };
 
-        //const response = await fetch('/newTemplate/', requestOptions);
-        //const data = await response.json();
-        console.log(requestOptions);
-        this.props.history.push({
-            pathname: "/testpaage",
-            state: this.state.templateID
-        });
-        /*
+        
         fetch('/newTemplate/', requestOptions)
             .then(response => response.json())
             .then(result => {
@@ -72,9 +37,16 @@ export default class TemplateCreator extends Component {
                 setEdit(false)
             },)
         
-        let history = useHistory();
-        history.pushState(path, [newTemplate, edit]);
-        */
+
+        console.log(requestOptions);
+        this.props.history.push({
+            pathname: "/mytemplates/editor",
+            state: {
+                templateID: this.state.templateID,
+                templateName: this.state.templateName
+            }
+        });
+        
     }
 
     handleGameChange = e => {
@@ -114,6 +86,7 @@ export default class TemplateCreator extends Component {
     }
     
     render() {
+
         return (
     
             <form>

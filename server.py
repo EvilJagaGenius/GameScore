@@ -729,7 +729,8 @@ def apiPostUpdatePlayerName():
 def editTemplateGET():
     # Skeleton function.  Returns all the conditions for this specific template in JSON form.
     mydb = mysql.connector.connect(pool_name = "mypool")
-    templateID = session.get("templateID", None)
+    #templateID = session.get("templateID", None)
+    templateID = 1
     if templateID == None:
         return "templateID not set"
     cursor = mydb.cursor(prepared=True)
@@ -767,7 +768,7 @@ def editTemplateName():
     templateID = session.get("templateID", None)
     if templateID == None:
         return "templateID not set"
-    newName = request.form.get("new_name")
+    newName = request.form.get("newName")
     cursor = mydb.cursor(prepared=True)
     statement = "UPDATE Template SET templateName = %s WHERE templateID = %s"
     cursor.execute(statement, (newName, templateID))
@@ -855,13 +856,13 @@ def addCondition():
     if gameID == None:
         return "gameID not set"
     # Below values are nullable, not needed
-    #conditionName = request.form.get("condition_name")
-    #description = request.form.get("description")
-    #maxPerGame = request.form.get("max_per_game")
-    #maxPerPlayer = request.form.get("max_per_player")
-    #scoringType = request.form.get("scoring_type")
-    #inputType = request.form.get("input_type")
-    #pointMultiplier = request.form.get("point_multiplier")
+    conditionName = None
+    description = None
+    maxPerGame = None
+    maxPerPlayer = None
+    scoringType = None
+    inputType = None
+    pointMultiplier = None
     cursor = mydb.cursor(prepared=True)
     statement = """
     INSERT INTO ScoringCondition (gameID, templateID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier)

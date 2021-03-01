@@ -873,6 +873,7 @@ def addCondition():
     lastRowID = cursor.lastrowid
     print(lastRowID)
     response = {"id": lastRowID}
+    session["conditionID"] = lastRowID
     
     cursor.close()
     mydb.close()
@@ -1000,6 +1001,7 @@ def createNewTemplate():
     cursor.execute(statement, (gameID, templateName, userID))
     lastRowID = cursor.lastrowid
     response = {"id": lastRowID}
+    session["templateID"] = lastRowID
     
     cursor.close()
     mydb.close()

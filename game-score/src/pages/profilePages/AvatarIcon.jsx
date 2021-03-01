@@ -1,6 +1,7 @@
 import React from "react";
 import { makeStyles } from '@material-ui/core/styles';
 import Avatar from '@material-ui/core/Avatar';
+import Hacker from '../../images/avatarIcons/hacker.png';
 
 export default class AvatarIcon extends React.Component{
     render(){
@@ -21,7 +22,10 @@ export default class AvatarIcon extends React.Component{
             },
         }));
         return(
-            <Avatar alt="avatar-icon" src="/images/astronaut.png" className={classes.large}></Avatar>
+            <div className={classes.root}>
+                <Avatar src={Hacker} className={classes.large}></Avatar>
+                <img alt="hi" src="../images/avatarIcons/hacker.png"></img>
+            </div>
         );
     }
 }

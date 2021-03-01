@@ -29,7 +29,7 @@ export default class Profile extends Component{
     this.setState({data: data.successful});
     //errors and error message
     console.log(this.state.data);
-    document.cookie ="credHash=; expires=Thu, 01 Jan 1970 00:00:00 UTC;"
+    document.cookie = 'username=';  //possibly needed for Safari specifically
   }
   render(){
     return(

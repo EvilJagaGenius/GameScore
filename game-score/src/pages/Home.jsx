@@ -29,6 +29,8 @@ const Home = props => {
   const { params } = match;
   const { page } = params;
 
+  const [loggedIn, setLoggedIn] = React.useState(getCookieValue("username"));
+
   //Map to route each tab index to it's appropriate path
   const tabNameToIndex = {
     0: "home",
@@ -56,15 +58,10 @@ const Home = props => {
   const handleChange = (event, newValue) => {
     history.push(`/${tabNameToIndex[newValue]}`);
     setSelectedTab(newValue);
+    setLoggedIn(getCookieValue("username"));
+    console.log("the username cookie is...");
+    console.log(getCookieValue("username"));
   };
-
-  let button;
-  if(getCookieValue("username").length !== 0){
-    button = <h3>Signed In</h3>
-  }
-  else{
-    button = <Link to = "/home/login"><Button>Click here to log in for full functionality</Button></Link>
-  }
 
   //return elements to be rendered from component
   //...in this case...the tab bar or "AppBar" as it's known in MaterialUI
@@ -79,7 +76,10 @@ const Home = props => {
           <Tab label="Profile" />
         </Tabs>
       </AppBar>
-      <div>{button}</div>
+      {loggedIn
+        ? <h1>Logged In</h1>
+        : <Link to = "/home/login"><Button>Click here to log in for full functionality</Button></Link>
+      }
       {selectedTab === 0 && <HomeMenu />}
       {selectedTab === 1 && <MyTemplates />}
       {selectedTab === 2 && <PlayGame />}

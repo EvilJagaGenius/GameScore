@@ -8,17 +8,14 @@ import GameRow from "./GameRow"
 import TemplateRow from "./TemplateRow"
 import BottomUI from "./BottomUI"
 import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import { withStyles } from "@material-ui/core/styles";
-import { makeStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
-import Star from '@material-ui/icons/Star';
 
+function getCookieValue(name) {
+  let result = document.cookie.match("(^|[^;]+)\\s*" + name + "\\s*=\\s*([^;]+)")
+  return result ? result.pop() : ""
+}
 
 export default class Menu extends Component {
 
@@ -27,7 +24,8 @@ constructor(props) {
     this.state = { activeIndex: 0,
             data:{},
             loaded:"False",
-            selectedTemplate:{accPos:0,rowPos:-1}
+            selectedTemplate:{accPos:0,rowPos:-1},
+            usernameData: getCookieValue("username")
           };
      const { match, history, classes } = this.props;
     };
@@ -57,7 +55,10 @@ constructor(props) {
         // Note: it's important to handle errors here
         // instead of a catch() block so that we don't swallow
         // exceptions from actual bugs in components.
-      )
+      );
+      this.setState({
+        usernameData: getCookieValue("username")
+      })
   }
 
 
@@ -74,8 +75,8 @@ constructor(props) {
 
   isSelected(checkAccPos,checkRowPos)
   {
-    if(checkAccPos == this.state.selectedTemplate.accPos
-      && checkRowPos == this.state.selectedTemplate.rowPos)
+    if(checkAccPos === this.state.selectedTemplate.accPos
+      && checkRowPos === this.state.selectedTemplate.rowPos)
     {
       return true
     }
@@ -107,7 +108,7 @@ constructor(props) {
         <TableContainer component={Paper}>
          <Table>
             {
-                this.state.loaded == "True" &&
+                this.state.loaded === "True" &&
                   <> 
                     {Object.keys(this.state.data.favoritedTemplates).map(key => (
                         <>
@@ -120,7 +121,7 @@ constructor(props) {
                             />
                           </TableRow>
                             {
-                            this.isSelected(0,key) == true &&
+                            this.isSelected(0,key) === true &&
                             <>
                               <BottomUI
                                 templateName = {this.state.data["favoritedTemplates"][key].templateName}
@@ -152,7 +153,7 @@ constructor(props) {
          <TableContainer component={Paper}>
           <Table size="small">
                 {
-                this.state.loaded == "True" &&
+                this.state.loaded === "True" &&
                   <> 
                     {Object.keys(this.state.data.recentlyPlayed).map(key => (
                         <>
@@ -200,7 +201,7 @@ constructor(props) {
          <TableContainer component={Paper}>
           <Table size="small">
                {
-                this.state.loaded == "True" &&
+                this.state.loaded === "True" &&
                   <> 
                     {Object.keys(this.state.data.highestRated).map(key => (
                         <>
@@ -216,7 +217,7 @@ constructor(props) {
                             />
                           </TableRow>
                             {
-                            this.isSelected(2,key) == true &&
+                            this.isSelected(2,key) === true &&
                             <>
                               <BottomUI
                                 templateName = {this.state.data["highestRated"][key].templateName}
@@ -249,7 +250,7 @@ constructor(props) {
           <Table size="small">
                 {/*Table displaying the dynamic data for Favorited Templates*/}
                 {
-                this.state.loaded == "True" &&
+                this.state.loaded === "True" &&
                 <div className="RecommendedGames">
                   <> 
                     {/* Iterate through favorited templates and render the data in a tabular format */}

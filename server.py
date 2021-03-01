@@ -1389,8 +1389,8 @@ def doReports():
 def rateTemplate():
     # Do something, Taipu
     print("Recieved rateTemplate")
-    templateID = 1  # We need some way to get this.  Form?  Session?
-    gameID = 1
+    templateID = request.form.get("templateID", None)  # We need some way to get this.  Form?  Session?
+    gameID = request.form.get("gameID", None)
     rating = float(request.form.get("rating", None))
     print("Rating: " + str(rating))
     

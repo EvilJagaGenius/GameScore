@@ -140,8 +140,8 @@ export default function BottomUI(props) {
 						</Modal>
 					</div>
 	          	}
-                
-                // Rate template popup (how do you comment in this?)
+               
+                {/* Rate Template popup */}
                 {
 		          	<div>
 			          	<Modal
@@ -160,7 +160,7 @@ export default function BottomUI(props) {
 								  		</td>
 								  		<td>
 								  			<Input name="ratingInput" type="number" onChange={(e)=>{
-								  					setNumPlayers(e.target.value)
+								  					setRating(e.target.value)
 								  				}}
 								  				onBlur={(e)=>
 								  				{
@@ -192,8 +192,10 @@ export default function BottomUI(props) {
 								  			onClick={()=>{
 								  				if(rating>=0)
 								  				{
+                                                    {/* Create a form, fill it with data, and send it in */}
                                                     let formData = new FormData();
                                                     formData.append("rating", rating)
+                                                    formData.append("templateID", props.templateID)
 										  			fetch('/api/rateTemplate', {method: "POST", body: formData})
 								 					.then(res => res.json()).then(data => {
 								 					console.log(data)

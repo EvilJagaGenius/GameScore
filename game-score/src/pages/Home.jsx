@@ -77,7 +77,7 @@ const Home = props => {
         </Tabs>
       </AppBar>
       {loggedIn
-        ? <h1>Logged In</h1>
+        ? null
         : <Link to = "/home/login"><Button>Click here to log in for full functionality</Button></Link>
       }
       {selectedTab === 0 && <HomeMenu />}

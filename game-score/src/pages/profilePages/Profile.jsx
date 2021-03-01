@@ -1,9 +1,10 @@
 import React from "react";
+import AvatarIcon from './AvatarIcon'
 
 export default class Profile extends React.Component{
     render(){
         return(
-            <h1>Profile Page</h1>
+            <AvatarIcon></AvatarIcon>
         );
     }
 }

@@ -27,7 +27,6 @@ constructor(props) {
             selectedTemplate:{accPos:0,rowPos:-1},
             usernameData: getCookieValue("username")
           };
-     const { match, history, classes } = this.props;
     };
 
   
@@ -169,7 +168,7 @@ constructor(props) {
                             />
                           </TableRow>
                             {
-                            this.isSelected(1,key) == true &&
+                            this.isSelected(1,key) === true &&
                             <>
                               <BottomUI
                                 templateName = {this.state.data["recentlyPlayed"][key].templateName}

@@ -1097,8 +1097,9 @@ def apiPostFinalizeScore():
             mydb.close()
             return getPostGame(userID)
 
-##################################### Leave Game API ########################################
 
+
+##################################### Leave Game API ########################################
 @app.route("/api/postLeaveGame")
 def apiPostLeaveGame():
 
@@ -1718,6 +1719,7 @@ def templateGameList():
 
     return jsonify(response)
 
+
 # --------------------------- Async Stuffs ----------------------#
 
 @socketIo.on('join')
@@ -1924,4 +1926,3 @@ def rateTemplate():
     response = {"successful": True}
     
     return jsonify(response)
-

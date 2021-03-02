@@ -12,7 +12,7 @@ import { BrowserRouter as Router, Link } from 'react-router-dom';
 //All pages to be imported are to be used in the tabs
 import HomeMenu from '../Menu';
 import MyTemplates from './MyTemplates';
-import PlayGame from './PlayGame';
+import PlayGame from './JoinGame';
 import Profile from './Profile';
 
 function getCookieValue(name) {
@@ -82,7 +82,7 @@ const Home = props => {
       <div>{button}</div>
       {selectedTab === 0 && <HomeMenu />}
       {selectedTab === 1 && <MyTemplates />}
-      {selectedTab === 2 && <PlayGame />}
+      {selectedTab === 2 && <PlayGame history={props.history} location={props.location}/>}
       {selectedTab === 3 && <Profile/>}
     </>
   );

@@ -87,6 +87,31 @@ export default class EditAccount extends React.Component{
     }
   }
 
+  async sendRequest() {
+    console.log(this.state.username);
+    console.log(this.state.email);
+    console.log(this.state.password);
+    // POST request using fetch with async/await
+    const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          new_email: this.state.email
+        })
+    };
+    const response = await fetch('/api/profile/changEmail', requestOptions);
+    const data = await response.json();
+    this.setState({data: data.successful});
+    console.log(this.state.data);
+    if(this.state.data){
+      alert("Email change successful");
+    }
+    else{
+      alert("Unable to change email");
+    }
+    
+  }
+
     render(){
         const classes = makeStyles((theme) => ({
             root: {
@@ -102,15 +127,18 @@ export default class EditAccount extends React.Component{
                     <img alt="gamescore-logo" src={Logo}></img>
                     <div>
                         <TextField required id="standard-required" name = "username" label="Username" onChange={this.usernameHandler} error={this.state.usernameError}/>
+                        <Button onClick={()=>{this.confirmSubmission("email")}}>Change Username</Button>
                     </div>
                     <div>
                         <TextField required id="standard-required" name = "email" label="Email Address" onChange={this.emailHandler} error={this.state.emailError}/>
+                        <Button onClick={()=>{this.sendRequest()}}>Change Email</Button>
                     </div>
                     <div>
                         <TextField required id="standard-required" name = "password" label="Password" type="password" onChange={this.passwordHandler} error={this.state.passwordError}/>
                     </div>
                     <div>
                         <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
+                        <Button onClick={()=>{this.confirmSubmission("email")}}>Change Password</Button>
                     </div>
                 </div>
             </form>

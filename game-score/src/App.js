@@ -26,6 +26,7 @@ export default function App() {
     <Switch>
       <Redirect exact from="/" to="/home" />
       <Route exact path="/:page?" render={props => <Home {...props} />} />
+      <Route path="/profile/editaccount" component={EditAccount}/>
       <Route path="/play/individualscoring" component ={Scoring}/>
       <Route path="/play/overview" component ={Overview}/>
       <Route path="/play/postgame" component={Finalize}/>
@@ -39,8 +40,7 @@ export default function App() {
       <Route path="/login/createaccount" component={CreateAccount}/>
       <Route path="/login/resetpassword" component={ResetPasswordUsername}/>
       <Route path="/login/resetusername" component={ResetUsernameEmail}/>
-      <Route path="/profile/editaccount" component={EditAccount}/>
-      <Route path="/profile/editavatar" component={EditAvatar}/>
+      
     </Switch>
   );
 }

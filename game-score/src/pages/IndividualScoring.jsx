@@ -26,32 +26,36 @@ import { Link } from 'react-router-dom'
 import Cookies from 'js-cookie';
 
 
+
+
 export default class ScoringPage extends React.Component{
    constructor(props) {
     super(props);
     this.state = {
       key: 0,
-      individualData:"",
       loaded: "False",
       data:""
     };
-     const { match, history, classes } = this.props;
+     const { match, history,classes} = this.props;
     };
 
 
 
     componentDidMount = () => {
 
-    if(this.props.location.state.indvidiualData !=null)
+    if(this.props.location.state.data !=null)
     {
-      this.setState({individualData:this.props.location.state.indvidiualData,
-      loaded:"True"})
+      this.setState({data:this.props.location.state.data,
+      loaded:"True",
+      key:this.props.location.state.playerNum})
+
+      console.log(this.props.location.state.data.individualScoring)
+      console.log(this.props.location.state.playerNum )
     }
 
      Socket.on("sendNewScores", scores => {
       console.log(scores)
         this.setState({
-          individualData:scores.individualScoring,
           data:scores
         });
       });
@@ -61,7 +65,6 @@ export default class ScoringPage extends React.Component{
       .then(
         (result) => {
           this.setState({
-            individualData: result.individualScoring,
             data:result,
             loaded: "True"
           })
@@ -110,20 +113,22 @@ export default class ScoringPage extends React.Component{
       {
       this.state.loaded === "True" && 
       <>
-        <div style={{whiteSpace:"nowrap"}}>
-          <div style={{textAlign:"center",display:"inlineBlock",marginTop:15,marginBottom:10}} aligxn="center" textAlign= "center">
-                  <h2 style={{display:"inline"}}>{this.state.individualData[this.state.key].displayName}</h2>
-                 <AccountCircle style={{width:30,height:30,marginBottom:-7,marginLeft:10}}></AccountCircle>
-          </div>
-          <div style={{paddingLeft:0,left:5,top:15,position:"absolute"}} align="left">
-                <Link to={{pathname: "/play/overview" , state:{playerData:this.state.data["scoringOverview"]["players"],awardsData:this.state.data["globalAwards"],summaryData:this.state.data["scoringOverview"]}}}>
-                    <Button startIcon={<BackIcon/>}>
-                    </Button>
-              </Link>
+        <div class={this.state.data.individualScoring[this.state.key].color}>
+          <div style={{whiteSpace:"nowrap"}}>
+            <div style={{textAlign:"center",display:"inlineBlock",paddingTop:15,paddingBottom:10}} aligxn="center" textAlign= "center">
+                    <h2 style={{display:"inline"}}>{this.state.data.individualScoring[this.state.key].displayName}</h2>
+                   <AccountCircle style={{width:30,height:30,marginBottom:-7,marginLeft:10}}></AccountCircle>
+            </div>
+            <div style={{paddingLeft:0,left:5,top:15,position:"absolute"}} align="left">
+                  <Link to={{pathname: "/play/overview" , state:{playerData:this.state.data["scoringOverview"]["players"],awardsData:this.state.data["globalAwards"],finalizeData:this.state.data["finalizeScore"],summaryData:this.state.data["scoringOverview"]}}}>
+                      <Button startIcon={<BackIcon/>}>
+                      </Button>
+                </Link>
+            </div>
           </div>
         </div>
       <TableContainer component={Paper}>
-        {console.log(this.state.individualData)}
+        {console.log(this.state.data.individualScoring)}
         <Table size="small">
           <TableHead>
             <TableRow>
@@ -132,14 +137,14 @@ export default class ScoringPage extends React.Component{
               <TableCell align="center">Score</TableCell>
             </TableRow>
           </TableHead>
-            {Object.keys(this.state.individualData[this.state.key]["conditions"]).map(condPos=> (
+            {Object.keys(this.state.data.individualScoring[this.state.key]["conditions"]).map(condPos=> (
               <TableRow> 
-                <TableCell align="left">{this.state.individualData[this.state.key]["conditions"][condPos].conditionName}</TableCell>
+                <TableCell align="left">{this.state.data.individualScoring[this.state.key]["conditions"][condPos].conditionName}</TableCell>
                 <TableCell align="center">
-                  <Textbox playerID={this.state.individualData[this.state.key].playerID} conditionID={this.state.individualData[this.state.key]["conditions"][condPos].conditionID} onNameChange={(e) => {
-     this.handleChange(e,condPos,this.state.key)}} defaultValue={this.state.individualData[this.state.key]["conditions"][condPos].value} condPos={condPos} playerPos={this.state.key}/>
+                  <Textbox playerID={this.state.data.individualScoring[this.state.key].playerID} conditionID={this.state.data.individualScoring[this.state.key]["conditions"][condPos].conditionID} onNameChange={(e) => {
+     this.handleChange(e,condPos,this.state.key)}} defaultValue={this.state.data.individualScoring[this.state.key]["conditions"][condPos].value} condPos={condPos} playerPos={this.state.key}/>
                 </TableCell>
-                <TableCell align="center">{this.roundValues(this.state.individualData[this.state.key]["conditions"][condPos].score).toFixed(2)}</TableCell>
+                <TableCell align="center">{this.roundValues(this.state.data.individualScoring[this.state.key]["conditions"][condPos].score).toFixed(2)}</TableCell>
               </TableRow>
             ))}
                 <TableRow style={{height:"45px"}}>
@@ -148,7 +153,7 @@ export default class ScoringPage extends React.Component{
                       <p></p>
                   </TableCell>
                   <TableCell align="center">
-                      <p><b>{this.roundValues(this.state.individualData[this.state.key].totalScore).toFixed(2)}</b></p>
+                      <p><b>{this.roundValues(this.state.data.individualScoring[this.state.key].totalScore).toFixed(2)}</b></p>
                   </TableCell>
                 </TableRow>
         </Table>
@@ -162,13 +167,13 @@ export default class ScoringPage extends React.Component{
 
 handleChange(name,condPos,playerPos) {
     ScoringPage.updatedValue = this.roundValues(name)
-    ScoringPage.updatedConditionID=this.state.individualData[playerPos]["conditions"][condPos].conditionID
+    ScoringPage.updatedConditionID=this.state.data.individualScoring[playerPos]["conditions"][condPos].conditionID
     ScoringPage.updatedPlayerID= this.props.location.state.individualPlayerID;
 
     this.setState(prevState => {
-    let individualData = Object.assign({}, prevState.individualData);  // creating copy of state variable jasper
-    individualData[playerPos]["conditions"][condPos].value = this.roundValues(name);       
-    return { individualData };                        
+    let data = Object.assign({}, prevState.data);
+    data.individualScoring[playerPos]["conditions"][condPos].value = this.roundValues(name);       
+    return {data};                        
     },() => this.recallAPI())
   }
 }

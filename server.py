@@ -575,7 +575,8 @@ def getScoring(userID):
     result = {"scoringOverview":[]
           ,"globalAwards":[]
           ,"individualScoring":[]
-          ,"finalizeScore":{"players":[],"awards":[]}}
+          ,"finalizeScore":{"players":[],"awards":[]}
+          ,"colors":["RED","BLUE","YELLOW","PURPLE","GREEN","PINK","GRAY","ORANGE"]}
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor = mydb.cursor(prepared=True)
     stmt = ("select matchID, ActiveMatch.gameID, ActiveMatch.templateID, gameName, templateName from ActiveMatch JOIN Template ON ActiveMatch.templateID = Template.templateID AND ActiveMatch.gameID = Template.gameID JOIN Game ON Template.gameID=Game.gameID JOIN Player using(matchID) WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1")
@@ -670,19 +671,20 @@ def getScoring(userID):
 
         ### Individual Scoring ###
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("select DISTINCT Player.playerID, Player.displayName, Player.totalScore from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE Player.matchID = %s")
+        stmt = ("select DISTINCT Player.playerID, Player.displayName, Player.totalScore,Player.color from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE Player.matchID = %s")
         mycursor.execute(stmt,(matchID,))
         myresultPlayer = mycursor.fetchall()
         mycursor.close()
 
         #For each row returned from DB: parse and create a dictionary from it
         for rowPlayer in myresultPlayer:
-            playerID, displayName,totalScore = rowPlayer
+            playerID, displayName,totalScore,color = rowPlayer
             playerFinalizeScore = {"displayName":"{}".format(displayName)
             ,"conditions":[]}
             player = {"playerID":playerID
                         ,"displayName":"{}".format(displayName)
                         ,"conditions":[]
+                        ,"color":"{}".format(color)
                         ,"totalScore":round(totalScore,2)}
 
             mycursor = mydb.cursor(prepared=True)
@@ -1190,8 +1192,12 @@ def apiPostUpdatePlayerName():
                 mycursor.execute(stmt,(str(changedNames[x]),int(changedPlayerIDs[x]),matchID))
                 mycursor.close()
                 mydb.commit()
-            
+
+            mydb.close()
             return getScoring(userID)
+
+
+
 
 ##################################### Get Invite INFO API ############################################
 
@@ -1288,6 +1294,91 @@ def apiPostJoinGame():
                 response = jsonify(result)
                 return response 
 
+
+##################################### Kick Player API ############################################
+
+@app.route("/api/postKickPlayer", methods=["POST"])
+def apiPostKickPlayer():
+    userID = getUserID()
+
+    content = request.json
+    playerID = content['playerID']
+
+    if userID == -1:
+        result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
+        response = jsonify(result)
+        response.set_cookie('credHash',"",max_age=0)
+        response.set_cookie('username',"",max_age=0)
+        return response
+    else:
+
+        mydb = mysql.connector.connect(pool_name = "mypool")
+        mycursor = mydb.cursor(prepared=True)
+        stmt = ("SELECT ActiveMatch.matchID FROM Player JOIN ActiveMatch using(matchID) WHERE userID=%s ORDER BY matchID DESC LIMIT 1")
+        mycursor.execute(stmt,(userID,))
+        myresult = mycursor.fetchone()
+        mycursor.close()
+
+        if myresult == None:
+            result = {"successful":False,"error":111,"errorMessage":"No game found."}
+            response = jsonify(result)
+            mydb.close()
+            return response
+        else:
+            matchID, = myresult
+
+            mycursor = mydb.cursor(prepared=True)
+            stmt = ("UPDATE Player SET userID=NULL WHERE playerID=%s")
+            mycursor.execute(stmt,(playerID,))
+            myresult = mycursor.fetchone()
+            mycursor.close()
+            mydb.commit()
+            mydb.close()
+            return getScoring(userID)
+
+
+
+##################################### Change Player Color ############################################
+
+@app.route("/api/postChangePlayerColor", methods=["POST"])
+def apiPostChangePlayerColor():
+    userID = getUserID()
+
+    content = request.json
+    playerID = content['playerID']
+    color = content['color']
+
+    if userID == -1:
+        result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
+        response = jsonify(result)
+        response.set_cookie('credHash',"",max_age=0)
+        response.set_cookie('username',"",max_age=0)
+        return response
+    else:
+
+        mydb = mysql.connector.connect(pool_name = "mypool")
+        mycursor = mydb.cursor(prepared=True)
+        stmt = ("SELECT ActiveMatch.matchID FROM Player JOIN ActiveMatch using(matchID) WHERE userID=%s ORDER BY matchID DESC LIMIT 1")
+        mycursor.execute(stmt,(userID,))
+        myresult = mycursor.fetchone()
+        mycursor.close()
+
+        if myresult == None:
+            result = {"successful":False,"error":111,"errorMessage":"No game found."}
+            response = jsonify(result)
+            mydb.close()
+            return response
+        else:
+            matchID, = myresult
+
+            mycursor = mydb.cursor(prepared=True)
+            stmt = ("UPDATE Player SET color=%s WHERE playerID=%s")
+            mycursor.execute(stmt,(color,playerID))
+            myresult = mycursor.fetchone()
+            mycursor.close()
+            mydb.commit()
+            mydb.close()
+            return getScoring(userID)
 
 ##################################### edit Template API ########################################
 

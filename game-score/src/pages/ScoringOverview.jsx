@@ -11,6 +11,7 @@ import DoneIcon from '@material-ui/icons/Done';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import HelpIcon from '@material-ui/icons/Help';
 import SettingsIcon from '@material-ui/icons/Settings';
+import CloseIcon from '@material-ui/icons/Close';
 import InviteIcon from '@material-ui/icons/GroupAdd';
 import { useState, useEffect } from 'react';
 import Table from '@material-ui/core/Table';
@@ -25,6 +26,10 @@ import TextField from '@material-ui/core/TextField';
 import io from "socket.io-client";
 import {Socket} from "./Socket"
 import {useLocation} from 'react-router-dom'
+import { useHistory } from "react-router-dom";
+import IconButton from '@material-ui/core/IconButton';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -95,48 +100,35 @@ function getModalStyle() {
 function ScoringOverview() {
 
   const location = useLocation() 
-  const [playerData, setPlayerData] = useState([{}]);
-  const [summaryData, setSummaryData] = useState([{}]);
-  const [awardsData, setAwardsData] = useState([{}]);
+  const [data, setData] = useState([{}]);
   const [showManagePlayers,setShowManagePlayers] = useState(false)
+  const [showFinalizeScore,setShowFinalizeScore] = useState(false)
   const classes = useStyles();
   const [modalStyle] = React.useState(getModalStyle);
+  const [loaded, setLoaded] = useState(false);
 
+  let history = useHistory()
 
    
-
-
     useEffect(() => {
 
       if(location.state !=null)
       {
-        if(location.state.playerData !=null)
+        if(location.state.data !=null)
         {
-          setPlayerData(location.state.playerData)
-        }
-
-        if (location.state.summaryData !=null)
-        {
-          setSummaryData(location.state.summaryData)
-        }
-
-        if (location.state.awardsData !=null)
-        {
-          setAwardsData(location.state.awardsData)
+          setData(location.state.data)
         }
       }
 
           const eventHandler = (scores) => {
           console.log(scores)
-          setPlayerData(scores.scoringOverview.players)
-          setAwardsData(scores.globalAwards)
-          setSummaryData(scores.scoringOverview)
+          setData(scores)
+          setLoaded(true)
       };
 
     fetch("/api/getScoring").then(res => res.json()).then(data => {
-      setPlayerData(data.scoringOverview.players);
-      setAwardsData(data.globalAwards);
-      setSummaryData(data.scoringOverview);
+      setData(data)
+      setLoaded(true)
       console.log(data);
     });
 
@@ -149,16 +141,18 @@ function ScoringOverview() {
 
 /* <Accordion disabled> */
   return (
-
+  <>
+  {
+    loaded == true &&
     <div className={classes.root}>
 
       <>
         <div style={{display: 'flex',  justifyContent:'center',marginTop:14}}>
-          <h2>{summaryData.gameName}</h2>
+          <h2>{data.scoringOverview.gameName}</h2>
         </div>
 
         <div style={{display: 'flex',  justifyContent:'center',marginBottom:10}}>
-         <h4>{summaryData.templateName}</h4>
+         <h4>{data.scoringOverview.templateName}</h4>
         </div>
       </>
 
@@ -179,19 +173,19 @@ function ScoringOverview() {
                 <TableCell align="center">Score</TableCell>
               </TableRow>
           </TableHead>
-        {Object.keys(playerData).map(key => (
+        {Object.keys((data.scoringOverview.players)).map(key => (
             <TableRow>
                 <TableCell>
                       <div style={{float:"left",marginTop:4}}>
                           <AccountCircle style={{width:30,height:30}} alt = "tempAlt" fontsize = "medium"></AccountCircle>
                      </div>
                      <div style={{float:"left",marginTop:7,marginLeft:12}}>
-                          <Typography style={{fontSize:17}}className={classes.heading}>{playerData[key].displayName}</Typography>
+                          <Typography style={{fontSize:17}}className={classes.heading}>{data.scoringOverview.players[key].displayName}</Typography>
                       </div>
                 </TableCell>
                <TableCell align="center">
-                  <Link to={{pathname: "/play/individualscoring" , state:{message: 'Called',individualPlayerID:playerData[key].playerID,individualData:playerData[key]}}} className={classes.column} style={{fontSize:17}}>
-                   {Math.round(playerData[key].score/0.01)*0.01}
+                  <Link to={{pathname: "/play/individualscoring" , state:{message: 'Called',individualPlayerID:data.scoringOverview.players[key].playerID,data:data,playerNum:key}}} className={classes.column} style={{fontSize:17}}>
+                   {Math.round(data.scoringOverview.players[key].score/0.01)*0.01}
                   </Link>
                 </TableCell>
             </TableRow>
@@ -218,13 +212,13 @@ function ScoringOverview() {
                       <Typography>Condition</Typography>
                     </TableCell>
                 {
-                Object.keys((awardsData)).length > 0 &&
-                Object.keys((awardsData[0])).length > 0 &&
-                Object.keys((awardsData[0]["players"])).length > 0 &&
+                Object.keys((data.globalAwards)).length > 0 &&
+                Object.keys((data.globalAwards[0])).length > 0 &&
+                Object.keys((data.globalAwards[0]["players"])).length > 0 &&
                 <>
-                {Object.keys((awardsData[0].players)).map(key => (
+                {Object.keys((data.globalAwards[0].players)).map(key => (
                     <TableCell align="center"> 
-                      <Typography>{awardsData[0]["players"][key].displayName}</Typography>
+                      <Typography>{data.globalAwards[0]["players"][key].displayName}</Typography>
                     </TableCell>
                     ))}
 
@@ -233,22 +227,22 @@ function ScoringOverview() {
             </TableRow>
            </TableHead>
           {
-          Object.keys(awardsData).length > 0 &&
+          Object.keys(data.globalAwards).length > 0 &&
           <>
-          {Object.keys(awardsData).map(key => (
+          {Object.keys(data.globalAwards).map(key => (
               <TableRow>
                 <TableCell align="center">
-                  <Typography><b>{awardsData[key].conditionName}</b></Typography>
-                  <Typography>(Max: {awardsData[key].maxPerGame})</Typography>
+                  <Typography><b>{data.globalAwards[key].conditionName}</b></Typography>
+                  <Typography>(Max: {data.globalAwards[key].maxPerGame})</Typography>
                 </TableCell>
 
                   {
-                  Object.keys((awardsData[key])).length > 0 &&
-                  Object.keys((awardsData[key]["players"])).length > 0 &&
+                  Object.keys((data.globalAwards[key])).length > 0 &&
+                  Object.keys((data.globalAwards[key]["players"])).length > 0 &&
                   <>
-                    {Object.keys((awardsData[key]["players"])).map(key2 => (
+                    {Object.keys((data.globalAwards[key]["players"])).map(key2 => (
                       <TableCell align="center">
-                        <Typography>{Math.round(awardsData[key]["players"][key2].value/0.01)*0.01}</Typography>
+                        <Typography>{Math.round(data.globalAwards[key]["players"][key2].value/0.01)*0.01}</Typography>
                       </TableCell>
 
                       ))}
@@ -281,24 +275,90 @@ function ScoringOverview() {
                       </TableRow>
                     </TableHead>
 
-                {Object.keys(playerData).map(key => (
+                {Object.keys(data.scoringOverview.players).map(key => (
                   <TableRow>
                     <TableCell>
-                       
+
                         {
-                        playerData[key].userID!=null && 
+                        data.scoringOverview.players[key].userID!=null && 
                           <>
-                           <AccountCircle style={{width:30,height:30,float:"left",marginLeft:-8}} alt = "tempAlt" fontsize = "medium"></AccountCircle>
-                          <Typography style={{marginLeft:30,fontSize:14,marginTop:5}} >{playerData[key].displayName}</Typography>
+                           <AccountCircle style={{display:"inlineFlex", width:30,height:30,float:"left",marginLeft:-8}} alt = "tempAlt" fontsize = "medium"></AccountCircle>
+                          <Typography style={{display:"inlineFlex",marginLeft:30,fontSize:14,marginBottom:-30,marginTop:5,marginRight:0,borderRight:0}} >{data.scoringOverview.players[key].displayName}</Typography>
+
+                          {
+                              key !=0 &&
+                              <IconButton style={{display:"inlineFlex",width:30,height:30,float:"right",marginLeft:-40,marginRight:-10}}><CloseIcon onClick={()=>{
+                                    
+                                      const requestOptions = {
+                                          method: 'POST',
+                                          headers: {'Content-Type': 'application/json'},
+                                          credentials: 'include',
+                                          body: JSON.stringify({
+                                            playerID: data.scoringOverview.players[key].playerID
+                                          })
+                                      };
+
+                                     fetch("/api/postKickPlayer",requestOptions)
+                                        .then(res => res.json()).then(data => {
+                                              setData(data)
+                                          })
+
+                                   }}
+                              /> </IconButton>
+                          }
+
                          </>
                        }
                         {
-                         playerData[key].userID==null &&
+                         data.scoringOverview.players[key].userID==null &&
                           <>
                             <HelpIcon style={{width:30,height:30,float:"left",marginLeft:-8}} alt = "tempAlt" fontsize = "medium"></HelpIcon>
-                            <TextField id={playerData[key].playerID} style={{width:"50%",marginLeft:8,fontSize:15}}defaultValue={playerData[key].displayName}></TextField>
+                            <TextField id={data.scoringOverview.players[key].playerID} style={{width:"30%",marginLeft:8,fontSize:15}}defaultValue={data.scoringOverview.players[key].displayName} 
+                               onBlur={()=>{
+                                
+                                  if(data.scoringOverview.players[key].displayName!==document.getElementById(data.scoringOverview.players[key].playerID).value)
+                                  {
+                                     var str = `playerID=${encodeURIComponent(data.scoringOverview.players[key].playerID)}&newDisplayName=${encodeURIComponent(document.getElementById(data.scoringOverview.players[key].playerID).value)}`
+
+                                     fetch(`/api/postUpdatePlayerName?`+str)
+                                      .then(res => res.json()).then(result => {
+                                            setData(result)
+                                        })
+                                    }
+
+                               }}
+                              
+                            ></TextField>
                           </>
                         }
+                          <Select style={{width:60,display:"block",float:"right",marginRight:40,paddingRight:0}} id="select" defaultValue={data.individualScoring[key].color} select
+                          onChange={(event)=>{
+                                  
+                                    const requestOptions = {
+                                        method: 'POST',
+                                        headers: {'Content-Type': 'application/json'},
+                                        credentials: 'include',
+                                        body: JSON.stringify({
+                                          playerID: data.scoringOverview.players[key].playerID,
+                                          color:event.target.value
+                                        })
+                                    };
+
+                                   fetch("/api/postChangePlayerColor",requestOptions)
+                                      .then(res => res.json()).then(data => {
+                                            setData(data)
+                                            console.log(data)
+                                        })
+
+                                }}
+
+                          >
+                          {Object.keys(data.colors).map(color => (
+                              <MenuItem value={data.colors[color]}>{data.colors[color]}</MenuItem>
+                          ))}
+                        </Select>
+
+
                     </TableCell>
                   </TableRow>
                  ))}
@@ -306,61 +366,78 @@ function ScoringOverview() {
                 </TableContainer>
 
                  <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
-                    <Button className={classes.button}  variant = "contained" color="primary" size = "large" onClick={()=>{
-                        
-                          var str = ``
-                          var isFirst = true
-                              for(var i=1;i<(Object.keys(playerData)).length;i++)
-                              {
-                                  if(playerData[i].displayName!==document.getElementById(playerData[i].playerID).value)
-                                    {
-                                      if(isFirst===false)
-                                      {
-                                        str = str + `&`
-                                      }
-
-                                      str = str + `playerID=${encodeURIComponent(playerData[i].playerID)}&newDisplayName=${encodeURIComponent(document.getElementById(playerData[i].playerID).value)}`
-                                      isFirst = false
-                                    }
-                              }
-                              console.log(str)
-                              
-                            if(str!==``)
-                            {
-                           fetch(`/api/postUpdatePlayerName?`+str)
-                            .then(res => res.json()).then(data => {
-                                  setPlayerData(data.scoringOverview.players);
-                                  setAwardsData(data.globalAwards);
-                                  setSummaryData(data.scoringOverview);
-                                  setShowManagePlayers(false);
-                            })
-                            }
-                            else
-                            {
-                              setShowManagePlayers(false);
-                            }
-                            
-
-                    }}>Save Changes</Button>
-
                     <Button className={classes.button}variant = "contained" color="primary" size = "large" onClick={()=>setShowManagePlayers(false)
+                    }>Ok</Button>
+                </div>
+
+              </div>
+            </Modal>
+            
+          {console.log(loaded)}
+          {
+          loaded == true &&
+          <Modal
+              open={showFinalizeScore}
+              aria-labelledby="simple-modal-title"
+              aria-describedby="simple-modal-description"
+            >
+            <div style={modalStyle} className={classes.paper}>
+                <h3 style={{textAlign:"center"}}>Done Scoring?</h3>
+  
+                <Typography>Are you sure you want to finalize the scoring? All results will be final.</Typography>
+                {Object.keys((data.finalizeScore.players)).map(key => (
+                    <>
+                       <Typography>{data.finalizeScore.players[key].displayName} has values that exceed the player limit:</Typography>
+
+                        {Object.keys((data.finalizeScore.players[key].conditions)).map(key2 => (
+                        <Typography>{data.finalizeScore.players[key].conditions[key2].conditionName}: {data.finalizeScore.players[key].conditions[key2].value} (Max: {data.finalizeScore.players[key].conditions[key2].maxPerPlayer})</Typography>
+                        ))}
+                    </>
+               ))}
+
+                {Object.keys((data.finalizeScore.awards)).map(key => (
+                    <>
+                        {
+                          key == 0 &&
+                          <Typography>There are global awards that exceed the limit:</Typography>
+                        }
+                       <Typography>{data.finalizeScore.awards[key].name}: {data.finalizeScore.awards[key].sumValue} (Max: {data.finalizeScore.awards[key].maxPerGame })</Typography>
+
+                    </>
+               ))}
+
+
+                 <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
+                    <Button className={classes.button}  variant = "contained" color="primary" size = "large" onClick={()=>{
+                          
+                          fetch("/api/postFinalizeScore").then(res => res.json()).then(data => {
+                console.log(data);
+                history.push('/play/postgame')
+                })
+
+                    }}>Finalize Score</Button>
+
+                    <Button className={classes.button}variant = "contained" color="primary" size = "large" onClick={()=>setShowFinalizeScore(false)
                     }>Cancel</Button>
                 </div>
 
               </div>
             </Modal>
-      <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
-          <Link to='/play/postgame'>
-          <Button className={classes.button} startIcon={<DoneIcon />} variant = "contained" color="primary" size = "large" onClick={()=>console.log("clicked button")}>Finalize Score</Button>
-          </Link>
+            }
 
-          <Button className={classes.button} startIcon={<SettingsIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowManagePlayers(true)}>Manage Players</Button>
 
-          <Link to='/play/invite'>
-            <Button className={classes.button} startIcon={<InviteIcon />} variant = "contained" color="primary" size = "large">Invite Friends</Button>
-          </Link>
-      </div>
+      	  <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
+	          <Button className={classes.button} startIcon={<DoneIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowFinalizeScore(true)}>Finalize Score</Button>
+
+	          <Button className={classes.button} startIcon={<SettingsIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowManagePlayers(true)}>Manage Players</Button>
+
+	          <Link to='/play/invite'>
+	            <Button className={classes.button} startIcon={<InviteIcon />} variant = "contained" color="primary" size = "large">Invite Friends</Button>
+	          </Link>
+      	  </div>
     </div>
+    }
+    </>
   );
 }
 

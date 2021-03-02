@@ -21,3 +21,4 @@ pip install flask-socketio
 npm install js-cookie --save
 npm install socket.io
 npm install qrcode.react
+ 

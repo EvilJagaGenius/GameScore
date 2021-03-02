@@ -1645,6 +1645,16 @@ def changeUsername():
     statement = "UPDATE AppUser SET username = %s WHERE userID=%s"
     cursor.execute(statement, (newUsername, userID))
     
+    # Check for duplicates
+    statement = "SELECT userID FROM AppUser WHERE username=%s"
+    cursor.execute(statement, (newUsername, ))
+    rowsChanged = cursor.rowcount
+    if rowsChanged > 1:  # There's duplicate emails
+        cursor.close()
+        mydb.close()
+        response = {"successful": False, "errorMessage": "Duplicate username"}
+        return jsonify(response)
+    
     mydb.commit()
     cursor.close()
     mydb.close()
@@ -1665,7 +1675,17 @@ def changeEmail():
     mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)
     statement = "UPDATE AppUser SET email=%s WHERE userID=%s"
-    cursor.execute(statement, (newUsername, userID))
+    cursor.execute(statement, (newEmail, userID))
+    
+    # Check for duplicates
+    statement = "SELECT userID FROM AppUser WHERE email=%s"
+    cursor.execute(statement, (newEmail, ))
+    rowsChanged = cursor.rowcount
+    if rowsChanged > 1:  # There's duplicate emails
+        cursor.close()
+        mydb.close()
+        response = {"successful": False, "errorMessage": "Duplicate email address"}
+        return jsonify(response)
     
     mydb.commit()
     cursor.close()
@@ -1673,6 +1693,40 @@ def changeEmail():
         
     response = {"successful": True}
     return jsonify(response)
+    
+"""@app.route("/api/profile/changeProfileInfo")
+def changeProfileInfo():
+    userID = getUserID()
+    if userID == -1:  # getUserID failed for some reason
+        response = {"successful": False, "errorMessage": "userID not set"}
+        return jsonify(response)
+        
+    content = request.json
+    newEmail = content.get("new_email", None)
+    newUsername = content.get("new_username", None)
+    newPassword = content.get("new_password", None)
+    oldPassword = content.get("old_password", None)
+    
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    if newEmail != None:
+        statement = "UPDATE AppUser SET email=%s WHERE userID=%s"
+        cursor.execute(statement, (newEmail, userID))
+    if newUsername != None:
+        statement = "UPDATE AppUser SET username = %s WHERE userID=%s"
+        cursor.execute(statement, (newUsername, userID))
+    if newPassword != None and oldPassword != None:
+        statement = "UPDATE AppUser SET userPassword = SHA1(%s) WHERE userPassword=SHA1(%s) AND userID=%s"
+        cursor.execute(statement, (newPassword, oldPassword, userID))
+    
+    
+    mydb.commit()
+    cursor.close()
+    mydb.close()
+        
+    response = {"successful": True}
+    return jsonify(response)
+"""
 
 @app.route("/api/profile/avatar", methods=["GET"])
 def avatarGET():

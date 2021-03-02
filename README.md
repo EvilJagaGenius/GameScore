@@ -16,9 +16,9 @@ Install react-floating-action-button by running the following command in the com
 npm install react-floating-action-button
 
 Install for Async Scoring:
-npm install socket.io --save
-pip install flask-socketio
-npm install js-cookie --save
-npm install socket.io
-npm install qrcode.react
+npm install socket.io --save  
+pip install flask-socketio  
+npm install js-cookie --save    
+npm install socket.io  
+npm install qrcode.react  
  

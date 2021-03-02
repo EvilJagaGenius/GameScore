@@ -1,22 +1,13 @@
-/**
- * PlayGame.jsx-Jonathon Lannon
- * As of now, this is a placeholder for future code. Component is implemented in the global tab system
- */
 
-//import resources
 import React from "react";
 import TextField from '@material-ui/core/TextField';
-import { withStyles } from "@material-ui/core/styles";
 import { Button } from '@material-ui/core';
-import { useState, useEffect } from 'react';
-
-
- var cleanValue = ""
 
 //create component
 export default class JoinGame extends React.Component {
 
-	constructor(props) {
+   //Basic Constructor
+	 constructor(props) {
 	    super(props);
 	    this.state = {
 	      joinCode: "",
@@ -25,29 +16,26 @@ export default class JoinGame extends React.Component {
 	    JoinGame.dashedValue = ""
 	  }
 
-
-
-
-  componentDidMount()
-  {
-  	if(this.props.location.search.indexOf("=")!=-1 && this.state.sentQR == false)
-  	{
-	   var token = this.props.location.search.substr(this.props.location.search.indexOf("=")+1)
-	   this.joinGameAPICall(token)
-	   this.setState({
-	   sentQR:true
-	   });
+    //On Load, check if was sent via QR code, if so join game
+    componentDidMount()
+    {
+    	if(this.props.location.search.indexOf("=")!==-1 && this.state.sentQR === false)
+    	{
+  	   var token = this.props.location.search.substr(this.props.location.search.indexOf("=")+1)
+  	   this.joinGameAPICall(token)
+  	   this.setState({
+  	   sentQR:true //Make sure not called multiple times
+  	   });
+      }
     }
-  }
 
-
-
+   //On change of Join Code
    handleChange = () =>
    {
-   		var str = document.getElementById(10).value
-   		console.log(str)
-   		console.log(JoinGame.dashedValue)
+      //Grab Changed Value
+   		var str = document.getElementById('joinCodeBox').value
 
+      //If char was added, add dashes to it
    		if(str.length > JoinGame.dashedValue.length) //if something was added
    		{
    			str = str.replace(/-/g,"")
@@ -55,11 +43,12 @@ export default class JoinGame extends React.Component {
    			console.log("Running dash")
    		}
 
-   		console.log(str)
+      //Set displayed value to new value
    		JoinGame.dashedValue = str.toUpperCase()
    		this.setState({joinCode:str.toUpperCase()})
    }
 
+   //Add dashes between every 3 letters
    runDash(str)
    {
 	   	var arr = str.split("")
@@ -68,7 +57,7 @@ export default class JoinGame extends React.Component {
 	   	{
 	   		ans += arr[i]
 
-	   		if((i%3 == 2) && i!=8)
+	   		if((i%3 === 2) && i!==8)
 	   		{
 	   			ans += "-"	
 	   		}
@@ -76,14 +65,17 @@ export default class JoinGame extends React.Component {
 	   	return ans
    }
 
+   //On Submit Button Press
    handleSubmit = () =>
    {
    		this.joinGameAPICall(this.state.joinCode)
    }
 
+   //Join Game via JoinCode call
    joinGameAPICall(joinCode)
    {
-		const requestOptions = {
+      //Params
+		  const requestOptions = {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         credentials: 'include',
@@ -92,21 +84,29 @@ export default class JoinGame extends React.Component {
         })
     	};
 
-    	 fetch("/api/postJoinGame",requestOptions).then(res => res.json()).then(data => {
-	      console.log(data);
-	      if(data.successful == true)
-	      {
-	      	 this.props.history.push("/play/overview");
-	      }
+     //API Call
+  	 fetch("/api/postJoinGame",requestOptions).then(res => res.json()).then(data => {
+        if(data.successful === true)
+        {
+           //Move to Overview Scoring
+        	 this.props.history.push("/play/overview");
+        }
 	    });
    }
 
   render() {
   	return(
 	  <>
-	  	<TextField id="10" defaultValue={this.state.joinCode} value={JoinGame.dashedValue} onChange={this.handleChange}></TextField>
-	  	<Button variant = "contained" color="primary" size = "large" onClick={this.handleSubmit} >Join Game</Button>
-	  </>
+      <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
+          <h4 style={{display:"inline"}}>Join Existing Game via Join Code:</h4>
+      </div>
+
+      <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
+         <TextField placeholder="Join Code" style={{marginRight:15}}id="joinCodeBox" defaultValue={this.state.joinCode} value={JoinGame.dashedValue} onChange={this.handleChange}></TextField>
+         <Button variant = "contained" color="primary" size = "large" onClick={this.handleSubmit} >Join Game</Button>
+      </div>
+    </>
+	  
 	  )
   }
 };

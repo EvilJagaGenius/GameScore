@@ -1,12 +1,7 @@
-/**
- * IndividualScoring.jsx-Jonathon Lannon
- */
 
 //import resources
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
@@ -14,181 +9,198 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import { Button } from '@material-ui/core';
-import { useHistory } from "react-router-dom";
-import { useState, useEffect } from 'react';
-import {render} from 'react-dom';
-import { withStyles } from "@material-ui/core/styles";
 import BackIcon from '@material-ui/icons/ArrowBackIos';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import io from "socket.io-client";
 import {Socket} from "./Socket"
 import { Link } from 'react-router-dom'
 import Cookies from 'js-cookie';
 
 
-
-
 export default class ScoringPage extends React.Component{
+
+   //Basic Constructor for init
    constructor(props) {
-    super(props);
-    this.state = {
-      key: 0,
-      loaded: "False",
-      data:""
+        super(props);
+        this.state = {
+          key: 0, //Position the player is in the game
+          loaded: false,
+          data:""
+        };
     };
-     const { match, history,classes} = this.props;
-    };
 
-
-
+    //When Component Loads
     componentDidMount = () => {
 
-    if(this.props.location.state.data !=null)
+        //Load Data from Scoring overview if provided
+        if(this.props.location.state.data !=null)
+        {
+          this.setState({data:this.props.location.state.data,
+          loaded:true,
+          key:this.props.location.state.playerNum})
+        }
+
+         //Tell socket to update scores when gets new JSON
+         Socket.on("sendNewScores", scores => {
+              this.setState({
+                data:scores
+              });
+          });
+
+        //Grab Data from API
+        fetch("/api/getScoring")
+          .then(res => res.json())
+          .then(
+          (result) => {
+
+              this.setState({
+                data:result,
+                loaded: true
+              })
+              
+              //Identify what position this player is from the provided PlayerID
+              for(var i=0;i<Object.keys(result["individualScoring"]).length;i++)
+              {
+                if(result["individualScoring"][i].playerID===this.props.location.state.individualPlayerID)
+                {
+                  this.setState({key:i})
+                }
+              }
+
+          },) //End Fetch
+
+    }
+
+    //Cancel all updates when component disconnects
+    componentWillUnmount()
     {
-      this.setState({data:this.props.location.state.data,
-      loaded:"True",
-      key:this.props.location.state.playerNum})
-
-      console.log(this.props.location.state.data.individualScoring)
-      console.log(this.props.location.state.playerNum )
+      Socket.removeAllListeners("sendNewScores")
     }
 
-     Socket.on("sendNewScores", scores => {
-      console.log(scores)
-        this.setState({
-          data:scores
-        });
-      });
+    //Changed Value in textbox which propcs API call
+    handleChange(value,condPos,playerPos) {
 
-    fetch("/api/getScoring")
-      .then(res => res.json())
-      .then(
-        (result) => {
-          this.setState({
-            data:result,
-            loaded: "True"
-          })
-        
-          console.log("Calling API")
-          for(var i=0;i<Object.keys(result["individualScoring"]).length;i++)
+        //Set Changd values to members vars so API can access
+        ScoringPage.updatedValue = this.roundValues(value)
+        ScoringPage.updatedConditionID=this.state.data.individualScoring[playerPos]["conditions"][condPos].conditionID
+        ScoringPage.updatedPlayerID= this.props.location.state.individualPlayerID;
+
+        //Change state to match the newly changed value
+        this.setState(prevState => {
+        let data = Object.assign({}, prevState.data);
+        data.individualScoring[playerPos]["conditions"][condPos].value = this.roundValues(value)
+        return {data};                        
+        },() => this.recallAPI())
+    } 
+
+    //Send updated value to API on change
+    recallAPI(){
+          Socket.emit("updateScoreValue", JSON.stringify({
+            conditionID: ScoringPage.updatedConditionID,
+            playerID: ScoringPage.updatedPlayerID,
+            value:ScoringPage.updatedValue,
+            token:Cookies.get('credHash'),
+            username:Cookies.get('username')
+          }));
+      };
+
+    //Round Values to avoid extreme precision
+    roundValues(num){
+      return Math.round(num/0.01)*0.01
+    }
+
+
+    //Structure to return
+    render(){
+
+        return(
+          <div>
           {
-            if(result["individualScoring"][i].playerID===this.props.location.state.individualPlayerID)
-            {
-              this.setState({key:i})
-              console.log(i)
-            }
+          this.state.loaded === true && 
+            <>
+              {/*Header*/}
+              <div class={this.state.data.individualScoring[this.state.key].color}>
+                <div style={{whiteSpace:"nowrap"}}>
+                  <div style={{textAlign:"center",display:"inlineBlock",paddingTop:15,paddingBottom:10}} aligxn="center" textAlign= "center">
+                     {/*Name + Icon*/}
+                     <h2 style={{display:"inline"}}>{this.state.data.individualScoring[this.state.key].displayName}</h2>
+                     <AccountCircle style={{width:30,height:30,marginBottom:-7,marginLeft:10}}></AccountCircle>
+                  </div>
+                  <div style={{paddingLeft:0,left:5,top:15,position:"absolute"}} align="left">
+                      {/*Back Button*/}
+                      <Link to={{pathname: "/play/overview" , state:{playerData:this.state.data["scoringOverview"]["players"],awardsData:this.state.data["globalAwards"],finalizeData:this.state.data["finalizeScore"],summaryData:this.state.data["scoringOverview"]}}}>
+                          <Button startIcon={<BackIcon/>}>
+                          </Button>
+                      </Link>
+                  </div>
+                </div>
+              </div>
+              <TableContainer component={Paper}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="left">Condition</TableCell>
+                      <TableCell align="center">Value</TableCell>
+                      <TableCell align="center">Score</TableCell>
+                    </TableRow>
+                  </TableHead>
+
+                  {/*For Each Scoring Condition*/}
+                  {Object.keys(this.state.data.individualScoring[this.state.key]["conditions"]).map(condPos=> (
+                      <TableRow> 
+
+                        {/*Condition Name*/}
+                        <TableCell align="left">{this.state.data.individualScoring[this.state.key]["conditions"][condPos].conditionName}</TableCell>
+                        
+                        {/*Editable Textbox*/}
+                        <TableCell align="center">
+                          <Textbox playerID={this.state.data.individualScoring[this.state.key].playerID} conditionID={this.state.data.individualScoring[this.state.key]["conditions"][condPos].conditionID} onValueChange={(e) => {
+                            this.handleChange(e,condPos,this.state.key)}} defaultValue={this.state.data.individualScoring[this.state.key]["conditions"][condPos].value} condPos={condPos} playerPos={this.state.key}/>
+                        </TableCell>
+
+                        {/*Score*/}
+                        <TableCell align="center">{this.roundValues(this.state.data.individualScoring[this.state.key]["conditions"][condPos].score).toFixed(2)}</TableCell>
+                      </TableRow>
+                    ))}
+
+
+                  {/*Total Row for Player*/}
+                  <TableRow style={{height:"45px"}}>
+                    <TableCell align="left"><b>Total</b></TableCell>
+                    <TableCell align="center">
+                        <p></p>
+                    </TableCell>
+                    <TableCell align="center">
+                        <p><b>{this.roundValues(this.state.data.individualScoring[this.state.key].totalScore).toFixed(2)}</b></p>
+                    </TableCell>
+                  </TableRow>
+
+                </Table>
+              </TableContainer>
+            </>
           }
-          console.log("DONE")
-        },
-      )
-
-    }
-
-  componentWillUnmount()
-  {
-    Socket.removeAllListeners("sendNewScores")
-  }
-
-
-
-  recallAPI(){
-        Socket.emit("updateScoreValue", JSON.stringify({
-          conditionID: ScoringPage.updatedConditionID,
-          playerID: ScoringPage.updatedPlayerID,
-          value:ScoringPage.updatedValue,
-          token:Cookies.get('credHash'),
-          username:Cookies.get('username')
-        }));
-    };
-
-  roundValues(num){
-    return Math.round(num/0.01)*0.01
-  }
-
-  render(){
-      var playerID = this.props.location.state.individualPlayerID
-      const { classes } = this.props;
-      return(
-      <div>
-      {
-      this.state.loaded === "True" && 
-      <>
-        <div class={this.state.data.individualScoring[this.state.key].color}>
-          <div style={{whiteSpace:"nowrap"}}>
-            <div style={{textAlign:"center",display:"inlineBlock",paddingTop:15,paddingBottom:10}} aligxn="center" textAlign= "center">
-                    <h2 style={{display:"inline"}}>{this.state.data.individualScoring[this.state.key].displayName}</h2>
-                   <AccountCircle style={{width:30,height:30,marginBottom:-7,marginLeft:10}}></AccountCircle>
-            </div>
-            <div style={{paddingLeft:0,left:5,top:15,position:"absolute"}} align="left">
-                  <Link to={{pathname: "/play/overview" , state:{playerData:this.state.data["scoringOverview"]["players"],awardsData:this.state.data["globalAwards"],finalizeData:this.state.data["finalizeScore"],summaryData:this.state.data["scoringOverview"]}}}>
-                      <Button startIcon={<BackIcon/>}>
-                      </Button>
-                </Link>
-            </div>
-          </div>
         </div>
-      <TableContainer component={Paper}>
-        {console.log(this.state.data.individualScoring)}
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell align="left">Condition</TableCell>
-              <TableCell align="center">Value</TableCell>
-              <TableCell align="center">Score</TableCell>
-            </TableRow>
-          </TableHead>
-            {Object.keys(this.state.data.individualScoring[this.state.key]["conditions"]).map(condPos=> (
-              <TableRow> 
-                <TableCell align="left">{this.state.data.individualScoring[this.state.key]["conditions"][condPos].conditionName}</TableCell>
-                <TableCell align="center">
-                  <Textbox playerID={this.state.data.individualScoring[this.state.key].playerID} conditionID={this.state.data.individualScoring[this.state.key]["conditions"][condPos].conditionID} onNameChange={(e) => {
-     this.handleChange(e,condPos,this.state.key)}} defaultValue={this.state.data.individualScoring[this.state.key]["conditions"][condPos].value} condPos={condPos} playerPos={this.state.key}/>
-                </TableCell>
-                <TableCell align="center">{this.roundValues(this.state.data.individualScoring[this.state.key]["conditions"][condPos].score).toFixed(2)}</TableCell>
-              </TableRow>
-            ))}
-                <TableRow style={{height:"45px"}}>
-                  <TableCell align="left"><b>Total</b></TableCell>
-                  <TableCell align="center">
-                      <p></p>
-                  </TableCell>
-                  <TableCell align="center">
-                      <p><b>{this.roundValues(this.state.data.individualScoring[this.state.key].totalScore).toFixed(2)}</b></p>
-                  </TableCell>
-                </TableRow>
-        </Table>
-      </TableContainer>
-      </>
-      }
-    </div>
-    );
-  }
-
-
-handleChange(name,condPos,playerPos) {
-    ScoringPage.updatedValue = this.roundValues(name)
-    ScoringPage.updatedConditionID=this.state.data.individualScoring[playerPos]["conditions"][condPos].conditionID
-    ScoringPage.updatedPlayerID= this.props.location.state.individualPlayerID;
-
-    this.setState(prevState => {
-    let data = Object.assign({}, prevState.data);
-    data.individualScoring[playerPos]["conditions"][condPos].value = this.roundValues(name);       
-    return {data};                        
-    },() => this.recallAPI())
+      );
   }
 }
 
-
+//Textbox class helps faciliate changing of values
 class Textbox extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {value: 4};
+
+    //Basic Constructor Stuffs
+    constructor(props) {
+      super(props);
+      this.state = {value: 4};
     }
+
+    //Reroute change handler to function in primary class
     handleInputChange = event => {
-    this.props.onNameChange(event.target.value,this.props.condPos,this.props.playerPos)}
-  render() { 
-    return (
-      <TextField type="number" id="outlined-basic" label="" variant="outlined" onBlur={this.handleInputChange} defaultValue={this.props.defaultValue}/>
-    );
-  }
+      this.props.onValueChange(event.target.value,this.props.condPos,this.props.playerPos)
+    }
+
+    //Return stuffs
+    render() { 
+      return (
+        <TextField type="number" id="outlined-basic" label="" variant="outlined" onBlur={this.handleInputChange} defaultValue={this.props.defaultValue}/>
+      );
+    }
 }

@@ -8,6 +8,7 @@
 import React from "react";  //basic React framework
 import { Tabs, Tab, AppBar, Button } from "@material-ui/core";  //Material UI for tab bar
 import { BrowserRouter as Router, Link } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 //All pages to be imported are to be used in the tabs
 import HomeMenu from '../Menu';
@@ -29,7 +30,7 @@ const Home = props => {
   const { params } = match;
   const { page } = params;
 
-  const [loggedIn, setLoggedIn] = React.useState(getCookieValue("username"));
+  const [loggedIn, setLoggedIn] = React.useState(Cookies.get("username"));
 
   //Map to route each tab index to it's appropriate path
   const tabNameToIndex = {

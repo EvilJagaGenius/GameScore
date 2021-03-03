@@ -12,7 +12,7 @@ import {Button} from "@material-ui/core";  //Material UI for tab bar
 
 export default class Profile extends Component{
   constructor(props){
-    super();
+    super(props);
     this.state = {
       data: ""
     }
@@ -29,7 +29,8 @@ export default class Profile extends Component{
     this.setState({data: data.successful});
     //errors and error message
     console.log(this.state.data);
-    document.cookie ="credHash=; expires=Thu, 01 Jan 1970 00:00:00 UTC;"
+    document.cookie = 'username=';  //possibly needed for Safari specifically
+    this.props.history.push('/home/login')
   }
   render(){
     return(

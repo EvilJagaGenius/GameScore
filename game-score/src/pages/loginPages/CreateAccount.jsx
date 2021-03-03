@@ -171,8 +171,19 @@ export default class CreateAccount extends Component{
     const data = await response.json();
     this.setState({data: data.successful});
     console.log(this.state.data);
-    if(this.state.data){
-      this.props.history.push("/home/login");
+    if(this.state.data)
+    {
+        if(this.props.location!=null&&this.props.location.state!=null &&this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
+        {
+            this.props.history.push({
+            pathname:"/home/login",
+            state:{joinCodeQR:this.props.location.state.joinCodeQR}
+            });
+        }
+        else
+        {
+          this.props.history.push("/home/login");
+        }
     }
     else{
       alert("Unable to create account");

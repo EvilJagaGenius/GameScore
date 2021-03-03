@@ -31,7 +31,7 @@ export default class Profile extends React.Component{
         };
         const response = await fetch('/api/profile/avatar', requestOptions);
         const data = await response.json();
-        this.setState({data: data.avatarID});
+        this.setState({avatarID: data.avatarID});
         console.log(this.state.avatarID);
         this.returnImage()
 

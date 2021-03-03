@@ -27,6 +27,7 @@ export default function App() {
       <Redirect exact from="/" to="/home" />
       <Route exact path="/:page?" render={props => <Home {...props} />} />
       <Route path="/profile/editaccount" component={EditAccount}/>
+      <Route path="/profile/editavatar" component={EditAvatar}/>
       <Route path="/play/individualscoring" component ={Scoring}/>
       <Route path="/play/overview" component ={Overview}/>
       <Route path="/play/postgame" component={Finalize}/>

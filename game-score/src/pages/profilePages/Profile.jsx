@@ -10,6 +10,7 @@ export default class Profile extends React.Component{
         return(
             <div>
                 <Button><Link to="/profile/editaccount">Edit Account</Link></Button>
+                <Button><Link to="/profile/editavatar">Edit Avatar</Link></Button>
             </div>
         );
     }

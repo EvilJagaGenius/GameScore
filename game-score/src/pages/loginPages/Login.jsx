@@ -9,6 +9,7 @@ import {Button} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import Logo from '../../images/GameScore App Logo.png';
 import { Component } from "react";
+import {ToastsContainer, ToastsStore} from 'react-toasts';
 
 export default class Login extends Component{
   constructor(props){
@@ -114,7 +115,20 @@ export default class Login extends Component{
       alert("Incorrect login information\nPlease try again");
     }
     else{
-      this.props.history.push("/");
+
+        if(this.props.location!=null&&this.props.location.state!=null &&this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
+          {
+              ToastsStore.success("Login Successful");
+              this.props.history.push({
+              pathname:"/playgame",
+              search:"?joinCode="+this.props.location.state.joinCodeQR
+              });
+          }
+        else
+          {
+              this.props.history.push("/");
+              ToastsStore.success("Login Successful");
+          }
     }
   }
 
@@ -140,7 +154,22 @@ export default class Login extends Component{
         </div>
         <Button onClick={()=>{this.confirmSubmission()}}>Login</Button>
         <Button onClick={()=>{this.props.history.push("/login/forgetpassword")}}>Forget Login?</Button>
-        <Button onClick={()=>{this.props.history.push("/login/createaccount")}}>Create Account</Button>
+        <Button onClick={()=>{
+
+          if(this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
+          {
+              this.props.history.push({
+              pathname:"/login/createaccount",
+              state:{joinCodeQR:this.props.location.state.joinCodeQR}
+              });
+          }
+          else
+          {
+            this.props.history.push("/login/createaccount")
+          }
+
+          }}>Create Account</Button>
+          <ToastsContainer store={ToastsStore}/>
         </Box>
       </form>
     );

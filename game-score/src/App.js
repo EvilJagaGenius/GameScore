@@ -20,6 +20,8 @@ import ResetPasswordUsername from './pages/loginPages/ResetPassword';
 import ResetUsernameEmail from './pages/loginPages/ForgetUsername';
 import EditAccount from './pages/profilePages/EditAccount';
 import EditAvatar from './pages/profilePages/EditAvatar';
+import InviteFriends from './pages/InviteFriends';
+import JoinGame from './pages/JoinGame';
 
 export default function App() {
   return (
@@ -31,6 +33,8 @@ export default function App() {
       <Route path="/play/individualscoring" component ={Scoring}/>
       <Route path="/play/overview" component ={Overview}/>
       <Route path="/play/postgame" component={Finalize}/>
+      <Route path="/play/invite" component={InviteFriends}/>
+      <Route path="/play/" component={JoinGame}/>
       <Route path="/profile" component={Profile}/>
       <Route path="/mytemplates/conditioneditor" render = {props => <ConditionEditor {...props}/>} />
       <Route path="/mytemplates" component = {MyTemplates}/>

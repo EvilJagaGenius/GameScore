@@ -13,3 +13,45 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.GRAY{
+background-color:rgba(178, 190, 195,1.0);
+}
+
+.RED{
+background-color:rgba(214, 48, 49,0.6);
+}
+
+.GREEN{
+background-color:rgba(0, 184, 148,1.0);
+}
+
+.YELLOW{
+background-color:rgba(255, 234, 167,1.0	);
+}
+
+.PINK{
+background-color:rgba(253, 121, 168,1.0);
+}
+
+.BLUE{
+background-color:rgba(116, 185, 255,1.0);
+}
+
+.ORANGE{
+background-color:rgba(225, 112, 85,1.0);
+}
+
+.PURPLE{
+background-color:rgba(162, 155, 254,1.0);
+}
+
+.MuiSelect-select.MuiSelect-select
+{
+padding-right:10px !important
+}
+
+.MuiSelect-icon
+{
+margin-right:-15px !important
+}

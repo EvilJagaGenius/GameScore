@@ -6,19 +6,21 @@ export default class TemplateEditor extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            templateID: this.props.location.state.templateID,
-            templateName: this.props.location.state.templateName,
-            gameID: this.props.location.state.gameID,
+            templateID: this.props.location.state.templateid,
+            templateName: this.props.location.state.templatename,
+            gameID: this.props.location.state.gameid,
             data: {},
             loaded: false,
-            newConditionID: 0
+            conditionID: 0
         }
     }
     
     componentDidMount() {
+
+        console.log(this.state.templateID)
         const requestOptions = {
             method:'POST',
-            headers: {'content-Type': 'application/json'},
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
                 templateID: this.state.templateID
             })
@@ -31,6 +33,7 @@ export default class TemplateEditor extends Component {
                     data: result,
                     loaded: true
                 })
+                console.log(result)
             },
                 // Note: it's important to handle errors here
                 // instead of a catch() block so that we don't swallow
@@ -45,7 +48,7 @@ export default class TemplateEditor extends Component {
     handleSubmit = (e) =>{
         const requestOptions = {
             method: 'POST',
-            headers: {'content-Type': 'application/json'},
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
                 templateID: this.state.templateID,
                 newName: this.state.templateName
@@ -67,23 +70,48 @@ export default class TemplateEditor extends Component {
 
     handleNewCondition = (e) => {
 
-        fetch('/edit/addCondition')
+        const requestOptions = {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                templateID: this.state.templateID,
+                gameID: this.state.gameID
+            })
+        }
+        
+        fetch('/edit/addCondition', requestOptions)
             .then(response => response.json())
             .then(result => {
+                console.log(result.id)
+                console.log(result);
                 this.setState({
                     loaded: true,
-                    newConditionID: result.id
-                })
-            })
+                    conditionID: result.id
+                }, this.pushCondition)
+            },)         
+    }
 
-         this.props.history.push({
-             pathname: "/mytemplates/conditioneditor",
-             state: {
-                templateID: this.state.templateID,
-                conditionID: this.state.newConditionID,
-                gameID: this.state.gameID
-             }
-         })
+    pushCondition = () => {
+
+        console.log(this.state.conditionID);
+        this.props.history.push({
+            pathname: "/mytemplates/conditioneditor",
+            state: {
+               templateid: this.state.templateID,
+               conditionid: this.state.conditionID,
+               gameid: this.state.gameID
+            }
+        })
+    }
+
+    handleBack = (e) => {
+        this.props.history.push({
+            pathname:"/mytemplates"
+        })
+    }
+
+    handleEdit = (e) => {
+        
     }
 
     render() {
@@ -91,10 +119,21 @@ export default class TemplateEditor extends Component {
         return (
 
             <form>
+                <input type="button" value="Back" onClick={this.handleBack}/><br/>
                 <input type="text" id="title" placeholder="Type the Title Here" value={this.state.templateName} onChange={this.handleNameChange}/>
                 <div className="conditionList">
                     {Object.keys(this.state.data).map(key => (
-                        <Link to="/mytemplates/conditioneditor" templateID={this.state.templateID} conditionID={this.state.data[key].conditionID} templateName={this.state.templateName}>
+                        <div onClick={() => {
+                            this.props.history.push({
+                                pathname:"/mytemplates/conditioneditor",
+                                state: {
+                                    templateid: this.state.templateID,
+                                    conditionid: this.state.data[key].conditionID,
+                                    templatename: this.state.templateName
+                                }
+                            })
+                        }}>
+                            {console.log(this.state.data[key].conditionID)}
                             <table className="condition">
                                 <tr>
                                     <td>{this.state.data[key].conditionName}</td>
@@ -108,7 +147,7 @@ export default class TemplateEditor extends Component {
                                 </tr>
                                 <tr>
                                     <td>Points: </td>
-                                    <td>1x = {this.state.data[key].pointMultiplier}</td>
+                                    <td>1x = {this.state.data[key].inputType}</td>
                                 </tr>
                                 <tr>
                                     <td>Max # per Player: </td>
@@ -120,10 +159,10 @@ export default class TemplateEditor extends Component {
                                 </tr>
                                 <tr>
                                     <td>Input Type: </td>
-                                    <td>{this.state.data[key].inputType}</td>
+                                    <td>{this.state.data[key].pointMultiplier}</td>
                                 </tr>
                             </table>
-                        </Link>
+                        </div>
                     ))}
                 </div>
                 <input type="button" value="Upload Template" onClick={this.handleSubmit}/>

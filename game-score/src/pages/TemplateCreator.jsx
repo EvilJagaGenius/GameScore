@@ -8,8 +8,7 @@ export default class TemplateCreator extends Component {
         this.state = {
             gameID: 0,
             templateName: "",
-            cloneID: 0,
-            templateID: 1,
+            cloneID: -1,
             games: {},
             templates: {},
             loaded: false
@@ -20,7 +19,7 @@ export default class TemplateCreator extends Component {
         
         const requestOptions = {
             method:'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'content-type': 'application/json' },
             body: JSON.stringify({
                 gameID: this.state.gameID,
                 templateName: this.state.templateName,
@@ -32,23 +31,27 @@ export default class TemplateCreator extends Component {
         fetch('/newTemplate/', requestOptions)
             .then(response => response.json())
             .then(result => {
-                this.setState({
-                    loaded: true,
-                    templateID: result.id
-                })
+                console.log(result)
+                this.setState({templateID: result.id, loaded: true},
+                    this.pushEditor);
+                console.log(this.state.loaded);
+                console.log(this.state.templateID)
             },)
         
 
-        console.log(requestOptions);
+        console.log(this.state.templateID);
+        
+    }
+
+    pushEditor = () => {
         this.props.history.push({
             pathname: "/mytemplates/editor",
             state: {
-                templateID: this.state.templateID,
-                templateName: this.state.templateName,
-                gameID: this.state.gameID
+                templateid: this.state.templateID,
+                templatename: this.state.templateName,
+                gameid: this.state.gameID
             }
         });
-        
     }
 
     handleGameChange = e => {
@@ -74,10 +77,7 @@ export default class TemplateCreator extends Component {
                         templates: result.templates,
                         loaded: true
                     });
-                },
-                // Note: it's important to handle errors here
-                // instead of a catch() block so that we don't swallow
-                // exceptions from actual bugs in components.
+                }
             )
     }
 
@@ -109,7 +109,7 @@ export default class TemplateCreator extends Component {
             
                 <label for="clone">Clone a template:</label><br/>
                 <select name="clone" id="clone" onChange={this.handleCloneChange} >
-                    <option value={0}>-- Do not clone --</option>
+                    <option value={-1}>-- Do not clone --</option>
                     {this.state.loaded === true &&  
                         <>  
                             {Object.keys(this.state.templates).map(key => (

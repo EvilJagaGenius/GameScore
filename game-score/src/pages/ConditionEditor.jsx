@@ -8,11 +8,14 @@ import { Link } from "react-router-dom"
 export default class ConditionEditor extends Component {
     constructor (props) {
         super(props);
+        
+        console.log("flag 2");
+        console.log(this.props.location.state);
         this.state = {
-            conditionID: this.props.location.state.conditionID,
-            templateID: this.props.location.state.templateID,
-            templateName: this.props.location.state.templateName,
-            gameID: this.props.location.state.gameID,
+            conditionID: this.props.location.state.conditionid,
+            templateID: this.props.location.state.templateid,
+            templateName: this.props.location.state.templatename,
+            gameID: this.props.location.state.gameid,
             conditionName: "",
             scoringType:"",
             pointMultiplier: 0,
@@ -22,17 +25,21 @@ export default class ConditionEditor extends Component {
             description: "",
             loaded: false
         };
+        
     }
 
     componentDidMount() {
         const requestOptions = {
             method:'POST',
-            headers: { 'Content-Type': "json" },
+            headers: { 'Content-Type': "application/json" },
             body: JSON.stringify({
                 conditionID: this.state.conditionID,
                 templateID: this.state.templateID
             })
         }
+
+        console.log(this.state.conditionID)
+
         fetch("/edit/condition", requestOptions)
            .then(res => res.json())
            .then(
@@ -45,29 +52,34 @@ export default class ConditionEditor extends Component {
                         maxPerGame: result.maxPerGame,
                         maxPerPlayer: result.maxPerPlayer,
                         description: result.description,
-                        loaded: "True"
+                        loaded: true
                    });
                }
            )
+
+           console.log(this.state);
     }
 
     handleSubmit = (event) =>{
-       const requestOptions = {
-           method:'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({
-               conditionID: this.state.conditionID,
-               templateID: this.state.templateID,
-               conditionName: this.state.conditionName,
-               scoringType: this.state.scoringType,
-               pointMultiplier: this.state.pointMultiplier,
-               inputType: this.state.inputType,
-               maxPerGame:this.state.maxPerGame,
-               maxPerPlayer:this.state.maxPerPlayer,
-               description: this.state.description
-           })
-       };
-       fetch('/edit/conditionValues', requestOptions)
+        const requestOptions = {
+            method:'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                conditionID: this.state.conditionID,
+                templateID: this.state.templateID,
+                conditionName: this.state.conditionName,
+                scoringType: this.state.scoringType,
+                pointMultiplier: this.state.pointMultiplier,
+                inputType: this.state.inputType,
+                maxPerGame:this.state.maxPerGame,
+                maxPerPlayer:this.state.maxPerPlayer,
+                description: this.state.description
+            })
+        };
+
+        console.log(this.state.conditionName)
+
+        fetch('/edit/conditionValues', requestOptions)
         .then(response => response.json())
         .then((data) => {
             this.setState({ loaded: "True" });
@@ -77,8 +89,9 @@ export default class ConditionEditor extends Component {
         this.props.history.push({
             pathname: '/mytemplates/editor',
             state: {
-                templateID: this.state.templateID,
-                templateName: this.state.templateName
+                templateid: this.state.templateID,
+                templatename: this.state.templateName,
+                gameid: this.state.gameID
             }
         })
     }
@@ -114,7 +127,7 @@ export default class ConditionEditor extends Component {
     handleDelete = (event) => {
         const requestOptions = {
             method:'POST',
-            headers: { 'Content-Type': "json" },
+            headers: { 'Content-Type': "application/json" },
             body: JSON.stringify({
                 conditionID: this.state.conditionID,
                 templateID: this.state.templateID
@@ -131,8 +144,20 @@ export default class ConditionEditor extends Component {
         this.props.history.push({
             pathname: '/mytemplates/editor',
             state: {
-                templateID: this.state.templateID,
-                templateName: this.state.templateName
+                templateid: this.state.templateID,
+                templatename: this.state.templateName,
+                gameid: this.state.gameID
+            }
+        })
+    }
+    
+    handleBack = (event) => {
+        this.props.history.push({
+            pathname: '/mytemplates/editor',
+            state: {
+                templateid: this.state.templateID,
+                templatename: this.state.templateName,
+                gameid: this.state.gameID
             }
         })
     }
@@ -141,39 +166,40 @@ export default class ConditionEditor extends Component {
         
         return(
             <form onSubmit={this.handleSubmit}>
-                <Link to="/mytemplates/templateeditor">
-                    <input type="button">Back</input>
-                </Link>
+                
+                <input type="button" value="Back" onClick={this.handleBack}/>
                 <input type="text" id="conditionName" name="conditionName" placeholder="Condition Name" value={this.state.conditionName} onChange={this.handleNameChange} />
                
-                <label for="scoringType">Scoring Type: </label>
+                <label htmlFor="scoringType">Scoring Type: </label>
                 <select name="scoringType" id="scoringType" value={this.state.scoringType} onChange={this.handleScoreChange}>
+                    <option value="">Choose a Type</option>
                     <option value="linear">Linear</option>
                     <option value="tabular">Tabular</option>
                 </select><br/>
 
-                <label for="pointMultiplier">Points: </label>
+                <label htmlFor="pointMultiplier">Point Multiplier: </label>
                 <input type="number" id="pointMultiplier" name="pointMultiplier" value={this.state.pointMultiplier} onChange={this.handleMultiChange} /><br/>
  
-                <label for="inputType">Input Type: </label>
+                <label htmlFor="inputType">Input Type: </label>
                 <select name="inputType" id="inputType" value={this.state.inputType} onChange={this.handleInputChange}>
+                    <option value="">Choose a Type</option>
                     <option value="increment">Increment</option>
                     <option value="textbox">Textbox</option>
                 </select><br/>
 
-                <input type="checkbox" id="checkMaxPerGame" name="checkMaxPerGame" />
-                <label for="maxPerGame">Max # Per Game: </label>
+                {/*<input type="checkbox" id="checkMaxPerGame" name="checkMaxPerGame" />*/}
+                <label htmlFor="maxPerGame">Max # Per Game: </label>
                 <input type="number" id="maxPerGame" name="maxPerGame" value={this.state.maxPerGame} onChange={this.handleMaxGameChange}/><br/>
                
-                <input type="checkbox" id="checkMaxPerPlayer" name="checkMaxPerPlayer"/>
-                <label for="maxPerPlayer">Max # Per Player: </label>
+                {/*<input type="checkbox" id="checkMaxPerPlayer" name="checkMaxPerPlayer"/>*/}
+                <label htmlFor="maxPerPlayer">Max # Per Player: </label>
                 <input type="number" id="maxPerPlayer" name="maxPerPlayer" value={this.state.maxPerPlayer} onChange={this.handleMaxPlayerChange}/>
                 
-                <label for="description">Description:</label><br/>
+                <label htmlFor="description">Description:</label><br/>
                 <textarea value={this.state.descrition} onChange={this.handleDescriptionChange} placeholder="Give a brief description"/><br/>
 
-                <input type="submit" onClick={this.handleSubmit}>Save Condition</input>
-                <input type="button" onClick={this.handleDelete}>Delete Condition</input>
+                <input type="submit" onClick={this.handleSubmit} value="Save Condition"/>
+                <input type="button" onClick={this.handleDelete} value="Delete Condition"/>
             </form>
         );
     }

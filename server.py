@@ -729,8 +729,7 @@ def apiPostUpdatePlayerName():
 def editTemplateGET():
     # Skeleton function.  Returns all the conditions for this specific template in JSON form.
     mydb = mysql.connector.connect(pool_name = "mypool")
-    content = request.json()
-    templateID = content["templateID"]
+    templateID = request.json["templateID"]
     if templateID == None:
         return "templateID not set"
     cursor = mydb.cursor(prepared=True)
@@ -765,11 +764,10 @@ def editTemplateGET():
 def editTemplateName():
     # Do something, Taipu
     mydb = mysql.connector.connect(pool_name = "mypool")
-    content = request.json()
-    templateID = content["templateID"]
+    templateID = request.json["templateID"]
     if templateID == None:
         return "templateID not set"
-    newName = content["newName"]
+    newName = request.json["newName"]
     cursor = mydb.cursor(prepared=True)
     statement = "UPDATE Template SET templateName = %s WHERE templateID = %s"
     cursor.execute(statement, (newName, templateID))
@@ -781,26 +779,25 @@ def editTemplateName():
 def editConditionGET():
     # Get the condition data from the database and send it over
     mydb = mysql.connector.connect(pool_name = "mypool")
-    content = request.json()
-    conditionID = content["conditionID"]
-    templateID = content["templateID"]
+    conditionID = request.json["conditionID"]
+    templateID = request.json["templateID"]
     if templateID == None:
         return "templateID not set"
     if conditionID == None:
         return "conditionID not set"
     cursor = mydb.cursor(prepared=True)
-    statement = "SELECT (conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier) FROM ScoringCondition WHERE conditionID = %s AND templateID = %s"
+    statement = "SELECT conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier FROM ScoringCondition WHERE conditionID = %s AND templateID = %s"
     cursor.execute(statement, (conditionID, templateID))
     result = cursor.fetchall()
     
     response = {
-    "conditionName": result[0],
-    "description": result[1],
-    "maxPerGame": result[2],
-    "maxPerPlayer": result[3],
-    "scoringType": result[4],
-    "inputType": result[5],
-    "pointMultiplier": result[6]
+    "conditionName": result[0][0],
+    "description": result[0][1],
+    "maxPerGame": result[0][2],
+    "maxPerPlayer": result[0][3],
+    "scoringType": result[0][4],
+    "inputType": result[0][5],
+    "pointMultiplier": result[0][6]
     }
     
     return jsonify(response)
@@ -810,9 +807,8 @@ def deleteCondition():
     # Skeleton function.  Called after the "Are you sure?" dialog when deleting a condition
     # Needs conditionID and templateID from somewhere.  Assuming they're stored in session
     mydb = mysql.connector.connect(pool_name = "mypool")
-    content = request.json()
-    conditionID = content["conditionID"]
-    templateID = content["templateID"]
+    conditionID = request.json["conditionID"]
+    templateID = request.json["templateID"]
     if templateID == None:
         return "templateID not set"
     if conditionID == None:
@@ -820,7 +816,7 @@ def deleteCondition():
     cursor = mydb.cursor(prepared=True)
     statement = "DELETE FROM ScoringCondition WHERE conditionID = %s AND templateID = %s"
     cursor.execute(statement, (conditionID, templateID))
-    # Do we need a commit() before we close()?
+    mydb.commit()
     cursor.close()
     mydb.close()
     
@@ -846,14 +842,14 @@ def editConditionName():
     #return redirect(url_for("editConditionGET"))
     return "ok"
     
-#@app.route("/edit/addCondition", methods=["POST"])
-@app.route("/edit/addCondition")
+@app.route("/edit/addCondition", methods=["POST"])
+#@app.route("/edit/addCondition")
 def addCondition():
     # Skeleton function
     # Needs some way to get all those parameters, presumably from a form.
     mydb = mysql.connector.connect(pool_name = "mypool")
-    templateID = session.get("templateID", None)
-    gameID = session.get("gameID", None)
+    templateID = request.json["templateID"]
+    gameID = request.json["gameID"]
     if templateID == None:
         return "templateID not set"
     if gameID == None:
@@ -869,10 +865,11 @@ def addCondition():
     cursor = mydb.cursor(prepared=True)
     statement = """
     INSERT INTO ScoringCondition (gameID, templateID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier)
-    VALUES (%s, %s, "%s", "%s", %s, %s, '%s', '%s', %s)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     
     cursor.execute(statement, (gameID, templateID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier))
+    mydb.commit()
     lastRowID = cursor.lastrowid
     print(lastRowID)
     response = {"id": lastRowID}
@@ -963,56 +960,62 @@ def editConditionTablePOST():
 def editConditionValues():
     mydb = mysql.connector.connect(pool_name = "mypool")
     # I'm not sure if we should split this up into multiple functions, like editing the name above
-    content = request.json
-    conditionID = content["conditionID"]
-    templateID = content["templateID"]
+    conditionID = request.json["conditionID"]
+    templateID = request.json["templateID"]
 
     if templateID == None:
         return "templateID not set"
     if conditionID == None:
         return "conditionID not set"
     
-    conditionName = content["conditionName"]
-    description = content["description"]
-    maxPerGame = content["max_per_game"]
-    maxPerPlayer = content["max_per_player"]
-    scoringType = content["scoring_type"]
-    inputType = content["input_type"]
-    pointMultiplier = content["point_multiplier"]
+    conditionName = request.json["conditionName"]
+    description = request.json["description"]
+    maxPerGame = request.json["maxPerGame"]
+    maxPerPlayer = request.json["maxPerPlayer"]
+    scoringType = request.json["scoringType"]
+    inputType = request.json["inputType"]
+    pointMultiplier = request.json["pointMultiplier"]
     cursor = mydb.cursor(prepared=True)
     statement = """
-    UPDATE ScoringCondition SET conditionName = %s description = %s, maxPerGame = %s, maxPerPlayer = %s, scoringType = %s, inputType = %s, pointMultiplier = %s
-    WHERE templateID = %s AND conditionID = %s
+    UPDATE ScoringCondition SET conditionName = %s, description = %s, maxPerGame = %s, maxPerPlayer = %s, scoringType = %s, inputType = %s, pointMultiplier = %s
+    WHERE templateID = %s AND conditionID = %s;
     """
     cursor.execute(statement, (conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier, templateID, conditionID))
-    
+    mydb.commit()
+
     cursor.close()
     mydb.close()
     #return redirect(url_for("editConditionGET"))
-    return "ok"
+    return jsonify({"response" : "ok"})
 
 @app.route("/newTemplate/", methods=["POST"])
 def createNewTemplate():
     mydb = mysql.connector.connect(pool_name = "mypool")
-    content = request.json
-    gameID = content['gameID']
-    templateName = content['templateName']
-    cloneID = content['cloneID']
-    userID = session.get("userID", None)
+    print(request.json)
+    gameID = request.json['gameID']
+    templateName = request.json['templateName']
+    cloneID = request.json['cloneID']
+    #userID = session.get("userID", None)
+    userID = 1
     if userID == None:
         return "userID not set"
     cursor = mydb.cursor(prepared=True)
     statement = """
     INSERT INTO Template (gameID, numRatings, templateName, userID)
-    VALUES (%s, 0, %s, %s)
+    VALUES (%s, 0, %s, %s);
     """
     cursor.execute(statement, (gameID, templateName, userID))
+    mydb.commit()
     lastRowID = cursor.lastrowid
     response = {"id": lastRowID}
     session["templateID"] = lastRowID
-    
+
+    print(response)
+
     #cloning conditions for new template
-    if cloneID != 0:
+    print("flag 1")
+    if cloneID != -1:
+        print("flag 2")
         statement = """
          SELECT conditionID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier
         FROM ScoringCondition WHERE templateID = %s;
@@ -1036,22 +1039,22 @@ def createNewTemplate():
                 "pointMultiplier": t[6],
                 "inputType": t[7]
             }
-
-        response.update({t[0]: dictionary})  # Use conditionID as a key
+            response.update({t[0]: dictionary})  # Use conditionID as a key
 
         #add new conditions with similar data to the originals
         for condition in response:
             statement = """
             INSERT INTO ScoringCondition (gameID, templateID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier)
-            VALUES (%s, %s, "%s", "%s", %s, %s, '%s', '%s', %s)
+            VALUES (%s, %s, "%s", "%s", %s, %s, '%s', '%s', %s);
             """
             cursor.execute(statement, (gameID, lastRowID, condition["conditionName"], condition["description"], condition["maxPerGame"], condition["maxPerPlayer"], condition["scoringType"], condition["inputType"], condition["pointMultiplier"]))
-    
+
+        mydb.commit()
     cursor.close()
     mydb.close()
     # Need a way to get the new template ID and store it in the session
     #return redirect(url_for("editTemplateGET"))
-    return jsonify(response)
+    return response
     
 @app.route("/edit/upload")
 def uploadTemplate():
@@ -1069,15 +1072,17 @@ def myTemplates():
         return "userID not set"
         
     cursor = mydb.cursor(prepared=True)
-    statement = "SELECT templateID, templateName, averageRating, numRatings FROM Template WHERE userID = %s"
+    statement = "SELECT templateID, templateName, averageRating, numRatings, gameID FROM Template WHERE userID = %s"
     cursor.execute(statement, (userID, ))
     response = {}
     results = cursor.fetchall()
     for t in results:
         dictionary = {
+        "templateID": t[0],
         "templateName": t[1],
         "averageRating": t[2],
-        "numRatings": t[3]
+        "numRatings": t[3],
+        "gameID": t[4]
         }
         response.update({t[0]: dictionary})
     
@@ -1125,18 +1130,21 @@ def templateGameList():
 @app.route("/edit/deleteTemplate", methods=["POST"])
 def deleteTemplate():
     mydb = mysql.connector.connect(pool_name = "mypool")
-    content = request.json()
-    templateID = content["templateID"]
+    templateID = request.json["templateID"]
     
+    print("flag 1")
     #Delete conditions
     cursor = mydb.cursor(prepared=True)
     statement = "DELETE FROM ScoringCondition WHERE templateID = %s"
-    cursor.execute(statement, (templateID))
+    cursor.execute(statement, (templateID,))
 
+    print("flag 2")
     #Delete template
     statement = "DELETE FROM Template WHERE templateID = %s"
-    cursor.execute(statement, (templateID))
+    cursor.execute(statement, (templateID,))
+    mydb.commit()
     cursor.close()
     mydb.close()
+    print("flag 3")
 
     return jsonify({"response": "ok"})

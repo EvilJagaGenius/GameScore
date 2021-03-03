@@ -69,13 +69,14 @@ export default function BottomUI(props) {
 							<>
 								<TableCell colSpan={3} style={{padding:5}}>
 									<Button className={classes.button} variant = "contained" color="primary" size = "large"
-									onclick = {() => {
+									onClick = {() => {
+										console.log(props.templateid)
 										history.push({
 											pathname: "/mytemplates/editor",
 											state: {
-												templateID: props.templateID,
-												templateName: props.templateName,
-												gameID: props.gameID
+												templateid: props.templateid,
+												templatename: props.templatename,
+												gameid: props.gameid
 											}
 										});
 									}}>
@@ -184,11 +185,12 @@ export default function BottomUI(props) {
 											<td style={{paddingRight:7}}>
 												<Button className={classes.button} variant = "contained" color="primary" size = "large"
 												onClick={()=>{
+
 													const requestOptions = {
 														method:'POST',
             											headers: { 'Content-Type': 'application/json' },
             											body: JSON.stringify({
-                											templateID: props.templateID
+                											templateID: props.templateid
             											})
 													}
 													fetch('/edit/deleteTemplate', requestOptions)

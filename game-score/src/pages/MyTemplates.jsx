@@ -98,10 +98,11 @@ export default class MyTemplates extends Component {
                       </TableRow>
                       {this.isSelected(key) == true &&
                         <>
+                          {console.log(this.state.data[key])}
                           <BottomUI
-                            templateName = {this.state.data[key].templateName}
-                            templateID = {this.state.data[key].templateID}
-                            gameID = {this.state.data[key].gameID}
+                            templatename = {this.state.data[key].templateName}
+                            templateid = {this.state.data[key].templateID}
+                            gameid = {this.state.data[key].gameID}
                             selected = {this.isSelected(key)}
                             play ={true}
                             edit = {true}

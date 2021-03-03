@@ -1607,7 +1607,7 @@ def rateTemplate():
     
 
 ##################################### Profile API ########################################
-@app.route("/api/profile/changePassword")
+@app.route("/api/profile/changePassword", methods=["POST"])
 def changePassword():
     userID = getUserID()
     if userID == -1:  # getUserID failed for some reason
@@ -1630,7 +1630,7 @@ def changePassword():
     response = {"successful": True}
     return jsonify(response)
 
-@app.route("/api/profile/changeUsername")
+@app.route("/api/profile/changeUsername", methods=["POST"])
 def changeUsername():
     userID = getUserID()
     if userID == -1:  # getUserID failed for some reason
@@ -1659,10 +1659,12 @@ def changeUsername():
     cursor.close()
     mydb.close()
         
-    response = {"successful": True}
-    return jsonify(response)
+    responseDict = {"successful": True}
+    response = jsonify(responseDict)
+    response.set_cookie('username', newUsername)
+    return response
 
-@app.route("/api/profile/changeEmail")
+@app.route("/api/profile/changeEmail", methods=["POST"])
 def changeEmail():
     userID = getUserID()
     if userID == -1:  # getUserID failed for some reason

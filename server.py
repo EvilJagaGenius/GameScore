@@ -1309,6 +1309,7 @@ def apiPostJoinGame():
                 result = {"successful":True,
                 "matchID":matchID}
                 response = jsonify(result)
+                socketIo.emit('sendNewScores',getScoring(userID), room=matchID)
                 return response 
 
 

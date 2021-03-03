@@ -1956,3 +1956,175 @@ def rateTemplate():
     response = {"successful": True}
     
     return jsonify(response)
+    
+    
+
+##################################### Profile API ########################################
+@app.route("/api/profile/changePassword", methods=["POST"])
+def changePassword():
+    userID = getUserID()
+    if userID == -1:  # getUserID failed for some reason
+        response = {"successful": False, "errorMessage": "userID not set"}
+        return jsonify(response)
+    
+    content = request.json
+    #oldPassword = content.get("old_password")
+    newPassword = content.get("new_password")
+    
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    #statement = "UPDATE AppUser SET userPassword = SHA1(%s) WHERE userPassword=SHA1(%s) AND userID=%s"
+    statement = "UPDATE AppUser SET userPassword = SHA1(%s) WHERE userID=%s"
+    cursor.execute(statement, (newPassword, userID))
+    
+    mydb.commit()
+    cursor.close()
+    mydb.close()
+    
+    response = {"successful": True}
+    return jsonify(response)
+
+@app.route("/api/profile/changeUsername", methods=["POST"])
+def changeUsername():
+    userID = getUserID()
+    if userID == -1:  # getUserID failed for some reason
+        response = {"successful": False, "errorMessage": "userID not set"}
+        return jsonify(response)
+    
+    content = request.json
+    newUsername = content.get("new_username")
+        
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    statement = "UPDATE AppUser SET username = %s WHERE userID=%s"
+    cursor.execute(statement, (newUsername, userID))
+    cursor.nextset()
+    
+    # Check for duplicates
+    statement = "SELECT userID FROM AppUser WHERE username=%s"
+    cursor.execute(statement, (newUsername, ))
+    results = cursor.fetchall()
+    rowsChanged = len(results)
+    if rowsChanged > 1:  # There's duplicate emails
+        cursor.close()
+        mydb.close()
+        response = {"successful": False, "errorMessage": "Duplicate username"}
+        return jsonify(response)
+    
+    mydb.commit()
+    cursor.close()
+    mydb.close()
+        
+    responseDict = {"successful": True}
+    response = jsonify(responseDict)
+    response.set_cookie('username', newUsername)
+    return response
+
+@app.route("/api/profile/changeEmail", methods=["POST"])
+def changeEmail():
+    userID = getUserID()
+    if userID == -1:  # getUserID failed for some reason
+        response = {"successful": False, "errorMessage": "userID not set"}
+        return jsonify(response)
+        
+    content = request.json
+    newEmail = content.get("new_email")
+        
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    statement = "UPDATE AppUser SET email=%s WHERE userID=%s"
+    cursor.execute(statement, (newEmail, userID))
+    cursor.nextset()
+    
+    # Check for duplicates
+    statement = "SELECT userID FROM AppUser WHERE email=%s"
+    cursor.execute(statement, (newEmail, ))
+    results = cursor.fetchall()
+    rowsChanged = len(results)
+    if rowsChanged > 1:  # There's duplicate emails
+        cursor.close()
+        mydb.close()
+        response = {"successful": False, "errorMessage": "Duplicate email address"}
+        return jsonify(response)
+    
+    mydb.commit()
+    cursor.close()
+    mydb.close()
+        
+    response = {"successful": True}
+    return jsonify(response)
+    
+"""@app.route("/api/profile/changeProfileInfo")
+def changeProfileInfo():
+    userID = getUserID()
+    if userID == -1:  # getUserID failed for some reason
+        response = {"successful": False, "errorMessage": "userID not set"}
+        return jsonify(response)
+        
+    content = request.json
+    newEmail = content.get("new_email", None)
+    newUsername = content.get("new_username", None)
+    newPassword = content.get("new_password", None)
+    oldPassword = content.get("old_password", None)
+    
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    if newEmail != None:
+        statement = "UPDATE AppUser SET email=%s WHERE userID=%s"
+        cursor.execute(statement, (newEmail, userID))
+    if newUsername != None:
+        statement = "UPDATE AppUser SET username = %s WHERE userID=%s"
+        cursor.execute(statement, (newUsername, userID))
+    if newPassword != None and oldPassword != None:
+        statement = "UPDATE AppUser SET userPassword = SHA1(%s) WHERE userPassword=SHA1(%s) AND userID=%s"
+        cursor.execute(statement, (newPassword, oldPassword, userID))
+    
+    
+    mydb.commit()
+    cursor.close()
+    mydb.close()
+        
+    response = {"successful": True}
+    return jsonify(response)
+"""
+
+@app.route("/api/profile/avatar", methods=["GET"])
+def avatarGET():
+    userID = getUserID()
+    if userID == -1:
+        response = {"successful": False, "errorMessage": "userID not set"}
+        return jsonify(response)
+        
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    statement = "SELECT avatarID FROM AppUser WHERE userID=%s"
+    cursor.execute(statement, (userID,))
+    result = cursor.fetchone()
+    avatarID = result[0]
+    
+    cursor.close()
+    mydb.close()
+        
+    response = {"successful": True, "avatarID": avatarID}
+    return jsonify(response)
+    
+@app.route("/api/profile/avatar", methods=["POST"])
+def avatarPOST():
+    userID = getUserID()
+    if userID == -1:
+        response = {"successful": False, "errorMessage": "userID not set"}
+        return jsonify(response)
+    content = request.json
+    newAvatarID = content.get("new_avatar")
+        
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    statement = "UPDATE AppUser SET AvatarID=%s WHERE userID=%s"
+    cursor.execute(statement, (newAvatarID, userID))
+    
+    mydb.commit()
+    cursor.close()
+    mydb.close()
+        
+    response = {"successful": True}
+    return jsonify(response)

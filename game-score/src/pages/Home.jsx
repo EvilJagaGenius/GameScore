@@ -13,8 +13,8 @@ import Cookies from 'js-cookie';
 //All pages to be imported are to be used in the tabs
 import HomeMenu from '../Menu';
 import MyTemplates from './MyTemplates';
+import Profile from './profilePages/Profile';
 import PlayGame from './JoinGame';
-import Profile from './Profile';
 
 function getCookieValue(name) {
   let result = document.cookie.match("(^|[^;]+)\\s*" + name + "\\s*=\\s*([^;]+)")

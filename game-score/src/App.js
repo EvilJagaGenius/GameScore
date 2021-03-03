@@ -12,12 +12,14 @@ import ConditionEditor from './pages/ConditionEditor';
 import MyTemplates from './pages/MyTemplates';
 import TemplateCreator from './pages/TemplateCreator';
 import TemplateEditor from './pages/TemplateEditor';
-import Profile from './pages/Profile';
+import Profile from './pages/profilePages/Profile';
 import Login from './pages/loginPages/Login';
 import ForgetPassword from './pages/loginPages/ForgetPassword';
 import CreateAccount from './pages/loginPages/CreateAccount';
 import ResetPasswordUsername from './pages/loginPages/ResetPassword';
 import ResetUsernameEmail from './pages/loginPages/ForgetUsername';
+import EditAccount from './pages/profilePages/EditAccount';
+import EditAvatar from './pages/profilePages/EditAvatar';
 import InviteFriends from './pages/InviteFriends';
 import JoinGame from './pages/JoinGame';
 
@@ -26,6 +28,8 @@ export default function App() {
     <Switch>
       <Redirect exact from="/" to="/home" />
       <Route exact path="/:page?" render={props => <Home {...props} />} />
+      <Route path="/profile/editaccount" component={EditAccount}/>
+      <Route path="/profile/editavatar" component={EditAvatar}/>
       <Route path="/play/individualscoring" component ={Scoring}/>
       <Route path="/play/overview" component ={Overview}/>
       <Route path="/play/postgame" component={Finalize}/>
@@ -41,6 +45,7 @@ export default function App() {
       <Route path="/login/createaccount" component={CreateAccount}/>
       <Route path="/login/resetpassword" component={ResetPasswordUsername}/>
       <Route path="/login/resetusername" component={ResetUsernameEmail}/>
+      
     </Switch>
   );
 }

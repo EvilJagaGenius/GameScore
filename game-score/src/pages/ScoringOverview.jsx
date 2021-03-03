@@ -28,6 +28,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import MySocket from './Socket';
+import Cookies from 'js-cookie';
 
 
 //Overvide Styles for Modal
@@ -71,19 +72,19 @@ function ScoringOverview() {
     const [modalStyle] = React.useState(getModalStyle);
     const [loaded, setLoaded] = useState(false);
 
+    var Socket = null;
 
     //Vars init
-    const location = useLocation() 
-    const classes = useStyles();
+    var location = useLocation() 
+    var classes = useStyles();
     let history = useHistory()
-    
 
     //On Load
     useEffect(() => {
 
-      const newSock = new MySocket()
-      const Socket = newSock.getMySocket
-
+        var newSock = new MySocket()
+        Socket = newSock.getMySocket
+        console.log(Socket)
 
         //Check if we got data passed from individual scoring
         //This gives us non-null data to display when getting fresh data from API
@@ -107,7 +108,6 @@ function ScoringOverview() {
         //Create handler function for when socket updates
         const eventHandlerUpdateScore = (scores) => {
         setData(scores)
-        setLoaded(true)
         };
 
         const eventHandlerGameEnd = () => {
@@ -126,6 +126,7 @@ function ScoringOverview() {
         return () => {
           Socket.off("sendNewScores",eventHandlerUpdateScore)
           Socket.off("gameEnd",eventHandlerGameEnd)
+          Socket.disconnect();
         }
 
     },[]); //End useEffect()
@@ -456,10 +457,18 @@ function ScoringOverview() {
 
               {/*Bottom UI Scoring Buttons*/}
           	  <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
-    	          <Button className={classes.button} startIcon={<DoneIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowFinalizeScore(true)}>Finalize Score</Button>
-
-    	          <Button className={classes.button} startIcon={<SettingsIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowManagePlayers(true)}>Manage Players</Button>
-
+                <>
+                  {
+                   Cookies.get('username') === data.isHost && 
+      	           <Button className={classes.button} startIcon={<DoneIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowFinalizeScore(true)}>Finalize Score</Button>
+                  }
+                </>
+                <>
+                  {
+                  Cookies.get('username') === data.isHost && 
+      	          <Button className={classes.button} startIcon={<SettingsIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowManagePlayers(true)}>Manage Players</Button>
+                  }
+                </>
     	          <Link to='/play/invite'>
     	            <Button className={classes.button} startIcon={<InviteIcon />} variant = "contained" color="primary" size = "large">Invite Friends</Button>
     	          </Link>

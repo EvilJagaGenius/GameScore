@@ -13,9 +13,11 @@ import BackIcon from '@material-ui/icons/ArrowBackIos';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import { Link } from 'react-router-dom'
 import Cookies from 'js-cookie';
-
+import MySocket from './Socket';
 
 export default class ScoringPage extends React.Component{
+
+
 
    //Basic Constructor for init
    constructor(props) {
@@ -26,7 +28,7 @@ export default class ScoringPage extends React.Component{
           data:""
         };
 
-        const Socket = 4;
+        var Socket = null;
     };
 
     //When Component Loads
@@ -40,15 +42,21 @@ export default class ScoringPage extends React.Component{
           key:this.props.location.state.playerNum})
         }
 
-         //Tell socket to update scores when gets new JSON
-         Socket.on("sendNewScores", scores => {
+
+          var newSock = new MySocket()
+          this.Socket = newSock.getMySocket
+          console.log(this.Socket)
+
+
+         //Tell this.Socket to update scores when gets new JSON
+         this.Socket.on("sendNewScores", scores => {
               this.setState({
                 data:scores
               });
           });
 
-         Socket.on("gameEnd", () => {
-            Socket.disconnect()
+         this.Socket.on("gameEnd", () => {
+            this.Socket.disconnect()
             this.props.history.push('/play/postgame')
           });
 
@@ -79,8 +87,9 @@ export default class ScoringPage extends React.Component{
     //Cancel all updates when component disconnects
     componentWillUnmount()
     {
-      Socket.removeAllListeners("sendNewScores")
-      Socket.removeAllListeners("gameEnd")
+      this.Socket.removeAllListeners("sendNewScores")
+      this.Socket.removeAllListeners("gameEnd")
+      this.Socket.disconnect()
     }
 
     //Changed Value in textbox which propcs API call
@@ -101,7 +110,7 @@ export default class ScoringPage extends React.Component{
 
     //Send updated value to API on change
     recallAPI(){
-          Socket.emit("updateScoreValue", JSON.stringify({
+          this.Socket.emit("updateScoreValue", JSON.stringify({
             conditionID: ScoringPage.updatedConditionID,
             playerID: ScoringPage.updatedPlayerID,
             value:ScoringPage.updatedValue,

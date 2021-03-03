@@ -13,6 +13,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from flask_socketio import SocketIO,join_room, leave_room,close_room
 
+connCount = 0;
+
 # Setup
 from flask import flash, Flask, jsonify, make_response, redirect, render_template, request, Response, session, url_for
 app = Flask(__name__)
@@ -576,7 +578,8 @@ def getScoring(userID):
           ,"globalAwards":[]
           ,"individualScoring":[]
           ,"finalizeScore":{"players":[],"awards":[]}
-          ,"colors":["RED","BLUE","YELLOW","PURPLE","GREEN","PINK","GRAY","ORANGE"]}
+          ,"colors":["RED","BLUE","YELLOW","PURPLE","GREEN","PINK","GRAY","ORANGE"]
+          ,"isHost":""}
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor = mydb.cursor(prepared=True)
     stmt = ("select matchID, ActiveMatch.gameID, ActiveMatch.templateID, gameName, templateName from ActiveMatch JOIN Template ON ActiveMatch.templateID = Template.templateID AND ActiveMatch.gameID = Template.gameID JOIN Game ON Template.gameID=Game.gameID JOIN Player using(matchID) WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1")
@@ -671,14 +674,14 @@ def getScoring(userID):
 
         ### Individual Scoring ###
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("select DISTINCT Player.playerID, Player.displayName, Player.totalScore,Player.color from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE Player.matchID = %s")
+        stmt = ("select DISTINCT Player.playerID, Player.displayName, Player.totalScore,Player.color,Player.isHost from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE Player.matchID = %s")
         mycursor.execute(stmt,(matchID,))
         myresultPlayer = mycursor.fetchall()
         mycursor.close()
 
         #For each row returned from DB: parse and create a dictionary from it
         for rowPlayer in myresultPlayer:
-            playerID, displayName,totalScore,color = rowPlayer
+            playerID, displayName,totalScore,color,isHost = rowPlayer
             playerFinalizeScore = {"displayName":"{}".format(displayName)
             ,"conditions":[]}
             player = {"playerID":playerID
@@ -686,6 +689,10 @@ def getScoring(userID):
                         ,"conditions":[]
                         ,"color":"{}".format(color)
                         ,"totalScore":round(totalScore,2)}
+
+
+            if isHost==True:
+            	result["isHost"]=displayName
 
             mycursor = mydb.cursor(prepared=True)
             stmt = ("select conditionName, conditionID, value, score, inputType, maxPerPlayer FROM ActiveMatchPlayerConditionScore JOIN ScoringCondition using(conditionID,templateID,gameID)WHERE ActiveMatchPlayerConditionScore.matchID = %s AND playerID = %s")
@@ -876,10 +883,14 @@ def apiPostCreateNewGame():
             userIDToEnter = None
             if x==1:
                 userIDToEnter = userID
+
+            isHost = False
+            if x==1:
+            	isHost=True
             #Create Players in the DB
             mycursor = mydb.cursor(prepared=True)
-            stmt = ("INSERT INTO Player(userID,color,displayOrder,totalScore,displayName,matchID) VALUES(%s,'RED',%s,0,%s,%s)")
-            mycursor.execute(stmt,(userIDToEnter,x,displayName,matchID))
+            stmt = ("INSERT INTO Player(userID,color,displayOrder,totalScore,displayName,matchID,isHost) VALUES(%s,'RED',%s,0,%s,%s,%s)")
+            mycursor.execute(stmt,(userIDToEnter,x,displayName,matchID,isHost))
             mycursor.close()
 
             #Find new PlayerID
@@ -1198,7 +1209,7 @@ def apiPostUpdatePlayerName():
                 mycursor.execute(stmt,(str(changedNames[x]),int(changedPlayerIDs[x]),matchID))
                 mycursor.close()
                 mydb.commit()
-
+            socketIo.emit('sendNewScores',getScoring(userID), room=matchID)   
             mydb.close()
             return getScoring(userID)
 
@@ -1340,6 +1351,7 @@ def apiPostKickPlayer():
             mycursor.close()
             mydb.commit()
             mydb.close()
+            socketIo.emit('sendNewScores',getScoring(userID), room=matchID)
             return getScoring(userID)
 
 
@@ -1384,6 +1396,8 @@ def apiPostChangePlayerColor():
             mycursor.close()
             mydb.commit()
             mydb.close()
+            socketIo.emit('sendNewScores',getScoring(userID), room=matchID)
+
             return getScoring(userID)
 
 ##################################### edit Template API ########################################
@@ -1756,8 +1770,15 @@ def joinRoom(token,username):
 
 @socketIo.on('connect')
 def sayHi():
-	print("HELLO!")
+	global connCount
+	connCount = connCount +1
+	print("HELLO!"+str(connCount))
 
+@socketIo.on('disconnect')
+def sayHi():
+	global connCount
+	connCount = connCount -1
+	print("GOODBYE!"+str(connCount))
 
 @socketIo.on('updateScoreValue')
 def handle_my_custom_event(content, methods=['GET', 'POST']):

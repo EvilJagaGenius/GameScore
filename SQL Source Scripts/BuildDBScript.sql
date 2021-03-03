@@ -102,6 +102,7 @@ displayOrder INT,
 totalScore FLOAT,
 displayName VARCHAR (50),
 matchID INT,
+isHost BOOL DEFAULT false,
 PRIMARY KEY(playerID),
 CONSTRAINT fk_player_matchID_match FOREIGN KEY(matchID) REFERENCES ActiveMatch(matchID),
 FOREIGN KEY(userID) REFERENCES AppUser(userID));

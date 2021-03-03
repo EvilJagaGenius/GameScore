@@ -9,6 +9,7 @@ import {Button} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import Logo from '../../images/GameScore App Logo.png';
 import { Component } from "react";
+import {ToastsContainer, ToastsStore} from 'react-toasts';
 
 export default class Login extends Component{
   constructor(props){
@@ -115,6 +116,7 @@ export default class Login extends Component{
     }
     else{
       this.props.history.push("/");
+      ToastsStore.success("Login Successful");
     }
   }
 
@@ -141,6 +143,7 @@ export default class Login extends Component{
         <Button onClick={()=>{this.confirmSubmission()}}>Login</Button>
         <Button onClick={()=>{this.props.history.push("/login/forgetpassword")}}>Forget Login?</Button>
         <Button onClick={()=>{this.props.history.push("/login/createaccount")}}>Create Account</Button>
+        <ToastsContainer store={ToastsStore}/>
         </Box>
       </form>
     );

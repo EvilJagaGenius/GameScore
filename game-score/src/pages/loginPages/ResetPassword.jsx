@@ -85,6 +85,12 @@ export default class ResetPassword extends Component{
     this.setState({data: data.successful});
     //errors and error message
     console.log(this.state.data);
+    if(this.state.data === true){
+      alert("Password reset successful");
+    }
+    else{
+      alert("Unable to reset password");
+    }
   }
 
   /**
@@ -92,14 +98,14 @@ export default class ResetPassword extends Component{
    */
   confirmSubmission(){
     if(this.state.password === ""){
-      alert("No username and password entered\nPlease enter your login information");
+      alert("No password entered");
       this.setState({
         passwordError: true
       });
     }
     //all tests passed
     else{
-      //potential server code
+      this.sendRequest();
     }
   }
 

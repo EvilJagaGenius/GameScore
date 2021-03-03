@@ -95,18 +95,27 @@ function ScoringOverview() {
         });
 
         //Create handler function for when socket updates
-        const eventHandler = (scores) => {
+        const eventHandlerUpdateScore = (scores) => {
         setData(scores)
         setLoaded(true)
         };
 
+        const eventHandlerGameEnd = () => {
+        Socket.disconnect()
+        history.push('/play/postgame')
+        console.log("pushing")
+        };
+
         //Set Socket to call handler on update
-        Socket.on("sendNewScores", scores => eventHandler(scores));
+        Socket.on("sendNewScores", scores => eventHandlerUpdateScore(scores));
+
+        Socket.on("gameEnd",()=> eventHandlerGameEnd());
 
 
         //Return is run when component dismounts, stop receiving Score info
         return () => {
-          Socket.off("sendNewScores",eventHandler)
+          Socket.off("sendNewScores",eventHandlerUpdateScore)
+          Socket.off("gameEnd",eventHandlerGameEnd)
         }
 
     },[]); //End useEffect()
@@ -421,7 +430,6 @@ function ScoringOverview() {
                           <Button className={classes.button}  variant = "contained" color="primary" size = "large" onClick={()=>{
                                 
                                 fetch("/api/postFinalizeScore").then(res => res.json()).then(data => {
-                                history.push('/play/postgame')
                                 })
 
                           }}>Finalize Score</Button>

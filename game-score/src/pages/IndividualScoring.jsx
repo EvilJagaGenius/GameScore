@@ -46,6 +46,11 @@ export default class ScoringPage extends React.Component{
               });
           });
 
+         Socket.on("gameEnd", () => {
+            Socket.disconnect()
+            this.props.history.push('/play/postgame')
+          });
+
         //Grab Data from API
         fetch("/api/getScoring")
           .then(res => res.json())
@@ -74,6 +79,7 @@ export default class ScoringPage extends React.Component{
     componentWillUnmount()
     {
       Socket.removeAllListeners("sendNewScores")
+      Socket.removeAllListeners("gameEnd")
     }
 
     //Changed Value in textbox which propcs API call

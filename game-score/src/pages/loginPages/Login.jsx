@@ -114,7 +114,19 @@ export default class Login extends Component{
       alert("Incorrect login information\nPlease try again");
     }
     else{
-      this.props.history.push("/");
+
+        if(this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
+          {
+              this.props.history.push({
+              pathname:"/playgame",
+              search:"?joinCode="+this.props.location.state.joinCodeQR
+              });
+          }
+        else
+          {
+              this.props.history.push("/");
+          }
+
     }
   }
 
@@ -140,7 +152,23 @@ export default class Login extends Component{
         </div>
         <Button onClick={()=>{this.confirmSubmission()}}>Login</Button>
         <Button onClick={()=>{this.props.history.push("/login/forgetpassword")}}>Forget Login?</Button>
-        <Button onClick={()=>{this.props.history.push("/login/createaccount")}}>Create Account</Button>
+        <Button onClick={()=>{
+
+          if(this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
+          {
+              this.props.history.push({
+              pathname:"/login/createaccount",
+              state:{joinCodeQR:this.props.location.state.joinCodeQR}
+              });
+          }
+          else
+          {
+            this.props.history.push("/login/createaccount")
+          }
+
+
+
+          }}>Create Account</Button>
         </Box>
       </form>
     );

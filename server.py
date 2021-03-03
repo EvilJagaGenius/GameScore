@@ -11,7 +11,7 @@ import smtplib
 import traceback
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from flask_socketio import SocketIO,join_room, leave_room
+from flask_socketio import SocketIO,join_room, leave_room,close_room
 
 # Setup
 from flask import flash, Flask, jsonify, make_response, redirect, render_template, request, Response, session, url_for
@@ -1095,6 +1095,11 @@ def apiPostFinalizeScore():
             
             mydb.commit()
             mydb.close()
+
+            socketIo.emit('gameEnd', room=matchID)
+
+            close_room(matchID,namespace='/')
+
             return getPostGame(userID)
 
 
@@ -1750,6 +1755,8 @@ def joinRoom(token,username):
 
 
 
+
+
 @socketIo.on('updateScoreValue')
 def handle_my_custom_event(content, methods=['GET', 'POST']):
 
@@ -1831,8 +1838,8 @@ def handle_my_custom_event(content, methods=['GET', 'POST']):
             mydb.commit()
             mydb.close()
 
-    print('received my event: ' + str(content))
-    socketIo.emit('sendNewScores',getScoring(userID), room=matchID)
+            print('received my event: ' + str(content))
+            socketIo.emit('sendNewScores',getScoring(userID), room=matchID)
 
 if __name__ == '__main__':
     socketIo.run(app, debug=True)

@@ -14,18 +14,22 @@ export default class JoinGame extends React.Component {
 	      sentQR:false
 	    };
 	    JoinGame.dashedValue = ""
+      JoinGame.data = ""
 	  }
 
     //On Load, check if was sent via QR code, if so join game
     componentDidMount()
     {
+      console.log(this.props.location.search.indexOf("="))
+      console.log(this.state.sentQR)
     	if(this.props.location.search.indexOf("=")!==-1 && this.state.sentQR === false)
     	{
+
   	   var token = this.props.location.search.substr(this.props.location.search.indexOf("=")+1)
-  	   this.joinGameAPICall(token)
   	   this.setState({
   	   sentQR:true //Make sure not called multiple times
   	   });
+       this.joinGameAPICall(token,true)
       }
     }
 
@@ -68,12 +72,13 @@ export default class JoinGame extends React.Component {
    //On Submit Button Press
    handleSubmit = () =>
    {
-   		this.joinGameAPICall(this.state.joinCode)
+   		this.joinGameAPICall(this.state.joinCode,false)
    }
 
    //Join Game via JoinCode call
-   joinGameAPICall(joinCode)
+   joinGameAPICall(joinCode,isQRCode)
    {
+      var result = ""
       //Params
 		  const requestOptions = {
         method: 'POST',
@@ -91,6 +96,18 @@ export default class JoinGame extends React.Component {
            //Move to Overview Scoring
         	 this.props.history.push("/play/overview");
         }
+
+        console.log(data)
+
+        if(isQRCode===true && data.successful===false && data.error ===110)
+        {
+            //Redirect to Login and send Join Code
+            this.props.history.push({
+              pathname:"/home/login",
+              state:{joinCodeQR:joinCode}
+            });
+        }
+
 	    });
    }
 

@@ -21,13 +21,9 @@ export default class Profile extends React.Component{
         }
     }
     async componentDidMount(){
-        // POST request using fetch with async/await
         const requestOptions = {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                new_avatar: this.state.avatar
-        })
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'}
         };
         const response = await fetch('/api/profile/avatar', requestOptions);
         const data = await response.json();

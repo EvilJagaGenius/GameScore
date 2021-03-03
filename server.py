@@ -1645,11 +1645,13 @@ def changeUsername():
     cursor = mydb.cursor(prepared=True)
     statement = "UPDATE AppUser SET username = %s WHERE userID=%s"
     cursor.execute(statement, (newUsername, userID))
+    cursor.nextset()
     
     # Check for duplicates
     statement = "SELECT userID FROM AppUser WHERE username=%s"
     cursor.execute(statement, (newUsername, ))
-    rowsChanged = cursor.rowcount
+    results = cursor.fetchall()
+    rowsChanged = len(results)
     if rowsChanged > 1:  # There's duplicate emails
         cursor.close()
         mydb.close()
@@ -1679,11 +1681,13 @@ def changeEmail():
     cursor = mydb.cursor(prepared=True)
     statement = "UPDATE AppUser SET email=%s WHERE userID=%s"
     cursor.execute(statement, (newEmail, userID))
+    cursor.nextset()
     
     # Check for duplicates
     statement = "SELECT userID FROM AppUser WHERE email=%s"
     cursor.execute(statement, (newEmail, ))
-    rowsChanged = cursor.rowcount
+    results = cursor.fetchall()
+    rowsChanged = len(results)
     if rowsChanged > 1:  # There's duplicate emails
         cursor.close()
         mydb.close()
@@ -1750,3 +1754,4 @@ def avatarGET():
         
     response = {"successful": True, "avatarID": avatarID}
     return jsonify(response)
+    

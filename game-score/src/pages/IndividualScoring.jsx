@@ -11,7 +11,6 @@ import TextField from '@material-ui/core/TextField';
 import { Button } from '@material-ui/core';
 import BackIcon from '@material-ui/icons/ArrowBackIos';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import {Socket} from "./Socket"
 import { Link } from 'react-router-dom'
 import Cookies from 'js-cookie';
 
@@ -26,6 +25,8 @@ export default class ScoringPage extends React.Component{
           loaded: false,
           data:""
         };
+
+        const Socket = 4;
     };
 
     //When Component Loads

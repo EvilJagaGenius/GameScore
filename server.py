@@ -1754,7 +1754,9 @@ def joinRoom(token,username):
         join_room(matchID)
 
 
-
+@socketIo.on('connect')
+def sayHi():
+	print("HELLO!")
 
 
 @socketIo.on('updateScoreValue')

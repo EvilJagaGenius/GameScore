@@ -22,12 +22,13 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import Modal from '@material-ui/core/Modal';
 import TextField from '@material-ui/core/TextField';
-import {Socket} from "./Socket"
 import {useLocation} from 'react-router-dom'
 import { useHistory } from "react-router-dom";
 import IconButton from '@material-ui/core/IconButton';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
+import MySocket from './Socket';
+
 
 //Overvide Styles for Modal
 const useStyles = makeStyles((theme) => ({
@@ -62,6 +63,7 @@ function getModalStyle()
 //Main Function for Rendering
 function ScoringOverview() {
 
+
     //States Init
     const [data, setData] = useState([{}]);
     const [showManagePlayers,setShowManagePlayers] = useState(false)
@@ -69,13 +71,19 @@ function ScoringOverview() {
     const [modalStyle] = React.useState(getModalStyle);
     const [loaded, setLoaded] = useState(false);
 
+
     //Vars init
     const location = useLocation() 
     const classes = useStyles();
     let history = useHistory()
+    
 
     //On Load
     useEffect(() => {
+
+      const newSock = new MySocket()
+      const Socket = newSock.getMySocket
+
 
         //Check if we got data passed from individual scoring
         //This gives us non-null data to display when getting fresh data from API
@@ -87,6 +95,8 @@ function ScoringOverview() {
             setLoaded(true)
           }
         }
+
+        console.log("Overview Started")
 
         //Fetch API data
         fetch("/api/getScoring").then(res => res.json()).then(data => {
@@ -125,7 +135,7 @@ function ScoringOverview() {
     return (
       <>
         {
-        loaded === true && /*Only display if data is loaded*/
+        loaded == true && /*Only display if data is loaded*/
 
         <div className={classes.root}>
 

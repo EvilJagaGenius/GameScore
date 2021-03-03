@@ -1755,3 +1755,23 @@ def avatarGET():
     response = {"successful": True, "avatarID": avatarID}
     return jsonify(response)
     
+@app.route("/api/profile/avatar", methods=["POST"])
+def avatarPOST():
+    userID = getUserID()
+    if userID == -1:
+        response = {"successful": False, "errorMessage": "userID not set"}
+        return jsonify(response)
+    content = request.json
+    newAvatarID = content.get("new_avatar")
+        
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    statement = "UPDATE AppUser SET AvatarID=%s WHERE userID=%s"
+    cursor.execute(statement, (newAvatarID, userID))
+    
+    mydb.commit()
+    cursor.close()
+    mydb.close()
+        
+    response = {"successful": True}
+    return jsonify(response)

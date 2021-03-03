@@ -84,7 +84,7 @@ const Home = props => {
       {selectedTab === 0 && <HomeMenu />}
       {selectedTab === 1 && <MyTemplates />}
       {selectedTab === 2 && <PlayGame />}
-      {selectedTab === 3 && <Profile/>}
+      {selectedTab === 3 && <Profile history={history}/>}
     </>
   );
 };

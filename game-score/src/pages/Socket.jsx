@@ -1,7 +1,6 @@
 import io from "socket.io-client";
 import Cookies from 'js-cookie';
 
-
 export default class MySocket
 {
 	constructor()
@@ -17,3 +16,4 @@ export default class MySocket
 	}
 
 }
+

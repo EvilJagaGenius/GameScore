@@ -1,5 +1,7 @@
 import React from "react";
 import {Button} from "@material-ui/core";
+import Box from '@material-ui/core/Box';
+import Cookies from 'js-cookie';
 import { BrowserRouter as Router, Link } from 'react-router-dom';
 import Hacker from '../../images/avatarIcons/hacker.png';
 import Programmer from '../../images/avatarIcons/programmer.png';
@@ -13,7 +15,8 @@ export default class Profile extends React.Component{
         super();
         this.state={
             avatarID: 0,
-            image: ""
+            image: "",
+            loggedIn: ""
         }
     }
     async componentDidMount(){
@@ -30,8 +33,15 @@ export default class Profile extends React.Component{
         this.setState({data: data.avatarID});
         console.log(this.state.avatarID);
         this.returnImage()
-    }
 
+        //set username state
+        this.setState({
+            loggedIn: Cookies.get("username")
+        });
+    }
+    /**
+     * switch statement function for mapping out what image should be rendered, based on what the avatarID is
+     */
     returnImage(){
         switch(this.state.avatarID){
             case 0:
@@ -73,9 +83,23 @@ export default class Profile extends React.Component{
     render(){
         return(
             <div>
-                <img alt="avatar" src={this.state.image} width="150" height="150"></img>
-                <Button><Link to="/profile/editaccount">Edit Account</Link></Button>
-                <Button><Link to="/profile/editavatar">Edit Avatar</Link></Button>
+                {this.state.loggedIn
+                ? <h3>You must be logged in to view this page</h3>
+                :<Box m={2} pt={3}>
+                    <div>
+                        <h1>Profile Page</h1>
+                    </div>
+                    <div>
+                        <img alt="avatar" src={this.state.image} width="150" height="150"></img>
+                    </div>
+                    <div>
+                        <Button><Link to="/profile/editaccount">Edit Account</Link></Button>
+                    </div>
+                    <div>
+                        <Button><Link to="/profile/editavatar">Edit Avatar</Link></Button>
+                    </div>
+                    </Box>
+                }
             </div>
         );
     }

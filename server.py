@@ -1615,13 +1615,14 @@ def changePassword():
         return jsonify(response)
     
     content = request.json
-    oldPassword = content.get("old_password")
+    #oldPassword = content.get("old_password")
     newPassword = content.get("new_password")
     
     mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)
-    statement = "UPDATE AppUser SET userPassword = SHA1(%s) WHERE userPassword=SHA1(%s) AND userID=%s"
-    cursor.execute(statement, (newPassword, oldPassword, userID))
+    #statement = "UPDATE AppUser SET userPassword = SHA1(%s) WHERE userPassword=SHA1(%s) AND userID=%s"
+    statement = "UPDATE AppUser SET userPassword = SHA1(%s) WHERE userID=%s"
+    cursor.execute(statement, (newPassword, userID))
     
     mydb.commit()
     cursor.close()

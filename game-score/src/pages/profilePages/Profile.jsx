@@ -16,7 +16,8 @@ export default class Profile extends React.Component{
         this.state={
             avatarID: 0,
             image: "",
-            loggedIn: ""
+            loggedIn: "",
+            data: ""
         }
     }
     async componentDidMount(){
@@ -39,6 +40,23 @@ export default class Profile extends React.Component{
             loggedIn: Cookies.get("username")
         });
     }
+
+    async sendRequest() {
+        // POST request using fetch with async/await
+        const requestOptions = {
+            method: 'POST',
+            credentials: 'include',
+            headers: {'Content-Type': 'application/json'}
+        };
+        const response = await fetch('/api/postLogout', requestOptions);
+        const data = await response.json();
+        this.setState({data: data.successful});
+        //errors and error message
+        console.log(this.state.data);
+        document.cookie = 'username=';  //possibly needed for Safari specifically
+        this.props.history.push('/home/login')
+      }
+
     /**
      * switch statement function for mapping out what image should be rendered, based on what the avatarID is
      */
@@ -97,6 +115,9 @@ export default class Profile extends React.Component{
                     </div>
                     <div>
                         <Button><Link to="/profile/editavatar">Edit Avatar</Link></Button>
+                    </div>
+                    <div>
+                        <Button onClick={()=>{this.sendRequest()}}>Sign Out</Button>
                     </div>
                     </Box>
                 }

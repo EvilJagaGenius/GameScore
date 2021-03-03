@@ -83,7 +83,7 @@ export default class Profile extends React.Component{
     render(){
         return(
             <div>
-                {this.state.loggedIn
+                {!this.state.loggedIn
                 ? <h3>You must be logged in to view this page</h3>
                 :<Box m={2} pt={3}>
                     <div>

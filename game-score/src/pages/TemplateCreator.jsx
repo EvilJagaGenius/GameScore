@@ -44,7 +44,8 @@ export default class TemplateCreator extends Component {
             pathname: "/mytemplates/editor",
             state: {
                 templateID: this.state.templateID,
-                templateName: this.state.templateName
+                templateName: this.state.templateName,
+                gameID: this.state.gameID
             }
         });
         

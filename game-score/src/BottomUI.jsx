@@ -42,6 +42,10 @@ export default function BottomUI(props) {
 		const classes = useStyles();
 		const [modalStyle] = React.useState(getModalStyle);
 		const [createGamePopup, setCreateGamePopup] = useState(false);
+		const [deletePopup, setDeletePopup] = useState(false);
+		const [play, setPlay] = useState(props.play || false);
+		const [edit, setEdit] = useState(props.edit || false);
+		const [del, setDel] = useState(props.del || false);
 		var [numPlayers, setNumPlayers] = useState(2);
 		let history = useHistory()
         return(
@@ -50,11 +54,47 @@ export default function BottomUI(props) {
 	            {
 	          	<div>
 	          		<TableRow>
-	          			 <TableCell colSpan={3} style={{padding:5}}>
-							<Button className={classes.button} startIcon={<SportsEsports />} variant = "contained" color="primary" size = "large"
-							onClick = {()=> setCreateGamePopup(true)}>
-							Play</Button>
-	          			 </TableCell>
+						{play === true &&
+							<>
+	          			 		<TableCell colSpan={3} style={{padding:5}}>
+									<Button className={classes.button} startIcon={<SportsEsports />} variant = "contained" color="primary" size = "large"
+									onClick = {()=> setCreateGamePopup(true)}>
+										Play
+									</Button>
+	          			 		</TableCell>
+						   	</>
+						}
+
+						{edit === true &&
+							<>
+								<TableCell colSpan={3} style={{padding:5}}>
+									<Button className={classes.button} variant = "contained" color="primary" size = "large"
+									onclick = {() => {
+										history.push({
+											pathname: "/mytemplates/editor",
+											state: {
+												templateID: props.templateID,
+												templateName: props.templateName,
+												gameID: props.gameID
+											}
+										});
+									}}>
+										Edit
+									</Button>
+								</TableCell>
+							</>
+						}
+
+						{del === true &&
+							<>
+								<TableCell colSpan={3} style={{padding:5}}>
+									<Button className={classes.button} variant = "contained" color="primary" size = "large"
+									onClick = {()=> setDeletePopup(true)}>
+										Delete
+									</Button>
+								</TableCell>
+							</>
+						}
 	          		</TableRow>
 	          	</div>
 	          	}
@@ -130,6 +170,47 @@ export default function BottomUI(props) {
 
 							  </div>
 						  </div>
+						</Modal>
+						<Modal
+							open={deletePopup}
+							aria-labelledby="simple-modal-title"
+							aria-describedby="simple-modal-description">
+							
+							<div style={modalStyle} className={classes.paper}>
+								<h3 style={{textAlign:"center"}}>Delete: {props.templateName}?</h3>
+								<div>
+									<table style={{margin:"auto",paddingTop:20,paddingBottom:-15}}>
+										<tr>
+											<td style={{paddingRight:7}}>
+												<Button className={classes.button} variant = "contained" color="primary" size = "large"
+												onClick={()=>{
+													const requestOptions = {
+														method:'POST',
+            											headers: { 'Content-Type': 'application/json' },
+            											body: JSON.stringify({
+                											templateID: props.templateID
+            											})
+													}
+													fetch('/edit/deleteTemplate', requestOptions)
+														.then(res => res.json())
+														.then(data => {
+															console.log(data)
+															window.location.reload(true)
+														})
+												}}>
+													Delete
+												</Button>
+											</td>
+											<td style={{paddingLeft:7}}>
+												<Button className={classes.button} variant = "contained" color="primary" size = "large"
+												onClick={()=>setDeletePopup(false)}>
+													Cancel
+												</Button>
+											</td>
+										</tr>
+									</table>
+								</div>
+							</div>
 						</Modal>
 					</div>
 	          	}

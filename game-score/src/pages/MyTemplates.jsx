@@ -14,14 +14,15 @@ import Paper from '@material-ui/core/Paper';
 // import { Container, Link } from 'react-floating-action-button';
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import BottomUI from "../BottomUI";
 
 export default class MyTemplates extends Component {
 
   state = {
     data:{},
     loaded:"False",
-    selectedTemplate:{accPos:0,rowPos:0}
+    selectedTemplate:-1
   }
 
 
@@ -42,20 +43,17 @@ export default class MyTemplates extends Component {
       )
   }
 
-  selectTemplate(newAccPos,newRowPos)
+  selectTemplate(newRowPos)
   {
     this.setState({
-      selectedTemplate:{accPos:newAccPos,rowPos:newRowPos}
+      selectedTemplate: newRowPos
     })
-
-    console.log(this.state.selectedTemplate.accPos)
-    console.log(this.state.selectedTemplate.rowPos)
+    console.log(this.state.selectedTemplate)
   }
 
-  isSelected(checkAccPos,checkRowPos)
+  isSelected(checkRowPos)
   {
-    if(checkAccPos === this.state.selectedTemplate.accPos
-      && checkRowPos === this.state.selectedTemplate.rowPos)
+    if(checkRowPos === this.state.selectedTemplate)
     {
       return true
     }
@@ -74,10 +72,6 @@ export default class MyTemplates extends Component {
   }
   */
 
-  handleClick() {
-
-  }
-
   render() {
     const { classes } = this.props;
     return (
@@ -90,7 +84,8 @@ export default class MyTemplates extends Component {
                 <> 
                     {/* Iterate through created templates and render the data in a tabular format */}
                     {Object.keys(this.state.data).map(key => (
-                      <TableRow onClick={()=>this.selectTemplate(0,key)}>
+                      <>
+                      <TableRow onClick={()=>this.selectTemplate(key)}>
                         <TemplateRow rowPos={key} accPos="0" 
                         pictureURL = {this.state.data[key].pictureURL} 
                         templateName = {this.state.data[key].templateName}
@@ -98,9 +93,23 @@ export default class MyTemplates extends Component {
                         averageRating = {this.state.data[key].averageRating}
                         templateID = {this.state.data[key].templateID}
                         gameID = {this.state.data[key].gameID}
-                        selected = {this.isSelected(0,key)}
+                        selected = {this.isSelected(key)}
                         />
                       </TableRow>
+                      {this.isSelected(key) == true &&
+                        <>
+                          <BottomUI
+                            templateName = {this.state.data[key].templateName}
+                            templateID = {this.state.data[key].templateID}
+                            gameID = {this.state.data[key].gameID}
+                            selected = {this.isSelected(key)}
+                            play ={true}
+                            edit = {true}
+                            del = {true}>
+                            </BottomUI>
+                        </>
+                      }
+                      </>
                     ))}
                   </>
               }

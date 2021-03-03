@@ -12,6 +12,7 @@ export default class ConditionEditor extends Component {
             conditionID: this.props.location.state.conditionID,
             templateID: this.props.location.state.templateID,
             templateName: this.props.location.state.templateName,
+            gameID: this.props.location.state.gameID,
             conditionName: "",
             scoringType:"",
             pointMultiplier: 0,
@@ -24,7 +25,15 @@ export default class ConditionEditor extends Component {
     }
 
     componentDidMount() {
-        fetch("/edit/condition")
+        const requestOptions = {
+            method:'POST',
+            headers: { 'Content-Type': "json" },
+            body: JSON.stringify({
+                conditionID: this.state.conditionID,
+                templateID: this.state.templateID
+            })
+        }
+        fetch("/edit/condition", requestOptions)
            .then(res => res.json())
            .then(
                (result) => {
@@ -47,6 +56,8 @@ export default class ConditionEditor extends Component {
            method:'POST',
            headers: { 'Content-Type': 'application/json' },
            body: JSON.stringify({
+               conditionID: this.state.conditionID,
+               templateID: this.state.templateID,
                conditionName: this.state.conditionName,
                scoringType: this.state.scoringType,
                pointMultiplier: this.state.pointMultiplier,
@@ -101,7 +112,16 @@ export default class ConditionEditor extends Component {
     }
 
     handleDelete = (event) => {
-        fetch("/edit/deleteCondition")
+        const requestOptions = {
+            method:'POST',
+            headers: { 'Content-Type': "json" },
+            body: JSON.stringify({
+                conditionID: this.state.conditionID,
+                templateID: this.state.templateID
+            })
+        }
+
+        fetch("/edit/deleteCondition", requestOptions)
             .then(response => response.json())
             .then(data => {
                     this.setState({ loaded: "True" });

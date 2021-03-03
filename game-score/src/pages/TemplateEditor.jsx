@@ -8,6 +8,7 @@ export default class TemplateEditor extends Component {
         this.state = {
             templateID: this.props.location.state.templateID,
             templateName: this.props.location.state.templateName,
+            gameID: this.props.location.state.gameID,
             data: {},
             loaded: false,
             newConditionID: 0
@@ -15,7 +16,15 @@ export default class TemplateEditor extends Component {
     }
     
     componentDidMount() {
-        fetch("/edit/") //Needs an actual route
+        const requestOptions = {
+            method:'POST',
+            headers: {'content-Type': 'application/json'},
+            body: JSON.stringify({
+                templateID: this.state.templateID
+            })
+        };
+
+        fetch("/edit/", requestOptions) //Needs an actual route
             .then(res => res.json())
             .then(result => {
                 this.setState({
@@ -38,9 +47,18 @@ export default class TemplateEditor extends Component {
             method: 'POST',
             headers: {'content-Type': 'application/json'},
             body: JSON.stringify({
+                templateID: this.state.templateID,
                 newName: this.state.templateName
             })
         };
+
+        fetch("/edit/name", requestOptions)
+            .then(res => res.json())
+            .then(result => {
+                this.setState({
+                    loaded: true
+                })
+            })
 
         this.props.history.push({
             pathname: "/mytemplates"
@@ -62,7 +80,8 @@ export default class TemplateEditor extends Component {
              pathname: "/mytemplates/conditioneditor",
              state: {
                 templateID: this.state.templateID,
-                conditionID: this.state.newConditionID
+                conditionID: this.state.newConditionID,
+                gameID: this.state.gameID
              }
          })
     }

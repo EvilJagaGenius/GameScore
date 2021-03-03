@@ -50,24 +50,48 @@ export default class EditAvatar extends React.Component{
                 <Button><Link to="/profile">Back</Link></Button>
                 <h1>Edit Avatar</h1>
                 <div>
-                    <Button onClick={()=>{this.setState(0)}}>
+                    <Button onClick={()=>{
+                        this.setState({
+                            avatar: 0
+                        })
+                    }}>
                         <img src={Hacker} alt="Avatar 1" width="100" height="100"></img>
                     </Button>
-                    <Button onClick={()=>{this.setState(1)}}>
+                    <Button onClick={()=>{
+                        this.setState({
+                            avatar: 1
+                        })
+                    }}>
                         <img src={Programmer} alt="Avatar 2" width="100" height="100"></img>
                     </Button>
-                    <Button onClick={()=>{this.setState(2)}}>
+                    <Button onClick={()=>{
+                        this.setState({
+                            avatar: 2
+                        })
+                    }}>
                         <img src={Astronaut} alt="Avatar 3" width="100" height="100"></img>
                     </Button>
                 </div>
                 <div>
-                    <Button onClick={()=>{this.setState(3)}}>
+                    <Button onClick={()=>{
+                        this.setState({
+                            avatar: 3
+                        })
+                    }}>
                         <img src={Lawyer} alt="Avatar 4" width="100" height="100"></img>
                     </Button>
-                    <Button onClick={()=>{this.setState(4)}}>
+                    <Button onClick={()=>{
+                        this.setState({
+                            avatar: 4
+                        })
+                    }}>
                         <img src={BusinessMan} alt="Avatar 5" width="100" height="100"></img>
                     </Button>
-                    <Button onClick={()=>{this.setState(5)}}>
+                    <Button onClick={()=>{
+                        this.setState({
+                            avatar: 5
+                        })
+                    }}>
                         <img src={Woman} alt="Avatar 6" width="100" height="100"></img>
                     </Button>
                 </div>

@@ -46,7 +46,9 @@ export default function BottomUI(props) {
 		const [play, setPlay] = useState(props.play || false);
 		const [edit, setEdit] = useState(props.edit || false);
 		const [del, setDel] = useState(props.del || false);
+        const [rateTemplatePopup, setRateTemplatePopup] = useState(false);
 		var [numPlayers, setNumPlayers] = useState(2);
+        var [rating, setRating] = useState(5);
 		let history = useHistory()
         return(
         <>
@@ -96,6 +98,12 @@ export default function BottomUI(props) {
 								</TableCell>
 							</>
 						}
+						
+                         <TableCell colSpan={3} style={{padding:5}}>
+                            <Button className={classes.button} startIcon={<Star />} variant = "contained" color="primary" size = "large"
+							onClick = {()=> setRateTemplatePopup(true)}>
+							Rate</Button>
+                         </TableCell>
 	          		</TableRow>
 	          	</div>
 	          	}
@@ -126,7 +134,7 @@ export default function BottomUI(props) {
 									  				{
 									  					setNumPlayers(2)
 									  				}
-									  				else if(isNaN(e.target.value)==true)
+									  				else if(isNaN(e.target.value)===true)
 									  				{
 									  					setNumPlayers(2)
 									  				}
@@ -213,6 +221,82 @@ export default function BottomUI(props) {
 									</table>
 								</div>
 							</div>
+						</Modal>
+					</div>
+	          	}
+                
+                // Rate template popup (how do you comment in this?)
+                {
+		          	<div>
+			          	<Modal
+						  open={rateTemplatePopup}
+						  aria-labelledby="simple-modal-title"
+						  aria-describedby="simple-modal-description"
+						>
+						<div style={modalStyle} className={classes.paper}>
+							  <h3 style={{textAlign:"center"}}>Rate {props.templateName}?</h3>
+							  <div>
+								 <table style={{marginTop:10}}>
+								  	<tr w>
+								  		<td style = {{paddingRight:8}}>
+								  			<Typography># of Stars:</Typography>
+
+								  		</td>
+								  		<td>
+								  			<Input name="ratingInput" type="number" onChange={(e)=>{
+								  					setNumPlayers(e.target.value)
+								  				}}
+								  				onBlur={(e)=>
+								  				{
+								  					if(e.target.value <=0)
+									  				{
+									  					setRating(5)
+									  				}
+									  				else if(isNaN(e.target.value)===true)
+									  				{
+									  					setRating(5)
+									  				}
+									  				else
+									  				{
+									  					setRating(e.target.value)
+									  				}
+								  				}}
+								  				
+								  			 value={rating} defaultValue={5}>
+								  			</Input>
+								  		</td>
+								  	</tr>
+							  	</table>
+							  	<table style={{margin:"auto",paddingTop:20,paddingBottom:-15}}>
+								  	<tr>
+
+
+								  		<td style={{paddingRight:7}}>
+								  			<Button className={classes.button} variant = "contained" color="primary" size = "large"
+								  			onClick={()=>{
+								  				if(rating>=0)
+								  				{
+                                                    let formData = new FormData();
+                                                    formData.append("rating", rating)
+										  			fetch('/api/rateTemplate', {method: "POST", body: formData})
+								 					.then(res => res.json()).then(data => {
+								 					console.log(data)
+													});
+												}
+								  			}}>
+
+								  			Submit</Button>
+								  		</td >
+								  		<td style ={{paddingLeft:7}}>
+								  			<Button className={classes.button} variant = "contained" color="primary" size = "large"
+								  			onClick={()=>setRateTemplatePopup(false)}>
+								  			Cancel</Button>
+								  		</td>
+								  	</tr>
+							  	</table>
+
+							  </div>
+						  </div>
 						</Modal>
 					</div>
 	          	}

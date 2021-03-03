@@ -1,14 +1,9 @@
-/**
- * PostGame.jsx-Jonathon Lannon
- * As of now, this is a placeholder for future code
- */
 
  //import resources
  import React from "react";
  import { Button } from '@material-ui/core';
  import { useState, useEffect } from 'react';
  import Table from '@material-ui/core/Table';
- import TableBody from '@material-ui/core/TableBody';
  import TableCell from '@material-ui/core/TableCell';
  import TableContainer from '@material-ui/core/TableContainer';
  import TableHead from '@material-ui/core/TableHead';
@@ -17,8 +12,7 @@
  import { useHistory } from "react-router-dom";
  import { makeStyles } from '@material-ui/core/styles';
  import SportsEsports from '@material-ui/icons/SportsEsports';
-  import HomeIcon from '@material-ui/icons/Home';
-  import Home from "./Home"
+ import HomeIcon from '@material-ui/icons/Home';
 
  const useStyles = makeStyles((theme) => ({
 
@@ -32,31 +26,34 @@
         width: "90%",
         backgroundColor: theme.palette.background.paper,
         boxShadow: theme.shadows[5],
-        padding: theme.spacing(2, 4, 3),
         padding:18  
     },
 }));
 
- //create componenet
+ //create component
  function PostGame(props) {
 
+   //Set States
    const [postGameData, setPostGameData] = useState([{}]);
-   const [loaded, setLoaded] = useState("False");
+   const [loaded, setLoaded] = useState(false);
+
+   //Set Vars
    let history = useHistory()
    const classes = useStyles()
 
-     useEffect(() => {
-	    fetch("/api/getPostGame").then(res => res.json()).then(data => {
-	      setPostGameData(data)
-	      console.log(data)
-	      setLoaded("True")
-	    });
+   //On Load
+   useEffect(() => {
+      fetch("/api/getPostGame").then(res => res.json()).then(data => {
+        setPostGameData(data)
+        setLoaded(true)
+    });
 	  }, []);
 
+   //Return Structure
    return(
 
-
-     <div >
+     <>
+        {/*Headers*/}
       	<div style={{display: 'flex',  justifyContent:'center',marginTop:15}}>
           <h1>Game Results</h1>
         </div>
@@ -73,6 +70,7 @@
          <h5 style={{fontSize:13}}>May your victory be remembered for ages!</h5>
         </div>
 
+       {/*Player Scores Table*/}
        <TableContainer component={Paper}>
          <Table size="small">
        		<TableHead>
@@ -83,43 +81,48 @@
             	</TableRow>
           	</TableHead>
 
-
-	       	{ loaded == "True" && 
-	       	Object.keys((postGameData)).length > 0 &&
-	       	<>
-	       	{Object.keys((postGameData["scoreTable"])).map(key=> (
-	              <TableRow> 
-	                <TableCell align="left">{postGameData["scoreTable"][key].rank}</TableCell>
-	                <TableCell align="center">{postGameData["scoreTable"][key].displayName}</TableCell>
-	                <TableCell align="center">{postGameData["scoreTable"][key].score.toFixed(2)}</TableCell>
-	              </TableRow>
-	           ))}
-	        </>
-	        }
+  	       	{ loaded === true && 
+    	       	Object.keys((postGameData)).length > 0 &&
+    	       	<>
+                {/*For each Player, show scores*/}
+      	       	{Object.keys((postGameData["scoreTable"])).map(key=> (
+      	              <TableRow> 
+      	                <TableCell align="left">{postGameData["scoreTable"][key].rank}</TableCell>
+      	                <TableCell align="center">{postGameData["scoreTable"][key].displayName}</TableCell>
+      	                <TableCell align="center">{postGameData["scoreTable"][key].score.toFixed(2)}</TableCell>
+      	              </TableRow>
+      	         ))}
+    	        </>
+  	        }
         	</Table>
         </TableContainer>
 
+        {/*Call to Action Stuffs*/}
         <div style={{display: 'flex',  justifyContent:'center',marginTop:35}}>
-         <h5>What did you think of {postGameData.templateName}?</h5>
+            <h5>What did you think of {postGameData.templateName}?</h5>
         </div>
+        {/*Post Game Buttons*/}
         <div style={{display: 'flex',  justifyContent:'center'}}>
-       		<Button  className={classes.button} variant = "contained" color="primary" size = "large" style={{marginTop:12,marginRight:8}} startIcon={<SportsEsports />}
-          onClick={()=>
-       			 	 fetch(`/api/postCreateNewGame?templateID=${postGameData.templateID}&gameID=${postGameData.gameID}&numOfPlayers=${postGameData.numOfPlayers}`)
- 					.then(res => res.json()).then(data => {
- 					console.log(data)
- 					history.push('/play/overview')  
-					})
 
-					}> Replay Game</Button>
+            {/*Play Again Button*/}
+         		<Button  className={classes.button} variant = "contained" color="primary" size = "large" style={{marginTop:12,marginRight:8}} startIcon={<SportsEsports />}
+            onClick={()=>
+              //Create Game with Same number of players API call
+           		fetch(`/api/postCreateNewGame?templateID=${postGameData.templateID}&gameID=${postGameData.gameID}&numOfPlayers=${postGameData.numOfPlayers}`)
+     					.then(res => res.json()).then(data => {
+     					    history.push('/play/overview')  
+  					})
 
-          <Button className={classes.button} variant = "contained" color="primary" size = "large" style={{marginTop:12,marginLeft:8}} startIcon={<HomeIcon />}
-          onClick={()=>
-          history.push('/home')
+  					}> Replay Game</Button>
 
-          }> Return Home</Button>
+            {/*Return Home Button*/}
+            <Button className={classes.button} variant = "contained" color="primary" size = "large" style={{marginTop:12,marginLeft:8}} startIcon={<HomeIcon />}
+              onClick={()=>
+                history.push('/home')
+              }> Return Home
+            </Button>
        	</div>
-     </div>
+     </>
    );
  };
  

@@ -5,15 +5,16 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { BrowserRouter as Router, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from '@material-ui/core';
 import DoneIcon from '@material-ui/icons/Done';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import HelpIcon from '@material-ui/icons/Help';
 import SettingsIcon from '@material-ui/icons/Settings';
+import CloseIcon from '@material-ui/icons/Close';
+import InviteIcon from '@material-ui/icons/GroupAdd';
 import { useState, useEffect } from 'react';
 import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
@@ -21,48 +22,17 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import Modal from '@material-ui/core/Modal';
 import TextField from '@material-ui/core/TextField';
+import {useLocation} from 'react-router-dom'
+import { useHistory } from "react-router-dom";
+import IconButton from '@material-ui/core/IconButton';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import MySocket from './Socket';
+import Cookies from 'js-cookie';
 
 
+//Overvide Styles for Modal
 const useStyles = makeStyles((theme) => ({
-  root: {
-    width: '100%',
-  },
-  heading: {
-    fontSize: theme.typography.pxToRem(15),
-  },
-  secondaryHeading: {
-    fontSize: theme.typography.pxToRem(15),
-    color: theme.palette.text.secondary,
-  },
-  icon: {
-    verticalAlign: 'bottom',
-    height: 20,
-    width: 20,
-  },
-  details: {
-    alignItems: 'center',
-    marginTop:-12
-  },
-  column: {
-    flexBasis: '33.33%',
-  },
-  helper: {
-    borderLeft: `2px solid ${theme.palette.divider}`,
-    padding: theme.spacing(1, 2),
-  },
-  link: {
-    color: theme.palette.primary.main,
-    textDecoration: 'none',
-    '&:hover': {
-      textDecoration: 'underline',
-    },
-  },
-  button: {
-    margin: theme.spacing(1),
-  },
-  margin: {
-    margin: theme.spacing(1),
-  },
   modal: {
         display: 'flex',
         alignItems: 'center',
@@ -73,12 +43,15 @@ const useStyles = makeStyles((theme) => ({
         width: "90%",
         backgroundColor: theme.palette.background.paper,
         boxShadow: theme.shadows[5],
-        padding: theme.spacing(2, 4, 3),
         padding:18  
     },
 }));
 
-function getModalStyle() {
+
+//Code adapted from: https://morioh.com/p/4576fa674ed8
+//Centers Modal on page
+function getModalStyle()
+{
     const top = 50;
     const left = 50;
     return {
@@ -88,234 +61,422 @@ function getModalStyle() {
     };
 }
 
+//Main Function for Rendering
 function ScoringOverview() {
-  const [playerData, setPlayerData] = useState([{}]);
-  const [summaryData, setSummaryData] = useState([{}]);
-  const [awardsData, setAwardsData] = useState([{}]);
-  const [showManagePlayers,setShowManagePlayers] = useState(false)
-  const classes = useStyles();
-  const [modalStyle] = React.useState(getModalStyle);
 
-  useEffect(() => {
-    fetch("/api/getScoring").then(res => res.json()).then(data => {
-      setPlayerData(data.scoringOverview.players);
-      setAwardsData(data.globalAwards);
-      setSummaryData(data.scoringOverview);
-      console.log(data);
-    });
-  }, []);
 
-/* <Accordion disabled> */
-  return (
+    //States Init
+    const [data, setData] = useState([{}]);
+    const [showManagePlayers,setShowManagePlayers] = useState(false)
+    const [showFinalizeScore,setShowFinalizeScore] = useState(false)
+    const [modalStyle] = React.useState(getModalStyle);
+    const [loaded, setLoaded] = useState(false);
 
-    <div className={classes.root}>
+    var Socket = null;
 
-      <>
-        <div style={{display: 'flex',  justifyContent:'center',marginTop:14}}>
-          <h2>{summaryData.gameName}</h2>
-        </div>
+    //Vars init
+    var location = useLocation() 
+    var classes = useStyles();
+    let history = useHistory()
 
-        <div style={{display: 'flex',  justifyContent:'center',marginBottom:10}}>
-         <h4>{summaryData.templateName}</h4>
-        </div>
-      </>
+    //On Load
+    useEffect(() => {
 
-      <Accordion defaultExpanded="true">
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1a-content"
-          id="panel1a-header">
-          <Typography variant="h5">Score Overview</Typography>
-        </AccordionSummary>
+        var newSock = new MySocket()
+        Socket = newSock.getMySocket
+        console.log(Socket)
 
-        <AccordionDetails className={classes.details}>
-        <TableContainer component={Paper}>
-         <Table size="small">
-          <TableHead>
-              <TableRow>
-                <TableCell align="left">Name</TableCell>
-                <TableCell align="center">Score</TableCell>
-              </TableRow>
-          </TableHead>
-        {Object.keys(playerData).map(key => (
-            <TableRow>
-                <TableCell>
-                      <div style={{float:"left",marginTop:4}}>
-                          <AccountCircle style={{width:30,height:30}} alt = "tempAlt" fontsize = "medium"></AccountCircle>
-                     </div>
-                     <div style={{float:"left",marginTop:7,marginLeft:12}}>
-                          <Typography style={{fontSize:17}}className={classes.heading}>{playerData[key].displayName}</Typography>
-                      </div>
-                </TableCell>
-               <TableCell align="center">
-                  <Link to={{pathname: "/play/individualscoring" , state:{message: 'Called',individualPlayerID:playerData[key].playerID}}} className={classes.column} style={{fontSize:17}}>
-                   {Math.round(playerData[key].score/0.01)*0.01}
-                  </Link>
-                </TableCell>
-            </TableRow>
-        ))}
-
-        </Table>
-        </TableContainer>
-        </AccordionDetails>
-      </Accordion>
-      <Accordion>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1a-content"
-          id="panel1a-header">
-          <Typography variant="h5">Global Awards</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-
-        <TableContainer component={Paper}>
-         <Table size="small">
-          <TableHead>
-              <TableRow>
-                 <TableCell align="center"> 
-                      <Typography>Condition</Typography>
-                    </TableCell>
-                {
-                Object.keys((awardsData)).length > 0 &&
-                Object.keys((awardsData[0])).length > 0 &&
-                Object.keys((awardsData[0]["players"])).length > 0 &&
-                <>
-                {Object.keys((awardsData[0].players)).map(key => (
-                    <TableCell align="center"> 
-                      <Typography>{awardsData[0]["players"][key].displayName}</Typography>
-                    </TableCell>
-                    ))}
-
-                </>
-                  }
-            </TableRow>
-           </TableHead>
+        //Check if we got data passed from individual scoring
+        //This gives us non-null data to display when getting fresh data from API
+        if(location.state !=null)
+        {
+          if(location.state.data !=null)
           {
-          Object.keys(awardsData).length > 0 &&
-          <>
-          {Object.keys(awardsData).map(key => (
-              <TableRow>
-                <TableCell align="center">
-                  <Typography><b>{awardsData[key].conditionName}</b></Typography>
-                  <Typography>(Max: {awardsData[key].maxPerGame})</Typography>
-                </TableCell>
-
-                  {
-                  Object.keys((awardsData[key])).length > 0 &&
-                  Object.keys((awardsData[key]["players"])).length > 0 &&
-                  <>
-                    {Object.keys((awardsData[key]["players"])).map(key2 => (
-                      <TableCell align="center">
-                        <Typography>{Math.round(awardsData[key]["players"][key2].value/0.01)*0.01}</Typography>
-                      </TableCell>
-
-                      ))}
-                  </>
-                  }
-              </TableRow>
-            ))}
-          </>
+            setData(location.state.data)
+            setLoaded(true)
           }
-          
+        }
 
-        </Table>
-        </TableContainer>
-        </AccordionDetails>
-      </Accordion>
+        console.log("Overview Started")
 
-        <Modal
-              open={showManagePlayers}
-              aria-labelledby="simple-modal-title"
-              aria-describedby="simple-modal-description"
-            >
-            <div style={modalStyle} className={classes.paper}>
-                <h3 style={{textAlign:"center"}}>Manage Players</h3>
-  
-                <TableContainer component={Paper}>
+        //Fetch API data
+        fetch("/api/getScoring").then(res => res.json()).then(data => {
+          setData(data)
+          setLoaded(true)
+        });
+
+        //Create handler function for when socket updates
+        const eventHandlerUpdateScore = (scores) => {
+        setData(scores)
+        };
+
+        const eventHandlerGameEnd = () => {
+        Socket.disconnect()
+        history.push('/play/postgame')
+        console.log("pushing")
+        };
+
+        //Set Socket to call handler on update
+        Socket.on("sendNewScores", scores => eventHandlerUpdateScore(scores));
+
+        Socket.on("gameEnd",()=> eventHandlerGameEnd());
+
+
+        //Return is run when component dismounts, stop receiving Score info
+        return () => {
+          Socket.off("sendNewScores",eventHandlerUpdateScore)
+          Socket.off("gameEnd",eventHandlerGameEnd)
+          Socket.disconnect();
+        }
+
+    },[]); //End useEffect()
+
+
+    //Structure to Return
+    return (
+      <>
+        {
+        loaded == true && /*Only display if data is loaded*/
+
+        <div className={classes.root}>
+
+            {/*Header Info*/}
+            <>
+              <div style={{display: 'flex',  justifyContent:'center',marginTop:14}}>
+                <h2>{data.scoringOverview.gameName}</h2>
+              </div>
+
+              <div style={{display: 'flex',  justifyContent:'center',marginBottom:10}}>
+                <h4>{data.scoringOverview.templateName}</h4>
+              </div>
+            </>
+
+          {/*Score Overview Accordion*/}
+          <Accordion defaultExpanded="true">
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header">
+              <Typography variant="h5">Score Overview</Typography>
+            </AccordionSummary>
+
+            {/*Score Overview Rows*/}
+            <AccordionDetails className={classes.details}>
+              <TableContainer component={Paper}>
                  <Table size="small">
                   <TableHead>
+                      <TableRow>
+                        <TableCell align="left">Name</TableCell>
+                        <TableCell align="center">Score</TableCell>
+                      </TableRow>
+                  </TableHead>
+                    {/*For each player in game*/}
+                    {Object.keys((data.scoringOverview.players)).map(key => (
+                        <TableRow>
+                            <TableCell>
+                                <div style={{float:"left",marginTop:4}}>
+                                    {/*Display Play icon*/}
+                                    <AccountCircle style={{width:30,height:30}} alt = "tempAlt" fontsize = "medium"></AccountCircle>
+                               </div>
+                               <div style={{float:"left",marginTop:7,marginLeft:12}}>
+                                    {/*Display Player Name*/}
+                                    <Typography style={{fontSize:17}}className={classes.heading}>{data.scoringOverview.players[key].displayName}</Typography>
+                                </div>
+                            </TableCell>
+                           <TableCell align="center">
+                              {/*Display Score*/}
+                              <Link to={{pathname: "/play/individualscoring" , state:{message: 'Called',individualPlayerID:data.scoringOverview.players[key].playerID,data:data,playerNum:key}}} className={classes.column} style={{fontSize:17}}>
+                               {Math.round(data.scoringOverview.players[key].score/0.01)*0.01}
+                              </Link>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </Table>
+              </TableContainer>
+            </AccordionDetails>
+          </Accordion>
+          {/*End Score Overview Accordion*/}
+
+
+          {/*Global Awards Accordion*/}
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header">
+              <Typography variant="h5">Global Awards</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+
+              <TableContainer component={Paper}>
+               <Table size="small">
+                <TableHead>
+                    <TableRow>
+                       {/*Table Headers*/}
+                       <TableCell align="center"> 
+                            <Typography>Condition</Typography>
+                        </TableCell>
+                        {
+                          //Conditional drawing based on if data is valid
+                          Object.keys((data.globalAwards)).length > 0 &&
+                          Object.keys((data.globalAwards[0])).length > 0 &&
+                          Object.keys((data.globalAwards[0]["players"])).length > 0 &&
+                          <>
+                            {Object.keys((data.globalAwards[0].players)).map(key => (
+                                <TableCell align="center"> 
+                                  <Typography>{data.globalAwards[0]["players"][key].displayName}</Typography>
+                                </TableCell>
+                                ))}
+                          </>
+                        }
+                    </TableRow>
+                </TableHead>
+                  {
+                  Object.keys(data.globalAwards).length > 0 &&
+                    <>
+                      {/*For each global award in game*/}
+                      {Object.keys(data.globalAwards).map(key => (
+                          <TableRow>
+
+                            {/*Add Condition Name*/}
+                            <TableCell align="center">
+                              <Typography><b>{data.globalAwards[key].conditionName}</b></Typography>
+                              <Typography>(Max: {data.globalAwards[key].maxPerGame})</Typography>
+                            </TableCell>
+
+                            {/*For each player, show value*/}
+                            {
+                              Object.keys((data.globalAwards[key])).length > 0 &&
+                              Object.keys((data.globalAwards[key]["players"])).length > 0 &&
+                              <>
+                                {Object.keys((data.globalAwards[key]["players"])).map(key2 => (
+                                  <TableCell align="center">
+                                    <Typography>{Math.round(data.globalAwards[key]["players"][key2].value/0.01)*0.01}</Typography>
+                                  </TableCell>
+                                  ))}
+                              </>
+                            }
+                          </TableRow>
+                        ))}
+                    </>
+                  }
+                </Table>
+              </TableContainer>
+            </AccordionDetails>
+          </Accordion>
+          {/*End Score Global Awards Accordion*/}
+
+
+
+          {/*Manage Players Modal*/}
+          <Modal
+                open={showManagePlayers}
+                aria-labelledby="simple-modal-title"
+                aria-describedby="simple-modal-description"
+              >
+              <div style={modalStyle} className={classes.paper}>
+                  <h3 style={{textAlign:"center"}}>Manage Players</h3>
+    
+                  <TableContainer component={Paper}>
+                   <Table size="small">
+                    <TableHead>
                       <TableRow>
                         <TableCell align="left">Name</TableCell>
                       </TableRow>
                     </TableHead>
 
-                {Object.keys(playerData).map(key => (
-                  <TableRow>
-                    <TableCell>
-                       
-                        {
-                        playerData[key].userID!=null && 
-                          <>
-                           <AccountCircle style={{width:30,height:30,float:"left",marginLeft:-8}} alt = "tempAlt" fontsize = "medium"></AccountCircle>
-                          <Typography style={{marginLeft:30,fontSize:14,marginTop:5}} >{playerData[key].displayName}</Typography>
-                         </>
-                       }
-                        {
-                         playerData[key].userID==null &&
-                          <>
-                            <HelpIcon style={{width:30,height:30,float:"left",marginLeft:-8}} alt = "tempAlt" fontsize = "medium"></HelpIcon>
-                            <TextField id={playerData[key].playerID} style={{width:"50%",marginLeft:8,fontSize:15}}defaultValue={playerData[key].displayName}></TextField>
-                          </>
-                        }
-                    </TableCell>
-                  </TableRow>
-                 ))}
-                  </Table>
-                </TableContainer>
+                    {/*For Each Player*/}
+                    {Object.keys(data.scoringOverview.players).map(key => (
+                      <TableRow>
+                        <TableCell>
+                            {//For each Real Player
+                                
+                                data.scoringOverview.players[key].userID!=null && 
+                                <>
+                                    {/*Account Icon*/}
+                                    <AccountCircle style={{display:"inlineFlex", width:30,height:30,float:"left",marginLeft:-8}} alt = "tempAlt" fontsize = "medium"></AccountCircle>
+                                    
+                                    {/*Non-editable Name*/}
+                                    <Typography style={{display:"inlineFlex",marginLeft:30,fontSize:14,marginBottom:-30,marginTop:5,marginRight:0,borderRight:0}} >{data.scoringOverview.players[key].displayName}</Typography>
 
-                 <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
-                    <Button className={classes.button}  variant = "contained" color="primary" size = "large" onClick={()=>{
-                        
-                          var str = ``
-                          var isFirst = true
-                              for(var i=1;i<(Object.keys(playerData)).length;i++)
-                              {
-                                  if(playerData[i].displayName!=document.getElementById(playerData[i].playerID).value)
+                                    {/*Kick Player Button*/}
                                     {
-                                      if(isFirst==false)
-                                      {
-                                        str = str + `&`
-                                      }
+                                        key !==0 && //Cannot Kick Host/Yourself
+                                        <IconButton style={{display:"inlineFlex",width:30,height:30,float:"right",marginLeft:-40,marginRight:-10}}><CloseIcon onClick={()=>{
+                                              
+                                                //Set Fetch Params
+                                                const requestOptions = {
+                                                  method: 'POST',
+                                                  headers: {'Content-Type': 'application/json'},
+                                                  credentials: 'include',
+                                                  body: JSON.stringify({
+                                                    playerID: data.scoringOverview.players[key].playerID
+                                                  })
+                                                };
 
-                                      str = str + `playerID=${encodeURIComponent(playerData[i].playerID)}&newDisplayName=${encodeURIComponent(document.getElementById(playerData[i].playerID).value)}`
-                                      isFirst = false
+                                                //Execute API Call
+                                               fetch("/api/postKickPlayer",requestOptions)
+                                                  .then(res => res.json()).then(data => {
+                                                        setData(data)
+                                                    })
+
+                                             }}
+                                        /> </IconButton>
                                     }
-                              }
-                              console.log(str)
-                              
-                            if(str!=``)
-                            {
-                           fetch(`/api/postUpdatePlayerName?`+str)
-                            .then(res => res.json()).then(data => {
-                                  setPlayerData(data.scoringOverview.players);
-                                  setAwardsData(data.globalAwards);
-                                  setSummaryData(data.scoringOverview);
-                                  setShowManagePlayers(false);
-                            })
-                            }
-                            else
-                            {
-                              setShowManagePlayers(false);
-                            }
-                            
+                               </>
+                             }    
+                             {//For each not-real player
+                               
+                               data.scoringOverview.players[key].userID==null &&
+                                <>
+                                    {/*Sepcial Icon*/}
+                                    <HelpIcon style={{width:30,height:30,float:"left",marginLeft:-8}} alt = "tempAlt" fontsize = "medium"></HelpIcon>
+                                    
+                                    {/*Editable Text Field*/}
+                                    <TextField id={data.scoringOverview.players[key].playerID} style={{width:"30%",marginLeft:8,fontSize:15}}defaultValue={data.scoringOverview.players[key].displayName} 
+                                       onBlur={()=>{
+                                          
+                                          //Call DB if name changed when out of focus
+                                          if(data.scoringOverview.players[key].displayName!==document.getElementById(data.scoringOverview.players[key].playerID).value)
+                                          {
+                                             var str = `playerID=${encodeURIComponent(data.scoringOverview.players[key].playerID)}&newDisplayName=${encodeURIComponent(document.getElementById(data.scoringOverview.players[key].playerID).value)}`
 
-                    }}>Save Changes</Button>
+                                             fetch(`/api/postUpdatePlayerName?`+str)
+                                              .then(res => res.json()).then(result => {
+                                                    setData(result)
+                                                })
+                                            }
 
-                    <Button className={classes.button}variant = "contained" color="primary" size = "large" onClick={()=>setShowManagePlayers(false)
-                    }>Cancel</Button>
+                                       }}
+                                      
+                                    ></TextField>
+                                </>
+                             }
+
+                             {/*Color changer for both real/non-real users*/}
+                              <Select style={{width:60,display:"block",float:"right",marginRight:40,paddingRight:0}} id="select" defaultValue={data.individualScoring[key].color} select
+                              onChange={(event)=>{
+                                        
+                                        //Call API if color was changed
+                                        const requestOptions = {
+                                            method: 'POST',
+                                            headers: {'Content-Type': 'application/json'},
+                                            credentials: 'include',
+                                            body: JSON.stringify({
+                                              playerID: data.scoringOverview.players[key].playerID,
+                                              color:event.target.value
+                                            })
+                                        };
+
+                                       fetch("/api/postChangePlayerColor",requestOptions)
+                                          .then(res => res.json()).then(data => {
+                                                setData(data)
+                                            })
+
+                                    }}
+                              >
+                                {/*Add color options*/}
+                                {Object.keys(data.colors).map(color => (
+                                    <MenuItem value={data.colors[color]}>{data.colors[color]}</MenuItem>
+                              ))}
+                            </Select>
+                        </TableCell>
+                      </TableRow>
+                     ))} {/*End For each player*/}
+                    </Table>
+                  </TableContainer>
+
+                  {/*Close Button*/}
+                   <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
+                      <Button className={classes.button}variant = "contained" color="primary" size = "large" onClick={()=>setShowManagePlayers(false)
+                      }>Ok</Button>
+                  </div>
+
                 </div>
+              </Modal>
+              {/*End Mange Players Modal*/}
+                
 
-              </div>
-            </Modal>
-      <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
-          <Link to='/play/postgame'>
-          <Button className={classes.button} startIcon={<DoneIcon />} variant = "contained" color="primary" size = "large" onClick={()=>console.log("clicked button")}>Finalize Score</Button>
-          </Link>
 
-          <Button className={classes.button} startIcon={<SettingsIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowManagePlayers(true)}>Manage Players</Button>
-      </div>
-    </div>
-  );
+              {/*Finalize Score Modal*/}
+              { 
+              loaded === true &&
+                <Modal
+                    open={showFinalizeScore}
+                    aria-labelledby="simple-modal-title"
+                    aria-describedby="simple-modal-description"
+                  >
+                  <div style={modalStyle} className={classes.paper}>
+                      <h3 style={{textAlign:"center"}}>Done Scoring?</h3>
+                    
+                      <Typography>Are you sure you want to finalize the scoring? All results will be final.</Typography>
+
+                      {/*For each player with values over the limit*/}
+                      {Object.keys((data.finalizeScore.players)).map(keyPlayer => (
+                          <>
+                             <Typography>{data.finalizeScore.players[keyPlayer].displayName} has values that exceed the player limit:</Typography>
+
+                              {Object.keys((data.finalizeScore.players[keyPlayer].conditions)).map(keyCondition => (
+                              <Typography>{data.finalizeScore.players[keyPlayer].conditions[keyCondition].conditionName}: {data.finalizeScore.players[keyPlayer].conditions[keyCondition].value} (Max: {data.finalizeScore.players[keyPlayer].conditions[keyCondition].maxPerPlayer})</Typography>
+                              ))}
+                          </>
+                      ))}
+
+                      {/*For each global award with values over the limit*/}
+                      {Object.keys((data.finalizeScore.awards)).map(key => (
+                          <>
+                              {
+                                key === 0 &&
+                                <Typography>There are global awards that exceed the limit:</Typography>
+                              }
+                             <Typography>{data.finalizeScore.awards[key].name}: {data.finalizeScore.awards[key].sumValue} (Max: {data.finalizeScore.awards[key].maxPerGame })</Typography>
+
+                          </>
+                      ))}
+
+
+                       <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
+
+                          {/*Confirm Finalize Score*/}
+                          <Button className={classes.button}  variant = "contained" color="primary" size = "large" onClick={()=>{
+                                
+                                fetch("/api/postFinalizeScore").then(res => res.json()).then(data => {
+                                })
+
+                          }}>Finalize Score</Button>
+
+                          {/*Cancel Finalize Scoring*/}
+                          <Button className={classes.button}variant = "contained" color="primary" size = "large" onClick={()=>setShowFinalizeScore(false)
+                          }>Cancel</Button>
+
+                      </div>
+
+                    </div>
+                  </Modal>//End Finalize Score Modal
+                }
+
+              {/*Bottom UI Scoring Buttons*/}
+          	  <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
+                <>
+                  {
+                   Cookies.get('username') === data.isHost && 
+      	           <Button className={classes.button} startIcon={<DoneIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowFinalizeScore(true)}>Finalize Score</Button>
+                  }
+                </>
+                <>
+                  {
+                  Cookies.get('username') === data.isHost && 
+      	          <Button className={classes.button} startIcon={<SettingsIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowManagePlayers(true)}>Manage Players</Button>
+                  }
+                </>
+    	          <Link to='/play/invite'>
+    	            <Button className={classes.button} startIcon={<InviteIcon />} variant = "contained" color="primary" size = "large">Invite Friends</Button>
+    	          </Link>
+          	  </div>
+        </div>
+        }
+      </>
+    );
 }
 
 export default ScoringOverview;

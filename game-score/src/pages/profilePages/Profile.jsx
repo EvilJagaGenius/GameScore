@@ -9,7 +9,7 @@ export default class Profile extends React.Component{
     render(){
         return(
             <div>
-                <Link to="/profile/editaccount">Edit Account</Link>
+                <Button><Link to="/profile/editaccount">Edit Account</Link></Button>
             </div>
         );
     }

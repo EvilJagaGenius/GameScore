@@ -13,11 +13,11 @@ Install the Mysql Connector by using this in your command line
 C:\Users\Your Name\AppData\Local\Programs\Python\Python36-32\Scripts>python -m pip install mysql-connector-python
 
 Install react-floating-action-button by running the following command in the command line
-npm install react-floating-action-button
-npm install -S react-toasts
-Install for Async Scoring:
-npm install socket.io --save
-pip install flask-socketio
-npm install js-cookie --save
-npm install socket.io
-npm install qrcode.react
+npm install react-floating-action-button  
+npm install -S react-toasts  
+Install for Async Scoring:  
+npm install socket.io --save  
+pip install flask-socketio  
+npm install js-cookie --save  
+npm install socket.io-client  
+npm install qrcode.react  

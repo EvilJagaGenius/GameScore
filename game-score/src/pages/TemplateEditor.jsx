@@ -17,7 +17,7 @@ import TemplateHintModal from './TemplateHintModal';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import Typography from '@material-ui/core/Typography';
 import DeleteIcon from '@material-ui/icons/Delete';
-
+import BackIcon from '@material-ui/icons/ArrowBackIos'
 
     //Code adapted from: https://morioh.com/p/4576fa674ed8
     //Centers Modal on page
@@ -142,6 +142,18 @@ export default class TemplateEditor extends Component {
                                           },) //End Fetch
                             }}
                             ></TextField>
+                              </div>
+
+                                 <div style={{paddingLeft:0,left:10,top:10,position:"absolute"}} align="left">
+                                  {/*Back Button*/}
+                                    <IconButton onClick={()=>{
+
+                                            this.props.history.push({
+                                              pathname:"/mytemplates"
+                                            });
+                                    }}>
+                                    <BackIcon></BackIcon>
+                                    </IconButton>
                               </div>
                                 <div style={{textAlign:"center",display:"inlineBlock",paddingTop:2,paddingBottom:15}} align="center" textAlign= "center">
 
@@ -290,7 +302,7 @@ export default class TemplateEditor extends Component {
                          ))}
                     </>
 
-                    <div style={{position:"fixed",bottom:0,display:"flex",backgroundColor:"white",marginTop:0}}>
+                    <div style={{position:"fixed",marginRight: "5% auto",marginLeft: "5% auto", bottom:0,display:"flex",justifyContent:"center", left:0,right:0,backgroundColor:"white",marginTop:0}}>
                         <Button  variant = "contained" color="primary" size = "large" style={{margin:5}} startIcon={<AddIcon />}
                         onClick={()=>{
                         //Create Game with Same number of players API call

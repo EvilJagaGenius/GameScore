@@ -7,6 +7,7 @@ import AddIcon from '@material-ui/icons/Add';
 import ClearIcon from '@material-ui/icons/Clear';
 import {ToastsContainer, ToastsStore,ToastsContainerPosition} from 'react-toasts';
 import SaveIcon from '@material-ui/icons/Save';
+import Typography from '@material-ui/core/Typography';
 
 export default class TemplateCreator extends React.Component {
 
@@ -43,8 +44,14 @@ export default class TemplateCreator extends React.Component {
                 {
                 this.state.loaded ===true &&
                 <>
+                    <div style={{display:"flex",justifyContent:"center",marginTop:15,marginBottom:15}}>
+                        <h2 textAlign="center">Create New Template</h2>
+                    </div>
+                    
+                    <Typography style={{marginLeft:"5%"}}><b>Game:</b></Typography>
                     <Autocomplete
                       options={this.state.data.games}
+                      style={{width:"90%",marginLeft:"5%"}}
                       getOptionLabel={(option) => option.gameName}
                       onChange={(e,newValue,reason)=>{
 
@@ -58,13 +65,16 @@ export default class TemplateCreator extends React.Component {
                         }
                         
                         }}
-                      renderInput={(params) => <TextField {...params} label="Game" variant="outlined" />}
+                      renderInput={(params) => <TextField {...params}variant="outlined" />}
                     />
 
-                    <TextField onChange={(e)=>this.setState({templateName:e.target.value})} label="Name Template Name"> </TextField>
+                    <Typography style={{marginLeft:"5%", marginTop:15}}><b>Template Name:</b></Typography>
+                    <TextField variant="outlined" style={{width:"90%",marginLeft:"5%"}} onChange={(e)=>this.setState({templateName:e.target.value})}> </TextField>
 
+                    <Typography style={{marginLeft:"5%", marginTop:15}}><b>Template Name:</b></Typography>
                     <Autocomplete
                       defaultValue={{templateName:"<Do Not Clone>",templateID:-1}}
+                      style={{width:"90%",marginLeft:"5%"}}
                       options={this.state.data.templates}
                       getOptionLabel={(option) => option.templateName}
                       onChange={(e,newValue,reason)=>{
@@ -79,60 +89,63 @@ export default class TemplateCreator extends React.Component {
                         }
                         
                         }}
-                      renderInput={(params) => <TextField {...params} label="Template to Clone" variant="outlined" />}
+                      renderInput={(params) => <TextField {...params} variant="outlined" />}
                     />
 
-                    <Button startIcon={<AddIcon/>} variant = "contained" color="primary"
-                    onClick={()=>{
-                    
-                        if(this.state.gameID===0)
-                        {
-                            ToastsStore.error("Game Missing");
-                        }
-                        else if(this.state.templateName==="")
-                        {
-                            ToastsStore.error("Template Name Missing");
-                        }
-                        else if(this.state.cloneID===0)
-                        {
-                            ToastsStore.error("Tempalate to Clone Missing");
-                        }
-                        else //If Good
-                        {
+                    <div style={{justifyContent:"center",display:"flex",marginTop:20}}>
+                        <Button style={{marginRight:7}}size = "large" startIcon={<AddIcon/>} variant = "contained" color="primary"
+                        onClick={()=>{
+                        
+                            if(this.state.gameID===0)
+                            {
+                                ToastsStore.error("Game Missing");
+                            }
+                            else if(this.state.templateName==="")
+                            {
+                                ToastsStore.error("Template Name Missing");
+                            }
+                            else if(this.state.cloneID===0)
+                            {
+                                ToastsStore.error("Tempalate to Clone Missing");
+                            }
+                            else //If Good
+                            {
 
-                            const requestOptions = {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/json'},
-                                credentials: 'include',
-                                body: JSON.stringify({
-                                  gameID: this.state.gameID,
-                                  cloneID: this.state.cloneID,
-                                  templateName: this.state.templateName
+                                const requestOptions = {
+                                    method: 'POST',
+                                    headers: {'Content-Type': 'application/json'},
+                                    credentials: 'include',
+                                    body: JSON.stringify({
+                                      gameID: this.state.gameID,
+                                      cloneID: this.state.cloneID,
+                                      templateName: this.state.templateName
+                                    })
+                                };
+
+                                fetch(`/api/postCreateTemplate`,requestOptions)
+                                    .then(res => res.json()).then(data => {
+                                    console.log(data);
+                                    ToastsStore.success("Template Created");
+
+                                      this.props.history.push({
+                                      pathname:"/mytemplates/editor",
+                                      state:{templateID:data.templateID}
+                                    });
                                 })
-                            };
 
-                            fetch(`/api/postCreateTemplate`,requestOptions)
-                                .then(res => res.json()).then(data => {
-                                console.log(data);
-                                ToastsStore.success("Template Created");
-
-                                  this.props.history.push({
-                                  pathname:"/mytemplates/editor",
-                                  state:{templateID:data.templateID}
-                                });
-                            })
-
-                        }
-                    }}
+                            }
+                        }}
 
 
-                    > Create Template</Button>
-                    <Button startIcon={<SaveIcon/>} variant = "contained" color="primary"
-                    onClick={()=>{
-                    this.props.history.goBack()
-                    }}
+                        > Create</Button>
+                        <Button style={{marginLeft:7}}size = "large" startIcon={<SaveIcon/>} variant = "contained" color="primary"
+                        onClick={()=>{
+                        this.props.history.goBack()
+                        }}
 
-                    > Cancel</Button>
+                        > Cancel</Button>
+
+                    </div>
 
                     <ToastsContainer position={ToastsContainerPosition.BOTTOM_CENTER} store={ToastsStore}/>
                 </>

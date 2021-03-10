@@ -107,47 +107,49 @@ export default class TemplateEditor extends Component {
                 this.state.loaded === true &&
                 <>
 
-                    <IconButton onClick={()=>{
-                        this.setState({
-                            showHintModal:true
-                        })
-                    }}
-
-                    >
-                     <HelpOutlineIcon></HelpOutlineIcon>
-                 </IconButton>
-
-                     <TextField defaultValue={this.state.data.templateName}
-                        onBlur={(e)=>{
-
-                             const requestOptions = {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/json'},
-                                credentials: 'include',
-                                body: JSON.stringify({
-                                  templateID: this.state.templateID,
-                                  templateName:e.target.value
-                                })
-                            };
-
-                            fetch("/api/postEditTemplateName",requestOptions)
-                              .then(res => res.json())
-                              .then((result) => {
-
-                                  console.log(result)
-                                  this.setState({
-                                    data:result,
-                                    loaded: true
-                                  })
-
-                                  ToastsStore.success("Template Name Updated");
-
-                              },) //End Fetch
-
+                    <div>
+                        <IconButton onClick={()=>{
+                            this.setState({
+                                showHintModal:true
+                            })
                         }}
-                        ></TextField>
 
-                     <h4>({this.state.data.gameName})</h4>
+                        >
+                         <HelpOutlineIcon></HelpOutlineIcon>
+                        </IconButton>
+
+                         <TextField style={{fontSize:125}} defaultValue={this.state.data.templateName}
+                            onBlur={(e)=>{
+
+                                 const requestOptions = {
+                                    method: 'POST',
+                                    headers: {'Content-Type': 'application/json'},
+                                    credentials: 'include',
+                                    body: JSON.stringify({
+                                      templateID: this.state.templateID,
+                                      templateName:e.target.value
+                                    })
+                                };
+
+                                fetch("/api/postEditTemplateName",requestOptions)
+                                  .then(res => res.json())
+                                  .then((result) => {
+
+                                      console.log(result)
+                                      this.setState({
+                                        data:result,
+                                        loaded: true
+                                      })
+
+                                      ToastsStore.success("Template Name Updated");
+
+                                  },) //End Fetch
+
+                            }}
+                            ></TextField>
+
+                         <h4>({this.state.data.gameName})</h4>
+                     </div>
 
                     <>
                         {/*For each Player, show scores*/}

@@ -156,7 +156,7 @@ export default class Login extends Component{
         <Button onClick={()=>{this.props.history.push("/login/forgetpassword")}}>Forget Login?</Button>
         <Button onClick={()=>{
 
-          if(this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
+          if(this.props.location!=null&&this.props.location.state!=null&&this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
           {
               this.props.history.push({
               pathname:"/login/createaccount",

@@ -68,7 +68,7 @@ const Home = props => {
         <Tabs value={selectedTab} onChange={handleChange} centered>
           <Tab label="Home" />
           <Tab label="My Templates" />
-          <Tab label="Play Game" />
+          <Tab label="Join Game" />
           <Tab label="Profile" />
         </Tabs>
       </AppBar>

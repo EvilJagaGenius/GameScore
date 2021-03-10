@@ -29,6 +29,8 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import MySocket from './Socket';
 import Cookies from 'js-cookie';
+import KickedModal from './KickedModal';
+import getAvatar from './Avatars';
 
 
 //Overvide Styles for Modal
@@ -69,6 +71,7 @@ function ScoringOverview() {
     const [data, setData] = useState([{}]);
     const [showManagePlayers,setShowManagePlayers] = useState(false)
     const [showFinalizeScore,setShowFinalizeScore] = useState(false)
+    const [showKicked,setShowKicked] = useState(false)
     const [modalStyle] = React.useState(getModalStyle);
     const [loaded, setLoaded] = useState(false);
 
@@ -116,10 +119,21 @@ function ScoringOverview() {
         console.log("pushing")
         };
 
+        const eventHandlerKick = (username) => {
+          console.log(username)
+          if(username.userName==Cookies.get('username'))
+            {
+              Socket.disconnect()
+              setShowKicked(true)
+           }
+        };
+
         //Set Socket to call handler on update
         Socket.on("sendNewScores", scores => eventHandlerUpdateScore(scores));
 
         Socket.on("gameEnd",()=> eventHandlerGameEnd());
+
+        Socket.on("kickPlayer",username=> eventHandlerKick(username));
 
 
         //Return is run when component dismounts, stop receiving Score info
@@ -176,7 +190,7 @@ function ScoringOverview() {
                             <TableCell>
                                 <div style={{float:"left",marginTop:4}}>
                                     {/*Display Play icon*/}
-                                    <AccountCircle style={{width:30,height:30}} alt = "tempAlt" fontsize = "medium"></AccountCircle>
+                                    <img src = {getAvatar(data.scoringOverview.players[key].avatarID)} style={{width:30,height:30}}></img>
                                </div>
                                <div style={{float:"left",marginTop:7,marginLeft:12}}>
                                     {/*Display Player Name*/}
@@ -293,15 +307,17 @@ function ScoringOverview() {
                                 
                                 data.scoringOverview.players[key].userID!=null && 
                                 <>
+
                                     {/*Account Icon*/}
-                                    <AccountCircle style={{display:"inlineFlex", width:30,height:30,float:"left",marginLeft:-8}} alt = "tempAlt" fontsize = "medium"></AccountCircle>
+                                    <img src = {getAvatar(data.scoringOverview.players[key].avatarID)} style={{display:"inlineFlex", width:30,height:30,float:"left",marginLeft:-8}}></img>
                                     
                                     {/*Non-editable Name*/}
                                     <Typography style={{display:"inlineFlex",marginLeft:30,fontSize:14,marginBottom:-30,marginTop:5,marginRight:0,borderRight:0}} >{data.scoringOverview.players[key].displayName}</Typography>
 
                                     {/*Kick Player Button*/}
                                     {
-                                        key !==0 && //Cannot Kick Host/Yourself
+                                       //Cannot Kick Host/Yourself
+                                        key !=0 && 
                                         <IconButton style={{display:"inlineFlex",width:30,height:30,float:"right",marginLeft:-40,marginRight:-10}}><CloseIcon onClick={()=>{
                                               
                                                 //Set Fetch Params
@@ -330,10 +346,11 @@ function ScoringOverview() {
                                data.scoringOverview.players[key].userID==null &&
                                 <>
                                     {/*Sepcial Icon*/}
-                                    <HelpIcon style={{width:30,height:30,float:"left",marginLeft:-8}} alt = "tempAlt" fontsize = "medium"></HelpIcon>
+                                    <img src = {getAvatar(-1)} style={{width:30,height:30,float:"left",marginLeft:-8}}></img>
+              
                                     
                                     {/*Editable Text Field*/}
-                                    <TextField id={data.scoringOverview.players[key].playerID} style={{width:"30%",marginLeft:8,fontSize:15}}defaultValue={data.scoringOverview.players[key].displayName} 
+                                    <TextField id={data.scoringOverview.players[key].playerID} style={{width:"30%",marginLeft:8,fontSize:15}} defaultValue={data.scoringOverview.players[key].displayName} 
                                        onBlur={()=>{
                                           
                                           //Call DB if name changed when out of focus
@@ -473,7 +490,9 @@ function ScoringOverview() {
     	            <Button className={classes.button} startIcon={<InviteIcon />} variant = "contained" color="primary" size = "large">Invite Friends</Button>
     	          </Link>
           	  </div>
+            <KickedModal history={history} show={showKicked}></KickedModal>
         </div>
+        
         }
       </>
     );

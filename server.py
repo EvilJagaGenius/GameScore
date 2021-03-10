@@ -604,7 +604,7 @@ def getScoring(userID):
 
         #Get Players info
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("select DISTINCT Player.playerID, Player.totalScore, Player.displayOrder, displayName, userID from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE Player.matchID = %s")
+        stmt = ("select DISTINCT Player.playerID, Player.totalScore, Player.displayOrder, displayName, AppUser.userID,avatarID from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) LEFT OUTER JOIN AppUser using(userID) WHERE Player.matchID = %s")
 
         mycursor.execute(stmt,(matchID,))
         myresult = mycursor.fetchall()
@@ -612,12 +612,13 @@ def getScoring(userID):
 
         #For each row returned from DB: parse and create a dictionary from it
         for row in myresult:
-            playerID, score, displayOrder, displayName, userID = row
+            playerID, score, displayOrder, displayName, userID,avatarID = row
             player = {"playerID":playerID
                         ,"score":score
                         ,"displayOrder":displayOrder
                         ,"userID":userID
-                        ,"displayName":"{}".format(displayName)}
+                        ,"displayName":"{}".format(displayName)
+                        ,"avatarID":avatarID}
             #append each new dictionary to its appropriate list
             result["scoringOverview"]["players"].append(player)
 
@@ -674,21 +675,22 @@ def getScoring(userID):
 
         ### Individual Scoring ###
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("select DISTINCT Player.playerID, Player.displayName, Player.totalScore,Player.color,Player.isHost from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) WHERE Player.matchID = %s")
+        stmt = ("select DISTINCT Player.playerID, Player.displayName, Player.totalScore,Player.color,Player.isHost,avatarID from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) LEFT OUTER JOIN AppUser using (userID) WHERE Player.matchID = %s")
         mycursor.execute(stmt,(matchID,))
         myresultPlayer = mycursor.fetchall()
         mycursor.close()
 
         #For each row returned from DB: parse and create a dictionary from it
         for rowPlayer in myresultPlayer:
-            playerID, displayName,totalScore,color,isHost = rowPlayer
+            playerID, displayName,totalScore,color,isHost,avatarID = rowPlayer
             playerFinalizeScore = {"displayName":"{}".format(displayName)
             ,"conditions":[]}
             player = {"playerID":playerID
                         ,"displayName":"{}".format(displayName)
                         ,"conditions":[]
                         ,"color":"{}".format(color)
-                        ,"totalScore":round(totalScore,2)}
+                        ,"totalScore":round(totalScore,2)
+                        ,"avatarID":avatarID}
 
 
             if isHost==True:
@@ -1345,13 +1347,27 @@ def apiPostKickPlayer():
             matchID, = myresult
 
             mycursor = mydb.cursor(prepared=True)
+            stmt = ("SELECT username FROM Player JOIN AppUser using(userID) WHERE matchID=%s AND playerID=%s LIMIT 1")
+            mycursor.execute(stmt,(matchID,playerID))
+            myresult = mycursor.fetchone()
+            mycursor.close()
+
+
+            if myresult !=None: 
+                userName, = myresult
+                socketIo.emit('kickPlayer',{'userName':userName}, room=matchID)
+
+            mycursor = mydb.cursor(prepared=True)
             stmt = ("UPDATE Player SET userID=NULL WHERE playerID=%s")
             mycursor.execute(stmt,(playerID,))
             myresult = mycursor.fetchone()
             mycursor.close()
+
+
             mydb.commit()
             mydb.close()
             socketIo.emit('sendNewScores',getScoring(userID), room=matchID)
+            
             return getScoring(userID)
 
 
@@ -1486,14 +1502,20 @@ def createNewTemplate():
 
                 stmt = "INSERT INTO ScoringCondition (gameID, templateID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);"
                 mycursor.execute(stmt, (gameID, templateID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier))
+                mydb.commit()
+                conditionID = mycursor.lastrowid
+                
                 mycursor.close()
+
+                print(conditionID)
 
 
                 #Find and duplicate condition rows
                 mycursor = mydb.cursor(prepared=True)
-                stmt = "SELECT inputMax, inputMin, outputValue FROM ValueRow WHERE conditionID = %s;"
-                mycursor.execute(stmt, (conditionID,))
+                stmt = "SELECT inputMax, inputMin, outputValue FROM ValueRow WHERE templateID = %s;"
+                mycursor.execute(stmt, (cloneID,))
                 result = mycursor.fetchall()
+                mycursor.close()
                 #For each ConditionRow
                 for row in result:
                     mycursor = mydb.cursor(prepared=True)
@@ -2052,8 +2074,8 @@ def handle_my_custom_event(content, methods=['GET', 'POST']):
 
                 score = 0
                 for row in valueRows:
-                    inputMax,inputMin,outputValue
-                    if value >= minValue and value <maxValue:
+                    inputMax,inputMin,outputValue = row
+                    if value >= inputMin and value <inputMax:
                         score = outputValue
                         break
 

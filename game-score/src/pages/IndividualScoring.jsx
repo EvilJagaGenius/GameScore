@@ -14,6 +14,8 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import { Link } from 'react-router-dom'
 import Cookies from 'js-cookie';
 import MySocket from './Socket';
+import KickedModal from './KickedModal';
+import getAvatar from './Avatars';
 
 export default class ScoringPage extends React.Component{
 
@@ -25,7 +27,8 @@ export default class ScoringPage extends React.Component{
         this.state = {
           key: 0, //Position the player is in the game
           loaded: false,
-          data:""
+          data:"",
+          showKicked: false
         };
 
         var Socket = null;
@@ -60,6 +63,16 @@ export default class ScoringPage extends React.Component{
             this.props.history.push('/play/postgame')
           });
 
+         this.Socket.on("kickPlayer", username => {
+           if(username.userName==Cookies.get('username'))
+            {
+              this.Socket.disconnect()
+              this.setState({
+                showKicked:true
+              })
+           }
+          });
+
         //Grab Data from API
         fetch("/api/getScoring")
           .then(res => res.json())
@@ -89,6 +102,7 @@ export default class ScoringPage extends React.Component{
     {
       this.Socket.removeAllListeners("sendNewScores")
       this.Socket.removeAllListeners("gameEnd")
+      this.Socket.removeAllListeners("kickPlayer")
       this.Socket.disconnect()
     }
 
@@ -138,8 +152,9 @@ export default class ScoringPage extends React.Component{
                 <div style={{whiteSpace:"nowrap"}}>
                   <div style={{textAlign:"center",display:"inlineBlock",paddingTop:15,paddingBottom:10}} align="center" textAlign= "center">
                      {/*Name + Icon*/}
+                     <img src = {getAvatar(this.state.data.individualScoring[this.state.key].avatarID)} style={{width:30,height:30,marginBottom:-7,marginRight:10}}></img>
                      <h2 style={{display:"inline"}}>{this.state.data.individualScoring[this.state.key].displayName}</h2>
-                     <AccountCircle style={{width:30,height:30,marginBottom:-7,marginLeft:10}}></AccountCircle>
+            
                   </div>
                   <div style={{paddingLeft:0,left:5,top:15,position:"absolute"}} align="left">
                       {/*Back Button*/}
@@ -194,6 +209,7 @@ export default class ScoringPage extends React.Component{
               </TableContainer>
             </>
           }
+          <KickedModal history={this.props.history} show={this.state.showKicked}></KickedModal>
         </div>
       );
   }

@@ -11,32 +11,98 @@ export default class SearchResults extends Component {
         super(props);
         this.state = {
             data: {},
+            filtered: {},
             searchQuery:"",
-            loaded: false
-        };
+            loaded: "false",
+            searching: "false"
+        }
+
     }
 
-    componentDidMount = () => {
-        const requestOptions = {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                searchQuery: this.state.searchQuery
-            })
-        };
+    componentDidMount() {
+
+        fetch("/api/search/templates")
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    this.setState({
+                        data: result.templates,
+                        loaded: "true"
+                    });
+                    console.log(result)
+                },
+                
+            )
     }
 
-    queryHandler = (e) => {
+    selectTemplate(newRowPos) {
         this.setState({
-            searchQuery: e.target.value
-        },
-        this.searchDatabase
-        );
+            selectedTemplate: newRowPos
+        })
+        console.log(this.state.selectedTemplate)
     }
 
-    searchDatabase = () => {
-        
-            
+    isSelected(checkRowPos) {
+        if(checkRowPos === this.state.selectedTemplate) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    
+    handleChange = (e) => {
+        this.setState({
+            searchQuery: e.target.value,
+            searching: "true"
+        },this.templateSearch)
+
+    }
+
+    templateSearch = () => {
+        //hold original list of results
+        let currentList = {};
+        //hold filtered list
+        let newList = {};
+
+        //if the search bar isn't empty
+        if (this.state.searchQuery !== "" && this.state.loaded === "true") {
+            currentList = this.state.data;
+            // Use .filter() to determine which items should be displayed
+			// based on the search terms
+            newList = currentList.filter(template => {
+                // change current item to lowercase
+                const tnlc = template.templateName.toLowerCase();
+                const gnlc = template.gameName.toLowerCase();
+                const unlc = template.userName.toLowerCase();
+
+                // change search term to lowercase
+                const filter = this.state.searchQuery.toLowerCase();
+
+                //Determine if the query is in the template's name, the template's game's name, or the template's creator's name
+                if (tnlc.includes(filter)) {
+                    return tnlc.includes(filter);
+
+                } else if (gnlc.includes(filter)) {
+                    return gnlc.includes(filter);
+                } else {
+                    return unlc.includes(filter);
+                }
+            });
+
+        }
+
+        if (this.state.searchQuery === "") {
+            this.setState({
+                searching: "false"
+            })
+        }
+
+        console.log(newList);
+
+        this.setState({
+            filtered: newList
+        })
     }
 
     render() {
@@ -51,34 +117,39 @@ export default class SearchResults extends Component {
                 <input placeholder="Search Templates"
                     style={searchStyle}
                     value={this.state.searchQuery}
-                    onChange={this.queryHandler}
+                    onChange={this.handleChange}
                 />
 
                 {/* Search results */}
+                {this.state.searching === "false" &&
+                    <>
+                        <p>Try searching for something!</p>
+                    </>
+                }
                 <TableContainer component={Paper}>
                 <Table>
-                {this.state.loaded === "True" &&
-                    <> 
-                    {Object.keys(this.state.data.favoritedTemplates).map(key => (
+                {this.state.loaded === "true" &&
+                  <> 
+                    {Object.keys(this.state.filtered).map(key => (
                         <>
                             <TableRow onClick={()=>this.selectTemplate(0,key)}>
                                 <TemplateRow 
-                                    pictureURL = {this.state.data["results"][key].pictureURL} 
-                                    templateName = {this.state.data["results"][key].templateName}
-                                    numRatings = {this.state.data["results"][key].numRatings}
-                                    averageRating = {this.state.data["results"][key].averageRating}
+                                    pictureURL = {this.state.filtered[key].pictureURL} 
+                                    templateName = {this.state.filtered[key].templateName}
+                                    numRatings = {this.state.filtered[key].numRatings}
+                                    averageRating = {this.state.filtered[key].averageRating}
                                 />
                             </TableRow>
                             {this.isSelected(0,key) === true &&
                             <>
                                 <BottomUI
-                                    templateName = {this.state.data["results"][key].templateName}
-                                    templateID = {this.state.data["results"][key].templateID}
-                                    gameID = {this.state.data["results"][key].gameID}
+                                    templateName = {this.state.filtered[key].templateName}
+                                    templateID = {this.state.filtered[key].templateID}
+                                    gameID = {this.state.filtered[key].gameID}
                                     selected = {this.isSelected(0,key)}>
                                 </BottomUI>
                             </>
-                          }
+                            }
                         </>
                     ))}
                     </>
@@ -89,4 +160,8 @@ export default class SearchResults extends Component {
             </div>
         )
     }
+}
+
+class List extends Component {
+    
 }

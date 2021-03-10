@@ -2130,90 +2130,41 @@ def avatarPOST():
     return jsonify(response)
 
 ##################################### Search API ########################################
-@app.route("/api/search/templates", methods=["POST"])
+@app.route("/api/search/templates", methods=["GET"])
 def templateSearch():
-    content = request.json
-    query = content.get("searchQuery")
     
     #Create JSON framework for what we will return
-    result = {"results":[]}
+    result = {"templates":[]}
 
-    ### Search by template name ###
+    ### get all templates ###
     
     #Execute sql call to get appropriate data
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("SELECT pictureURL, templateName, numRatings, averageRating,Game.gameID,Template.templateID FROM Template JOIN Game ON Template.gameID=Game.gameID WHERE templateName LIKE %s ORDER BY averageRating DESC LIMIT 10")
-    mycursor.execute(stmt,(query,))
-    myresult = mycursor.fetchall()
-    mycursor.close()
-
-    #For each row returned from DB: parse and create a dictionary from it
-    for row in myresult:
-        picURL, templateName, numRatings, averageRating,gameID,templateID = row
-        template = {"pictureURL":"{}".format(picURL),
-                    "templateName":"{}".format(templateName),
-                    "numRatings":numRatings,
-                    "averageRating":float(averageRating),
-                    "gameID":"{}".format(gameID),
-                    "templateID":"{}".format(templateID)
-                }
-        result["results"].append(template)
-        
-
-
-    ### Search by game name ###
-
-    #Execute sql call to get appropriate data
-    mycursor = mydb.cursor(prepared=True)
-    stmt = ("SELECT pictureURL, templateName, numRatings, averageRating, Game.gameID,Template.templateID FROM Template JOIN Game ON Template.gameID=Game.gameID WHERE Game.gameName LIKE %s ORDER BY averageRating DESC LIMIT 10")
-    mycursor.execute(stmt,(query,))
-    myresult = mycursor.fetchall()
-    mycursor.close()
-
-    #For each row returned from DB: parse and create a dictionary from it
-    for row in myresult:
-        duplicate = False
-        picURL, templateName, numRatings, averageRating, gameID, templateID = row
-        template = {"pictureURL":"{}".format(picURL),
-                    "templateName":"{}".format(templateName),
-                    "numRatings":numRatings,
-                    "averageRating":float(averageRating),
-                    "gameID":"{}".format(gameID),
-                    "templateID":"{}".format(templateID)}
-        #append each new dictionary to its appropriate list
-        for entry in result["results"]:
-            if (entry["templateID"] == template["templateID"]):
-                duplicate = True
-
-        if (duplicate == False):
-            result["results"].append(template)
-
-    ### Search by user name ###
-
-    #Execute sql call to get appropriate data
-    mycursor = mydb.cursor(prepared=True)
-    stmt = ("SELECT u.userID, u.userName, t.pictureURL, t.templateName, t.numRatings, t.averageRating, g.gameID, t.templateID FROM User u, Template t, Game g WHERE u.userID=t.userID AND t.gameID=g.gameID AND Template.userID=User.userID AND u.userName LIKE %s ORDER BY averageRating DESC LIMIT 10")
-    mycursor.execute(stmt,(query,))
+    stmt = ("""
+    SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName
+    FROM AppUser u
+        INNER JOIN Template t ON u.userID = t.userID
+        INNER JOIN Game g ON t.gameID = g.gameID
+    ORDER BY t.averageRating;
+    """)
+    mycursor.execute(stmt)
     myresult = mycursor.fetchall()
     mycursor.close()
 
     #For each row returned from DB: pares and create a dictionary from it
     for row in myresult:
-        duplicate = False
-        picURL, templateName, numRatings, averageRating, gameID, templateID = row
-        template = {"pictureURL":"{}".format(picURL)
+        userID, userName, picURL, templateName, numRatings, averageRating, gameID, templateID, gameName = row
+        template = {"userID":"{}".format(userID)
+                    ,"userName":"{}".format(userName)
+                    ,"pictureURL":"{}".format(picURL)
                     ,"templateName":"{}".format(templateName)
                     ,"numRatings":numRatings
                     ,"averageRating":float(averageRating)
                     ,"gameID":"{}".format(gameID)
-                    ,"templateID":"{}".format(templateID)}
-        #append each new dictionary to its appropriate list
-        for entry in result["results"]:
-            if (entry["templateID"] == template["templateID"]):
-                duplicate = True
-
-        if (duplicate == False):
-            result["results"].append(template)
+                    ,"templateID":"{}".format(templateID)
+                    ,"gameName":"{}".format(gameName)}
+        #append each new dictionary to list
+        result["templates"].append(template)
 
     return jsonify(result)

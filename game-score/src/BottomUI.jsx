@@ -212,7 +212,8 @@ export default function BottomUI(props) {
 							aria-describedby="simple-modal-description">
 							
 							<div style={modalStyle} className={classes.paper}>
-								<h3 style={{textAlign:"center"}}>Delete: {props.templateName}?</h3>
+								<h3 style={{textAlign:"center"}}>Are you should you want to delete?</h3>
+								<Typography>If you delete [{props.templateName}], it will be gone forever.  Continue?</Typography>
 								<div>
 									<table style={{margin:"auto",paddingTop:20,paddingBottom:-15}}>
 										<tr>

@@ -30,6 +30,9 @@ export default class MyTemplates extends Component {
 
   callAPI()
   {
+    this.setState({
+      selectedTemplate:-1})
+
       const requestOptions = {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},

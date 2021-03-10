@@ -9,6 +9,10 @@ import Input from '@material-ui/core/Input';
 import Typography from '@material-ui/core/Typography';
 import { useHistory } from "react-router-dom";
 import Star from '@material-ui/icons/Star';
+import CreateIcon from '@material-ui/icons/Create';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Table from '@material-ui/core/Table';
+
 
 
 const useStyles = makeStyles((theme) => ({
@@ -52,51 +56,84 @@ export default function BottomUI(props) {
         <>
 	          <>
 	            {
-	          	<div>
+	          	<>
 	          		<TableRow>
-						{play === true &&
-							<>
-	          			 		<TableCell colSpan={3} style={{padding:5}}>
-									<Button className={classes.button} startIcon={<SportsEsports />} variant = "contained" color="primary" size = "large"
-									onClick = {()=> setCreateGamePopup(true)}>
-										Play
-									</Button>
-	          			 		</TableCell>
-						   	</>
-						}
+	          			<TableCell colSpan={10} style={{padding:4,paddingLeft:5,paddingRight:5,margin:0}}>
+	          			<Table style={{ tableLayout: 'fixed' }}>
+	          				<TableRow >
+			          	
+									{play === true &&
+										<>
+											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+												onClick = {()=> setCreateGamePopup(true)}>
+													<div style={{margin:-5}}>
+														
+														<div>
+															<SportsEsports style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															Play
+														</div>
+													</div>
+												</Button>
+											</TableCell>
+									   	</>
+									}
 
-						{edit === true &&
-							<>
-								<TableCell colSpan={3} style={{padding:5}}>
-									<Button className={classes.button} variant = "contained" color="primary" size = "large"
-									onClick = {() => {
-										console.log(props.templateID)
-										history.push({
-											pathname: "/mytemplates/editor",
-											state: {
-												templateID: props.templateID
-											}
-										});
-									}}>
-										Edit
-									</Button>
-								</TableCell>
-							</>
-						}
+									{edit === true &&
 
-						{del === true &&
-							<>
-								<TableCell colSpan={3} style={{padding:5}}>
-									<Button className={classes.button} variant = "contained" color="primary" size = "large"
-									onClick = {()=> setDeletePopup(true)}>
-										Delete
-									</Button>
-								</TableCell>
-							</>
-						}
-						
+										<>
+											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+												onClick = {() => {
+													console.log(props.templateID)
+													history.push({
+														pathname: "/mytemplates/editor",
+														state: {
+															templateID: props.templateID
+														}
+													});
+												}}>
+													<div style={{margin:-5}}>
+														
+														<div>
+															<CreateIcon style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															Edit
+														</div>
+													</div>
+												</Button>
+											</TableCell>
+										</>
+									}
+
+									{del === true &&
+										<>
+											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+											<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+											onClick = {()=> setDeletePopup(true)}>
+												<div style={{margin:-5}}>
+														
+														<div>
+															<DeleteIcon style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															Delete
+														</div>
+													</div>
+											</Button>
+										</TableCell>		
+										</>
+									}
+
+								</TableRow>
+							</Table>
+						</TableCell>
+
 	          		</TableRow>
-	          	</div>
+	          	</>
 	          	}
 
 	          	{

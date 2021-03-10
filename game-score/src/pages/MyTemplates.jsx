@@ -18,11 +18,11 @@ export default class MyTemplates extends Component {
   {
       super(props)
 
-        this.state ={
+        this.state =({
         data:{},
         loaded:false,
         selectedTemplate:-1
-      }
+      })
 
       this.callAPI = this.callAPI.bind(this)
   }
@@ -126,8 +126,8 @@ export default class MyTemplates extends Component {
           </Table>
         </TableContainer>
           <Link to="/mytemplates/creator">
-            <Fab color="primary" aria-label="add">
-              <AddIcon />
+            <Fab color="primary" aria-label="add" style={{position:"fixed",right:20,bottom:20}}>
+              <AddIcon fontSize="large"/>
             </Fab>
           </Link>
       </>

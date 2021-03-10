@@ -21,4 +21,5 @@ pip install flask-socketio
 npm install js-cookie --save  
 npm install socket.io-client  
 npm install qrcode.react  
-npm install material-ui-serach-bar --force
+npm install @material-ui/lab  
+npm install material-ui-serach-bar --force  

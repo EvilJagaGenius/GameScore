@@ -1827,11 +1827,18 @@ def postDeleteCondition():
             return response;
         else:
             templateName,gameID = row
+
+            mycursor = mydb.cursor(prepared=True)
+            stmt = "DELETE FROM ValueRow WHERE conditionID=%s"
+            mycursor.execute(stmt,(conditionID,))
+            mycursor.close()
+
             mycursor = mydb.cursor(prepared=True)
             stmt = "DELETE FROM ScoringCondition WHERE conditionID=%s"
             mycursor.execute(stmt,(conditionID,))
-            mydb.commit();
             mycursor.close()
+            mydb.commit();
+            
             mydb.close()
             return getConditionsSeperate(userID,templateID)
 

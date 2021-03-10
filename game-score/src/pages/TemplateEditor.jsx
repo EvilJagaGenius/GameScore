@@ -15,6 +15,8 @@ import {ToastsContainer, ToastsStore,ToastsContainerPosition} from 'react-toasts
 import { Button } from '@material-ui/core';
 import TemplateHintModal from './TemplateHintModal';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import Typography from '@material-ui/core/Typography';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 
     //Code adapted from: https://morioh.com/p/4576fa674ed8
@@ -107,81 +109,109 @@ export default class TemplateEditor extends Component {
                 this.state.loaded === true &&
                 <>
 
-                    <IconButton onClick={()=>{
-                        this.setState({
-                            showHintModal:true
-                        })
-                    }}
 
-                    >
-                     <HelpOutlineIcon></HelpOutlineIcon>
-                 </IconButton>
 
-                     <TextField defaultValue={this.state.data.templateName}
-                        onBlur={(e)=>{
+                            <div style={{whiteSpace:"nowrap"}}>
+                              <div style={{textAlign:"center",display:"inlineBlock",paddingTop:2,paddingBottom:5}} align="center" textAlign= "center">
 
-                             const requestOptions = {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/json'},
-                                credentials: 'include',
-                                body: JSON.stringify({
-                                  templateID: this.state.templateID,
-                                  templateName:e.target.value
-                                })
-                            };
+                                 <TextField inputProps={{style: {fontSize: 25,textAlign:"center"} }} style={{width:"70%",marginTop:10}} defaultValue={this.state.data.templateName}
+                                    onBlur={(e)=>{
 
-                            fetch("/api/postEditTemplateName",requestOptions)
-                              .then(res => res.json())
-                              .then((result) => {
+                                         const requestOptions = {
+                                            method: 'POST',
+                                            headers: {'Content-Type': 'application/json'},
+                                            credentials: 'include',
+                                            body: JSON.stringify({
+                                              templateID: this.state.templateID,
+                                              templateName:e.target.value
+                                            })
+                                        };
 
-                                  console.log(result)
-                                  this.setState({
-                                    data:result,
-                                    loaded: true
-                                  })
+                                        fetch("/api/postEditTemplateName",requestOptions)
+                                          .then(res => res.json())
+                                          .then((result) => {
 
-                                  ToastsStore.success("Template Name Updated");
+                                              console.log(result)
+                                              this.setState({
+                                                data:result,
+                                                loaded: true
+                                              })
 
-                              },) //End Fetch
+                                              ToastsStore.success("Template Name Updated");
 
-                        }}
-                        ></TextField>
+                                          },) //End Fetch
+                            }}
+                            ></TextField>
+                              </div>
+                                <div style={{textAlign:"center",display:"inlineBlock",paddingTop:2,paddingBottom:15}} align="center" textAlign= "center">
 
-                     <h4>({this.state.data.gameName})</h4>
+                                        ({this.state.data.gameName})
+                                </div>
+                              <div style={{paddingLeft:0,right:10,top:10,position:"absolute"}} align="left">
+                                  {/*Back Button*/}
+                                      <IconButton onClick={()=>{
+                                        this.setState({
+                                            showHintModal:true
+                                        })
+                                    }}
 
+                                    >
+                                     <HelpOutlineIcon></HelpOutlineIcon>
+                                    </IconButton>
+                              </div>
+                            </div>
                     <>
                         {/*For each Player, show scores*/}
                         {Object.keys((this.state.data["conditions"])).map(key=> (
-                              <TableContainer component = {Paper}> 
-                                <Table>
-                                    <TableHead>
-                                        <TableRow >
-                                            <TableCell colSpan={2} align="center">{this.state.data["conditions"][key].conditionName}</TableCell>
-                                            <IconButton
-                                            onClick={()=>{
-                                                console.log(this.state.data["conditions"][key].conditionID)
-                                                this.props.history.push({
-                                                  pathname:"/mytemplates/conditioneditor",
-                                                  state:
-                                                  {templateID:this.state.data.templateID,
-                                                   conditionID:this.state.data["conditions"][key].conditionID}
-                                                   
-                                                });
+                              <TableContainer component = {Paper} style={{marginBottom:20}}> 
+                                <Table size="small" style={{ tableLayout: 'fixed' }}>
+                                    <TableHead >
+                                        <TableRow style={{height:20}}>
+                                            <TableCell colSpan={2} align="center" style={ (this.state.data["conditions"][key].description !== "") ? { borderBottom:'none'} : {}}>
 
-                                                }}>
-                                                <CreateIcon></CreateIcon>
-                                            </IconButton>
+
+                                                <div style={{whiteSpace:"nowrap"}}>
+                                                  <div style={{textAlign:"center",display:"inlineBlock",paddingTop:11,paddingBottom:-6}} align="center" textAlign= "center">
+
+                                                     <Typography style={{fontSize:16}}><b>{this.state.data["conditions"][key].conditionName}</b></Typography>
+                                                  </div>
+
+                                                  <div style={{paddingLeft:0,right:10,marginTop:-35}} align="right">
+                                                         <IconButton style={{float:"right"}}
+                                                        onClick={()=>{
+                                                            console.log(this.state.data["conditions"][key].conditionID)
+                                                            this.props.history.push({
+                                                              pathname:"/mytemplates/conditioneditor",
+                                                              state:
+                                                              {templateID:this.state.data.templateID,
+                                                               conditionID:this.state.data["conditions"][key].conditionID}
+                                                               
+                                                            });
+
+                                                            }}>
+                                                            <CreateIcon></CreateIcon>
+                                                        </IconButton>
+                                                  </div>
+                                                </div>
+                                            </TableCell>
+
                                             
                                         </TableRow>
                                     </TableHead>
 
-                                    {/*Yes, in a perfect world this would be using a loop, not worth the trouble here*/}
-                                    <TableRow>
-                                        <TableCell colSpan={2} align="center">{this.state.data["conditions"][key].description}</TableCell>
-                                    </TableRow>
+                                    <>
+                                        {
+                                            this.state.data["conditions"][key].description !== "" &&
+                                            <TableRow style={{height:25}}>
+                                                <TableCell colSpan={2} align="center">
+                                                    <Typography style={{marginTop:-20}}></Typography>{this.state.data["conditions"][key].description}
+                                                </TableCell>
+                                            </TableRow>
+                                        }
+                                    </>
 
                                     <TableRow>
-                                        <TableCell align="left:"><b>Scoring Type:</b></TableCell>
+                                        <TableCell  align="left:"><b>Scoring Type:</b></TableCell>
                                         <TableCell align="center">{this.state.data["conditions"][key].scoringType}</TableCell>
                                     </TableRow>
 
@@ -199,19 +229,16 @@ export default class TemplateEditor extends Component {
                                         <TableRow>
                                             <TableCell colSpan={2}>
                                                 <TableContainer  component = {Paper}>
-                                                    <Table>
+                                                    <Table size="small">
                                                         <TableHead>
                                                             <TableRow>
-                                                                <TableCell>
-                                                                    Priority
+                                                                <TableCell align="center">
+                                                                    InputMin
                                                                 </TableCell>
-                                                                <TableCell>
-                                                                    InputMin (Inclusive)
+                                                                <TableCell align="center">
+                                                                    InputMax
                                                                 </TableCell>
-                                                                <TableCell>
-                                                                    InputMax (Exclusive)
-                                                                </TableCell>
-                                                                <TableCell>
+                                                                <TableCell align="center">
                                                                     Score
                                                                 </TableCell>
                                                             </TableRow>
@@ -219,16 +246,13 @@ export default class TemplateEditor extends Component {
                                                         {console.log(this.state.data["conditions"][key]["valueRows"])}
                                                          {Object.keys((this.state.data["conditions"][key]["valueRows"])).map(rowNum=> (
                                                             <TableRow>
-                                                                <TableCell>
-                                                                    <p>{(parseInt(key)+1)}</p>
-                                                                </TableCell>
-                                                                <TableCell>
+                                                                <TableCell align="center">
                                                                     {this.state.data["conditions"][key]["valueRows"][rowNum].inputMin}
                                                                 </TableCell>
-                                                                <TableCell>
+                                                                <TableCell align="center">
                                                                     {this.state.data["conditions"][key]["valueRows"][rowNum].inputMax}
                                                                 </TableCell>
-                                                                <TableCell>
+                                                                <TableCell align="center">
                                                                     {this.state.data["conditions"][key]["valueRows"][rowNum].outputVal}
                                                                 </TableCell>
                                                             </TableRow>
@@ -266,41 +290,48 @@ export default class TemplateEditor extends Component {
                          ))}
                     </>
 
-                    <Button  variant = "contained" color="primary" size = "large" style={{marginTop:12,marginRight:8}} startIcon={<AddIcon />}
-                    onClick={()=>{
-                    //Create Game with Same number of players API call
+                    <div style={{position:"fixed",bottom:0,display:"flex",backgroundColor:"white",marginTop:0}}>
+                        <Button  variant = "contained" color="primary" size = "large" style={{margin:5}} startIcon={<AddIcon />}
+                        onClick={()=>{
+                        //Create Game with Same number of players API call
 
-                    const requestOptions = {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        templateID:this.state.templateID,
-                        })
-                    };
+                        const requestOptions = {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            templateID:this.state.templateID,
+                            })
+                        };
 
-                    fetch("/api/postCreateCondition",requestOptions)
-                      .then(res => res.json())
-                      .then((result) => {
+                        fetch("/api/postCreateCondition",requestOptions)
+                          .then(res => res.json())
+                          .then((result) => {
 
-                          console.log(result)
-                          this.setState({
-                            data:result,
-                            loaded: true
+                              console.log(result)
+                              this.setState({
+                                data:result,
+                                loaded: true
+                              })
+
                           })
-
-                      })
-                    }}> Add Condition</Button>
+                        }}> Add Condition</Button>
 
 
-                    <Button  variant = "contained" color="primary" size = "large" style={{marginTop:12,marginRight:8}} startIcon={<AddIcon />}
-                    onClick={()=>{
-                    //Create Game with Same number of players API call
+                        <Button  variant = "contained" color="primary" size = "large" style={{margin:5}} startIcon={<DeleteIcon />}
+                        onClick={()=>{
+                        //Create Game with Same number of players API call
 
-                    this.setState({
-                        showDeleteTemplate:true
-                    })
-                    }}> Delete Template</Button>
+                        this.setState({
+                            showDeleteTemplate:true
+                        })
+                        }}> Delete Template</Button>
+
+                    </div>
+
+                    <div style={{height:60}}>
+                        
+                    </div>
 
                     
                     <Modal
@@ -338,7 +369,7 @@ export default class TemplateEditor extends Component {
                           }}>Delete</Button>
 
                           {/*Cancel Finalize Scoring*/}
-                          <Button variant = "contained" color="primary" size = "large" onClick={()=>this.setState({showDeleteTemplate:false})
+                          <Button  variant = "contained" color="primary" size = "large" onClick={()=>this.setState({showDeleteTemplate:false})
                           }>Cancel</Button>
 
                       </div>

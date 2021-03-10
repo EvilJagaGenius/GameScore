@@ -22,6 +22,7 @@ import EditAccount from './pages/profilePages/EditAccount';
 import EditAvatar from './pages/profilePages/EditAvatar';
 import InviteFriends from './pages/InviteFriends';
 import JoinGame from './pages/JoinGame';
+import SearchResults from './pages/SearchResults';
 
 export default function App() {
   return (
@@ -41,6 +42,7 @@ export default function App() {
       <Route path="/mytemplates/templatecreator" component = {TemplateCreator}/>
       <Route path="/mytemplates/templateeditor" render = {props => <TemplateEditor {...props}/>} />
       <Route path="/home/login" component ={Login}/>
+      <Route path="/home/search" render = {props => <SearchResults {...props}/>} />
       <Route path="/login/forgetpassword" component={ForgetPassword}/>
       <Route path="/login/createaccount" component={CreateAccount}/>
       <Route path="/login/resetpassword" component={ResetPasswordUsername}/>

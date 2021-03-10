@@ -11,6 +11,7 @@ import Table from '@material-ui/core/Table';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import {Link} from 'react-router-dom';
 
 function getCookieValue(name) {
   let result = document.cookie.match("(^|[^;]+)\\s*" + name + "\\s*=\\s*([^;]+)")
@@ -25,7 +26,8 @@ constructor(props) {
             data:{},
             loaded:"False",
             selectedTemplate:{accPos:0,rowPos:-1},
-            usernameData: getCookieValue("username")
+            usernameData: getCookieValue("username"),
+            searchQuery: ""
           };
     };
 
@@ -85,13 +87,21 @@ constructor(props) {
     }
   }
 
-
   render() {
     const { activeIndex } = this.state
     const { classes } = this.props;
-    return (
-      //The accordian menu
 
+    const searchStyle = {
+      borderRadius: "5px"
+    };
+
+    return (
+    <div>
+      {/* Search Bar */}
+      <Link to="/home/search">
+        <input placeholder="Search Templates"  style={searchStyle}/>
+      </Link>
+      {/* The accordian menu */}
       <Accordion fluid styled>
 
         {/* Favorited Templates accordian */}
@@ -149,7 +159,7 @@ constructor(props) {
           Recently Played
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 1}>
-         <TableContainer component={Paper}>
+        <TableContainer component={Paper}>
           <Table size="small">
                 {
                 this.state.loaded === "True" &&
@@ -266,6 +276,7 @@ constructor(props) {
         </TableContainer>
         </Accordion.Content>
       </Accordion>
+    </div>
     )
   }
 }

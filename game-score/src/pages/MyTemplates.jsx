@@ -1,56 +1,77 @@
-/**
- * MyTemplates.jsx-Jonathon Lannon
- * As of now, this is a placeholder for future code. Component is implemented in the global tab system
- */
 
- //import resources
 import React, { Component } from "react";
+import GameRow from "../GameRow"
 import TemplateRow from "../TemplateRow";
 import Table from '@material-ui/core/Table';
 import TableContainer from '@material-ui/core/TableContainer';
+import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import { Container, Link } from 'react-floating-action-button';
-import { useHistory } from "react-router-dom";
+// import { Container, Link } from 'react-floating-action-button';
+import Fab from '@material-ui/core/Fab';
+import AddIcon from '@material-ui/icons/Add';
+import { Link } from 'react-router-dom';
+import BottomUI from "../BottomUI";
 
 export default class MyTemplates extends Component {
 
-  state = {
-    data:{},
-    loaded:"False",
-    selectedTemplate:{accPos:0,rowPos:0}
+  constructor(props)
+  {
+      super(props)
+
+        this.state =({
+        data:{},
+        loaded:false,
+        selectedTemplate:-1
+      })
+
+      this.callAPI = this.callAPI.bind(this)
   }
 
-  componentDidMount() {
-    fetch("/api/myTemplates") //Needs an actual route
+
+  callAPI()
+  {
+    this.setState({
+      selectedTemplate:-1})
+
+      const requestOptions = {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      credentials: 'include',
+      body: JSON.stringify({
+      })
+    };
+
+    fetch("/api/getMyTemplates",requestOptions) //Needs an actual route
       .then(res => res.json())
       .then(
         (result) => {
           this.setState({
-            data: result,
-            loaded: "True"
-          }
-          );
+            data: result.templates,
+            loaded: true
+          });
+          console.log(result)
         },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
       )
+
   }
 
-  selectTemplate(newAccPos,newRowPos)
+  componentDidMount() 
+  {
+    this.callAPI()
+  }
+
+
+  selectTemplate(newRowPos)
   {
     this.setState({
-      selectedTemplate:{accPos:newAccPos,rowPos:newRowPos}
+      selectedTemplate: newRowPos
     })
-
-    console.log(this.state.selectedTemplate.accPos)
-    console.log(this.state.selectedTemplate.rowPos)
+    console.log(this.state.selectedTemplate)
   }
 
-  isSelected(checkAccPos,checkRowPos)
+  isSelected(checkRowPos)
   {
-    if(checkAccPos == this.state.selectedTemplate.accPos
-      && checkRowPos == this.state.selectedTemplate.rowPos)
+    if(checkRowPos === this.state.selectedTemplate)
     {
       return true
     }
@@ -60,51 +81,59 @@ export default class MyTemplates extends Component {
     }
   }
 
-  /*
-  function RouteTemplateEditor() {
-    let path = '/mytemplates/templatecreator';
-    let history = useHistory();
-    history.push(path);
-
-  }
-  */
 
   render() {
-
+    const { classes } = this.props;
     return (
-      <div>
+      <>
         <TableContainer component={Paper}>
           <Table size="small">
                 {/*Table displaying the dynamic data for the users created templates*/}
                 {
-                this.state.loaded == "True" &&
-                <div className="MyTemplates">
-                  <> 
+                this.state.loaded === true &&
+                <> 
                     {/* Iterate through created templates and render the data in a tabular format */}
                     {Object.keys(this.state.data).map(key => (
-                      <div onClick={()=>this.selectTemplate(0,key)}>
-                        <TemplateRow rowPos={key} accPos="0" 
+                      <>
+                      <TableRow onClick={()=>this.selectTemplate(key)}>
+                        <TemplateRow rowPos={key}
                         pictureURL = {this.state.data[key].pictureURL} 
                         templateName = {this.state.data[key].templateName}
                         numRatings = {this.state.data[key].numRatings}
                         averageRating = {this.state.data[key].averageRating}
                         templateID = {this.state.data[key].templateID}
                         gameID = {this.state.data[key].gameID}
-                        selected = {this.isSelected(0,key)}
+                        selected = {this.isSelected(key)}
                         />
-                      </div>
+                      </TableRow>
+                      {this.isSelected(key) == true &&
+                        <>
+                          {console.log(this.state.data[key])}
+                          <BottomUI
+                            templateName = {this.state.data[key].templateName}
+                            templateID = {this.state.data[key].templateID}
+                            gameID = {this.state.data[key].gameID}
+                            selected = {this.isSelected(key)}
+                            play ={true}
+                            edit = {true}
+                            del = {true}
+                            update ={this.callAPI}>
+
+                            </BottomUI>
+                        </>
+                      }
+                      </>
                     ))}
                   </>
-                </div>
               }
           </Table>
         </TableContainer>
-        <Container>
-        <Link href="/mytemplates/templatecreator"
-            tooltip="Create New Template"
-            icon="fas fa-plus"/>
-        </Container>
-      </div>
+          <Link to="/mytemplates/creator">
+            <Fab color="primary" aria-label="add" style={{position:"fixed",right:20,bottom:20}}>
+              <AddIcon fontSize="large"/>
+            </Fab>
+          </Link>
+      </>
     )
   }
 }

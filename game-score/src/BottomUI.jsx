@@ -9,6 +9,10 @@ import Input from '@material-ui/core/Input';
 import Typography from '@material-ui/core/Typography';
 import { useHistory } from "react-router-dom";
 import Star from '@material-ui/icons/Star';
+import CreateIcon from '@material-ui/icons/Create';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Table from '@material-ui/core/Table';
+
 
 
 const useStyles = makeStyles((theme) => ({
@@ -42,28 +46,94 @@ export default function BottomUI(props) {
 		const classes = useStyles();
 		const [modalStyle] = React.useState(getModalStyle);
 		const [createGamePopup, setCreateGamePopup] = useState(false);
-        const [rateTemplatePopup, setRateTemplatePopup] = useState(false);
+		const [deletePopup, setDeletePopup] = useState(false);
+		const [play, setPlay] = useState(props.play || false);
+		const [edit, setEdit] = useState(props.edit || false);
+		const [del, setDel] = useState(props.del || false);
 		var [numPlayers, setNumPlayers] = useState(2);
-        var [rating, setRating] = useState(5);
 		let history = useHistory()
         return(
         <>
 	          <>
 	            {
-	          	<div>
+	          	<>
 	          		<TableRow>
-	          			 <TableCell colSpan={3} style={{padding:5}}>
-							<Button className={classes.button} startIcon={<SportsEsports />} variant = "contained" color="primary" size = "large"
-							onClick = {()=> setCreateGamePopup(true)}>
-							Play</Button>
-	          			 </TableCell>
-                         <TableCell colSpan={3} style={{padding:5}}>
-                            <Button className={classes.button} startIcon={<Star />} variant = "contained" color="primary" size = "large"
-							onClick = {()=> setRateTemplatePopup(true)}>
-							Rate</Button>
-                         </TableCell>
+	          			<TableCell colSpan={10} style={{padding:4,paddingLeft:5,paddingRight:5,margin:0}}>
+	          			<Table style={{ tableLayout: 'fixed' }}>
+	          				<TableRow >
+			          	
+									{play === true &&
+										<>
+											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+												onClick = {()=> setCreateGamePopup(true)}>
+													<div style={{margin:-5}}>
+														
+														<div>
+															<SportsEsports style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															Play
+														</div>
+													</div>
+												</Button>
+											</TableCell>
+									   	</>
+									}
+
+									{edit === true &&
+
+										<>
+											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+												onClick = {() => {
+													console.log(props.templateID)
+													history.push({
+														pathname: "/mytemplates/editor",
+														state: {
+															templateID: props.templateID
+														}
+													});
+												}}>
+													<div style={{margin:-5}}>
+														
+														<div>
+															<CreateIcon style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															Edit
+														</div>
+													</div>
+												</Button>
+											</TableCell>
+										</>
+									}
+
+									{del === true &&
+										<>
+											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+											<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+											onClick = {()=> setDeletePopup(true)}>
+												<div style={{margin:-5}}>
+														
+														<div>
+															<DeleteIcon style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															Delete
+														</div>
+													</div>
+											</Button>
+										</TableCell>		
+										</>
+									}
+
+								</TableRow>
+							</Table>
+						</TableCell>
+
 	          		</TableRow>
-	          	</div>
+	          	</>
 	          	}
 
 	          	{
@@ -109,8 +179,6 @@ export default function BottomUI(props) {
 							  	</table>
 							  	<table style={{margin:"auto",paddingTop:20,paddingBottom:-15}}>
 								  	<tr>
-
-
 								  		<td style={{paddingRight:7}}>
 								  			<Button className={classes.button} variant = "contained" color="primary" size = "large"
 								  			onClick={()=>{
@@ -138,81 +206,49 @@ export default function BottomUI(props) {
 							  </div>
 						  </div>
 						</Modal>
-					</div>
-	          	}
-                
-                // Rate template popup (how do you comment in this?)
-                {
-		          	<div>
-			          	<Modal
-						  open={rateTemplatePopup}
-						  aria-labelledby="simple-modal-title"
-						  aria-describedby="simple-modal-description"
-						>
-						<div style={modalStyle} className={classes.paper}>
-							  <h3 style={{textAlign:"center"}}>Rate {props.templateName}?</h3>
-							  <div>
-								 <table style={{marginTop:10}}>
-								  	<tr w>
-								  		<td style = {{paddingRight:8}}>
-								  			<Typography># of Stars:</Typography>
+						<Modal
+							open={deletePopup}
+							aria-labelledby="simple-modal-title"
+							aria-describedby="simple-modal-description">
+							
+							<div style={modalStyle} className={classes.paper}>
+								<h3 style={{textAlign:"center"}}>Are you should you want to delete?</h3>
+								<Typography>If you delete [{props.templateName}], it will be gone forever.  Continue?</Typography>
+								<div>
+									<table style={{margin:"auto",paddingTop:20,paddingBottom:-15}}>
+										<tr>
+											<td style={{paddingRight:7}}>
+												<Button className={classes.button} variant = "contained" color="primary" size = "large"
+												onClick={()=>{
 
-								  		</td>
-								  		<td>
-								  			<Input name="ratingInput" type="number" onChange={(e)=>{
-								  					setNumPlayers(e.target.value)
-								  				}}
-								  				onBlur={(e)=>
-								  				{
-								  					if(e.target.value <=0)
-									  				{
-									  					setRating(5)
-									  				}
-									  				else if(isNaN(e.target.value)===true)
-									  				{
-									  					setRating(5)
-									  				}
-									  				else
-									  				{
-									  					setRating(e.target.value)
-									  				}
-								  				}}
-								  				
-								  			 value={rating} defaultValue={5}>
-								  			</Input>
-								  		</td>
-								  	</tr>
-							  	</table>
-							  	<table style={{margin:"auto",paddingTop:20,paddingBottom:-15}}>
-								  	<tr>
-
-
-								  		<td style={{paddingRight:7}}>
-								  			<Button className={classes.button} variant = "contained" color="primary" size = "large"
-								  			onClick={()=>{
-								  				if(rating>=0)
-								  				{
-                                                    let formData = new FormData();
-                                                    formData.append("rating", rating)
-										  			fetch('/api/rateTemplate', {method: "POST", body: formData})
-								 					.then(res => res.json()).then(data => {
-								 					console.log(data)
-													});
-												}
-								  			}}>
-
-								  			Submit</Button>
-								  		</td >
-								  		<td style ={{paddingLeft:7}}>
-								  			<Button className={classes.button} variant = "contained" color="primary" size = "large"
-								  			onClick={()=>setRateTemplatePopup(false)}>
-								  			Cancel</Button>
-								  		</td>
-								  	</tr>
-							  	</table>
-
-							  </div>
-						  </div>
+													const requestOptions = {
+														method:'POST',
+            											headers: { 'Content-Type': 'application/json' },
+            											credentials: 'include',
+            											body: JSON.stringify({
+                											templateID: props.templateID
+            											})
+													}
+													fetch('/api/postDeleteTemplate', requestOptions)
+														.then(res => res.json())
+														.then(data => {
+															props.update();
+															setDeletePopup(false)
+														})
+												}}>
+													Delete
+												</Button>
+											</td>
+											<td style={{paddingLeft:7}}>
+												<Button className={classes.button} variant = "contained" color="primary" size = "large"
+												onClick={()=>setDeletePopup(false)}>
+													Cancel
+												</Button>
+											</td>
+										</tr>
+									</table>
+								</div>
+							</div>
 						</Modal>
 					</div>
 	          	}

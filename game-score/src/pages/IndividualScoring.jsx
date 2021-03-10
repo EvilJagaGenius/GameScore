@@ -136,7 +136,7 @@ export default class ScoringPage extends React.Component{
               {/*Header*/}
               <div class={this.state.data.individualScoring[this.state.key].color}>
                 <div style={{whiteSpace:"nowrap"}}>
-                  <div style={{textAlign:"center",display:"inlineBlock",paddingTop:15,paddingBottom:10}} aligxn="center" textAlign= "center">
+                  <div style={{textAlign:"center",display:"inlineBlock",paddingTop:15,paddingBottom:10}} align="center" textAlign= "center">
                      {/*Name + Icon*/}
                      <h2 style={{display:"inline"}}>{this.state.data.individualScoring[this.state.key].displayName}</h2>
                      <AccountCircle style={{width:30,height:30,marginBottom:-7,marginLeft:10}}></AccountCircle>

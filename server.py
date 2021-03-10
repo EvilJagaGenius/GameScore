@@ -20,7 +20,7 @@ from flask import flash, Flask, jsonify, make_response, redirect, render_templat
 app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0  # Always do a complete refresh (for now)
 SERVER_NAME = 'flask-api:5000'
-# app.secret_key = 'pepperoni secret'
+app.secret_key = 'pepperoni secret'
 
 socketIo = SocketIO(app, cors_allowed_origins="*")
 
@@ -624,8 +624,8 @@ def getScoring(userID):
         ### Global Awards ###
         #Get Conditions
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("select DISTINCT conditionName, maxPerGame, ScoringCondition.conditionID FROM ScoringCondition JOIN ActiveMatch using (GameID, TemplateID) WHERE matchID = %s AND maxPerGame > 0")
-        mycursor.execute(stmt,(matchID,))
+        stmt = ("select DISTINCT conditionName, maxPerGame, ScoringCondition.conditionID FROM ScoringCondition JOIN ActiveMatch using (GameID, TemplateID) WHERE matchID = %s AND maxPerGameActive =%s")
+        mycursor.execute(stmt,(matchID,True))
         myresult = mycursor.fetchall()
         mycursor.close()
 
@@ -695,16 +695,16 @@ def getScoring(userID):
             	result["isHost"]=displayName
 
             mycursor = mydb.cursor(prepared=True)
-            stmt = ("select conditionName, conditionID, value, score, inputType, maxPerPlayer FROM ActiveMatchPlayerConditionScore JOIN ScoringCondition using(conditionID,templateID,gameID)WHERE ActiveMatchPlayerConditionScore.matchID = %s AND playerID = %s")
+            stmt = ("select conditionName, conditionID, value, score, inputType, maxPerPlayer, maxPerPlayerActive FROM ActiveMatchPlayerConditionScore JOIN ScoringCondition using(conditionID,templateID,gameID)WHERE ActiveMatchPlayerConditionScore.matchID = %s AND playerID = %s")
             mycursor.execute(stmt,(matchID,playerID))
             myresultCondition = mycursor.fetchall()
             mycursor.close()
 
             for rowCondition in myresultCondition:
-                conditionName, conditionID, value, score, inputType, maxPerPlayer = rowCondition
+                conditionName, conditionID, value, score, inputType, maxPerPlayer,maxPerPlayerActive = rowCondition
                 
                 isHigher = False
-                if value>maxPerPlayer and maxPerPlayer>0:
+                if value>maxPerPlayer and maxPerPlayer>0 and maxPerPlayerActive==True:
                     playerFinalizeScore["conditions"].append({
                         "conditionName":"{}".format(conditionName)
                         ,"value":"{}".format(value)
@@ -1400,344 +1400,541 @@ def apiPostChangePlayerColor():
 
             return getScoring(userID)
 
-##################################### edit Template API ########################################
 
-# Edit template stuff
-@app.route("/edit/", methods=["GET"])
-def editTemplateGET():
-    # Skeleton function.  Returns all the conditions for this specific template in JSON form.
-    mydb = mysql.connector.connect(pool_name = "mypool")
-    templateID = session.get("templateID", None)
-    if templateID == None:
-        return "templateID not set"
-    cursor = mydb.cursor(prepared=True)
-    statement = """
-    SELECT conditionID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier
-    FROM ScoringCondition WHERE templateID = %s;
-    """
-    cursor.execute(statement, (templateID,))
-    result = cursor.fetchall()
-    print(result)  # Result is a list of tuples
-    
-    response = {}
-    for t in result:
-        # Add that tuple to our response
-        dictionary = {
-        "conditionID": t[0],
-        "conditionName": t[1],
-        "description": t[2],
-        "maxPerGame": t[3],
-        "maxPerPlayer": t[4],
-        "scoringType": t[5],
-        "pointMultiplier": t[6],
-        "inputType": t[7]
-        }
-        response.update({t[0]: dictionary})  # Use conditionID as a key
-    
-    #return "Edit Template goes here"  # Comment out once jsonify() and response are implemented
-    mydb.close()
-    return jsonify(response)
-    
-@app.route("/edit/name", methods=["POST"])
-def editTemplateName():
-    # Do something, Taipu
-    mydb = mysql.connector.connect(pool_name = "mypool")
-    templateID = session.get("templateID", None)
-    if templateID == None:
-        return "templateID not set"
-    newName = request.form.get("new_name")
-    cursor = mydb.cursor(prepared=True)
-    statement = "UPDATE Template SET templateName = %s WHERE templateID = %s"
-    cursor.execute(statement, (newName, templateID))
-    
-    #return redirect(url_for("editTemplateGET"))
-    return "ok"
-    
-@app.route("/edit/condition", methods=["GET"])
-def editConditionGET():
-    # Get the condition data from the database and send it over
-    mydb = mysql.connector.connect(pool_name = "mypool")
-    conditionID = session.get("conditionID", None)
-    templateID = session.get("templateID", None)
-    if templateID == None:
-        return "templateID not set"
-    if conditionID == None:
-        return "conditionID not set"
-    cursor = mydb.cursor(prepared=True)
-    statement = "SELECT (conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier) FROM ScoringCondition WHERE conditionID = %s AND templateID = %s"
-    cursor.execute(statement, (conditionID, templateID))
-    result = cursor.fetchall()
-    
-    response = {
-    "conditionName": result[0],
-    "description": result[1],
-    "maxPerGame": result[2],
-    "maxPerPlayer": result[3],
-    "scoringType": result[4],
-    "inputType": result[5],
-    "pointMultiplier": result[6]
-    }
-    
-    return jsonify(response)
-    
-@app.route("/edit/deleteCondition")
-def deleteCondition():
-    # Skeleton function.  Called after the "Are you sure?" dialog when deleting a condition
-    # Needs conditionID and templateID from somewhere.  Assuming they're stored in session
-    mydb = mysql.connector.connect(pool_name = "mypool")
-    conditionID = session.get("conditionID", None)
-    templateID = session.get("templateID", None)
-    if templateID == None:
-        return "templateID not set"
-    if conditionID == None:
-        return "conditionID not set"
-    cursor = mydb.cursor(prepared=True)
-    statement = "DELETE FROM ScoringCondition WHERE conditionID = %s AND templateID = %s"
-    cursor.execute(statement, (conditionID, templateID))
-    # Do we need a commit() before we close()?
-    cursor.close()
-    mydb.close()
-    
-    return redirect(url_for("editTemplateGET"))  # Redirect back to Edit Template
-    
-@app.route("/edit/conditionName", methods=["POST"])
-def editConditionName():
-    # Skeleton function
-    # Needs conditionID and templateID from somewhere.  Assuming they're stored in session
-    mydb = mysql.connector.connect(pool_name = "mypool")
-    conditionID = session.get("conditionID", None)
-    templateID = session.get("templateID", None)
-    if templateID == None:
-        return "templateID not set"
-    if conditionID == None:
-        return "conditionID not set"
-    newName = request.form.get("new_name")
-    cursor = mydb.cursor(prepared=True)
-    statement = 'UPDATE ScoringCondition SET conditionName = "%s" WHERE conditionID = %s AND templateID = %s'
-    result = cursor.execute(statement, (newName, conditionID, templateID))
-    cursor.close()
-    mydb.close()
-    #return redirect(url_for("editConditionGET"))
-    return "ok"
-    
-#@app.route("/edit/addCondition", methods=["POST"])
-@app.route("/edit/addCondition")
-def addCondition():
-    # Skeleton function
-    # Needs some way to get all those parameters, presumably from a form.
-    mydb = mysql.connector.connect(pool_name = "mypool")
-    templateID = session.get("templateID", None)
-    gameID = session.get("gameID", None)
-    if templateID == None:
-        return "templateID not set"
-    if gameID == None:
-        return "gameID not set"
-    # Below values are nullable, not needed
-    #conditionName = request.form.get("condition_name")
-    #description = request.form.get("description")
-    #maxPerGame = request.form.get("max_per_game")
-    #maxPerPlayer = request.form.get("max_per_player")
-    #scoringType = request.form.get("scoring_type")
-    #inputType = request.form.get("input_type")
-    #pointMultiplier = request.form.get("point_multiplier")
-    cursor = mydb.cursor(prepared=True)
-    statement = """
-    INSERT INTO ScoringCondition (gameID, templateID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier)
-    VALUES (%s, %s, "%s", "%s", %s, %s, '%s', '%s', %s)
-    """
-    
-    cursor.execute(statement, (gameID, templateID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier))
-    lastRowID = cursor.lastrowid
-    print(lastRowID)
-    response = {"id": lastRowID}
-    
-    cursor.close()
-    mydb.close()
-    
-    return jsonify(response)
 
-@app.route("/edit/conditionTable/swapRows", methods=["POST"])
-def swapTableRowsPOST():
-    mydb = mysql.connector.connect(pool_name = "mypool")
-    rowA = request.form.get("row_a")
-    rowB = request.form.get("row_b")
-    templateID = session.get("templateID", None)
-    conditionID = session.net("conditionID", None)
-    if templateID == None:
-        return "templateID not set"
-    if conditionID == None:
-        return "conditionID not set"
-    
-    cursor = mydb.cursor(prepared=True)
-    # Dang that's an ugly-looking prepared statement
-    statement = """
-    UPDATE ValueRow SET rowID = -1 WHERE rowID = %s AND templateID = %s AND conditionID = %s;
-    UPDATE ValueRow SET rowID = %s WHERE rowID = %s AND templateID = %s AND conditionID = %s;
-    UPDATE ValueRow SET rowID = %s WHERE rowID = -1 AND templateID = %s AND conditionID = %s;
-    """
-    cursor.execute(statement, (rowA, templateID, conditionID, rowA, rowB, templateID, conditionID, rowB, templateID, conditionID))
-    
-    cursor.close()
-    mydb.close()
-    return "ok"
-    
-@app.route("/edit/conditionTable", methods=["GET"])
-def editConditionTableGET():
-    mydb = mysql.connector.connect(pool_name = "mypool")
-    templateID = session.get("templateID", None)
-    conditionID = session.net("conditionID", None)
-    if templateID == None:
-        return "templateID not set"
-    if conditionID == None:
-        return "conditionID not set"
-    cursor = mydb.cursor(prepared=True)
-    statement = "SELECT (rowID, inputMax, inputMin, outputValue) FROM ValueRow WHERE templateID = %s AND conditionID = %s"
-    cursor.execute(statement, (templateID, conditionID))
-    result = cursor.fetchall()  # List of tuples
-    
-    response = {}
-    for t in result:
-        dictionary = {
-        "inputMax": t[1],
-        "inputMin": t[2],
-        "outputValue": t[3]
-        }
-        response.update({t[0]: dictionary})
-    
-    cursor.close()
-    mydb.close()
-    return jsonify(response)
-
-@app.route("/edit/conditionTable", methods=["POST"])
-def editConditionTablePOST():
-    mydb = mysql.connector.connect(pool_name = "mypool")
-    # Edit a row in the condition's scoring table
-    conditionID = session.get("conditionID", None)
-    templateID = session.get("templateID", None)
-    rowID = 0 #session.get("rowID", None)  # Dummy value.  How do we get this?
-    if templateID == None:
-        return "templateID not set"
-    if conditionID == None:
-        return "conditionID not set"
-    if rowID == None:
-        return "rowID not set"
-    min = request.form.get("min")
-    max = request.form.get("max")
-    outputValue = request.form.get("output_value")
-    cursor = mydb.cursor(prepared=True)
-    statement = "UPDATE ValueRow SET min = %s, max = %s, outputValue = %s WHERE templateID = %s AND conditionID = %s AND rowID = %s"
-    cursor.execute(statement, (min, max, outputValue, templateID, conditionID, rowID))
-    cursor.close()
-    mydb.close()
-    #return redirect(url_for("editConditionGET"))
-    return "ok"
-    
-@app.route("/edit/conditionValues", methods=["POST"])
-def editConditionValues():
-    mydb = mysql.connector.connect(pool_name = "mypool")
-    # I'm not sure if we should split this up into multiple functions, like editing the name above
-    conditionID = session.get("conditionID", None)
-    templateID = session.get("templateID", None)
-    if templateID == None:
-        return "templateID not set"
-    if conditionID == None:
-        return "conditionID not set"
-    conditionName = request.form.get("conditionName")
-    description = request.form.get("description")
-    maxPerGame = request.form.get("max_per_game")
-    maxPerPlayer = request.form.get("max_per_player")
-    scoringType = request.form.get("scoring_type")
-    inputType = request.form.get("input_type")
-    pointMultiplier = request.form.get("point_multiplier")
-    cursor = mydb.cursor(prepared=True)
-    statement = """
-    UPDATE ScoringCondition SET conditionName = %s description = %s, maxPerGame = %s, maxPerPlayer = %s, scoringType = %s, inputType = %s, pointMultiplier = %s
-    WHERE templateID = %s AND conditionID = %s
-    """
-    cursor.execute(statement, (conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier, templateID, conditionID))
-    
-    cursor.close()
-    mydb.close()
-    #return redirect(url_for("editConditionGET"))
-    return "ok"
-
-@app.route("/newTemplate/", methods=["POST"])
-def createNewTemplate():
-    mydb = mysql.connector.connect(pool_name = "mypool")
-    gameID = request.form.get("game")
-    templateName = request.form.get("template_name")
-    userID = session.get("userID", None)
-    if userID == None:
-        return "userID not set"
-    cursor = mydb.cursor(prepared=True)
-    statement = """
-    INSERT INTO Template (gameID, numRatings, templateName, userID)
-    VALUES (%s, 0, %s, %s)
-    """
-    cursor.execute(statement, (gameID, templateName, userID))
-    lastRowID = cursor.lastrowid
-    response = {"id": lastRowID}
-    
-    cursor.close()
-    mydb.close()
-    # Need a way to get the new template ID and store it in the session
-    #return redirect(url_for("editTemplateGET"))
-    return jsonify(response)
-    
-@app.route("/edit/upload")
-def uploadTemplate():
-    # Do something, Taipu
-    # I'm not sure how one uploads a template.  Do we commit to the DB, do we set the template as public, do we do something else?
-    pass
-    
-# My Templates page
-@app.route("/api/myTemplates")
-def myTemplates():
-    # Do something, Taipu
-    mydb = mysql.connector.connect(pool_name = "mypool")
-    userID = session.get("userID", None)
-    if userID == None:
-        return "userID not set"
-        
-    cursor = mydb.cursor(prepared=True)
-    statement = "SELECT (templateID, templateName, averageRating, numRatings) FROM Template WHERE userID = %s"
-    cursor.execute(statement, (userID, ))
-    response = {}
-    results = cursor.fetchall()
-    for t in results:
-        dictionary = {
-        "templateName": t[1],
-        "averageRating": t[2],
-        "numRatings": t[3]
-        }
-        response.update({t[0]: dictionary})
-    
-    cursor.close()
-    mydb.close()
-    
-    return jsonify(response)
+##################################### Get Games and Templates ########################################
 
 #Template Creation Screen
-@app.route("/edit/templateGameList")
-def templateGameList():
+@app.route("/api/getGamesAndTemplates")
+def getGamesAndTemplates():
+
+    result = {"successful":True,"games":[],"templates":[]}
+
+    result["templates"].append({"templateName":"<Do Not Clone>","templateID":-1})
+
     mydb = mysql.connector.connect(pool_name = "mypool")
-    cursor = mydb.cursor(prepared=True)
-    statement = "SELECT (gameID, gameName) FROM Game"
-    cursor.execute(statement)
-    response = {}
-    results = cursor.fetchall()
-    for t in results:
-        dictionary = {
-            "gameID": t[0],
-            "gameName": t[1]
-        }
-        response.update({t[0]:dictionary})
+    mycursor = mydb.cursor(prepared=True)
+    statement = "SELECT gameID, gameName FROM Game"
+    mycursor.execute(statement)
+    results = mycursor.fetchall()
+    mycursor.close()
 
-    cursor.close()
+    for row in results:
+        gameID, gameName = row
+
+        game = {"gameName":"{}".format(gameName),
+        "gameID":"{}".format(gameID)}
+
+        result["games"].append(game)
+
+    mycursor = mydb.cursor(prepared=True)
+    statement = "SELECT templateID, templateName FROM Template"
+    mycursor.execute(statement)
+    results = mycursor.fetchall()
+    for row in results:
+        templateID,templateName=row
+
+        template = {"templateName":"{}".format(templateName),
+        "templateID":"{}".format(templateID)}
+
+        result["templates"].append(template)
+
+    mycursor.close()
     mydb.close()
+    response = jsonify(result)
+    return result
 
-    return jsonify(response)
 
+##################################### Create Template API ########################################
+
+@app.route("/api/postCreateTemplate", methods=["POST"])
+def createNewTemplate():
+    userID = getUserID()
+
+    content = request.json
+    gameID = content['gameID']
+    templateName = content['templateName']
+    cloneID = content['cloneID']
+
+    if userID == -1:
+        result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
+        response = jsonify(result)
+        response.set_cookie('credHash',"",max_age=0)
+        response.set_cookie('username',"",max_age=0)
+        return response
+    else:
+        mydb = mysql.connector.connect(pool_name = "mypool")
+        mycursor = mydb.cursor(prepared=True)
+        stmt = "INSERT INTO Template (gameID,templateName,userID) VALUES(%s,%s,%s)"
+        mycursor.execute(stmt,(gameID,templateName,userID))
+        mydb.commit()
+        templateID = mycursor.lastrowid
+
+        #cloning conditions for new template
+        if cloneID != -1:
+
+            #Find and duplicate conditions
+            mycursor = mydb.cursor(prepared=True)
+            stmt = "SELECT conditionID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier FROM ScoringCondition WHERE templateID = %s;"
+            mycursor.execute(stmt, (cloneID,))
+            result = mycursor.fetchall()
+
+            #for each condition
+            for row in result:
+                mycursor = mydb.cursor(prepared=True)
+                conditionID,conditionName,description,maxPerGame,maxPerPlayer,scoringType,inputType,pointMultiplier = row
+
+                stmt = "INSERT INTO ScoringCondition (gameID, templateID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);"
+                mycursor.execute(stmt, (gameID, templateID, conditionName, description, maxPerGame, maxPerPlayer, scoringType, inputType, pointMultiplier))
+                mycursor.close()
+
+
+                #Find and duplicate condition rows
+                mycursor = mydb.cursor(prepared=True)
+                stmt = "SELECT inputMax, inputMin, outputValue FROM ValueRow WHERE conditionID = %s;"
+                mycursor.execute(stmt, (conditionID,))
+                result = mycursor.fetchall()
+                #For each ConditionRow
+                for row in result:
+                    mycursor = mydb.cursor(prepared=True)
+                    inputMax,inputMin,outputValue = row
+
+                    stmt = "INSERT INTO ValueRow (gameID,templateID,conditionID,inputMax,inputMin,outputValue) VALUES (%s, %s, %s, %s, %s, %s);"
+                    mycursor.execute(stmt, (gameID,templateID,conditionID,inputMax,inputMin,outputValue))
+                    mycursor.close()
+
+        result={"successful":True,"templateID":templateID}
+        mycursor.close()
+        mydb.commit()
+        mydb.close()
+        response = jsonify(result)
+        return result
+
+
+##################################### get Template Info ########################################
+def getConditionsSeperate(userID,templateID):
+
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    mycursor = mydb.cursor(prepared=True)
+    stmt = "SELECT templateName, Game.gameName FROM Template JOIN Game using(gameID) WHERE userID=%s AND templateID=%s"
+    mycursor.execute(stmt,(userID,templateID))
+    row = mycursor.fetchone()
+
+    print(userID)
+    print(templateID)
+
+    if row == None:
+        result = {"successful":False,"error":120,"errorMessage":"User does not have access to edit this template."}
+        response = jsonify(result)
+        mydb.close()
+        return response;
+    else:
+        result = {"templateName":"",
+                  "gameName":"",
+                  "templateID":"",
+                  "conditions":[]}
+
+        templateName,gameName = row
+        print(templateName)
+
+        result["gameName"] = gameName
+        result["templateName"] = templateName
+        result["templateID"] = templateID
+
+        mycursor = mydb.cursor(prepared=True)
+        stmt = "SELECT conditionName,description,maxPerGame,maxPerPlayer,scoringType,inputType,pointMultiplier,conditionID,maxPerPlayerActive,maxPerGameActive FROM ScoringCondition WHERE templateID=%s"
+        mycursor.execute(stmt,(templateID,))
+        results = mycursor.fetchall()
+        mycursor.close();
+
+        for row in results:
+            conditionName, description,maxPerGame,maxPerPlayer,scoringType,inputType,pointMultiplier,conditionID,maxPerPlayerActive,maxPerGameActive = row
+
+            condition = {
+            "conditionName":"{}".format(conditionName),
+            "description":"{}".format(description),
+            "maxPerGame":maxPerGame,
+            "maxPerPlayer":maxPerPlayer,
+            "scoringType":"{}".format(scoringType),
+            "inputType":"{}".format(inputType),
+            "pointMultiplier":pointMultiplier,
+            "conditionID":conditionID,
+            "valueRows":[],
+            "maxPerGameActive":maxPerGameActive,
+            "maxPerPlayerActive":maxPerPlayerActive
+            }
+
+            mycursor = mydb.cursor(prepared=True)
+            stmt = "SELECT rowID, inputMax, inputMin, outputValue FROM ValueRow WHERE conditionID=%s"
+            mycursor.execute(stmt,(conditionID,))
+            valueRows = mycursor.fetchall()
+            mycursor.close()
+
+            for row in valueRows:
+                rowID, inputMax,inputMin,outputVal = row
+                rowDict = {
+                "rowID":rowID,
+                "inputMax":inputMax,
+                "inputMin":inputMin,
+                "outputVal":outputVal
+                }
+                condition["valueRows"].append(rowDict)
+
+            result["conditions"].append(condition)
+
+        result["successful"] = True
+        mydb.close()
+        response = jsonify(result)
+        return result
+
+
+@app.route("/api/getConditions", methods=["POST"])
+def getConditions():
+
+    userID = getUserID()
+    content = request.json
+    templateID = content['templateID']
+
+    if userID == -1:
+        result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
+        response = jsonify(result)
+        response.set_cookie('credHash',"",max_age=0)
+        response.set_cookie('username',"",max_age=0)
+        return response
+    else:
+        return getConditionsSeperate(userID,templateID)
+        
+
+##################################### Edit Template Name API ########################################
+
+@app.route("/api/postEditTemplateName", methods=["POST"])
+def postEditTemplateName():
+
+    userID = getUserID()
+
+    content = request.json
+    templateID = content['templateID']
+    templateName = content['templateName']
+
+    if userID == -1:
+        result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
+        response = jsonify(result)
+        response.set_cookie('credHash',"",max_age=0)
+        response.set_cookie('username',"",max_age=0)
+        return response
+    else:
+
+        mydb = mysql.connector.connect(pool_name = "mypool")
+        mycursor = mydb.cursor(prepared=True)
+        stmt = "SELECT templateName, Game.gameName FROM Template JOIN Game using(gameID) WHERE userID=%s AND templateID=%s"
+        mycursor.execute(stmt,(userID,templateID))
+        row = mycursor.fetchone()
+
+        print(userID)
+        print(templateID)
+
+        if row == None:
+            result = {"successful":False,"error":120,"errorMessage":"User does not have access to edit this template."}
+            response = jsonify(result)
+            mydb.close()
+            return response;
+        else:
+
+            mycursor = mydb.cursor(prepared=True)
+            stmt = "UPDATE Template SET templateName=%s WHERE templateID=%s"
+            mycursor.execute(stmt,(templateName,templateID))
+            mydb.commit();
+            mycursor.close()
+            mydb.close()
+            return getConditionsSeperate(userID,templateID)
+
+
+
+
+
+##################################### Save Condition Changes ########################################
+
+@app.route("/api/postEditCondition", methods=["POST"])
+def postEditCondition():
+
+    userID = getUserID()
+
+    print(request.json)
+
+    content = request.json
+    templateID = content['templateID']
+    conditionID = content['conditionID']
+    conditionName = content['conditionName']
+    maxPerGame = content['maxPerGame']
+    maxPerPlayer = content['maxPerPlayer']
+    maxPerGameActive = content['maxPerGameActive']
+    maxPerPlayerActive = content['maxPerPlayerActive']
+    scoringType = content['scoringType']
+    inputType = content['inputType']
+    description = content['description']
+    pointMultiplier = content['pointMultiplier']
+    valueRows = content['valueRows']
+    deletedRowIDs = content['deletedRowIDs']
+
+    if userID == -1:
+        result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
+        response = jsonify(result)
+        response.set_cookie('credHash',"",max_age=0)
+        response.set_cookie('username',"",max_age=0)
+        return response
+    else:
+
+        mydb = mysql.connector.connect(pool_name = "mypool")
+        mycursor = mydb.cursor(prepared=True)
+        stmt = "SELECT templateName, Game.gameName,Game.gameID FROM ScoringCondition JOIN Template using(templateID) JOIN Game on Template.gameID=Game.gameID WHERE userID=%s AND ScoringCondition.conditionID=%s"
+        mycursor.execute(stmt,(userID,conditionID))
+        row = mycursor.fetchone()
+
+        print(userID)
+        print(templateID)
+
+        if row == None:
+            result = {"successful":False,"error":120,"errorMessage":"User does not have access to edit this template."}
+            response = jsonify(result)
+            mydb.close()
+            return response;
+        else:
+            templateName,gameName,gameID = row
+            mycursor = mydb.cursor(prepared=True)
+            print(maxPerPlayerActive)
+            stmt = "UPDATE ScoringCondition SET conditionName=%s, maxPerGame=%s,maxPerPlayer=%s,description=%s,scoringType=%s,inputType=%s,pointMultiplier=%s,maxPerGameActive=%s,maxPerPlayerActive=%s WHERE conditionID=%s"
+            mycursor.execute(stmt,(conditionName,maxPerGame,maxPerPlayer,description,scoringType,inputType,pointMultiplier,maxPerGameActive,maxPerPlayerActive,conditionID))
+            
+            mycursor = mydb.cursor(prepared=True)
+            stmt = "Select rowID from ValueRow WHERE conditionID=%s"
+            mycursor.execute(stmt,(conditionID,))
+            result = mycursor.fetchall()
+            mycursor.close()
+
+            allRowIDs = []
+
+            for ID in result:
+                val, = ID
+                allRowIDs.append(val)
+
+
+            for valueRow in valueRows:
+                print(valueRow)
+                inputMin = valueRow["inputMin"]
+                inputMax = valueRow["inputMax"]
+                outputVal = valueRow["outputVal"]
+                rowID = valueRow["rowID"]
+
+                print(rowID)
+                print(allRowIDs)
+                if rowID in allRowIDs: #if already exists
+                    mycursor = mydb.cursor(prepared=True)
+                    stmt = "UPDATE ValueRow SET inputMin=%s,inputMax=%s,outputValue=%s WHERE rowID=%s AND conditionID=%s"
+                    mycursor.execute(stmt,(inputMin,inputMax,outputVal,rowID,conditionID))
+                    numChanged = mycursor.rowcount
+                    mycursor.close()
+
+                else: #if need to create
+                    mycursor = mydb.cursor(prepared=True)
+                    stmt = "INSERT INTO ValueRow (gameID,templateID,conditionID,inputMin,inputMax,outputValue) VALUES(%s,%s,%s,%s,%s,%s)"
+                    mycursor.execute(stmt,(gameID,templateID,conditionID,inputMin,inputMax,outputVal))
+                    mycursor.close()
+
+            print(deletedRowIDs)
+            for oldID in deletedRowIDs:
+                mycursor = mydb.cursor(prepared=True)
+                stmt = "DELETE FROM ValueRow WHERE rowID=%s AND conditionID=%s AND templateID=%s"
+                mycursor.execute(stmt,(oldID,conditionID,templateID))
+                mycursor.close()
+
+            mydb.commit();
+            mycursor.close()
+            mydb.close()
+            return getConditionsSeperate(userID,templateID)
+
+
+
+##################################### Create Condition API ########################################
+     
+@app.route("/api/postCreateCondition", methods=["POST"])
+#@app.route("/edit/addCondition")
+def postCreateCondition():
+    userID = getUserID()
+
+
+    content = request.json
+    templateID = content['templateID']
+
+    if userID == -1:
+        result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
+        response = jsonify(result)
+        response.set_cookie('credHash',"",max_age=0)
+        response.set_cookie('username',"",max_age=0)
+        return response
+    else:
+        mydb = mysql.connector.connect(pool_name = "mypool")
+        mycursor = mydb.cursor(prepared=True)
+        stmt = "SELECT DISTINCT templateName, Game.gameID FROM Template JOIN Game on Template.gameID=Game.gameID WHERE userID=%s AND Template.templateID=%s"
+        mycursor.execute(stmt,(userID,templateID))
+        row = mycursor.fetchone()
+        mycursor.close()
+
+        if row == None:
+            result = {"successful":False,"error":120,"errorMessage":"User does not have access to edit this template."}
+            response = jsonify(result)
+            mydb.close()
+            return response;
+        else:
+            templateName,gameID = row
+            mycursor = mydb.cursor(prepared=True)
+            stmt = "INSERT INTO ScoringCondition (gameID,templateID,conditionName) VALUES(%s,%s,%s)"
+            mycursor.execute(stmt,(gameID,templateID,"NewCondition"))
+            mycursor.fetchall()
+            mydb.commit();
+            mycursor.close()
+            mydb.close()
+            return getConditionsSeperate(userID,templateID)
+
+
+##################################### Delete Condition API ########################################
+
+@app.route("/api/postDeleteCondition", methods=["POST"])
+def postDeleteCondition():
+
+    userID = getUserID()
+    content = request.json
+    templateID = content['templateID']
+    conditionID = content['conditionID']
+
+    if userID == -1:
+        result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
+        response = jsonify(result)
+        response.set_cookie('credHash',"",max_age=0)
+        response.set_cookie('username',"",max_age=0)
+        return response
+    else:
+        mydb = mysql.connector.connect(pool_name = "mypool")
+        mycursor = mydb.cursor(prepared=True)
+        stmt = "SELECT DISTINCT templateName, Game.gameID FROM Template JOIN Game on Template.gameID=Game.gameID WHERE userID=%s AND Template.templateID=%s"
+        mycursor.execute(stmt,(userID,templateID))
+        row = mycursor.fetchone()
+        mycursor.close()
+
+        if row == None:
+            result = {"successful":False,"error":120,"errorMessage":"User does not have access to edit this template."}
+            response = jsonify(result)
+            mydb.close()
+            return response;
+        else:
+            templateName,gameID = row
+            mycursor = mydb.cursor(prepared=True)
+            stmt = "DELETE FROM ScoringCondition WHERE conditionID=%s"
+            mycursor.execute(stmt,(conditionID,))
+            mydb.commit();
+            mycursor.close()
+            mydb.close()
+            return getConditionsSeperate(userID,templateID)
+
+
+
+##################################### Delete Template API ########################################
+
+@app.route("/api/postDeleteTemplate", methods=["POST"])
+def postDeleteTemplate():
+
+    userID = getUserID()
+    content = request.json
+    templateID = content['templateID']
+
+    if userID == -1:
+        result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
+        response = jsonify(result)
+        response.set_cookie('credHash',"",max_age=0)
+        response.set_cookie('username',"",max_age=0)
+        return response
+    else:
+        mydb = mysql.connector.connect(pool_name = "mypool")
+        mycursor = mydb.cursor(prepared=True)
+        stmt = "SELECT DISTINCT templateName, Game.gameID FROM Template JOIN Game on Template.gameID=Game.gameID WHERE userID=%s AND Template.templateID=%s"
+        mycursor.execute(stmt,(userID,templateID))
+        row = mycursor.fetchone()
+        mycursor.close()
+
+        if row == None:
+            result = {"successful":False,"error":120,"errorMessage":"User does not have access to edit this template."}
+            response = jsonify(result)
+            mydb.close()
+            return response;
+        else:
+            templateName,gameID = row
+
+            mycursor = mydb.cursor(prepared=True)
+            stmt = "DELETE FROM ValueRow WHERE templateID=%s"
+            mycursor.execute(stmt,(templateID,))
+            mycursor.close();
+
+            mycursor = mydb.cursor(prepared=True)
+            stmt = "DELETE FROM ScoringCondition WHERE templateID=%s"
+            mycursor.execute(stmt,(templateID,))
+            mycursor.close();
+
+            mycursor = mydb.cursor(prepared=True)
+            stmt = "DELETE FROM Template WHERE templateID=%s"
+            mycursor.execute(stmt,(templateID,))
+            mycursor.close();
+
+            mydb.commit();
+            mydb.close()
+            return getConditionsSeperate(userID,templateID)
+    
+
+##################################### My Templates Page ########################################
+
+# My Templates page
+@app.route("/api/getMyTemplates", methods=["POST"])
+def getMyTemplates():
+
+    userID = getUserID()
+    content = request.json
+
+
+    if userID == -1:
+        result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
+        response = jsonify(result)
+        response.set_cookie('credHash',"",max_age=0)
+        response.set_cookie('username',"",max_age=0)
+        return response
+    else:
+
+        #Execute sql call to get appropriate data
+        mydb = mysql.connector.connect(pool_name = "mypool")
+        mycursor = mydb.cursor(prepared=True)
+        stmt  = "select pictureURL, templateName, numRatings, averageRating,Game.gameID,Template.templateID from Template JOIN Game ON Template.gameID=Game.gameID WHERE Template.userID=%s ORDER BY averageRating"
+        mycursor.execute(stmt,(userID,))
+        myresult = mycursor.fetchall()
+        mycursor.close()
+
+        result = {
+        "templates":[],
+        "successful":True
+        }
+
+        #For each row returned from DB: parse and create a dictionary from it
+        for row in myresult:
+            picURL, templateName, numRatings, averageRating,gameID,templateID = row
+            template = {"pictureURL":"{}".format(picURL)
+                        ,"templateName":"{}".format(templateName)
+                        ,"numRatings":numRatings
+                        ,"averageRating":float(averageRating)
+                        ,"gameID":"{}".format(gameID)
+                        ,"templateID":"{}".format(templateID)}
+            #append each new dictionary to its appropriate list
+            result["templates"].append(template)
+
+
+        mydb.close()
+        response = jsonify(result)
+        return response
 
 # --------------------------- Async Stuffs ----------------------#
 

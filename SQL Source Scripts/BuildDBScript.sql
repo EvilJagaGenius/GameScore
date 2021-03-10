@@ -56,6 +56,8 @@ maxPerPlayer INT DEFAULT 0,
 scoringType ENUM ('Linear','Tabular') DEFAULT 'Linear',
 inputType ENUM ('Increment','Textbox') DEFAULT 'Increment',
 pointMultiplier FLOAT DEFAULT 1,
+maxPerPlayerActive boolean DEFAULT false,
+maxPerGameActive boolean DEFAULT false,
 PRIMARY KEY(conditionID,gameID,templateID),
 CONSTRAINT fk_scoringcondition_gameID_game FOREIGN KEY(gameID) REFERENCES Game(gameID),
 CONSTRAINT fk_scoringcondition_templateID_template FOREIGN KEY(templateID) REFERENCES Template(templateID));

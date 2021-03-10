@@ -624,8 +624,8 @@ def getScoring(userID):
         ### Global Awards ###
         #Get Conditions
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("select DISTINCT conditionName, maxPerGame, ScoringCondition.conditionID FROM ScoringCondition JOIN ActiveMatch using (GameID, TemplateID) WHERE matchID = %s AND maxPerGame > 0")
-        mycursor.execute(stmt,(matchID,))
+        stmt = ("select DISTINCT conditionName, maxPerGame, ScoringCondition.conditionID FROM ScoringCondition JOIN ActiveMatch using (GameID, TemplateID) WHERE matchID = %s AND maxPerGameActive =%s")
+        mycursor.execute(stmt,(matchID,True))
         myresult = mycursor.fetchall()
         mycursor.close()
 
@@ -695,16 +695,16 @@ def getScoring(userID):
             	result["isHost"]=displayName
 
             mycursor = mydb.cursor(prepared=True)
-            stmt = ("select conditionName, conditionID, value, score, inputType, maxPerPlayer FROM ActiveMatchPlayerConditionScore JOIN ScoringCondition using(conditionID,templateID,gameID)WHERE ActiveMatchPlayerConditionScore.matchID = %s AND playerID = %s")
+            stmt = ("select conditionName, conditionID, value, score, inputType, maxPerPlayer, maxPerPlayerActive FROM ActiveMatchPlayerConditionScore JOIN ScoringCondition using(conditionID,templateID,gameID)WHERE ActiveMatchPlayerConditionScore.matchID = %s AND playerID = %s")
             mycursor.execute(stmt,(matchID,playerID))
             myresultCondition = mycursor.fetchall()
             mycursor.close()
 
             for rowCondition in myresultCondition:
-                conditionName, conditionID, value, score, inputType, maxPerPlayer = rowCondition
+                conditionName, conditionID, value, score, inputType, maxPerPlayer,maxPerPlayerActive = rowCondition
                 
                 isHigher = False
-                if value>maxPerPlayer and maxPerPlayer>0:
+                if value>maxPerPlayer and maxPerPlayer>0 and maxPerPlayerActive==True:
                     playerFinalizeScore["conditions"].append({
                         "conditionName":"{}".format(conditionName)
                         ,"value":"{}".format(value)
@@ -1542,13 +1542,13 @@ def getConditionsSeperate(userID,templateID):
         result["templateID"] = templateID
 
         mycursor = mydb.cursor(prepared=True)
-        stmt = "SELECT conditionName,description,maxPerGame,maxPerPlayer,scoringType,inputType,pointMultiplier,conditionID FROM ScoringCondition WHERE templateID=%s"
+        stmt = "SELECT conditionName,description,maxPerGame,maxPerPlayer,scoringType,inputType,pointMultiplier,conditionID,maxPerPlayerActive,maxPerGameActive FROM ScoringCondition WHERE templateID=%s"
         mycursor.execute(stmt,(templateID,))
         results = mycursor.fetchall()
         mycursor.close();
 
         for row in results:
-            conditionName, description,maxPerGame,maxPerPlayer,scoringType,inputType,pointMultiplier,conditionID = row
+            conditionName, description,maxPerGame,maxPerPlayer,scoringType,inputType,pointMultiplier,conditionID,maxPerPlayerActive,maxPerGameActive = row
 
             condition = {
             "conditionName":"{}".format(conditionName),
@@ -1559,7 +1559,9 @@ def getConditionsSeperate(userID,templateID):
             "inputType":"{}".format(inputType),
             "pointMultiplier":pointMultiplier,
             "conditionID":conditionID,
-            "valueRows":[]
+            "valueRows":[],
+            "maxPerGameActive":maxPerGameActive,
+            "maxPerPlayerActive":maxPerPlayerActive
             }
 
             mycursor = mydb.cursor(prepared=True)
@@ -1665,6 +1667,8 @@ def postEditCondition():
     conditionName = content['conditionName']
     maxPerGame = content['maxPerGame']
     maxPerPlayer = content['maxPerPlayer']
+    maxPerGameActive = content['maxPerGameActive']
+    maxPerPlayerActive = content['maxPerPlayerActive']
     scoringType = content['scoringType']
     inputType = content['inputType']
     description = content['description']
@@ -1697,8 +1701,9 @@ def postEditCondition():
         else:
             templateName,gameName,gameID = row
             mycursor = mydb.cursor(prepared=True)
-            stmt = "UPDATE ScoringCondition SET conditionName=%s, maxPerGame=%s,maxPerPlayer=%s,description=%s,scoringType=%s,inputType=%s,pointMultiplier=%s WHERE conditionID=%s"
-            mycursor.execute(stmt,(conditionName,maxPerGame,maxPerPlayer,description,scoringType,inputType,pointMultiplier,conditionID))
+            print(maxPerPlayerActive)
+            stmt = "UPDATE ScoringCondition SET conditionName=%s, maxPerGame=%s,maxPerPlayer=%s,description=%s,scoringType=%s,inputType=%s,pointMultiplier=%s,maxPerGameActive=%s,maxPerPlayerActive=%s WHERE conditionID=%s"
+            mycursor.execute(stmt,(conditionName,maxPerGame,maxPerPlayer,description,scoringType,inputType,pointMultiplier,maxPerGameActive,maxPerPlayerActive,conditionID))
             
             mycursor = mydb.cursor(prepared=True)
             stmt = "Select rowID from ValueRow WHERE conditionID=%s"

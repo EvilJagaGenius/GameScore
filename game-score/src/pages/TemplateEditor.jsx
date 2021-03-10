@@ -13,6 +13,8 @@ import { IconButton } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import {ToastsContainer, ToastsStore,ToastsContainerPosition} from 'react-toasts';
 import { Button } from '@material-ui/core';
+import TemplateHintModal from './TemplateHintModal';
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 
 
     //Code adapted from: https://morioh.com/p/4576fa674ed8
@@ -35,6 +37,7 @@ import { Button } from '@material-ui/core';
         };
     }
 
+   
 
 export default class TemplateEditor extends Component {
 
@@ -46,7 +49,16 @@ export default class TemplateEditor extends Component {
             data:{},
             loaded:false,
             showDeleteTemplate:false,
-            modalStyle:getModalStyle()
+            modalStyle:getModalStyle(),
+            showHintModal:false
+        })
+         this.closedHintModal = this.closedHintModal.bind(this)
+    }
+
+    closedHintModal()
+    {
+        this.setState({
+            showHintModal:false
         })
     }
 
@@ -94,6 +106,17 @@ export default class TemplateEditor extends Component {
                 {
                 this.state.loaded === true &&
                 <>
+
+                    <IconButton onClick={()=>{
+                        this.setState({
+                            showHintModal:true
+                        })
+                    }}
+
+                    >
+                     <HelpOutlineIcon></HelpOutlineIcon>
+                 </IconButton>
+
                      <TextField defaultValue={this.state.data.templateName}
                         onBlur={(e)=>{
 
@@ -216,16 +239,22 @@ export default class TemplateEditor extends Component {
                                         </TableRow>
                                         }
                                      </>
-
-                                    <TableRow>
-                                        <TableCell align="left:"><b>Max Per Game:</b></TableCell>
-                                        <TableCell align="center">{this.state.data["conditions"][key].maxPerGame}</TableCell>
-                                    </TableRow>
-
+                                     <>
+                                    {
+                                        this.state.data["conditions"][key].maxPerGameActive == true &&
+                                        <TableRow>
+                                            <TableCell align="left:"><b>Max Per Game:</b></TableCell>
+                                            <TableCell align="center">{this.state.data["conditions"][key].maxPerGame}</TableCell>
+                                        </TableRow>
+                                    }
+                                    </>
+                                    {
+                                    this.state.data["conditions"][key].maxPerPlayerActive == true &&
                                     <TableRow>
                                         <TableCell align="left:"><b>Max Per Player:</b></TableCell>
                                         <TableCell align="center">{this.state.data["conditions"][key].maxPerPlayer}</TableCell>
                                     </TableRow>
+                                    }
 
                                     <TableRow>
                                         <TableCell align="left:"><b>Input Type:</b></TableCell>
@@ -318,7 +347,7 @@ export default class TemplateEditor extends Component {
                   </Modal>
                 </>
                 }
-
+                <TemplateHintModal show={this.state.showHintModal} closeHint={this.closedHintModal}></TemplateHintModal>
                 <ToastsContainer position={ToastsContainerPosition.BOTTOM_CENTER} store={ToastsStore}/>
             </>
         );

@@ -20,6 +20,7 @@ import { IconButton } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import TemplateHintModal from './TemplateHintModal';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import Checkbox from '@material-ui/core/Checkbox';
 
 
 
@@ -355,6 +356,18 @@ export default class ConditionEditor extends Component {
                             <TableCell align="left:"><b>Max Per Game:</b></TableCell>
                             
                               <TableCell align="center">
+                                 <Checkbox checked={this.state.data["conditions"][this.state.condPos].maxPerGameActive}
+                                     onChange={(e)=>{
+                                        var newData = this.state.data
+                                        newData["conditions"][this.state.condPos].maxPerGameActive = e.target.checked
+                                        this.setState({
+                                            data:newData,
+                                            madeChanges:true
+                                        })
+                                        }}>
+                                    >
+                                    
+                                </Checkbox>
                                 <TextField id="maxPerGameInput" type="number" value={this.state.data["conditions"][this.state.condPos].maxPerGame}
                                      onChange={(e)=>{
                                             var newData = this.state.data
@@ -371,6 +384,18 @@ export default class ConditionEditor extends Component {
                         <TableRow>
                             <TableCell align="left:"><b>Max Per Player:</b></TableCell>
                              <TableCell align="center">
+                                <Checkbox checked={this.state.data["conditions"][this.state.condPos].maxPerPlayerActive}
+                                     onChange={(e)=>{
+                                        var newData = this.state.data
+                                        newData["conditions"][this.state.condPos].maxPerPlayerActive = e.target.checked
+                                        this.setState({
+                                            data:newData,
+                                            madeChanges:true
+                                        })
+                                        }}>
+                                    >
+                                    
+                                </Checkbox>
                                 <TextField id="maxPerPlayerInput" type="number" value={this.state.data["conditions"][this.state.condPos].maxPerPlayer}
                                      onChange={(e)=>{
                                             var newData = this.state.data
@@ -387,6 +412,7 @@ export default class ConditionEditor extends Component {
                         <TableRow>
                             <TableCell align="left:"><b>Input Type:</b></TableCell>
                             <TableCell align="center">
+
                                 <Select id="inputTypeInput" defaultValue={this.state.data["conditions"][this.state.condPos].inputType}
                                     onChange={(e)=>{
                                             var newData = this.state.data
@@ -438,7 +464,9 @@ export default class ConditionEditor extends Component {
                         conditionID: this.state.conditionID,
                         templateID:this.state.templateID,
                         valueRows:this.state.data["conditions"][this.state.condPos]["valueRows"],
-                        deletedRowIDs:this.state.deletedRowIDs
+                        deletedRowIDs:this.state.deletedRowIDs,
+                        maxPerPlayerActive:this.state.data["conditions"][this.state.condPos].maxPerPlayerActive,
+                        maxPerGameActive:this.state.data["conditions"][this.state.condPos].maxPerGameActive
                         })
                     };
 
@@ -549,7 +577,7 @@ export default class ConditionEditor extends Component {
 
                     </div>
                   </Modal>
-                  <TemplateHintModal show={this.state.showHintModal} closeHint={this.closedHintModal}></TemplateHintModal>
+                <TemplateHintModal show={this.state.showHintModal} closeHint={this.closedHintModal}></TemplateHintModal>
                <ToastsContainer position={ToastsContainerPosition.BOTTOM_CENTER} store={ToastsStore}/>
         </>
       

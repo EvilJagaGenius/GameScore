@@ -5,6 +5,7 @@ import Table from '@material-ui/core/Table';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import {Link} from 'react-router-dom';
 
 export default class SearchResults extends Component {
     constructor(props) {
@@ -113,6 +114,11 @@ export default class SearchResults extends Component {
 
         return (
             <div>
+                {/* Back button */}
+                <Link to = "/home">
+                    <input type="button" value="Back"/>
+                </Link><br/>
+
                 {/* Search Bar */}
                 <input placeholder="Search Templates"
                     style={searchStyle}
@@ -132,7 +138,7 @@ export default class SearchResults extends Component {
                   <> 
                     {Object.keys(this.state.filtered).map(key => (
                         <>
-                            <TableRow onClick={()=>this.selectTemplate(0,key)}>
+                            <TableRow onClick={()=>this.selectTemplate(key)}>
                                 <TemplateRow 
                                     pictureURL = {this.state.filtered[key].pictureURL} 
                                     templateName = {this.state.filtered[key].templateName}
@@ -140,13 +146,14 @@ export default class SearchResults extends Component {
                                     averageRating = {this.state.filtered[key].averageRating}
                                 />
                             </TableRow>
-                            {this.isSelected(0,key) === true &&
+                            {this.isSelected(key) === true &&
                             <>
                                 <BottomUI
                                     templateName = {this.state.filtered[key].templateName}
                                     templateID = {this.state.filtered[key].templateID}
                                     gameID = {this.state.filtered[key].gameID}
-                                    selected = {this.isSelected(0,key)}>
+                                    selected = {this.isSelected(key)}
+                                    play = {true}>
                                 </BottomUI>
                             </>
                             }

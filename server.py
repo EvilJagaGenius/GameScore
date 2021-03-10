@@ -2146,7 +2146,7 @@ def templateSearch():
     FROM AppUser u
         INNER JOIN Template t ON u.userID = t.userID
         INNER JOIN Game g ON t.gameID = g.gameID
-    ORDER BY t.averageRating;
+    ORDER BY t.averageRating DESC;
     """)
     mycursor.execute(stmt)
     myresult = mycursor.fetchall()

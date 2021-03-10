@@ -16,11 +16,6 @@ import MyTemplates from './MyTemplates';
 import Profile from './profilePages/Profile';
 import PlayGame from './JoinGame';
 
-function getCookieValue(name) {
-  let result = document.cookie.match("(^|[^;]+)\\s*" + name + "\\s*=\\s*([^;]+)")
-  return result ? result.pop() : ""
-}
-
 /**
  * Home component: creates tab bar system
  * @param {*} props 
@@ -59,9 +54,9 @@ const Home = props => {
   const handleChange = (event, newValue) => {
     history.push(`/${tabNameToIndex[newValue]}`);
     setSelectedTab(newValue);
-    setLoggedIn(getCookieValue("username"));
+    setLoggedIn(Cookies.get("username"));
     console.log("the username cookie is...");
-    console.log(getCookieValue("username"));
+    console.log(Cookies.get("username"));
   };
 
   //return elements to be rendered from component

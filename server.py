@@ -2332,3 +2332,43 @@ def avatarPOST():
         
     response = {"successful": True}
     return jsonify(response)
+
+##################################### Search API ########################################
+@app.route("/api/search/templates", methods=["GET"])
+def templateSearch():
+    
+    #Create JSON framework for what we will return
+    result = {"templates":[]}
+
+    ### get all templates ###
+    
+    #Execute sql call to get appropriate data
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("""
+    SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName
+    FROM AppUser u
+        INNER JOIN Template t ON u.userID = t.userID
+        INNER JOIN Game g ON t.gameID = g.gameID
+    ORDER BY t.averageRating DESC;
+    """)
+    mycursor.execute(stmt)
+    myresult = mycursor.fetchall()
+    mycursor.close()
+
+    #For each row returned from DB: pares and create a dictionary from it
+    for row in myresult:
+        userID, userName, picURL, templateName, numRatings, averageRating, gameID, templateID, gameName = row
+        template = {"userID":"{}".format(userID)
+                    ,"userName":"{}".format(userName)
+                    ,"pictureURL":"{}".format(picURL)
+                    ,"templateName":"{}".format(templateName)
+                    ,"numRatings":numRatings
+                    ,"averageRating":float(averageRating)
+                    ,"gameID":"{}".format(gameID)
+                    ,"templateID":"{}".format(templateID)
+                    ,"gameName":"{}".format(gameName)}
+        #append each new dictionary to list
+        result["templates"].append(template)
+
+    return jsonify(result)

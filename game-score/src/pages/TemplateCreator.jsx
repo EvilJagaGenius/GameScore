@@ -1,130 +1,146 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
+import { Autocomplete } from '@material-ui/lab';
+import TextField from '@material-ui/core/TextField';
+import { Button } from '@material-ui/core';
+import AddIcon from '@material-ui/icons/Add';
+import ClearIcon from '@material-ui/icons/Clear';
+import {ToastsContainer, ToastsStore,ToastsContainerPosition} from 'react-toasts';
+import SaveIcon from '@material-ui/icons/Save';
 
-export default class TemplateCreator extends Component {
+export default class TemplateCreator extends React.Component {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            gameID: 0,
-            templateName: "",
-            cloneID: -1,
-            games: {},
-            templates: {},
-            loaded: false
-        }
+    constructor(props)
+    {
+        super(props)
+        this.state = ({data:"",
+        loaded:false,
+        cloneID:-1,
+        templateName:"",
+        gameID:0
+        })
     }
 
-    handleSubmit = (e) => {
-        
-        const requestOptions = {
-            method:'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({
-                gameID: this.state.gameID,
-                templateName: this.state.templateName,
-                cloneID: this.state.cloneID
-            })
-        };
+    componentDidMount()
+    {
+        fetch("/api/getGamesAndTemplates")
+          .then(res => res.json())
+          .then((result) => {
 
-        
-        fetch('/newTemplate/', requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                console.log(result)
-                this.setState({templateID: result.id, loaded: true},
-                    this.pushEditor);
-                console.log(this.state.loaded);
-                console.log(this.state.templateID)
-            },)
-        
+              console.log(result)
+              this.setState({
+                data:result,
+                loaded: true
+              })
 
-        console.log(this.state.templateID);
-        
+          },) //End Fetch
     }
 
-    pushEditor = () => {
-        this.props.history.push({
-            pathname: "/mytemplates/editor",
-            state: {
-                templateid: this.state.templateID,
-                templatename: this.state.templateName,
-                gameid: this.state.gameID
-            }
-        });
-    }
+    render()
+    {
+        return(
+            <>
+                {
+                this.state.loaded ===true &&
+                <>
+                    <Autocomplete
+                      options={this.state.data.games}
+                      getOptionLabel={(option) => option.gameName}
+                      onChange={(e,newValue,reason)=>{
 
-    handleGameChange = e => {
-        this.setState({gameID: e.target.value});
-    }
+                        if(reason ==='clear')
+                        {
+                            this.setState({gameID:0})
+                        }
+                        else if(reason ==='select-option' || reason ==='blur')
+                        {
+                            this.setState({gameID:newValue.gameID})
+                        }
+                        
+                        }}
+                      renderInput={(params) => <TextField {...params} label="Game" variant="outlined" />}
+                    />
 
-    handleNameChange = e => {
-        this.setState({templateName: e.target.value});
-    }
+                    <TextField onChange={(e)=>this.setState({templateName:e.target.value})} label="Name Template Name"> </TextField>
 
-    handleCloneChange = e => {
-        this.setState({cloneID: e.target.value});
-    }
+                    <Autocomplete
+                      defaultValue={{templateName:"<Do Not Clone>",templateID:-1}}
+                      options={this.state.data.templates}
+                      getOptionLabel={(option) => option.templateName}
+                      onChange={(e,newValue,reason)=>{
 
-    componentDidMount(){
-        fetch("/edit/templateGameList") //Needs an actual route
-            .then(res => res.json())
-            .then(
-                result => {
-                    console.log(result.games);
-                    this.setState({
-                        games: result.games,
-                        templates: result.templates,
-                        loaded: true
-                    });
-                }
-            )
-    }
+                        if(reason ==='clear')
+                        {
+                            this.setState({cloneID:0})
+                        }
+                        else if(reason ==='select-option' || reason ==='blur')
+                        {
+                            this.setState({cloneID:newValue.templateID})
+                        }
+                        
+                        }}
+                      renderInput={(params) => <TextField {...params} label="Template to Clone" variant="outlined" />}
+                    />
 
-    handlePrint = e => {
-        console.log(this.state.gameID);
-        console.log(this.state.templateName);
-        console.log(this.state.cloneID);
-    }
-    
-    render() {
-
-        return (
-    
-            <form>
-                <label for="gameName">Choose a Game: </label><br/>
-                <select name="gameName" id="gameName" onChange={this.handleGameChange}>
-                    <option value={0}>Choose a Game</option>
-                    {this.state.loaded === true &&
-                        <>
-                            {Object.keys(this.state.games).map(key => (
-                                <option value={this.state.games[key].gameID}>{this.state.games[key].gameName}</option>
-                            ))}
-                        </>
-                    }
-                </select><br/>
+                    <Button startIcon={<AddIcon/>} variant = "contained" color="primary"
+                    onClick={()=>{
                     
-                <label for="templateName">Template Name: </label><br/>
-                <input type="text" id="templateName" name="templateName" placeholder="Template Name" onChange={this.handleNameChange} /><br/>
-            
-                <label for="clone">Clone a template:</label><br/>
-                <select name="clone" id="clone" onChange={this.handleCloneChange} >
-                    <option value={-1}>-- Do not clone --</option>
-                    {this.state.loaded === true &&  
-                        <>  
-                            {Object.keys(this.state.templates).map(key => (
-                                <option value={this.state.templates[key].templateID}>{this.state.templates[key].templateName}</option>
-                            ))}
-                        </>
-                    }
-                </select><br/>
+                        if(this.state.gameID===0)
+                        {
+                            ToastsStore.error("Game Missing");
+                        }
+                        else if(this.state.templateName==="")
+                        {
+                            ToastsStore.error("Template Name Missing");
+                        }
+                        else if(this.state.cloneID===0)
+                        {
+                            ToastsStore.error("Tempalate to Clone Missing");
+                        }
+                        else //If Good
+                        {
 
-                <input type="button" value="Create Template" onClick={this.handleSubmit}/>
-                <Link to="/mytemplates/">
-                    <input type="button" value="Cancel"/>
-                </Link>
-             </form>
-        
+                            const requestOptions = {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                credentials: 'include',
+                                body: JSON.stringify({
+                                  gameID: this.state.gameID,
+                                  cloneID: this.state.cloneID,
+                                  templateName: this.state.templateName
+                                })
+                            };
+
+                            fetch(`/api/postCreateTemplate`,requestOptions)
+                                .then(res => res.json()).then(data => {
+                                console.log(data);
+                                ToastsStore.success("Template Created");
+
+                                  this.props.history.push({
+                                  pathname:"/mytemplates/editor",
+                                  state:{templateID:data.templateID}
+                                });
+                            })
+
+                        }
+                    }}
+
+
+                    > Create Template</Button>
+                    <Button startIcon={<SaveIcon/>} variant = "contained" color="primary"
+                    onClick={()=>{
+                    this.props.history.goBack()
+                    }}
+
+                    > Cancel</Button>
+
+                    <ToastsContainer position={ToastsContainerPosition.BOTTOM_CENTER} store={ToastsStore}/>
+                </>
+
+                
+                }
+            </>
         );
     }
+
 };

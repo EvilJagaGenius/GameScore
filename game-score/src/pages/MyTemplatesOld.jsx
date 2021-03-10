@@ -1,4 +1,9 @@
+/**
+ * MyTemplates.jsx-Jonathon Lannon
+ * As of now, this is a placeholder for future code. Component is implemented in the global tab system
+ */
 
+ //import resources
 import React, { Component } from "react";
 import GameRow from "../GameRow"
 import TemplateRow from "../TemplateRow";
@@ -14,49 +19,29 @@ import BottomUI from "../BottomUI";
 
 export default class MyTemplates extends Component {
 
-  constructor(props)
-  {
-      super(props)
-
-        this.state ={
-        data:{},
-        loaded:false,
-        selectedTemplate:-1
-      }
-
-      this.callAPI = this.callAPI.bind(this)
+  state = {
+    data:{},
+    loaded:"False",
+    selectedTemplate:-1
   }
 
 
-  callAPI()
-  {
-      const requestOptions = {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      credentials: 'include',
-      body: JSON.stringify({
-      })
-    };
-
-    fetch("/api/getMyTemplates",requestOptions) //Needs an actual route
+  componentDidMount() {
+    fetch("/api/myTemplates") //Needs an actual route
       .then(res => res.json())
       .then(
         (result) => {
           this.setState({
-            data: result.templates,
-            loaded: true
+            data: result,
+            loaded: "True"
           });
           console.log(result)
         },
+        // Note: it's important to handle errors here
+        // instead of a catch() block so that we don't swallow
+        // exceptions from actual bugs in components.
       )
-
   }
-
-  componentDidMount() 
-  {
-    this.callAPI()
-  }
-
 
   selectTemplate(newRowPos)
   {
@@ -78,6 +63,14 @@ export default class MyTemplates extends Component {
     }
   }
 
+  /*
+  function RouteTemplateEditor() {
+    let path = '/mytemplates/templatecreator';
+    let history = useHistory();
+    history.push(path);
+
+  }
+  */
 
   render() {
     const { classes } = this.props;
@@ -87,13 +80,13 @@ export default class MyTemplates extends Component {
           <Table size="small">
                 {/*Table displaying the dynamic data for the users created templates*/}
                 {
-                this.state.loaded === true &&
+                this.state.loaded === "True" &&
                 <> 
                     {/* Iterate through created templates and render the data in a tabular format */}
                     {Object.keys(this.state.data).map(key => (
                       <>
                       <TableRow onClick={()=>this.selectTemplate(key)}>
-                        <TemplateRow rowPos={key}
+                        <TemplateRow rowPos={key} accPos="0" 
                         pictureURL = {this.state.data[key].pictureURL} 
                         templateName = {this.state.data[key].templateName}
                         numRatings = {this.state.data[key].numRatings}
@@ -107,15 +100,13 @@ export default class MyTemplates extends Component {
                         <>
                           {console.log(this.state.data[key])}
                           <BottomUI
-                            templateName = {this.state.data[key].templateName}
-                            templateID = {this.state.data[key].templateID}
-                            gameID = {this.state.data[key].gameID}
+                            templatename = {this.state.data[key].templateName}
+                            templateid = {this.state.data[key].templateID}
+                            gameid = {this.state.data[key].gameID}
                             selected = {this.isSelected(key)}
                             play ={true}
                             edit = {true}
-                            del = {true}
-                            update ={this.callAPI}>
-
+                            del = {true}>
                             </BottomUI>
                         </>
                       }
@@ -125,11 +116,11 @@ export default class MyTemplates extends Component {
               }
           </Table>
         </TableContainer>
-          <Link to="/mytemplates/creator">
-            <Fab color="primary" aria-label="add">
-              <AddIcon />
-            </Fab>
-          </Link>
+        <Link to="/mytemplates/creator">
+          <Fab color="primary" aria-label="add">
+            <AddIcon />
+          </Fab>
+        </Link>
       </>
     )
   }

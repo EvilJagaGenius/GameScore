@@ -14,7 +14,7 @@ C:\Users\Your Name\AppData\Local\Programs\Python\Python36-32\Scripts>python -m p
 
 Install react-floating-action-button by running the following command in the command line
 npm install react-floating-action-button  
-npm install -S react-toasts  
+npm install -S react-toasts --save
 Install for Async Scoring:  
 npm install socket.io --save  
 pip install flask-socketio  

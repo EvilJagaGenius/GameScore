@@ -1,173 +1,326 @@
 import React,  {Component} from 'react'
 import { Link, useHistory } from "react-router-dom"
+import Table from '@material-ui/core/Table';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
+import CreateIcon from '@material-ui/icons/Create';
+import AddIcon from '@material-ui/icons/Add';
+import Modal from '@material-ui/core/Modal';
+import { IconButton } from '@material-ui/core';
+import TextField from '@material-ui/core/TextField';
+import {ToastsContainer, ToastsStore,ToastsContainerPosition} from 'react-toasts';
+import { Button } from '@material-ui/core';
+
+
+    //Code adapted from: https://morioh.com/p/4576fa674ed8
+    //Centers Modal on page
+    function getModalStyle()
+    {
+        const top = 50;
+        const left = 50;
+        return {
+            top: `${top}%`,
+            left: `${left}%`,
+            transform: `translate(-${top}%, -${left}%)`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'absolute',
+            width: "90%",
+            padding:18,
+            backgroundColor:"white",
+        };
+    }
+
 
 export default class TemplateEditor extends Component {
 
-    constructor(props) {
+    constructor(props)
+    {
         super(props)
-        this.state = {
-            templateID: this.props.location.state.templateid,
-            templateName: this.props.location.state.templatename,
-            gameID: this.props.location.state.gameid,
-            data: {},
-            loaded: false,
-            conditionID: 0
-        }
+        this.state=({
+            templateID:0,
+            data:{},
+            loaded:false,
+            showDeleteTemplate:false,
+            modalStyle:getModalStyle()
+        })
     }
-    
-    componentDidMount() {
 
-        console.log(this.state.templateID)
-        const requestOptions = {
-            method:'POST',
+    componentDidMount()
+    {
+        var templateID = 0;
+        if(this.props.location!=null)
+        {
+            this.setState({
+                templateID:this.props.location.state.templateID
+            })
+
+            templateID = this.props.location.state.templateID
+        }
+
+
+         const requestOptions = {
+            method: 'POST',
             headers: {'Content-Type': 'application/json'},
+            credentials: 'include',
             body: JSON.stringify({
-                templateID: this.state.templateID
+              templateID: templateID
             })
         };
 
-        fetch("/edit/", requestOptions) //Needs an actual route
-            .then(res => res.json())
-            .then(result => {
-                this.setState({
-                    data: result,
-                    loaded: true
-                })
-                console.log(result)
-            },
-                // Note: it's important to handle errors here
-                // instead of a catch() block so that we don't swallow
-                // exceptions from actual bugs in components.
-            )
+        fetch("/api/getConditions",requestOptions)
+          .then(res => res.json())
+          .then((result) => {
+
+              console.log(result)
+              this.setState({
+                data:result,
+                loaded: true
+              })
+
+          },) //End Fetch
+
+
     }
 
-    handleNameChange = (e) =>{
-        this.setState({templateName: e.target.value})
-    }
+    render()
+    {
+        return(
+            <>
+                {
+                this.state.loaded === true &&
+                <>
+                     <TextField defaultValue={this.state.data.templateName}
+                        onBlur={(e)=>{
 
-    handleSubmit = (e) =>{
-        const requestOptions = {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                templateID: this.state.templateID,
-                newName: this.state.templateName
-            })
-        };
+                             const requestOptions = {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                credentials: 'include',
+                                body: JSON.stringify({
+                                  templateID: this.state.templateID,
+                                  templateName:e.target.value
+                                })
+                            };
 
-        fetch("/edit/name", requestOptions)
-            .then(res => res.json())
-            .then(result => {
-                this.setState({
-                    loaded: true
-                })
-            })
+                            fetch("/api/postEditTemplateName",requestOptions)
+                              .then(res => res.json())
+                              .then((result) => {
 
-        this.props.history.push({
-            pathname: "/mytemplates"
-        })
-    }
+                                  console.log(result)
+                                  this.setState({
+                                    data:result,
+                                    loaded: true
+                                  })
 
-    handleNewCondition = (e) => {
+                                  ToastsStore.success("Template Name Updated");
 
-        const requestOptions = {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                templateID: this.state.templateID,
-                gameID: this.state.gameID
-            })
-        }
-        
-        fetch('/edit/addCondition', requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                console.log(result.id)
-                console.log(result);
-                this.setState({
-                    loaded: true,
-                    conditionID: result.id
-                }, this.pushCondition)
-            },)         
-    }
+                              },) //End Fetch
 
-    pushCondition = () => {
+                        }}
+                        ></TextField>
 
-        console.log(this.state.conditionID);
-        this.props.history.push({
-            pathname: "/mytemplates/conditioneditor",
-            state: {
-               templateid: this.state.templateID,
-               conditionid: this.state.conditionID,
-               gameid: this.state.gameID
-            }
-        })
-    }
+                     <h4>({this.state.data.gameName})</h4>
 
-    handleBack = (e) => {
-        this.props.history.push({
-            pathname:"/mytemplates"
-        })
-    }
+                    <>
+                        {/*For each Player, show scores*/}
+                        {Object.keys((this.state.data["conditions"])).map(key=> (
+                              <TableContainer component = {Paper}> 
+                                <Table>
+                                    <TableHead>
+                                        <TableRow >
+                                            <TableCell colSpan={2} align="center">{this.state.data["conditions"][key].conditionName}</TableCell>
+                                            <IconButton
+                                            onClick={()=>{
+                                                console.log(this.state.data["conditions"][key].conditionID)
+                                                this.props.history.push({
+                                                  pathname:"/mytemplates/conditioneditor",
+                                                  state:
+                                                  {templateID:this.state.data.templateID,
+                                                   conditionID:this.state.data["conditions"][key].conditionID}
+                                                   
+                                                });
 
-    handleEdit = (e) => {
-        
-    }
+                                                }}>
+                                                <CreateIcon></CreateIcon>
+                                            </IconButton>
+                                            
+                                        </TableRow>
+                                    </TableHead>
 
-    render() {
+                                    {/*Yes, in a perfect world this would be using a loop, not worth the trouble here*/}
+                                    <TableRow>
+                                        <TableCell colSpan={2} align="center">{this.state.data["conditions"][key].description}</TableCell>
+                                    </TableRow>
 
-        return (
+                                    <TableRow>
+                                        <TableCell align="left:"><b>Scoring Type:</b></TableCell>
+                                        <TableCell align="center">{this.state.data["conditions"][key].scoringType}</TableCell>
+                                    </TableRow>
 
-            <form>
-                <input type="button" value="Back" onClick={this.handleBack}/><br/>
-                <input type="text" id="title" placeholder="Type the Title Here" value={this.state.templateName} onChange={this.handleNameChange}/>
-                <div className="conditionList">
-                    {Object.keys(this.state.data).map(key => (
-                        <div onClick={() => {
-                            this.props.history.push({
-                                pathname:"/mytemplates/conditioneditor",
-                                state: {
-                                    templateid: this.state.templateID,
-                                    conditionid: this.state.data[key].conditionID,
-                                    templatename: this.state.templateName
-                                }
-                            })
-                        }}>
-                            {console.log(this.state.data[key].conditionID)}
-                            <table className="condition">
-                                <tr>
-                                    <td>{this.state.data[key].conditionName}</td>
-                                </tr>
-                                <tr>
-                                    <td>{this.state.data[key].description}</td>
-                                </tr>
-                                <tr>
-                                    <td>Scoring Type: </td>
-                                    <td>{this.state.data[key].scoringType}</td>
-                                </tr>
-                                <tr>
-                                    <td>Points: </td>
-                                    <td>1x = {this.state.data[key].inputType}</td>
-                                </tr>
-                                <tr>
-                                    <td>Max # per Player: </td>
-                                    <td>{this.state.data[key].maxPerPlayer}</td>
-                                </tr>
-                                <tr>
-                                    <td>Max # per Game: </td>
-                                    <td>{this.state.data[key].maxPerGame}</td>
-                                </tr>
-                                <tr>
-                                    <td>Input Type: </td>
-                                    <td>{this.state.data[key].pointMultiplier}</td>
-                                </tr>
-                            </table>
-                        </div>
-                    ))}
-                </div>
-                <input type="button" value="Upload Template" onClick={this.handleSubmit}/>
-                <input type="button" value="New Condition" onClick={this.handleNewCondition}/>
-            </form>
-        )
+                                    <>
+                                        {
+                                        this.state.data["conditions"][key].scoringType=="Linear" &&
+                                        <TableRow>
+                                            <TableCell align="left:"><b>Point Multiplier:</b></TableCell>
+                                            <TableCell align="center">{this.state.data["conditions"][key].pointMultiplier}</TableCell>
+                                        </TableRow>
+                                        }
+
+                                        {
+                                        this.state.data["conditions"][key].scoringType == "Tabular" && 
+                                        <TableRow>
+                                            <TableCell colSpan={2}>
+                                                <TableContainer  component = {Paper}>
+                                                    <Table>
+                                                        <TableHead>
+                                                            <TableRow>
+                                                                <TableCell>
+                                                                    Priority
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    InputMin (Inclusive)
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    InputMax (Exclusive)
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    Score
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        </TableHead>
+                                                        {console.log(this.state.data["conditions"][key]["valueRows"])}
+                                                         {Object.keys((this.state.data["conditions"][key]["valueRows"])).map(rowNum=> (
+                                                            <TableRow>
+                                                                <TableCell>
+                                                                    <p>{(parseInt(key)+1)}</p>
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    {this.state.data["conditions"][key]["valueRows"][rowNum].inputMin}
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    {this.state.data["conditions"][key]["valueRows"][rowNum].inputMax}
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    {this.state.data["conditions"][key]["valueRows"][rowNum].outputVal}
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        ))}
+                                                    </Table>
+                                                </TableContainer>
+                                            </TableCell>
+                                        </TableRow>
+                                        }
+                                     </>
+
+                                    <TableRow>
+                                        <TableCell align="left:"><b>Max Per Game:</b></TableCell>
+                                        <TableCell align="center">{this.state.data["conditions"][key].maxPerGame}</TableCell>
+                                    </TableRow>
+
+                                    <TableRow>
+                                        <TableCell align="left:"><b>Max Per Player:</b></TableCell>
+                                        <TableCell align="center">{this.state.data["conditions"][key].maxPerPlayer}</TableCell>
+                                    </TableRow>
+
+                                    <TableRow>
+                                        <TableCell align="left:"><b>Input Type:</b></TableCell>
+                                        <TableCell align="center">{this.state.data["conditions"][key].inputType}</TableCell>
+                                    </TableRow>
+
+                                </Table>
+                              </TableContainer>
+                         ))}
+                    </>
+
+                    <Button  variant = "contained" color="primary" size = "large" style={{marginTop:12,marginRight:8}} startIcon={<AddIcon />}
+                    onClick={()=>{
+                    //Create Game with Same number of players API call
+
+                    const requestOptions = {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        templateID:this.state.templateID,
+                        })
+                    };
+
+                    fetch("/api/postCreateCondition",requestOptions)
+                      .then(res => res.json())
+                      .then((result) => {
+
+                          console.log(result)
+                          this.setState({
+                            data:result,
+                            loaded: true
+                          })
+
+                      })
+                    }}> Add Condition</Button>
+
+
+                    <Button  variant = "contained" color="primary" size = "large" style={{marginTop:12,marginRight:8}} startIcon={<AddIcon />}
+                    onClick={()=>{
+                    //Create Game with Same number of players API call
+
+                    this.setState({
+                        showDeleteTemplate:true
+                    })
+                    }}> Delete Template</Button>
+
+                    
+                    <Modal
+                    open={this.state.showDeleteTemplate}
+                    aria-labelledby="simple-modal-title"
+                    aria-describedby="simple-modal-description"
+
+                  >
+                  <div style={this.state.modalStyle} component={Paper}>
+                      <h3 style={{textAlign:"center"}}>Delete Template?</h3>
+                    
+
+                       <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
+
+                          {/*Confirm Finalize Score*/}
+                          <Button  variant = "contained" color="primary" size = "large" onClick={()=>{
+                        
+                            const requestOptions = {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            credentials: 'include',
+                            body: JSON.stringify({
+                                templateID:this.state.templateID
+                                })
+                            };
+
+                            fetch("/api/postDeleteTemplate",requestOptions)
+                              .then(res => res.json())
+                              .then((result) => {
+                                this.props.history.push({
+                                      pathname:"/mytemplates"
+                                    });
+                              })        
+                        
+                          }}>Delete</Button>
+
+                          {/*Cancel Finalize Scoring*/}
+                          <Button variant = "contained" color="primary" size = "large" onClick={()=>this.setState({showDeleteTemplate:false})
+                          }>Cancel</Button>
+
+                      </div>
+
+                    </div>
+                  </Modal>
+                </>
+                }
+
+                <ToastsContainer position={ToastsContainerPosition.BOTTOM_CENTER} store={ToastsStore}/>
+            </>
+        );
     }
 }

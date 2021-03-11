@@ -3,14 +3,12 @@
 import sqlite3, math, random
 import mysql.connector
 
-USER_ID = 1
+#USER_ID = 1
 TOP_LIMIT = 3  # Use only the top 3 games for each category
 
 # Load the DB
 #db = sqlite3.connect("db.sqlite3")
 #cursor = db.cursor()
-
-print("User ID:", USER_ID)
 
 # Create a matrix to do math off of
 def generateMatrix():
@@ -39,11 +37,6 @@ def generateMatrix():
 
     return matrix
 
-MATRIX = generateMatrix()
-
-for row in MATRIX:
-    print(row)
-
 def findNearestTastes(matrix, userID):
     # Takes in a userID and matrix like the one above, gives a userID of a person who shares similar tastes
     results = []  # Priority queue.  Holds our top X matches for the user's tastes
@@ -54,28 +47,29 @@ def findNearestTastes(matrix, userID):
     for val in userVector:
         userVectorMagnitude += val ** 2
     userVectorMagnitude = math.sqrt(userVectorMagnitude)
-    for i in range(len(matrix)):
-        vector = matrix[i]
-        if (userID-1) != i and len(vector) > 0:  # If we're not looking at the user's own row (and the vector actually has data)
-            # Treat them as vectors and dot them together
-            magnitude = 0
-            dotProduct = 0
-            for j in range(len(userVector)):
-                if j < len(vector):
-                    dotProduct += userVector[j] * vector[j]
-                    magnitude += vector[j] ** 2
-            magnitude = math.sqrt(magnitude)
-            # cos(theta) = dotProduct(A, B) / (magnitude(A) * magnitude(B))
-            cosTheta = dotProduct / (magnitude * userVectorMagnitude)
-            results.append((cosTheta, i+1))  # Insert that other user's ID and cos(theta) into the priority queue)
-            results.sort(reverse=True)  # Sort the priority queue
-            while (len(results) > TOP_LIMIT):  # If we have too many entries
-                results.pop()  # Remove the lowest-priority elements (the userIDs that match the least)
+    if userVector != []:
+        for i in range(len(matrix)):
+            vector = matrix[i]
+            if (userID-1) != i and len(vector) > 0:  # If we're not looking at the user's own row (and the vector actually has data)
+                # Treat them as vectors and dot them together
+                magnitude = 0
+                dotProduct = 0
+                for j in range(len(userVector)):
+                    if j < len(vector):
+                        dotProduct += userVector[j] * vector[j]
+                        magnitude += vector[j] ** 2
+                magnitude = math.sqrt(magnitude)
+                # cos(theta) = dotProduct(A, B) / (magnitude(A) * magnitude(B))
+                cosTheta = dotProduct / (magnitude * userVectorMagnitude)
+                results.append((cosTheta, i+1))  # Insert that other user's ID and cos(theta) into the priority queue)
+                results.sort(reverse=True)  # Sort the priority queue
+                while (len(results) > TOP_LIMIT):  # If we have too many entries
+                    results.pop()  # Remove the lowest-priority elements (the userIDs that match the least)
 
     return results
 
-nearestTastes = findNearestTastes(MATRIX, USER_ID)
-print(nearestTastes)
+#nearestTastes = findNearestTastes(MATRIX, USER_ID)
+#print(nearestTastes)
 
 # Look through the games that user has played, see if we can find a new one to recommend
 def recommendGame(matrix, userID):
@@ -115,9 +109,33 @@ def getRandomGameID():
 
     return randomID
 
-recommendedGameID, diff = recommendGame(MATRIX, USER_ID)
-if recommendedGameID == 0:  # This means we couldn't find anything good to recommend using the algorithm
-    print("Recommending random game ID")
-    recommendedGameID = getRandomGameID()  # Grab a random ID
-print("Recommended game ID:", recommendedGameID, ", Diff:", diff)
+def writeToDB(matrix):
+    db = mysql.connector.connect(host="gamescore.gcc.edu",
+                             database="gamescore",
+                             user="gamescore",
+                             password="GameScore2!")
+    cursor = db.cursor(prepared=True)
+    statement = "SELECT userID FROM AppUserRecommendedGame"
+    cursor.execute(statement)
+    usersInTable = cursor.fetchall()
+    print(usersInTable)
+    
+    for userID in range(1, len(matrix)+1):
+        recommendedGameID, diff = recommendGame(matrix, userID)
+        if recommendedGameID == 0:  # We didn't find a good recommendation, make a random one
+            recommendedGameID = getRandomGameID()  # Might be cheaper to re-implement this
+        if (userID,) not in usersInTable:
+            statement = "INSERT INTO AppUserRecommendedGame (gameID, userID) VALUES (%s, %s)"
+        else:
+            statement = "UPDATE AppUserRecommendedGame SET gameID = %s WHERE userID = %s"
+        cursor.execute(statement, (recommendedGameID, userID))
+        
+    db.commit()
+    cursor.close()
+    db.close()
+
+MATRIX = generateMatrix()
+for row in MATRIX:
+    print(row)
+writeToDB(MATRIX)
 print("End of program")

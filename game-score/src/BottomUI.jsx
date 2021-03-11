@@ -12,6 +12,7 @@ import Star from '@material-ui/icons/Star';
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Table from '@material-ui/core/Table';
+import Rating from '@material-ui/lab/Rating';
 
 
 
@@ -51,6 +52,7 @@ export default function BottomUI(props) {
 		const [edit, setEdit] = useState(props.edit || false);
 		const [del, setDel] = useState(props.del || false);
 		var [numPlayers, setNumPlayers] = useState(2);
+        const [ratingValue, setRatingValue] = useState(0);
 		let history = useHistory()
         return(
         <>
@@ -77,6 +79,28 @@ export default function BottomUI(props) {
 														</div>
 													</div>
 												</Button>
+											</TableCell>
+                                            <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+												<Rating
+                                                value={ratingValue}
+                                                name="rating"
+                                                onChange={(event, newValue) => {
+                                                    setRatingValue(newValue);
+                                                    // Need to send something to the server here
+                                                    const requestOptions = {
+														method:'POST',
+            											headers: { 'Content-Type': 'application/json' },
+            											credentials: 'include',
+            											body: JSON.stringify({
+                											templateID: props.templateID,
+                                                            gameID: props.gameID,
+                                                            val: newValue
+            											})
+													}
+													fetch('/api/rateTemplate', requestOptions)
+                                                }}
+                                                onClick={props.handleInputChange}
+                                                />
 											</TableCell>
 									   	</>
 									}

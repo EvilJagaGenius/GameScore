@@ -2157,9 +2157,12 @@ def doReports():
 def rateTemplate():
     # Do something, Taipu
     print("Recieved rateTemplate")
-    templateID = 1  # We need some way to get this.  Form?  Session?
-    gameID = 1
-    rating = float(request.form.get("rating", None))
+    content = request.json
+    templateID = content["templateID"]
+    gameID = content["gameID"]
+    rating = content["val"]
+    print("Template ID: " + str(templateID))
+    print("Game ID: " + str(gameID))
     print("Rating: " + str(rating))
     
     
@@ -2176,6 +2179,7 @@ def rateTemplate():
     statement = "UPDATE Template SET numRatings = %s, averageRating = %s WHERE templateID = %s AND gameID = %s"
     cursor.execute(statement, (numberOfRatings, newRating, templateID, gameID))
     
+    mydb.commit()
     cursor.close()
     mydb.close()
     

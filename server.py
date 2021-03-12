@@ -697,13 +697,13 @@ def getScoring(userID):
             	result["isHost"]=displayName
 
             mycursor = mydb.cursor(prepared=True)
-            stmt = ("select conditionName, conditionID, value, score, inputType, maxPerPlayer, maxPerPlayerActive FROM ActiveMatchPlayerConditionScore JOIN ScoringCondition using(conditionID,templateID,gameID)WHERE ActiveMatchPlayerConditionScore.matchID = %s AND playerID = %s")
+            stmt = ("select conditionName, conditionID, value, score, inputType, maxPerPlayer, maxPerPlayerActive,description FROM ActiveMatchPlayerConditionScore JOIN ScoringCondition using(conditionID,templateID,gameID)WHERE ActiveMatchPlayerConditionScore.matchID = %s AND playerID = %s")
             mycursor.execute(stmt,(matchID,playerID))
             myresultCondition = mycursor.fetchall()
             mycursor.close()
 
             for rowCondition in myresultCondition:
-                conditionName, conditionID, value, score, inputType, maxPerPlayer,maxPerPlayerActive = rowCondition
+                conditionName, conditionID, value, score, inputType, maxPerPlayer,maxPerPlayerActive,description = rowCondition
                 
                 isHigher = False
                 if value>maxPerPlayer and maxPerPlayer>0 and maxPerPlayerActive==True:
@@ -719,7 +719,8 @@ def getScoring(userID):
                         ,"value":round(value,2)
                         ,"conditionID":conditionID
                         ,"inputType":"{}".format(inputType)
-                        ,"exceedsLimits":isHigher}
+                        ,"exceedsLimits":isHigher
+                        ,"description":"{}".format(description)}
                 #append each new dictionary to its appropriate list
                 player["conditions"].append(condition)
                 

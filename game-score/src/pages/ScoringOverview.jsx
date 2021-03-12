@@ -72,6 +72,8 @@ function ScoringOverview() {
     const [showManagePlayers,setShowManagePlayers] = useState(false)
     const [showFinalizeScore,setShowFinalizeScore] = useState(false)
     const [showKicked,setShowKicked] = useState(false)
+    const [showKicking,setShowKicking] = useState(false)
+    const [kickingPos,setKickingPos] = useState(0)
     const [modalStyle] = React.useState(getModalStyle);
     const [loaded, setLoaded] = useState(false);
 
@@ -320,23 +322,12 @@ function ScoringOverview() {
                                         key !=0 && 
                                         <IconButton style={{display:"inlineFlex",width:30,height:30,float:"right",marginLeft:-40,marginRight:-10}}><CloseIcon onClick={()=>{
                                               
-                                                //Set Fetch Params
-                                                const requestOptions = {
-                                                  method: 'POST',
-                                                  headers: {'Content-Type': 'application/json'},
-                                                  credentials: 'include',
-                                                  body: JSON.stringify({
-                                                    playerID: data.scoringOverview.players[key].playerID
-                                                  })
-                                                };
-
-                                                //Execute API Call
-                                               fetch("/api/postKickPlayer",requestOptions)
-                                                  .then(res => res.json()).then(data => {
-                                                        setData(data)
-                                                    })
-
+                                               setShowKicking(true)
+                                               setKickingPos(parseInt(key))
+                                               console.log(parseInt(key))
                                              }}
+
+
                                         /> </IconButton>
                                     }
                                </>
@@ -464,6 +455,56 @@ function ScoringOverview() {
 
                           {/*Cancel Finalize Scoring*/}
                           <Button className={classes.button}variant = "contained" color="primary" size = "large" onClick={()=>setShowFinalizeScore(false)
+                          }>Cancel</Button>
+
+                      </div>
+
+                    </div>
+                  </Modal>//End Finalize Score Modal
+                }
+
+
+                {/*Kick Player Modal*/}
+              { 
+              loaded === true &&
+                <Modal
+                    open={showKicking}
+                    aria-labelledby="simple-modal-title"
+                    aria-describedby="simple-modal-description"
+                  >
+                  <div style={modalStyle} className={classes.paper}>
+                    {console.log(data)}
+                      <h3 style={{textAlign:"center"}}>Kick {data.individualScoring[kickingPos].displayName}?</h3>
+                    
+                      <Typography>Are you sure you want to kick this player. {data.individualScoring[kickingPos].displayName} will be removed from the match and his profile will not be updated. </Typography>
+
+
+                       <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
+
+                          {/*Confirm Finalize Score*/}
+                          <Button className={classes.button}  variant = "contained" color="primary" size = "large" onClick={()=>{
+                                
+                                        setShowKicking(false)
+                                        //Set Fetch Params
+                                        const requestOptions = {
+                                          method: 'POST',
+                                          headers: {'Content-Type': 'application/json'},
+                                          credentials: 'include',
+                                          body: JSON.stringify({
+                                            playerID: data.individualScoring[kickingPos].playerID
+                                          })
+                                        };
+
+                                        //Execute API Call
+                                       fetch("/api/postKickPlayer",requestOptions)
+                                          .then(res => res.json()).then(data => {
+                                                setData(data)
+                                            })
+
+                          }}>Kick</Button>
+
+                          {/*Cancel Finalize Scoring*/}
+                          <Button className={classes.button}variant = "contained" color="primary" size = "large" onClick={()=>setShowKicking(false)
                           }>Cancel</Button>
 
                       </div>

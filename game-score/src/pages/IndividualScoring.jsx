@@ -16,10 +16,16 @@ import Cookies from 'js-cookie';
 import MySocket from './Socket';
 import KickedModal from './KickedModal';
 import getAvatar from './Avatars';
+import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
 
 export default class ScoringPage extends React.Component{
 
 
+  getTooltip(condPos)
+  {
+    return <span><b>{this.state.data.individualScoring[this.state.key]["conditions"][condPos].conditionName+":"}</b> <br></br> {this.state.data.individualScoring[this.state.key]["conditions"][condPos].description}</span>
+  }
 
    //Basic Constructor for init
    constructor(props) {
@@ -178,10 +184,20 @@ export default class ScoringPage extends React.Component{
                   {/*For Each Scoring Condition*/}
                   {Object.keys(this.state.data.individualScoring[this.state.key]["conditions"]).map(condPos=> (
                       <TableRow> 
-
+                        <>
                         {/*Condition Name*/}
-                        <TableCell align="left">{this.state.data.individualScoring[this.state.key]["conditions"][condPos].conditionName}</TableCell>
-                        
+                      
+                            <TableCell align="left">
+                              <div style={{width:"100%"}}>
+                                <Tooltip enterTouchDelay={0} leaveTouchDelay={5000} placement="below" title={this.getTooltip(condPos)}>
+                                 
+                                 <Typography>{this.state.data.individualScoring[this.state.key]["conditions"][condPos].conditionName}</Typography>
+                                
+                               </Tooltip>
+                               </div>
+                            </TableCell>
+                          
+                        </>
                         {/*Editable Textbox*/}
                         <TableCell align="center">
                           <Textbox playerID={this.state.data.individualScoring[this.state.key].playerID} conditionID={this.state.data.individualScoring[this.state.key]["conditions"][condPos].conditionID} onValueChange={(e) => {

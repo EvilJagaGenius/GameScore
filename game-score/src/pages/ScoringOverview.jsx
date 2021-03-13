@@ -542,7 +542,7 @@ function ScoringOverview() {
                          }
                          {
                           Cookies.get('username') !== data.isHost  &&
-                          <Typography>You are currently in a game.  Either leave or rejoin the game.</Typography>
+                          <Typography>Leaving the game will remove you from the game, but your scores will stay and can be altered by others.</Typography>
                          }
 
                            <div style={{ justifyContent:'center',marginTop:11,display:"flex"}}>
@@ -609,36 +609,104 @@ function ScoringOverview() {
                   </Modal>
                 }
 
-              {/*Bottom UI Scoring Buttons*/}
-          	  <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
-                <>
-                  {
-                   Cookies.get('username') === data.isHost && 
-      	           <Button className={classes.button} startIcon={<DoneIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowFinalizeScore(true)}>Finalize Score</Button>
-                  }
-                </>
-                <>
-                  {
-                  Cookies.get('username') === data.isHost && 
-      	          <Button className={classes.button} startIcon={<SettingsIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowManagePlayers(true)}>Manage Players</Button>
-                  }
-                </>
-    	          <Link to='/play/invite'>
-    	            <Button className={classes.button} startIcon={<InviteIcon />} variant = "contained" color="primary" size = "large">Invite Friends</Button>
-    	          </Link>
-                <>
-                  {
-                  Cookies.get('username') === data.isHost && 
-                  <Button className={classes.button} startIcon={<CloseIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowLeave(true)}>Disband Game</Button>
-                  }
-                </>
-                <>
-                  {
-                  Cookies.get('username') !== data.isHost && 
-                  <Button className={classes.button} startIcon={<CloseIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowLeave(true)}>Leave Game</Button>
-                  }
-                </>
-          	  </div>
+
+
+                <Table style={{ tableLayout: 'fixed',marginTop:15}}>
+                    <TableRow >
+                  
+                    {
+                    Cookies.get('username') === data.isHost && 
+                    <>
+
+                        <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+                          <Button style ={{minHeight:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+                          onClick={()=>setShowFinalizeScore(true)}>
+                            <div style={{margin:-5}}>
+                              
+                              <div>
+                                <DoneIcon style={{fontSize:35}} />
+                              </div>
+                              <div style={{marginTop:-10}}>
+                                Finalize Score
+                              </div>
+                            </div>
+                          </Button>
+                        </TableCell>
+                        </>
+                    }
+
+                    {
+                    Cookies.get('username') === data.isHost && 
+                    <>
+
+                        <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+                          <Button style ={{minHeight:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+                          onClick={()=>setShowManagePlayers(true)}>
+                            <div style={{margin:-5}}>
+                              
+                              <div>
+                                <SettingsIcon style={{fontSize:35}} />
+                              </div>
+                              <div style={{marginTop:-10}}>
+                                Manage Players
+                              </div>
+                            </div>
+                          </Button>
+                        </TableCell>
+                        </>
+                    }
+
+                    {
+                    Cookies.get('username') === data.isHost && 
+                    <>
+
+                        <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+                          <Link to='/play/invite'>
+                          <Button style ={{minHeight:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+                          onClick={()=>setShowManagePlayers(true)}>
+                            <div style={{margin:-5}}>
+                              
+                              <div>
+                                <InviteIcon style={{fontSize:35}} />
+                              </div>
+                              <div style={{marginTop:-10}}>
+                                Invite Friends
+                              </div>
+                            </div>
+                          </Button>
+                        </Link>
+                        </TableCell>
+                        </>
+                    }
+
+                    {
+                    <>
+                        <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+                          <Button style ={{minHeight:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+                          onClick={()=>setShowLeave(true)}>
+                            <div style={{margin:-5}}>
+                              
+                              <div>
+                                <CloseIcon style={{fontSize:35}} />
+                              </div>
+                              <div style={{marginTop:-10}}>
+                                {
+                                Cookies.get('username') === data.isHost &&  
+                                <>Disband Game</>
+                               }
+                               {
+                               Cookies.get('username') !== data.isHost &&  
+                               <>Leave Game</>
+                                }
+                              </div>
+                            </div>
+                          </Button>
+                        </TableCell>
+                        </>
+                    }
+
+                </TableRow>
+              </Table>
             <KickedModal history={history} show={showKicked}></KickedModal>
         </div>
         

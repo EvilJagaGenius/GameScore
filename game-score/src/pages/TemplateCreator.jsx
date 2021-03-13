@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
-import { Autocomplete } from '@material-ui/lab';
+import { Autocomplete, createFilterOptions } from '@material-ui/lab';
 import TextField from '@material-ui/core/TextField';
 import { Button } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
@@ -8,6 +8,13 @@ import ClearIcon from '@material-ui/icons/Clear';
 import {ToastsContainer, ToastsStore,ToastsContainerPosition} from 'react-toasts';
 import SaveIcon from '@material-ui/icons/Save';
 import Typography from '@material-ui/core/Typography';
+
+
+
+const filterOptions = createFilterOptions({
+  limit:30
+});
+
 
 export default class TemplateCreator extends React.Component {
 
@@ -48,11 +55,14 @@ export default class TemplateCreator extends React.Component {
                         <h2 textAlign="center">Create New Template</h2>
                     </div>
                     
+
+
                     <Typography style={{marginLeft:"5%"}}><b>Game:</b></Typography>
                     <Autocomplete
                       options={this.state.data.games}
                       style={{width:"90%",marginLeft:"5%"}}
                       getOptionLabel={(option) => option.gameName}
+                      filterOptions={filterOptions}
                       onChange={(e,newValue,reason)=>{
 
                         if(reason ==='clear')

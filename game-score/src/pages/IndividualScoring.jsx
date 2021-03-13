@@ -19,6 +19,7 @@ import getAvatar from './Avatars';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
+
 export default class ScoringPage extends React.Component{
 
 
@@ -130,6 +131,7 @@ export default class ScoringPage extends React.Component{
 
     //Send updated value to API on change
     recallAPI(){
+      /*
           this.Socket.emit("updateScoreValue", JSON.stringify({
             conditionID: ScoringPage.updatedConditionID,
             playerID: ScoringPage.updatedPlayerID,
@@ -137,6 +139,28 @@ export default class ScoringPage extends React.Component{
             token:Cookies.get('credHash'),
             username:Cookies.get('username')
           }));
+          */
+
+       const requestOptions = {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          credentials: 'include',
+          body: JSON.stringify({
+            conditionID: ScoringPage.updatedConditionID,
+            playerID: ScoringPage.updatedPlayerID,
+            value:ScoringPage.updatedValue,
+            token:Cookies.get('credHash'),
+            username:Cookies.get('username')
+          })
+          };
+
+        fetch("/api/postUpdateScore",requestOptions)
+        .then(res => res.json()).then(newData => {
+              this.setState({
+                data:newData
+              })
+          })
+
       };
 
     //Round Values to avoid extreme precision

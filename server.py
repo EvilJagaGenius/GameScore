@@ -5,6 +5,8 @@ import mysql.connector
 import secrets
 import json
 import random
+import datetime
+
 
 # Email stuff
 import smtplib
@@ -173,8 +175,8 @@ def login_post():
         token = secrets.token_hex(32)
         result = {"successful":True,"credHash":token}
         response = jsonify(result)
-        response.set_cookie('credHash',token)
-        response.set_cookie('username', username)
+        response.set_cookie('credHash',token,expires=datetime.datetime.now() + datetime.timedelta(days=30))
+        response.set_cookie('username', username,expires=datetime.datetime.now() + datetime.timedelta(days=30))
         
 
         mycursor = mydb.cursor(prepared=True)
@@ -582,8 +584,8 @@ def getScoring(userID):
           ,"isHost":""}
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select matchID, ActiveMatch.gameID, ActiveMatch.templateID, gameName, templateName from ActiveMatch JOIN Template ON ActiveMatch.templateID = Template.templateID AND ActiveMatch.gameID = Template.gameID JOIN Game ON Template.gameID=Game.gameID JOIN Player using(matchID) WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1")
-    mycursor.execute(stmt,(userID,))
+    stmt = ("select matchID, ActiveMatch.gameID, ActiveMatch.templateID, gameName, templateName from ActiveMatch JOIN Template ON ActiveMatch.templateID = Template.templateID AND ActiveMatch.gameID = Template.gameID JOIN Game ON Template.gameID=Game.gameID JOIN Player using(matchID) WHERE Player.userID=%s AND active=%s ORDER BY matchID DESC LIMIT 1")
+    mycursor.execute(stmt,(userID,True))
     myresult = mycursor.fetchone()
     mycursor.close()
 
@@ -826,6 +828,37 @@ def apiGetPostGame():
 
 ##################################### Create Game API ########################################
 
+def getScore(conditionID,value=0):
+    mydb = mysql.connector.connect(pool_name = "mypool")
+
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("SELECT scoringType, pointMultiplier FROM ScoringCondition WHERE conditionID=%s")
+    mycursor.execute(stmt,(conditionID,))
+    myresult = mycursor.fetchone()
+    scoringType, pointMultiplier = myresult
+    mycursor.close()
+
+    print(conditionID)
+    if scoringType == 'Linear':
+        score = value * float(pointMultiplier)
+    elif scoringType == 'Tabular':
+        mycursor = mydb.cursor(prepared=True)
+        stmt = ("SELECT inputMax, inputMin, outputValue FROM ValueRow WHERE conditionID=%s ORDER BY inputMin ASC")
+        mycursor.execute(stmt,(conditionID,))
+        valueRows = mycursor.fetchall()
+        mycursor.close()
+
+        score = 0
+        for row in valueRows:
+            inputMax,inputMin,outputValue = row
+            if value >= inputMin and value <inputMax:
+                score = outputValue
+                break
+    mydb.close()
+    return score;
+
+
+
 @app.route("/api/postCreateNewGame")
 def apiPostCreateNewGame():
 
@@ -910,6 +943,14 @@ def apiPostCreateNewGame():
                 stmt = ("INSERT INTO ActiveMatchPlayerConditionScore(matchID,playerID,conditionID,gameID,templateID,value,score) VALUES(%s,%s,%s,%s,%s,0,0)")
                 mycursor.execute(stmt,(matchID,playerID,conditionID,gameID,templateID))
                 mycursor.close()
+                mydb.commit()
+
+                score = getScore(conditionID)
+
+                mycursor = mydb.cursor(prepared=True)
+                stmt = ("UPDATE ActiveMatchPlayerConditionScore SET score=%s WHERE conditionID=%s AND playerID=%s")
+                mycursor.execute(stmt,(score,conditionID,playerID))
+                mycursor.close()
         
         mydb.commit()
         mydb.close()
@@ -919,20 +960,30 @@ def apiPostCreateNewGame():
 
 
 ##################################### update Scoring API ########################################
+def updateScore(content):
 
-@app.route("/api/postUpdateScore", methods=["POST"])
-def apiPostUpdateScore():
-
-    content = request.json
-    conditionID = content['conditionID']
-    value = content['value']
-    playerID = content['playerID']
+    print(content)
+    conditionID = content["conditionID"]
+    value = content["value"]
+    playerID = content["playerID"]
+    token = content["token"]
+    username = content["username"]
 
     print(conditionID)
     print(value)
     print(playerID)
 
-    userID = getUserID()
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select userID from AppUser where credHash=%s AND username=%s")
+    mycursor.execute(stmt,(token,username))
+    myresult = mycursor.fetchone()
+    userID=-1
+    if myresult != None:
+        userID, = myresult
+    mycursor.close()
+    mydb.close()
+
 
     if userID == -1:
         result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
@@ -944,8 +995,8 @@ def apiPostUpdateScore():
 
         mydb = mysql.connector.connect(pool_name = "mypool")        
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("SELECT matchID FROM AppUser JOIN Player using(userID) WHERE userID=%s ORDER BY matchID DESC LIMIT 1")
-        mycursor.execute(stmt,(userID,))
+        stmt = ("SELECT matchID FROM AppUser JOIN Player using(userID) JOIN ActiveMatch using(matchID) WHERE userID=%s AND active=%s ORDER BY matchID DESC LIMIT 1")
+        mycursor.execute(stmt,(userID,True))
         myresult = mycursor.fetchone()
         matchID, = myresult
         mycursor.close()
@@ -957,28 +1008,8 @@ def apiPostUpdateScore():
             mydb.close()
             return response
         else:
-            mycursor = mydb.cursor(prepared=True)
-            stmt = ("SELECT scoringType, pointMultiplier FROM ScoringCondition WHERE conditionID=%s")
-            mycursor.execute(stmt,(conditionID,))
-            myresult = mycursor.fetchone()
-            scoringType, pointMultiplier = myresult
-            mycursor.close()
-
-            if scoringType == 'Linear':
-                score = value * float(pointMultiplier)
-            elif scoringType == 'Tabular':
-                mycursor = mydb.cursor(prepared=True)
-                stmt = ("SELECT inputMax, inputMin, outputValue FROM ValueRow WHERE conditionID=%s ORDER BY inputMin ASC")
-                mycursor.execute(stmt,(conditionID,))
-                valueRows = mycursor.fetchall()
-                mycursor.close()
-
-                score = 0
-                for row in valueRows:
-                    inputMax,inputMin,outputValue
-                    if value >= minValue and value <maxValue:
-                        score = outputValue
-                        break
+            score = getScore(conditionID,value);
+            print("Score:" + str(score))
 
             mycursor = mydb.cursor(prepared=True)
             stmt = ("UPDATE ActiveMatchPlayerConditionScore SET score=%s, value=%s WHERE conditionID=%s AND playerID=%s AND matchID = %s")
@@ -987,7 +1018,17 @@ def apiPostUpdateScore():
             mycursor.close()
             mydb.commit()
             mydb.close()
-            return (getScoring(userID))
+
+            print('received my event: ' + str(content))
+            socketIo.emit('sendNewScores',getScoring(userID), room=matchID)
+
+
+
+@app.route("/api/postUpdateScore", methods=["POST"])
+def apiPostUpdateScore():
+    userID = getUserID()
+    updateScore(request.json)
+    return getScoring(userID)
 
 
 ##################################### Finalize Score API ####################################
@@ -1006,8 +1047,8 @@ def apiPostFinalizeScore():
     else:
         mydb = mysql.connector.connect(pool_name = "mypool")
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("SELECT matchID, Template.templateID, Template.gameID,templateName,gameName FROM AppUser JOIN Player using(userID) JOIN ActiveMatch using(matchID) JOIN Template using(templateID) JOIN Game on Template.gameID=Game.gameID WHERE AppUser.userID=%s ORDER BY matchID DESC LIMIT 1")
-        mycursor.execute(stmt,(userID,))
+        stmt = ("SELECT matchID, Template.templateID, Template.gameID,templateName,gameName FROM AppUser JOIN Player using(userID) JOIN ActiveMatch using(matchID) JOIN Template using(templateID) JOIN Game on Template.gameID=Game.gameID WHERE AppUser.userID=%s AND active =%s ORDER BY matchID DESC LIMIT 1")
+        mycursor.execute(stmt,(userID,True))
         myresult = mycursor.fetchone()
         mycursor.close()
 
@@ -1024,6 +1065,12 @@ def apiPostFinalizeScore():
             mycursor.execute(stmt,(matchID,matchID))
             myresult = mycursor.fetchone()
             winningPlayerID = myresult
+            mycursor.close()
+
+
+            mycursor = mydb.cursor(prepared=True)
+            stmt = ("UPDATE ActiveMatch SET active=%s WHERE matchID=%s")
+            mycursor.execute(stmt,(False,matchID))
             mycursor.close()
 
 
@@ -1119,7 +1166,7 @@ def apiPostFinalizeScore():
 
 
 ##################################### Leave Game API ########################################
-@app.route("/api/postLeaveGame")
+@app.route("/api/postLeaveGame", methods=["POST"])
 def apiPostLeaveGame():
 
     userID = getUserID()
@@ -1131,11 +1178,10 @@ def apiPostLeaveGame():
         response.set_cookie('username',"",max_age=0)
         return response
     else:
-        #Assuming only main player/host is leaving
         mydb = mysql.connector.connect(pool_name = "mypool")
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("SELECT matchID FROM AppUser JOIN Player using(userID) WHERE userID=%s ORDER BY matchID DESC LIMIT 1")
-        mycursor.execute(stmt,(userID,))
+        stmt = ("SELECT matchID,isHost,playerID FROM AppUser JOIN Player using(userID) JOIN ActiveMatch using(matchID) WHERE userID=%s AND active=%s ORDER BY matchID DESC LIMIT 1")
+        mycursor.execute(stmt,(userID,True))
         myresult = mycursor.fetchone()
         mycursor.close()
 
@@ -1145,8 +1191,43 @@ def apiPostLeaveGame():
             mydb.close()
             return response
         else:
-            matchID, = myresult
-            destroyMatch(matchID)
+            matchID,isHost,playerID = myresult
+
+
+
+            if isHost == True:
+
+                mycursor = mydb.cursor(prepared=True)
+                stmt = ("SELECT username FROM Player JOIN AppUser using(userID) WHERE matchID=%s AND isHost=%s")
+                mycursor.execute(stmt,(matchID,False))
+                myresult = mycursor.fetchall()
+                mycursor.close()
+
+                for row in myresult:
+                    userName, = row
+                    socketIo.emit('kickPlayer',{'userName':userName}, room=matchID)
+                close_room(matchID,namespace='/')
+                destroyMatch(matchID)
+
+            if isHost == False:
+
+                mycursor = mydb.cursor(prepared=True)
+                stmt = ("SELECT userID FROM Player WHERE matchID=%s AND isHost=%s LIMIT 1")
+                mycursor.execute(stmt,(matchID,True))
+                myresult = mycursor.fetchone()
+                hostID, = myresult
+                mycursor.close()
+
+                mycursor = mydb.cursor(prepared=True)
+                stmt = ("UPDATE Player set userID=%s WHERE playerID=%s")
+                mycursor.execute(stmt,(None,playerID))
+                myresult = mycursor.fetchone()
+                mycursor.close()
+                mydb.commit()
+
+                socketIo.emit('sendNewScores',getScoring(hostID), room=matchID)
+
+
             mydb.close()
             response = jsonify({"successful":True})
             return response
@@ -1190,8 +1271,8 @@ def apiPostUpdatePlayerName():
     else:
         mydb = mysql.connector.connect(pool_name = "mypool")
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("SELECT matchID FROM AppUser JOIN Player using(userID) WHERE userID=%s ORDER BY matchID DESC LIMIT 1")
-        mycursor.execute(stmt,(userID,))
+        stmt = ("SELECT matchID FROM AppUser JOIN Player using(userID) JOIN ActiveMatch using(matchID) WHERE userID=%s ORDER BY matchID AND active=%s DESC LIMIT 1")
+        mycursor.execute(stmt,(userID,True))
         myresult = mycursor.fetchone()
         mycursor.close()
 
@@ -1234,8 +1315,8 @@ def apiGetInviteInfo():
     else:
         mydb = mysql.connector.connect(pool_name = "mypool")
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("SELECT ActiveMatch.matchID, ActiveMatch.joinCode FROM AppUser JOIN Player using(userID) JOIN ActiveMatch using(matchID) WHERE userID=%s ORDER BY matchID DESC LIMIT 1")
-        mycursor.execute(stmt,(userID,))
+        stmt = ("SELECT ActiveMatch.matchID, ActiveMatch.joinCode FROM AppUser JOIN Player using(userID) JOIN ActiveMatch using(matchID) WHERE userID=%s AND active=%s ORDER BY matchID DESC LIMIT 1")
+        mycursor.execute(stmt,(userID,True))
         myresult = mycursor.fetchone()
         mycursor.close()
 
@@ -1312,8 +1393,47 @@ def apiPostJoinGame():
                 result = {"successful":True,
                 "matchID":matchID}
                 response = jsonify(result)
+                socketIo.emit('sendNewScores',getScoring(userID), room=matchID)
                 return response 
 
+
+##################################### In Game API ############################################
+
+@app.route("/api/postInGame", methods=["POST"])
+def apiPostInGame():
+    userID = getUserID()
+
+    content = request.json
+
+    if userID == -1:
+        result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
+        response = jsonify(result)
+        response.set_cookie('credHash',"",max_age=0)
+        response.set_cookie('username',"",max_age=0)
+        return response
+    else:
+
+        mydb = mysql.connector.connect(pool_name = "mypool")
+        mycursor = mydb.cursor(prepared=True)
+        stmt = ("SELECT matchID,isHost FROM ActiveMatch JOIN Player using(matchID) WHERE userID=%s AND active = %s ORDER BY matchID DESC LIMIT 1")
+        mycursor.execute(stmt,(userID,True))
+        myresult = mycursor.fetchone()
+        mycursor.close()
+
+        if myresult !=None:
+            matchID,isHost = myresult
+
+            if matchID==None:
+                result = {"successful":True,"inGame":False,"isHost":False}
+            else:
+               result = {"successful":True,"inGame":True,"isHost":isHost}
+        else:
+            result = {"successful":True,"inGame":False,"isHost":False}
+
+        mydb.close()
+        response = jsonify(result)
+        return response 
+        
 
 ##################################### Kick Player API ############################################
 
@@ -1334,8 +1454,8 @@ def apiPostKickPlayer():
 
         mydb = mysql.connector.connect(pool_name = "mypool")
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("SELECT ActiveMatch.matchID FROM Player JOIN ActiveMatch using(matchID) WHERE userID=%s ORDER BY matchID DESC LIMIT 1")
-        mycursor.execute(stmt,(userID,))
+        stmt = ("SELECT ActiveMatch.matchID FROM Player JOIN ActiveMatch using(matchID) WHERE userID=%s AND active=%s ORDER BY matchID DESC LIMIT 1")
+        mycursor.execute(stmt,(userID,True))
         myresult = mycursor.fetchone()
         mycursor.close()
 
@@ -1393,8 +1513,8 @@ def apiPostChangePlayerColor():
 
         mydb = mysql.connector.connect(pool_name = "mypool")
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("SELECT ActiveMatch.matchID FROM Player JOIN ActiveMatch using(matchID) WHERE userID=%s ORDER BY matchID DESC LIMIT 1")
-        mycursor.execute(stmt,(userID,))
+        stmt = ("SELECT ActiveMatch.matchID FROM Player JOIN ActiveMatch using(matchID) WHERE userID=%s AND active=%s ORDER BY matchID DESC LIMIT 1")
+        mycursor.execute(stmt,(userID,True))
         myresult = mycursor.fetchone()
         mycursor.close()
 
@@ -1983,8 +2103,8 @@ def joinRoom(token,username):
 
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select matchID FROM ActiveMatch JOIN Game using(gameID) JOIN Template using(templateID) JOIN Player using (matchID) WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1")
-    mycursor.execute(stmt,(userID,))
+    stmt = ("select matchID FROM ActiveMatch JOIN Game using(gameID) JOIN Template using(templateID) JOIN Player using (matchID) WHERE Player.userID=%s AND active=%s ORDER BY matchID DESC LIMIT 1")
+    mycursor.execute(stmt,(userID,True))
     myresult = mycursor.fetchone()
     mycursor.close()
     mydb.close()
@@ -2010,86 +2130,7 @@ def sayHi():
 @socketIo.on('updateScoreValue')
 def handle_my_custom_event(content, methods=['GET', 'POST']):
 
-    print(content)
-    content = json.loads(content)
-    conditionID = content["conditionID"]
-    value = content["value"]
-    playerID = content["playerID"]
-    token = content["token"]
-    username = content["username"]
-
-    print(conditionID)
-    print(value)
-    print(playerID)
-
-    mydb = mysql.connector.connect(pool_name = "mypool")
-    mycursor = mydb.cursor(prepared=True)
-    stmt = ("select userID from AppUser where credHash=%s AND username=%s")
-    mycursor.execute(stmt,(token,username))
-    myresult = mycursor.fetchone()
-    userID=-1
-    if myresult != None:
-        userID, = myresult
-    mycursor.close()
-    mydb.close()
-
-
-    if userID == -1:
-        result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
-        response = jsonify(result)
-        response.set_cookie('credHash',"",max_age=0)
-        response.set_cookie('username',"",max_age=0)
-        return response
-    else:
-
-        mydb = mysql.connector.connect(pool_name = "mypool")        
-        mycursor = mydb.cursor(prepared=True)
-        stmt = ("SELECT matchID FROM AppUser JOIN Player using(userID) WHERE userID=%s ORDER BY matchID DESC LIMIT 1")
-        mycursor.execute(stmt,(userID,))
-        myresult = mycursor.fetchone()
-        matchID, = myresult
-        mycursor.close()
-
-
-        if myresult == None:
-            result = {"successful":False,"error":111,"errorMessage":"No game found."}
-            response = jsonify(result)
-            mydb.close()
-            return response
-        else:
-            mycursor = mydb.cursor(prepared=True)
-            stmt = ("SELECT scoringType, pointMultiplier FROM ScoringCondition WHERE conditionID=%s")
-            mycursor.execute(stmt,(conditionID,))
-            myresult = mycursor.fetchone()
-            scoringType, pointMultiplier = myresult
-            mycursor.close()
-
-            if scoringType == 'Linear':
-                score = value * float(pointMultiplier)
-            elif scoringType == 'Tabular':
-                mycursor = mydb.cursor(prepared=True)
-                stmt = ("SELECT inputMax, inputMin, outputValue FROM ValueRow WHERE conditionID=%s ORDER BY inputMin ASC")
-                mycursor.execute(stmt,(conditionID,))
-                valueRows = mycursor.fetchall()
-                mycursor.close()
-
-                score = 0
-                for row in valueRows:
-                    inputMax,inputMin,outputValue = row
-                    if value >= inputMin and value <inputMax:
-                        score = outputValue
-                        break
-
-            mycursor = mydb.cursor(prepared=True)
-            stmt = ("UPDATE ActiveMatchPlayerConditionScore SET score=%s, value=%s WHERE conditionID=%s AND playerID=%s AND matchID = %s")
-            mycursor.execute(stmt,(score,value,conditionID,playerID,matchID))
-            mycursor.fetchone()
-            mycursor.close()
-            mydb.commit()
-            mydb.close()
-
-            print('received my event: ' + str(content))
-            socketIo.emit('sendNewScores',getScoring(userID), room=matchID)
+    updateScore(content)
 
 if __name__ == '__main__':
     socketIo.run(app, debug=True)

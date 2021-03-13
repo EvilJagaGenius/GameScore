@@ -25,12 +25,29 @@ export default class JoinGame extends React.Component {
     	if(this.props.location.search.indexOf("=")!==-1 && this.state.sentQR === false)
     	{
 
-  	   var token = this.props.location.search.substr(this.props.location.search.indexOf("=")+1)
-  	   this.setState({
-  	   sentQR:true //Make sure not called multiple times
-  	   });
-       this.joinGameAPICall(token,true)
-      }
+          //Check if no game exists
+          const requestOptions = {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          credentials: 'include',
+          body: JSON.stringify({
+          })
+        }
+
+         //API Call
+         fetch("/api/postInGame",requestOptions).then(res => res.json()).then(data => {
+            if(data.successful === true && data.inGame===false)
+            {
+               //Try Join with QR
+              var token = this.props.location.search.substr(this.props.location.search.indexOf("=")+1)
+               this.setState({
+               sentQR:true //Make sure not called multiple times
+               });
+               this.joinGameAPICall(token,true)
+            }
+  	  
+          })
+       }
     }
 
    //On change of Join Code

@@ -72,6 +72,7 @@ function ScoringOverview() {
     const [showManagePlayers,setShowManagePlayers] = useState(false)
     const [showFinalizeScore,setShowFinalizeScore] = useState(false)
     const [showKicked,setShowKicked] = useState(false)
+    const [showLeave,setShowLeave] = useState(false)
     const [showKicking,setShowKicking] = useState(false)
     const [kickingPos,setKickingPos] = useState(0)
     const [modalStyle] = React.useState(getModalStyle);
@@ -142,6 +143,7 @@ function ScoringOverview() {
         return () => {
           Socket.off("sendNewScores",eventHandlerUpdateScore)
           Socket.off("gameEnd",eventHandlerGameEnd)
+          Socket.off("kickPlayer",eventHandlerKick)
           Socket.disconnect();
         }
 
@@ -513,6 +515,100 @@ function ScoringOverview() {
                   </Modal>//End Finalize Score Modal
                 }
 
+                {/*Leave Game Modal*/}
+                {
+                  loaded == true &&
+                <Modal
+                    open={showLeave}
+                    aria-labelledby="simple-modal-title"
+                    aria-describedby="simple-modal-description"
+                                      >
+                  <div style={modalStyle} className={classes.paper}>
+                     
+                     <div style={{display:"inline"}}>
+                         <div style={{marginTop:11}}>
+                          {
+                             Cookies.get('username') === data.isHost  &&
+                            <h3 style={{textAlign:"center"}}>Disband Game?</h3>
+                          }
+                          {
+                             Cookies.get('username') !== data.isHost  &&
+                            <h3 style={{textAlign:"center"}}>Leave Game?</h3>
+                          }
+                         </div>
+                         {
+                          Cookies.get('username') === data.isHost  &&
+                          <Typography>Disbanding the game will end the game for all other players as well. </Typography>
+                         }
+                         {
+                          Cookies.get('username') !== data.isHost  &&
+                          <Typography>You are currently in a game.  Either leave or rejoin the game.</Typography>
+                         }
+
+                           <div style={{ justifyContent:'center',marginTop:11,display:"flex"}}>
+
+                              {
+                               Cookies.get('username') === data.isHost  &&
+                                <Button variant = "contained" color="primary" size = "large" onClick={()=>{
+
+                                      const requestOptions = {
+                                          method: 'POST',
+                                          headers: {'Content-Type': 'application/json'},
+                                          credentials: 'include',
+                                          body: JSON.stringify({
+                                          })
+                                        };
+
+                                fetch("/api/postLeaveGame",requestOptions)
+                                  .then(res => res.json())
+                                  .then(
+                                    (result) => {
+                                      console.log(result)
+                                      history.push('/home')
+                                    },
+                                  )
+
+                                  }}
+                                  >Disband Game</Button>
+                                }
+
+                                {
+                               Cookies.get('username') !== data.isHost  &&
+                                <Button variant = "contained" color="primary" size = "large" onClick={()=>{
+
+                                       const requestOptions = {
+                                          method: 'POST',
+                                          headers: {'Content-Type': 'application/json'},
+                                          credentials: 'include',
+                                          body: JSON.stringify({
+                                          })
+                                        };
+
+
+                                  fetch("/api/postLeaveGame",requestOptions) 
+                                  .then(res => res.json())
+                                  .then(
+                                    (result) => {
+                                      console.log(result)
+                                      history.push('/home')
+                                    },
+                                  )
+
+                                  }}
+                                  >Leave Game</Button>
+                                }
+                                
+                                 <Button variant = "contained" color="primary" size = "large" onClick={()=>{
+                                setShowLeave(false)
+                                }}
+                                >Cancel</Button>
+
+                          </div>
+                      </div>
+                    </div>
+                  </Modal>
+                }
+
               {/*Bottom UI Scoring Buttons*/}
           	  <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
                 <>
@@ -530,6 +626,18 @@ function ScoringOverview() {
     	          <Link to='/play/invite'>
     	            <Button className={classes.button} startIcon={<InviteIcon />} variant = "contained" color="primary" size = "large">Invite Friends</Button>
     	          </Link>
+                <>
+                  {
+                  Cookies.get('username') === data.isHost && 
+                  <Button className={classes.button} startIcon={<CloseIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowLeave(true)}>Disband Game</Button>
+                  }
+                </>
+                <>
+                  {
+                  Cookies.get('username') !== data.isHost && 
+                  <Button className={classes.button} startIcon={<CloseIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowLeave(true)}>Leave Game</Button>
+                  }
+                </>
           	  </div>
             <KickedModal history={history} show={showKicked}></KickedModal>
         </div>

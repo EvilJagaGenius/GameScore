@@ -843,7 +843,7 @@ def getScore(conditionID,value=0):
         score = value * float(pointMultiplier)
     elif scoringType == 'Tabular':
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("SELECT inputMax, inputMin, outputValue FROM ValueRow WHERE conditionID=%s ORDER BY inputMin ASC")
+        stmt = ("SELECT inputMax, inputMin, outputValue FROM ValueRow WHERE conditionID=%s ORDER BY rowID ASC")
         mycursor.execute(stmt,(conditionID,))
         valueRows = mycursor.fetchall()
         mycursor.close()

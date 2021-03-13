@@ -19,9 +19,10 @@ function InviteFriends() {
       //Call API to get Invite Info
       if(loaded === false)
       {
-        fetch("/api/getInviteInfo").then(res => res.json()).then(data => {
+        fetch("/api/getInviteInfo").then(res => res.json()).then(newData => {
           setLoaded(true)
-          setData(data)
+          setData(newData)
+          console.log(newData)
         });
       }
   },[]);

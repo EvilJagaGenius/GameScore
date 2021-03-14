@@ -59,12 +59,13 @@ def findNearestTastes(matrix, userID):
                         dotProduct += userVector[j] * vector[j]
                         magnitude += vector[j] ** 2
                 magnitude = math.sqrt(magnitude)
-                # cos(theta) = dotProduct(A, B) / (magnitude(A) * magnitude(B))
-                cosTheta = dotProduct / (magnitude * userVectorMagnitude)
-                results.append((cosTheta, i+1))  # Insert that other user's ID and cos(theta) into the priority queue)
-                results.sort(reverse=True)  # Sort the priority queue
-                while (len(results) > TOP_LIMIT):  # If we have too many entries
-                    results.pop()  # Remove the lowest-priority elements (the userIDs that match the least)
+                if magnitude != 0:
+                    # cos(theta) = dotProduct(A, B) / (magnitude(A) * magnitude(B))
+                    cosTheta = dotProduct / (magnitude * userVectorMagnitude)
+                    results.append((cosTheta, i+1))  # Insert that other user's ID and cos(theta) into the priority queue)
+                    results.sort(reverse=True)  # Sort the priority queue
+                    while (len(results) > TOP_LIMIT):  # If we have too many entries
+                        results.pop()  # Remove the lowest-priority elements (the userIDs that match the least)
 
     return results
 
@@ -92,7 +93,12 @@ def recommendGame(matrix, userID):
             
     return maxDiffIndex, maxDiff
 
-def getRandomGameID():
+def getRandomGameID(gameIDs):
+    randomIndex = random.randint(0, len(gameIDs)-1)
+    randomID = gameIDs[randomIndex][0]
+    return randomID
+
+def getGameIDs():
     db = mysql.connector.connect(host="gamescore.gcc.edu",
                              database="gamescore",
                              user="gamescore",
@@ -101,15 +107,11 @@ def getRandomGameID():
     statement = "SELECT gameID FROM Game"
     cursor.execute(statement)
     results = cursor.fetchall()
-    randomIndex = random.randint(0, len(results)-1)
-    randomID = results[randomIndex][0]
-    
     cursor.close()
     db.close()
+    return results
 
-    return randomID
-
-def writeToDB(matrix):
+def writeToDB(matrix, gameIDs):
     db = mysql.connector.connect(host="gamescore.gcc.edu",
                              database="gamescore",
                              user="gamescore",
@@ -118,12 +120,12 @@ def writeToDB(matrix):
     statement = "SELECT userID FROM AppUserRecommendedGame"
     cursor.execute(statement)
     usersInTable = cursor.fetchall()
-    print(usersInTable)
+    #print(usersInTable)
     
     for userID in range(1, len(matrix)+1):
         recommendedGameID, diff = recommendGame(matrix, userID)
         if recommendedGameID == 0:  # We didn't find a good recommendation, make a random one
-            recommendedGameID = getRandomGameID()  # Might be cheaper to re-implement this
+            recommendedGameID = getRandomGameID(gameIDs)  # Might be cheaper to re-implement this
         if (userID,) not in usersInTable:
             statement = "INSERT INTO AppUserRecommendedGame (gameID, userID) VALUES (%s, %s)"
         else:
@@ -135,7 +137,8 @@ def writeToDB(matrix):
     db.close()
 
 MATRIX = generateMatrix()
-for row in MATRIX:
-    print(row)
-writeToDB(MATRIX)
+GAME_IDS = getGameIDs()
+#for row in MATRIX:
+#    print(row)
+writeToDB(MATRIX, GAME_IDS)
 print("End of program")

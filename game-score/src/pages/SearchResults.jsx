@@ -162,8 +162,8 @@ export default class SearchResults extends Component {
                     </>
 
                 }
-          </Table>
-          </TableContainer>
+                </Table>
+                </TableContainer>
             </div>
         )
     }

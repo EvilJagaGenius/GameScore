@@ -38,7 +38,6 @@ export default class Profile extends React.Component{
     }
 
     async sendRequest() {
-        document.cookie = 'username=';  //possibly needed for Safari specifically
         // POST request using fetch with async/await
         const requestOptions = {
             method: 'POST',

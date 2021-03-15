@@ -168,7 +168,7 @@ constructor(props) {
     return (
     <div>
       {/* Search Bar */}
-      <TextField id="outlined-basic" label="Search Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} />
+      <TextField id="outlined-basic" label="Search Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} style={{width:"90%",marginLeft:"5%", marginTop:"1%",marginBottom:"1%"}}/>
 
       {/* Wipe out accordians if the user is actively searching */}
       { this.state.searching === "false" &&

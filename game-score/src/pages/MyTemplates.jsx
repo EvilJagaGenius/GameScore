@@ -11,6 +11,7 @@ import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import { Link } from 'react-router-dom';
 import BottomUI from "../BottomUI";
+import TextField from '@material-ui/core/TextField';
 
 export default class MyTemplates extends Component {
 
@@ -21,7 +22,10 @@ export default class MyTemplates extends Component {
         this.state =({
         data:{},
         loaded:false,
-        selectedTemplate:-1
+        selectedTemplate:-1,
+        searching: "false",
+        searchQuery: "",
+        filtered: {}
       })
 
       this.callAPI = this.callAPI.bind(this)
@@ -81,11 +85,63 @@ export default class MyTemplates extends Component {
     }
   }
 
+  handleChange = (e) => {
+    this.setState({
+        searchQuery: e.target.value,
+        searching: "true"
+    },this.templateSearch)
+
+  }
+
+  templateSearch = () => {
+    //hold original list of results
+    let currentList = {};
+    //hold filtered list
+    let newList = {};
+
+    //if the search bar isn't empty
+    if (this.state.searchQuery !== "" && this.state.loaded === true) {
+      currentList = this.state.data;
+      console.log(currentList);
+      // Use .filter() to determine which items should be displayed
+      // based on the search terms
+      newList = currentList.filter(template => {
+        // change current item to lowercase
+        const tnlc = template.templateName.toLowerCase();
+
+        // change search term to lowercase
+        const filter = this.state.searchQuery.toLowerCase();
+
+        //Determine if the query is in the template's name
+        return tnlc.includes(filter);
+      });
+
+    }
+
+    if (this.state.searchQuery === "") {
+      this.setState({
+        searching: "false"
+      })
+    }
+
+    console.log(newList);
+
+    this.setState({
+      filtered: newList
+    })
+  }
 
   render() {
     const { classes } = this.props;
     return (
+      
       <>
+        {/* Search Bar */}
+        <TextField id="outlined-basic" label="Search Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} style={{width:"90%",marginLeft:"5%", marginTop:"1%",marginBottom:"1%"}} />
+
+        {/* Wipe out default content when actively searching */}
+        {this.state.searching === "false" &&
+        <>
         <TableContainer component={Paper}>
           <Table size="small">
                 {/*Table displaying the dynamic data for the users created templates*/}
@@ -128,6 +184,41 @@ export default class MyTemplates extends Component {
               }
           </Table>
         </TableContainer>
+        </>
+        }
+
+        {/* Display Search Results */}
+        {this.state.loaded === true &&
+        <>
+        <TableContainer component={Paper}>
+          <Table>
+            {Object.keys(this.state.filtered).map(key => (
+              <>
+                <TableRow onClick={()=>this.selectTemplate(key)}>
+                  <TemplateRow 
+                    pictureURL = {this.state.filtered[key].pictureURL} 
+                    templateName = {this.state.filtered[key].templateName}
+                    numRatings = {this.state.filtered[key].numRatings}
+                    averageRating = {this.state.filtered[key].averageRating}
+                  />
+                </TableRow>
+                {this.isSelected(key) === true &&
+                  <>
+                  <BottomUI
+                    templateName = {this.state.filtered[key].templateName}
+                    templateID = {this.state.filtered[key].templateID}
+                    gameID = {this.state.filtered[key].gameID}
+                    selected = {this.isSelected(key)}
+                    play = {true}>
+                    </BottomUI>
+                  </>
+                }
+              </>
+            ))}
+          </Table>
+        </TableContainer>
+        </>
+        }
           <Link to="/mytemplates/creator">
             <Fab color="primary" aria-label="add" style={{position:"fixed",right:20,bottom:20}}>
               <AddIcon fontSize="large"/>

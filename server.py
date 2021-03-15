@@ -2435,4 +2435,5 @@ def templateSearch():
         #append each new dictionary to list
         result["templates"].append(template)
 
+    mydb.close()
     return jsonify(result)

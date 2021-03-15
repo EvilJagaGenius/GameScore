@@ -2151,11 +2151,9 @@ def doReports():
     # Do something, Taipu
     return "ok"
 
-
-# Rate Bottom UI (move this)
+# Rate template
 @app.route("/api/rateTemplate", methods=["POST"])
 def rateTemplate():
-    # Do something, Taipu
     print("Recieved rateTemplate")
     content = request.json
     templateID = content["templateID"]
@@ -2187,7 +2185,45 @@ def rateTemplate():
     
     return jsonify(response)
     
+# Favorite template
+@app.route("/api/favoriteTemplate")
+def favoriteTemplate():
+    print("Recieved favoriteTemplate")
     
+    content = request.json
+    templateID = content["templateID"]
+    gameID = content["gameID"]
+    userID = getUserID()
+    
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    # See if the user already has data for that template
+    statement = "SELECT favorited FROM AppUserInteractTemplate WHERE userID=%s AND gameID=%s AND templateID=%s"
+    cursor.execute(statement, (userID, gameID, templateID))
+    results = cursor.fetchall()
+    #print(len(results))  # I think if the user doesn't have an entry for that template, this should be 0
+    if len(results) > 0:  # The user has an entry for that template
+        print("Found table entry")
+        favorited = results[0][0]
+        # Change the favorited status
+        if favorited == 0:  # Out of curiosity, why are we using an int and not a boolean here?
+            favorited = 1
+        elif favorited == 1:
+            favorited = 0
+        statement = "UPDATE AppUserInteractTemplate SET favorited=%s WHERE userID=%s AND gameID=%s AND templateID=%s"
+        cursor.execute(statement, (favorited, userID, gameID, templateID))
+    else:  # The user has no entry for that template
+        print("Creating new entry")
+        statement = "INSERT INTO AppUserInteractTemplate (userID, gameID, templateID, favorited) VALUES %s, %s, %s, 1"  # Favorite when inserting a new entry
+        cursor.execute(statement, (userID, gameID, templateID))
+    
+    #mydb.commit()
+    cursor.close()
+    mydb.close()
+    return "ok"
+    
+    
+
 
 ##################################### Profile API ########################################
 @app.route("/api/profile/changePassword", methods=["POST"])

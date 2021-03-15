@@ -2155,29 +2155,45 @@ def doReports():
 # Rate Bottom UI (move this)
 @app.route("/api/rateTemplate", methods=["POST"])
 def rateTemplate():
-    # Do something, Taipu
     print("Recieved rateTemplate")
     content = request.json
     templateID = content["templateID"]
     gameID = content["gameID"]
+    userID = getUserID()
     rating = content["val"]
     print("Template ID: " + str(templateID))
     print("Game ID: " + str(gameID))
     print("Rating: " + str(rating))
     
-    
     mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)
-    statement = "SELECT numRatings, averageRating FROM Template WHERE templateID = %s AND gameID = %s"
-    cursor.execute(statement, (templateID, gameID))
-    result = cursor.fetchone()
-    numberOfRatings = result[0]
-    prevTotalRating = numberOfRatings * result[1]
-    newRating = (prevTotalRating + rating) / numberOfRatings + 1
-    numberOfRatings += 1
+    statement = "SELECT rating FROM AppUserInteractTemplate WHERE userID=%s AND gameID=%s AND templateID=%s"
+    cursor.execute(statement, (userID, gameID, templateID))
+    results = cursor.fetchall()
+    if len(results) > 0:  # If we have an entry for the template
+        print("Found table entry")
+        statement = "UPDATE AppUserInteractTemplate SET rating=%s WHERE userID=%s AND gameID=%s AND templateID=%s"
+        cursor.execute(statement, (rating, userID, gameID, templateID))
+        results = cursor.fetchall()  # Flush results
+    else:
+        print("Creating new entry")
+        statement = "INSERT INTO AppUserInteractTemplate (userID, gameID, templateID, rating) VALUES %s, %s, %s, %s"
+        cursor.execute(statement, (userID, gameID, templateID, rating))
+        results = cursor.fetchall()  # Flush results
     
+    # Get all the ratings for the template
+    statement = "SELECT userID, rating FROM AppUserInteractTemplate WHERE gameID=%s AND templateID=%s"
+    cursor.execute(statement, (gameID, templateID))
+    results = cursor.fetchall()
+    numberOfRatings = len(results)
+    # Sum up those ratings, get the average
+    total = 0
+    for row in results:
+        total += row[1]
+    average = total / numberOfRatings
+    # Update the template's info in the DB
     statement = "UPDATE Template SET numRatings = %s, averageRating = %s WHERE templateID = %s AND gameID = %s"
-    cursor.execute(statement, (numberOfRatings, newRating, templateID, gameID))
+    cursor.execute(statement, (numberOfRatings, average, templateID, gameID))
     
     mydb.commit()
     cursor.close()

@@ -2205,11 +2205,13 @@ def favoriteTemplate():
     if len(results) > 0:  # The user has an entry for that template
         print("Found table entry")
         favorited = results[0][0]
+        print("Before:", favorited)
         # Change the favorited status
         if favorited == 0:  # Out of curiosity, why are we using an int and not a boolean here?
             favorited = 1
         elif favorited == 1:
             favorited = 0
+        print("After:", favorited)
         statement = "UPDATE AppUserInteractTemplate SET favorited=%s WHERE userID=%s AND gameID=%s AND templateID=%s"
         cursor.execute(statement, (favorited, userID, gameID, templateID))
     else:  # The user has no entry for that template
@@ -2220,7 +2222,9 @@ def favoriteTemplate():
     #mydb.commit()
     cursor.close()
     mydb.close()
-    return "ok"
+    
+    response = {"successful": True}
+    return jsonify(response)
     
     
 

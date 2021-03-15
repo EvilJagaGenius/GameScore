@@ -13,6 +13,7 @@ import CreateIcon from '@material-ui/icons/Create';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Table from '@material-ui/core/Table';
 import Rating from '@material-ui/lab/Rating';
+import Favorite from '@material-ui/icons/Favorite';
 
 
 
@@ -82,22 +83,23 @@ export default function BottomUI(props) {
 											</TableCell>
                                             <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
 												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
-												onClick = {()=> 
-                                                    const requestOptions = {
-														method:'POST',
-            											headers: { 'Content-Type': 'application/json' },
-            											credentials: 'include',
-            											body: JSON.stringify({
-                											templateID: props.templateID,
-                                                            gameID: props.gameID
-            											})
-													}
-													fetch('/api/favoriteTemplate', requestOptions)
+                                                    onClick = {()=> {
+                                                        const requestOptions = {
+                                                            method:'POST',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            credentials: 'include',
+                                                            body: JSON.stringify({
+                                                                templateID: props.templateID,
+                                                                gameID: props.gameID
+                                                            })
+                                                        }
+                                                        fetch('/api/favoriteTemplate', requestOptions)
+                                                    }
                                                 }>
 													<div style={{margin:-5}}>
 														
 														<div>
-															<SportsEsports style={{fontSize:35}} />
+															<Favorite style={{fontSize:35}} />
 														</div>
 														<div style={{marginTop:-10}}>
 															Favorite

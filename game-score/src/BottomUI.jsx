@@ -81,6 +81,31 @@ export default function BottomUI(props) {
 												</Button>
 											</TableCell>
                                             <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+												onClick = {()=> 
+                                                    const requestOptions = {
+														method:'POST',
+            											headers: { 'Content-Type': 'application/json' },
+            											credentials: 'include',
+            											body: JSON.stringify({
+                											templateID: props.templateID,
+                                                            gameID: props.gameID
+            											})
+													}
+													fetch('/api/favoriteTemplate', requestOptions)
+                                                }>
+													<div style={{margin:-5}}>
+														
+														<div>
+															<SportsEsports style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															Favorite
+														</div>
+													</div>
+												</Button>
+											</TableCell>
+                                            <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
 												<Rating
                                                 value={ratingValue}
                                                 name="rating"

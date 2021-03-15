@@ -2151,7 +2151,7 @@ def doReports():
     # Do something, Taipu
     return "ok"
 
-# Rate template
+# Rate template button
 @app.route("/api/rateTemplate", methods=["POST"])
 def rateTemplate():
     print("Recieved rateTemplate")
@@ -2185,15 +2185,15 @@ def rateTemplate():
     
     return jsonify(response)
     
-# Favorite template
-@app.route("/api/favoriteTemplate")
+# Favorite template button
+@app.route("/api/favoriteTemplate", methods=["POST"])
 def favoriteTemplate():
     print("Recieved favoriteTemplate")
     
     content = request.json
     templateID = content["templateID"]
     gameID = content["gameID"]
-    userID = getUserID()
+    userID = 1#getUserID()
     
     mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)

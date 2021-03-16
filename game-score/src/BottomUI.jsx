@@ -53,6 +53,7 @@ export default function BottomUI(props) {
 		const [del, setDel] = useState(props.del || false);
 		var [numPlayers, setNumPlayers] = useState(2);
         const [ratingValue, setRatingValue] = useState(0);
+        const [ratingPopup, setRatingPopup] = useState(false);
 		let history = useHistory()
         return(
         <>
@@ -81,26 +82,18 @@ export default function BottomUI(props) {
 												</Button>
 											</TableCell>
                                             <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
-												<Rating
-                                                value={ratingValue}
-                                                name="rating"
-                                                onChange={(event, newValue) => {
-                                                    setRatingValue(newValue);
-                                                    // Need to send something to the server here
-                                                    const requestOptions = {
-														method:'POST',
-            											headers: { 'Content-Type': 'application/json' },
-            											credentials: 'include',
-            											body: JSON.stringify({
-                											templateID: props.templateID,
-                                                            gameID: props.gameID,
-                                                            val: newValue
-            											})
-													}
-													fetch('/api/rateTemplate', requestOptions)
-                                                }}
-                                                onClick={props.handleInputChange}
-                                                />
+												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+												onClick = {()=> setRatingPopup(true)}>
+													<div style={{margin:-5}}>
+														
+														<div>
+															<Star style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															Rate
+														</div>
+													</div>
+												</Button>
 											</TableCell>
 									   	</>
 									}
@@ -222,6 +215,60 @@ export default function BottomUI(props) {
 								  		<td style ={{paddingLeft:7}}>
 								  			<Button className={classes.button} variant = "contained" color="primary" size = "large"
 								  			onClick={()=>setCreateGamePopup(false)}>
+								  			Cancel</Button>
+								  		</td>
+								  	</tr>
+							  	</table>
+
+							  </div>
+						  </div>
+						</Modal>
+                        <Modal
+						  open={ratingPopup}
+						  aria-labelledby="simple-modal-title"
+						  aria-describedby="simple-modal-description"
+						>
+						<div style={modalStyle} className={classes.paper}>
+							  <h3 style={{textAlign:"center"}}>Rate {props.templateName}</h3>
+							  <div align="center">
+								 <table style={{marginTop:10}}>
+								  	<tr w>
+								  		<td>
+								  			<Rating
+                                                value={ratingValue}
+                                                name="rating"
+                                                onClick={props.handleInputChange}
+                                                onChange={(event, newValue) => {
+                                                    setRatingValue(newValue);
+                                                }}
+                                            />
+								  		</td>
+								  	</tr>
+							  	</table>
+							  	<table style={{margin:"auto",paddingTop:20,paddingBottom:-15}}>
+								  	<tr>
+								  		<td style={{paddingRight:7}}>
+								  			<Button className={classes.button} variant = "contained" color="primary" size = "large"
+								  			onClick={()=>{
+								  				// Need to send something to the server here
+                                                const requestOptions = {
+                                                    method:'POST',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    credentials: 'include',
+                                                    body: JSON.stringify({
+                                                        templateID: props.templateID,
+                                                        gameID: props.gameID,
+                                                        val: ratingValue
+                                                    })
+                                                }
+                                                fetch('/api/rateTemplate', requestOptions)
+                                                setRatingPopup(false)
+								  			}}>
+								  			Rate</Button>
+								  		</td >
+								  		<td style ={{paddingLeft:7}}>
+								  			<Button className={classes.button} variant = "contained" color="primary" size = "large"
+								  			onClick={()=>setRatingPopup(false)}>
 								  			Cancel</Button>
 								  		</td>
 								  	</tr>

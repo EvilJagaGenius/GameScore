@@ -2177,7 +2177,7 @@ def rateTemplate():
         results = cursor.fetchall()  # Flush results
     else:
         print("Creating new entry")
-        statement = "INSERT INTO AppUserInteractTemplate (userID, gameID, templateID, rating) VALUES %s, %s, %s, %s"
+        statement = "INSERT INTO AppUserInteractTemplate (userID, gameID, templateID, rating) VALUES (%s, %s, %s, %s)"
         cursor.execute(statement, (userID, gameID, templateID, rating))
         results = cursor.fetchall()  # Flush results
     

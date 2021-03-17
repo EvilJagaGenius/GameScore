@@ -2185,12 +2185,18 @@ def rateTemplate():
     statement = "SELECT userID, rating FROM AppUserInteractTemplate WHERE gameID=%s AND templateID=%s"
     cursor.execute(statement, (gameID, templateID))
     results = cursor.fetchall()
-    numberOfRatings = len(results)
-    # Sum up those ratings, get the average
+    # Sum up the ratings, get the average
+    numberOfRatings = 0
     total = 0
     for row in results:
-        total += row[1]
-    average = total / numberOfRatings
+        rowValue = row[1]
+        if rowValue != None:
+            total += rowValue
+            numberOfRatings += 1
+    if numberOfRatings > 0:
+        average = total / numberOfRatings
+    else:
+        average = 0
     # Update the template's info in the DB
     statement = "UPDATE Template SET numRatings = %s, averageRating = %s WHERE templateID = %s AND gameID = %s"
     cursor.execute(statement, (numberOfRatings, average, templateID, gameID))

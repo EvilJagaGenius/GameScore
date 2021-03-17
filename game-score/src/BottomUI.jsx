@@ -14,6 +14,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import Table from '@material-ui/core/Table';
 import Rating from '@material-ui/lab/Rating';
 import Favorite from '@material-ui/icons/Favorite';
+import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
 
 
 
@@ -96,15 +97,28 @@ export default function BottomUI(props) {
                                                         fetch('/api/favoriteTemplate', requestOptions)
                                                     }
                                                 }>
-													<div style={{margin:-5}}>
-														
-														<div>
-															<Favorite style={{fontSize:35}} />
-														</div>
-														<div style={{marginTop:-10}}>
-															Favorite
-														</div>
-													</div>
+                                                    {props.favorited === 1 &&
+                                                        <div style={{margin:-5}}>
+                                                            
+                                                            <div>
+                                                                <Favorite style={{fontSize:35}} />
+                                                            </div>
+                                                            <div style={{marginTop:-10}}>
+                                                                Unfavorite
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    {props.favorited === 0 &&
+                                                        <div style={{margin:-5}}>
+                                                            
+                                                            <div>
+                                                                <FavoriteBorder style={{fontSize:35}} />
+                                                            </div>
+                                                            <div style={{marginTop:-10}}>
+                                                                Favorite
+                                                            </div>
+                                                        </div>
+                                                    }
 												</Button>
 											</TableCell>
                                             <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>

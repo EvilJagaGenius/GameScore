@@ -10,6 +10,7 @@ import Box from '@material-ui/core/Box';
 import Logo from '../../images/GameScore App Logo.png';
 import { Component } from "react";
 import {ToastsContainer, ToastsStore} from 'react-toasts';
+import Home from '../Home';
 
 export default class Login extends Component{
   constructor(props){
@@ -142,36 +143,39 @@ export default class Login extends Component{
       },
     }));
     return (
-      <form className={classes.root} noValidate autoComplete="off">
-        <Box m={2} pt={3}>
-        <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
-        <h1>Login Page</h1>
-        <div>
-          <TextField required id="standard-required" label="Username" onChange={this.usernameHandler} value = {this.state.username} error={this.state.usernameError}/>
-        </div>
-        <div>
-          <TextField required id="standard-required" label="Password" type="password" onChange={this.passwordHandler} value={this.state.password} error={this.state.passwordError}/>
-        </div>
-        <Button onClick={()=>{this.confirmSubmission()}}>Login</Button>
-        <Button onClick={()=>{this.props.history.push("/login/forgetpassword")}}>Forget Login?</Button>
-        <Button onClick={()=>{
+      <div>
+        <Home {...this.props}/>
+        <form className={classes.root} noValidate autoComplete="off">
+          <Box m={2} pt={3}>
+          <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
+          <h1>Login Page</h1>
+          <div>
+            <TextField required id="standard-required" label="Username" onChange={this.usernameHandler} value = {this.state.username} error={this.state.usernameError}/>
+          </div>
+          <div>
+            <TextField required id="standard-required" label="Password" type="password" onChange={this.passwordHandler} value={this.state.password} error={this.state.passwordError}/>
+          </div>
+          <Button onClick={()=>{this.confirmSubmission()}}>Login</Button>
+          <Button onClick={()=>{this.props.history.push("/login/forgetpassword")}}>Forget Login?</Button>
+          <Button onClick={()=>{
 
-          if(this.props.location!=null&&this.props.location.state!=null&&this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
-          {
-              this.props.history.push({
-              pathname:"/login/createaccount",
-              state:{joinCodeQR:this.props.location.state.joinCodeQR}
-              });
-          }
-          else
-          {
-            this.props.history.push("/login/createaccount")
-          }
+            if(this.props.location!=null&&this.props.location.state!=null&&this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
+            {
+                this.props.history.push({
+                pathname:"/login/createaccount",
+                state:{joinCodeQR:this.props.location.state.joinCodeQR}
+                });
+            }
+            else
+            {
+              this.props.history.push("/login/createaccount")
+            }
 
-          }}>Create Account</Button>
-          <ToastsContainer store={ToastsStore}/>
-        </Box>
-      </form>
+            }}>Create Account</Button>
+            <ToastsContainer store={ToastsStore}/>
+          </Box>
+        </form>
+      </div>
     );
   }
 }

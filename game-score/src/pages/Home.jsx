@@ -79,7 +79,7 @@ const Home = props => {
       {selectedTab === 0 && <HomeMenu />}
       {selectedTab === 1 && <MyTemplates />}
       {selectedTab === 2 && <PlayGame history={props.history} location={props.location}/>}
-      {selectedTab === 3 && <Profile history={history}/>}
+      {selectedTab === 3 && <Profile history={props.history}/>}
      
     </>
   );

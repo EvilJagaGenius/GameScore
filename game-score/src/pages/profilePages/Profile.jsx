@@ -2,13 +2,14 @@ import React from "react";
 import {Button} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import Cookies from 'js-cookie';
-import { BrowserRouter as Router, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Link,withRouter } from 'react-router-dom';
 import Hacker from '../../images/avatarIcons/hacker.png';
 import Programmer from '../../images/avatarIcons/programmer.png';
 import Astronaut from '../../images/avatarIcons/astronaut.png';
 import Lawyer from '../../images/avatarIcons/lawyer.png';
 import BusinessMan from '../../images/avatarIcons/business-man.png';
 import Woman from '../../images/avatarIcons/woman.png';
+
 
 export default class Profile extends React.Component{
     constructor(props){
@@ -120,3 +121,4 @@ export default class Profile extends React.Component{
         );
     }
 }
+withRouter(Profile)

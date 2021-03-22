@@ -120,6 +120,12 @@ class RejoinGame extends React.Component
 								          this.setState({
 								          doShow:false
 								          })
+
+								          if(window.location.pathname.includes("/playgame"))
+								          	{
+								          		window.location.reload(false);
+								          	}
+
 								        },
 								      )
 
@@ -147,7 +153,7 @@ class RejoinGame extends React.Component
 								          this.setState({
 								          doShow:false
 								          })
-								          	if(window.location.pathname=="/playgame")
+								          	if(window.location.pathname.includes("/playgame"))
 								          	{
 								          		window.location.reload(false);
 								          	}

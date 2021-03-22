@@ -78,6 +78,7 @@ export default class Home extends React.Component{
       {this.state.selectedTab === 1 && <MyTemplates />}
       {this.state.selectedTab === 2 && <PlayGame history={this.props.history} location={this.props.location}/>}
       {this.state.selectedTab === 3 && <Profile history={this.history}/>}
+
     </>
     );
   }

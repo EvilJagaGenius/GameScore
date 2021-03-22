@@ -9,8 +9,6 @@ import {Button} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import Logo from '../../images/GameScore App Logo.png';
 import { Component } from "react";
-import {ToastsContainer, ToastsStore} from 'react-toasts';
-import Home from '../Home';
 import Alert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
 import { Link } from 'react-router-dom'

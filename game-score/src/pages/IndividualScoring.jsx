@@ -175,15 +175,15 @@ export default class ScoringPage extends React.Component{
 
       };
 
-    updateValues()
+    updateValues(newKey=this.state.key)
     {
        //console.log(this.state.loaded)
-        Object.keys((this.state.data.individualScoring[this.state.key]["conditions"])).map(pos=>{
+        Object.keys((this.state.data.individualScoring[newKey]["conditions"])).map(pos=>{
 
         let field =  document.getElementById(pos)
         //console.log(pos)
 
-        if(field!=null && field.name=="editingButton" && this.state.data.individualScoring[this.state.key]["conditions"][parseInt(pos)].value == parseInt(field.value))
+        if(field!=null && field.name=="editingButton" && this.state.data.individualScoring[newKey]["conditions"][parseInt(pos)].value == parseInt(field.value))
         {
           field.name="editingFalse"
           console.log("reset")
@@ -192,7 +192,7 @@ export default class ScoringPage extends React.Component{
         if(field!==null && field.name=="editingFalse")
         {
           
-          field.value = this.state.data.individualScoring[this.state.key]["conditions"][parseInt(pos)].value
+          field.value = this.state.data.individualScoring[newKey]["conditions"][parseInt(pos)].value
           //console.log(field.name)
         }
 
@@ -227,6 +227,7 @@ export default class ScoringPage extends React.Component{
                                         this.setState({
                                           key:event.target.value
                                         })
+                                        {this.updateValues(event.target.value)}
                                     }}
                               >
                                 {/*Player Options*/}

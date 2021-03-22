@@ -226,60 +226,71 @@ function ScoringOverview() {
             </AccordionSummary>
             <AccordionDetails>
 
-              <TableContainer component={Paper}>
-               <Table size="small">
-                <TableHead>
-                    <TableRow>
-                       {/*Table Headers*/}
-                       <TableCell align="center"> 
-                            <Typography>Condition</Typography>
-                        </TableCell>
-                        {
-                          //Conditional drawing based on if data is valid
-                          Object.keys((data.globalAwards)).length > 0 &&
-                          Object.keys((data.globalAwards[0])).length > 0 &&
-                          Object.keys((data.globalAwards[0]["players"])).length > 0 &&
-                          <>
-                            {Object.keys((data.globalAwards[0].players)).map(key => (
-                                <TableCell align="center"> 
-                                  <Typography>{data.globalAwards[0]["players"][key].displayName}</Typography>
-                                </TableCell>
-                                ))}
-                          </>
-                        }
-                    </TableRow>
-                </TableHead>
-                  {
-                  Object.keys(data.globalAwards).length > 0 &&
-                    <>
-                      {/*For each global award in game*/}
-                      {Object.keys(data.globalAwards).map(key => (
-                          <TableRow>
-
-                            {/*Add Condition Name*/}
-                            <TableCell align="center">
-                              <Typography><b>{data.globalAwards[key].conditionName}</b></Typography>
-                              <Typography>(Max: {data.globalAwards[key].maxPerGame})</Typography>
+              {
+                Object.keys((data.globalAwards)).length > 0 &&
+                <TableContainer component={Paper}>
+                 <Table size="small">     
+                     
+                      <TableHead>
+                        <TableRow>
+                           {/*Table Headers*/}
+                            
+                            <TableCell align="center"> 
+                                <Typography>Condition</Typography>
                             </TableCell>
-
-                            {/*For each player, show value*/}
                             {
-                              Object.keys((data.globalAwards[key])).length > 0 &&
-                              Object.keys((data.globalAwards[key]["players"])).length > 0 &&
+                              //Conditional drawing based on if data is valid
+                              Object.keys((data.globalAwards)).length > 0 &&
+                              Object.keys((data.globalAwards[0])).length > 0 &&
+                              Object.keys((data.globalAwards[0]["players"])).length > 0 &&
                               <>
-                                {Object.keys((data.globalAwards[key]["players"])).map(key2 => (
-                                  <TableCell align="center">
-                                    <Typography>{Math.round(data.globalAwards[key]["players"][key2].value/0.01)*0.01}</Typography>
-                                  </TableCell>
-                                  ))}
+                                {Object.keys((data.globalAwards[0].players)).map(key => (
+                                    <TableCell align="center"> 
+                                      <Typography>{data.globalAwards[0]["players"][key].displayName}</Typography>
+                                    </TableCell>
+                                    ))}
                               </>
                             }
-                          </TableRow>
+                        </TableRow>
+                      </TableHead>
+                  
+                    {
+                    Object.keys(data.globalAwards).length > 0 &&
+                      <>
+                        {/*For each global award in game*/}
+                        {Object.keys(data.globalAwards).map(key => (
+                            <TableRow>
+
+                              {/*Add Condition Name*/}
+                              <TableCell align="center">
+                                <Typography><b>{data.globalAwards[key].conditionName}</b></Typography>
+                                <Typography>(Max: {data.globalAwards[key].maxPerGame})</Typography>
+                              </TableCell>
+
+                              {/*For each player, show value*/}
+                              {
+                                Object.keys((data.globalAwards[key])).length > 0 &&
+                                Object.keys((data.globalAwards[key]["players"])).length > 0 &&
+                                <>
+                                  {Object.keys((data.globalAwards[key]["players"])).map(key2 => (
+                                    <TableCell align="center">
+                                      <Typography>{Math.round(data.globalAwards[key]["players"][key2].value/0.01)*0.01}</Typography>
+                                    </TableCell>
+                                    ))}
+                                </>
+                              }
+                            </TableRow>
                         ))}
-                    </>
-                  }
+                      </>
+                    }
                 </Table>
               </TableContainer>
+              }
+              
+              {
+                Object.keys((data.globalAwards)).length <=0 &&
+                <Typography style={{marginLeft:20}}>No Global Awards in this Template</Typography>
+              }
             </AccordionDetails>
           </Accordion>
           {/*End Score Global Awards Accordion*/}

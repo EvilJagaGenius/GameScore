@@ -14,6 +14,8 @@ import Paper from '@material-ui/core/Paper';
 import {Link} from 'react-router-dom';
 import RejoinGame from './pages/RejoinGame';
 import TextField from '@material-ui/core/TextField';
+import Cookies from 'js-cookie';
+import Typography from '@material-ui/core/Typography';
 
 function getCookieValue(name) {
   let result = document.cookie.match("(^|[^;]+)\\s*" + name + "\\s*=\\s*([^;]+)")
@@ -188,38 +190,44 @@ constructor(props) {
         <Accordion.Content active={activeIndex === 0}>
         <TableContainer component={Paper}>
          <Table>
-            {
-                this.state.loaded === "True" && 
-                  <> 
-                    {Object.keys(this.state.data.favoritedTemplates).map(key => (
-                        <>
-                          <TableRow onClick={()=>this.selectTemplate(0,key)}>
-                            <TemplateRow 
-                            pictureURL = {this.state.data["favoritedTemplates"][key].pictureURL} 
-                            templateName = {this.state.data["favoritedTemplates"][key].templateName}
-                            numRatings = {this.state.data["favoritedTemplates"][key].numRatings}
-                            averageRating = {this.state.data["favoritedTemplates"][key].averageRating}
-                            />
-                          </TableRow>
-                            {
-                            this.isSelected(0,key) === true &&
-                            <>
-                              <BottomUI
-                                templateName = {this.state.data["favoritedTemplates"][key].templateName}
-                                templateID = {this.state.data["favoritedTemplates"][key].templateID}
-                                gameID = {this.state.data["favoritedTemplates"][key].gameID}
-                                selected = {this.isSelected(0,key)}
-                                play = {true}>
-                                </BottomUI>
-                            </>
-                          }
-                      </>
-                    ))}
-                  </>
-
-              }
-          </Table>
+                {
+                  this.state.loaded === "True" && Cookies.get("username") != null &&
+                    <> 
+                      {Object.keys(this.state.data.favoritedTemplates).map(key => (
+                          <>
+                            <TableRow onClick={()=>this.selectTemplate(0,key)}>
+                              <TemplateRow 
+                              pictureURL = {this.state.data["favoritedTemplates"][key].pictureURL} 
+                              templateName = {this.state.data["favoritedTemplates"][key].templateName}
+                              numRatings = {this.state.data["favoritedTemplates"][key].numRatings}
+                              averageRating = {this.state.data["favoritedTemplates"][key].averageRating}
+                              />
+                            </TableRow>
+                              {
+                              this.isSelected(0,key) === true &&
+                              <>
+                                <BottomUI
+                                  templateName = {this.state.data["favoritedTemplates"][key].templateName}
+                                  templateID = {this.state.data["favoritedTemplates"][key].templateID}
+                                  gameID = {this.state.data["favoritedTemplates"][key].gameID}
+                                  selected = {this.isSelected(0,key)}
+                                  play = {true}
+                                  rate= {true}>
+                                  </BottomUI>
+                              </>
+                            }
+                        </>
+                      ))}
+                    </>
+                }
+            </Table>
           </TableContainer>
+          
+            {
+              this.state.loaded === "True" && Cookies.get("username") == null &&
+                <Typography style={{marginLeft:20}}>Login for full functionality.</Typography>
+            } 
+          
         </Accordion.Content>
 
         {/* Recently Played */}
@@ -258,7 +266,8 @@ constructor(props) {
                                 templateID = {this.state.data["recentlyPlayed"][key].templateID}
                                 gameID = {this.state.data["recentlyPlayed"][key].gameID}
                                 selected = {this.isSelected(1,key)}
-                                play = {true}>
+                                play = {true}
+                                rate= {true}>
                                 </BottomUI>
                             </>
                           }
@@ -268,7 +277,11 @@ constructor(props) {
 
               }
           </Table>
-        </TableContainer>
+          </TableContainer>
+            {
+              this.state.loaded === "True" && Cookies.get("username") == null &&
+                <Typography style={{marginLeft:20}}>Login for full functionality.</Typography>
+            } 
         </Accordion.Content>
 
         {/* Highest Rated Templates accordian */}
@@ -307,7 +320,8 @@ constructor(props) {
                                 templateID = {this.state.data["highestRated"][key].templateID}
                                 gameID = {this.state.data["highestRated"][key].gameID}
                                 selected = {this.isSelected(2,key)}
-                                play = {true}>
+                                play = {true}
+                                rate= {true}>
                                 </BottomUI>
                             </>
                           }
@@ -349,6 +363,10 @@ constructor(props) {
               }
           </Table>
         </TableContainer>
+            {
+              this.state.loaded === "True" && Cookies.get("username") == null &&
+                <Typography style={{marginLeft:20}}>Login for full functionality.</Typography>
+            } 
         </Accordion.Content>
       </Accordion>
       </>
@@ -376,7 +394,8 @@ constructor(props) {
                     templateID = {this.state.filtered[key].templateID}
                     gameID = {this.state.filtered[key].gameID}
                     selected = {this.isSelected(key)}
-                    play = {true}>
+                    play = {true}
+                    rate= {true}>
                     </BottomUI>
                   </>
                 }

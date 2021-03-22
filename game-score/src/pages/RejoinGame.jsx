@@ -139,7 +139,7 @@ class RejoinGame extends React.Component
                                           })
                                         };
 
-	                                fetch("/api/postLeaveGame",requestOptions) //Needs an actual route
+	                                fetch("/api/postLeaveGame",requestOptions)
 								      .then(res => res.json())
 								      .then(
 								        (result) => {
@@ -147,6 +147,10 @@ class RejoinGame extends React.Component
 								          this.setState({
 								          doShow:false
 								          })
+								          	if(window.location.pathname=="/playgame")
+								          	{
+								          		window.location.reload(false);
+								          	}
 								        },
 								      )
 

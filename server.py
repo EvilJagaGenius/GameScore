@@ -187,6 +187,33 @@ def login_post():
         mydb.close()
         return response
 
+
+##################################### Check Username Exists ########################################
+
+@app.route('/api/postCheckUsername', methods=["POST"])
+def postCheckUsername():
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    #Get Form Info
+    content = request.json
+    username = content['username']
+
+    #Check to see if username/password combo exists
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select username from AppUser where username = %s")
+    mycursor.execute(stmt,(username,))
+    myresult = mycursor.fetchone()
+    mycursor.close()
+
+    if myresult == None:
+        result = {"successful":True,"usernameExists":False}
+        response = jsonify(result)
+        mydb.close()
+        return response
+    else: #If Exists
+        result = {"successful":True,"usernameExists":True}
+        response = jsonify(result)
+        mydb.close()
+        return response
 ##################################### Reset Password Email ########################################
 
 @app.route("/api/postResetPasswordEmail", methods=["POST"])
@@ -576,6 +603,7 @@ def apiGetHomePage():
 def getScoring(userID):
 #Get Template and GameName Info
     print(userID)
+    exceededLimitIDs = []
     result = {"scoringOverview":[]
           ,"globalAwards":[]
           ,"individualScoring":[]
@@ -649,6 +677,7 @@ def getScoring(userID):
             sumValue, = myresult
 
             if sumValue > maxPerGame:
+                exceededLimitIDs.append(conditionID)
                 result["finalizeScore"]["awards"].append({
                     "name":"{}".format(conditionName),
                     "sumValue":sumValue,
@@ -708,6 +737,9 @@ def getScoring(userID):
                 conditionName, conditionID, value, score, inputType, maxPerPlayer,maxPerPlayerActive,description = rowCondition
                 
                 isHigher = False
+
+                isHigher = conditionID in exceededLimitIDs
+
                 if value>maxPerPlayer and maxPerPlayer>0 and maxPerPlayerActive==True:
                     playerFinalizeScore["conditions"].append({
                         "conditionName":"{}".format(conditionName)
@@ -788,7 +820,7 @@ def getPostGame(userID):
                         ,"winnerDisplayName":"{}".format(winnerDisplayName)
                         ,"gameID":"{}".format(gameID)
                         ,"templateID":"{}".format(templateID)
-                        ,"scoreTable":[]
+                        ,"scoreTable":[] 
                         ,"numOfPlayers":[]}
 
         mycursor = mydb.cursor(prepared=True)
@@ -1932,11 +1964,13 @@ def postCreateCondition():
             mycursor = mydb.cursor(prepared=True)
             stmt = "INSERT INTO ScoringCondition (gameID,templateID,conditionName) VALUES(%s,%s,%s)"
             mycursor.execute(stmt,(gameID,templateID,"NewCondition"))
-            mycursor.fetchall()
+            conditionID = mycursor.lastrowid
             mydb.commit();
             mycursor.close()
             mydb.close()
-            return getConditionsSeperate(userID,templateID)
+            result={"succesful":True,"conditionID":conditionID}
+            response = jsonify(result)
+            return response
 
 
 ##################################### Delete Condition API ########################################

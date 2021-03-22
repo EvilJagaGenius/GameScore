@@ -13,6 +13,7 @@
  import { makeStyles } from '@material-ui/core/styles';
  import SportsEsports from '@material-ui/icons/SportsEsports';
  import HomeIcon from '@material-ui/icons/Home';
+ import BottomUI from "../BottomUI"
 
  const useStyles = makeStyles((theme) => ({
 
@@ -96,32 +97,37 @@
   	        }
         	</Table>
         </TableContainer>
+        {
+          loaded === true && 
+          <>
+            {/*Call to Action Stuffs*/}
+            <div style={{display: 'flex',  justifyContent:'center',marginTop:35,marginBottom:10}}>
+                <h5>What did you think of {postGameData.templateName}?</h5>
+            </div>
+            {/*Post Game Buttons*/}
 
-        {/*Call to Action Stuffs*/}
-        <div style={{display: 'flex',  justifyContent:'center',marginTop:35}}>
-            <h5>What did you think of {postGameData.templateName}?</h5>
-        </div>
-        {/*Post Game Buttons*/}
-        <div style={{display: 'flex',  justifyContent:'center'}}>
 
-            {/*Play Again Button*/}
-         		<Button  className={classes.button} variant = "contained" color="primary" size = "large" style={{marginTop:12,marginRight:8}} startIcon={<SportsEsports />}
-            onClick={()=>
-              //Create Game with Same number of players API call
-           		fetch(`/api/postCreateNewGame?templateID=${postGameData.templateID}&gameID=${postGameData.gameID}&numOfPlayers=${postGameData.numOfPlayers}`)
-     					.then(res => res.json()).then(data => {
-     					    history.push('/play/overview')  
-  					})
+            <BottomUI
+            templateName = {postGameData.templateName}
+            templateID = {postGameData.templateID}
+            gameID = {postGameData.gameID}
+            selected = {true}
+            rate = {true}
+            playagain = {true}
+            numPlayers = {postGameData.numOfPlayers}>
+            </BottomUI>
 
-  					}> Replay Game</Button>
+            <div style={{display: 'flex',  justifyContent:'center'}}>
 
-            {/*Return Home Button*/}
-            <Button className={classes.button} variant = "contained" color="primary" size = "large" style={{marginTop:12,marginLeft:8}} startIcon={<HomeIcon />}
-              onClick={()=>
-                history.push('/home')
-              }> Return Home
-            </Button>
-       	</div>
+                {/*Return Home Button*/}
+                <Button className={classes.button} variant = "contained" color="primary" size = "large" style={{marginTop:12,marginLeft:8}} startIcon={<HomeIcon />}
+                  onClick={()=>
+                    history.push('/home')
+                  }> Return Home
+                </Button>
+           	</div>
+           </>
+       }
      </>
    );
  };

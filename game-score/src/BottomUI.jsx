@@ -13,7 +13,7 @@ import CreateIcon from '@material-ui/icons/Create';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Table from '@material-ui/core/Table';
 import Rating from '@material-ui/lab/Rating';
-
+import Cookies from 'js-cookie';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -43,6 +43,22 @@ function getModalStyle() {
     };
 }
 
+function validateNumPlayers(inputVal)
+{
+	if(inputVal<=0)
+	{
+		inputVal = 1;
+	}
+	if(inputVal>12)
+	{
+		inputVal = 12;
+	}
+	inputVal = Math.round(inputVal)
+
+	return inputVal;
+}
+
+
 export default function BottomUI(props) {
 		const classes = useStyles();
 		const [modalStyle] = React.useState(getModalStyle);
@@ -55,6 +71,10 @@ export default function BottomUI(props) {
         const [ratingValue, setRatingValue] = useState(0);
         const [ratingPopup, setRatingPopup] = useState(false);
 		let history = useHistory()
+
+
+
+
         return(
         <>
 	          <>
@@ -69,7 +89,17 @@ export default function BottomUI(props) {
 										<>
 											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
 												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
-												onClick = {()=> setCreateGamePopup(true)}>
+												onClick = {()=> {
+
+													if(Cookies.get("username") != null)
+													{
+														setCreateGamePopup(true)
+													}
+													else
+													{
+														history.push('/home/login')
+													}
+													}}>
 													<div style={{margin:-5}}>
 														
 														<div>
@@ -81,9 +111,61 @@ export default function BottomUI(props) {
 													</div>
 												</Button>
 											</TableCell>
+                                          
+									   	</>
+									}
+									{props.playagain === true &&
+										<>
+											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+												onClick = {()=> {
+
+													if(Cookies.get("username") != null)
+													{
+														fetch(`/api/postCreateNewGame?templateID=${props.templateID}&gameID=${props.gameID}&numOfPlayers=${props.numPlayers}`)
+									 					.then(res => res.json()).then(data => {
+									 					console.log(data)
+									 					history.push('/play/overview')
+									 					window.location.reload(true);
+														});
+														
+													}
+													else
+													{
+														history.push('/home/login')
+													}
+													}}>
+													<div style={{margin:-5}}>
+														
+														<div>
+															<SportsEsports style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															Play Again
+														</div>
+													</div>
+												</Button>
+											</TableCell>
+                                          
+									   	</>
+									}
+									{props.rate === true &&
+										<>
+											
                                             <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
 												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
-												onClick = {()=> setRatingPopup(true)}>
+												onClick = {()=> {
+
+													if(Cookies.get("username") != null)
+													{
+														setRatingPopup(true)
+													}
+													else
+													{
+														history.push('/home/login')
+													}
+													
+													}}>
 													<div style={{margin:-5}}>
 														
 														<div>
@@ -170,23 +252,12 @@ export default function BottomUI(props) {
 
 								  		</td>
 								  		<td>
-								  			<Input name="numPlayersInput" type="number" onChange={(e)=>{
+								  			<Input id="numPlayersInput" name="numPlayersInput" type="number" onChange={(e)=>{
 								  					setNumPlayers(e.target.value)
 								  				}}
 								  				onBlur={(e)=>
 								  				{
-								  					if(e.target.value <=0)
-									  				{
-									  					setNumPlayers(2)
-									  				}
-									  				else if(isNaN(e.target.value)===true)
-									  				{
-									  					setNumPlayers(2)
-									  				}
-									  				else
-									  				{
-									  					setNumPlayers(e.target.value)
-									  				}
+								  					setNumPlayers(validateNumPlayers(e.target.value))
 								  				}}
 								  				
 								  			 value={numPlayers} defaultValue={props.value}>

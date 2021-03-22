@@ -173,6 +173,7 @@ export default class MyTemplates extends Component {
                             play ={true}
                             edit = {true}
                             del = {true}
+                            rate= {true}
                             update ={this.callAPI}>
 
                             </BottomUI>

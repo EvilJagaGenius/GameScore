@@ -211,7 +211,8 @@ constructor(props) {
                                   templateID = {this.state.data["favoritedTemplates"][key].templateID}
                                   gameID = {this.state.data["favoritedTemplates"][key].gameID}
                                   selected = {this.isSelected(0,key)}
-                                  play = {true}>
+                                  play = {true}
+                                  rate= {true}>
                                   </BottomUI>
                               </>
                             }
@@ -224,7 +225,7 @@ constructor(props) {
           
             {
               this.state.loaded === "True" && Cookies.get("username") == null &&
-                <Typography>Please Login IN</Typography>
+                <Typography style={{marginLeft:20}}>Login for full functionality.</Typography>
             } 
           
         </Accordion.Content>
@@ -265,7 +266,8 @@ constructor(props) {
                                 templateID = {this.state.data["recentlyPlayed"][key].templateID}
                                 gameID = {this.state.data["recentlyPlayed"][key].gameID}
                                 selected = {this.isSelected(1,key)}
-                                play = {true}>
+                                play = {true}
+                                rate= {true}>
                                 </BottomUI>
                             </>
                           }
@@ -275,7 +277,11 @@ constructor(props) {
 
               }
           </Table>
-        </TableContainer>
+          </TableContainer>
+            {
+              this.state.loaded === "True" && Cookies.get("username") == null &&
+                <Typography style={{marginLeft:20}}>Login for full functionality.</Typography>
+            } 
         </Accordion.Content>
 
         {/* Highest Rated Templates accordian */}
@@ -314,7 +320,8 @@ constructor(props) {
                                 templateID = {this.state.data["highestRated"][key].templateID}
                                 gameID = {this.state.data["highestRated"][key].gameID}
                                 selected = {this.isSelected(2,key)}
-                                play = {true}>
+                                play = {true}
+                                rate= {true}>
                                 </BottomUI>
                             </>
                           }
@@ -356,6 +363,10 @@ constructor(props) {
               }
           </Table>
         </TableContainer>
+            {
+              this.state.loaded === "True" && Cookies.get("username") == null &&
+                <Typography style={{marginLeft:20}}>Login for full functionality.</Typography>
+            } 
         </Accordion.Content>
       </Accordion>
       </>
@@ -383,7 +394,8 @@ constructor(props) {
                     templateID = {this.state.filtered[key].templateID}
                     gameID = {this.state.filtered[key].gameID}
                     selected = {this.isSelected(key)}
-                    play = {true}>
+                    play = {true}
+                    rate= {true}>
                     </BottomUI>
                   </>
                 }

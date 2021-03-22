@@ -51,15 +51,7 @@ export default class Home extends React.Component{
     console.log("newValue is ");
     console.log(newValue);
     console.log(this.tabNameToIndex(newValue));
-
-    if(Cookies.get("username") != null)
-    {
-       this.props.history.push(`/${this.tabNameToIndex(newValue)}`);
-    }
-    else
-    {
-       this.props.history.push(`/home/login`);
-    }
+    this.props.history.push(`/${this.tabNameToIndex(newValue)}`);
     this.setState({
       selectedTab: newValue,
       loggedIn: Cookies.get("username")

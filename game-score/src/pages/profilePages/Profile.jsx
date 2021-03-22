@@ -2,14 +2,13 @@ import React from "react";
 import {Button} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import Cookies from 'js-cookie';
-import {Link,withRouter } from 'react-router-dom';
+import {Link,withRouter} from 'react-router-dom';
 import Hacker from '../../images/avatarIcons/hacker.png';
 import Programmer from '../../images/avatarIcons/programmer.png';
 import Astronaut from '../../images/avatarIcons/astronaut.png';
 import Lawyer from '../../images/avatarIcons/lawyer.png';
 import BusinessMan from '../../images/avatarIcons/business-man.png';
 import Woman from '../../images/avatarIcons/woman.png';
-
 
 class Profile extends React.Component{
     constructor(props){
@@ -50,7 +49,7 @@ class Profile extends React.Component{
         this.setState({data: data.successful});
         //errors and error message
         console.log(this.state.data);
-        this.props.history.push('/home/login')
+        this.props.history.push('/home/login');
       }
 
     /**
@@ -121,4 +120,4 @@ class Profile extends React.Component{
         );
     }
 }
-export default withRouter(Profile)
+export default withRouter(Profile);

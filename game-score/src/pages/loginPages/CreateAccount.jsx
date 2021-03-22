@@ -9,6 +9,8 @@ import {Button} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import { Component } from "react";
 import Logo from '../../images/GameScore App Logo.png';
+import { Link } from 'react-router-dom'
+import BackIcon from '@material-ui/icons/ArrowBackIos';
 
 export default class CreateAccount extends Component{
   constructor(props){
@@ -82,9 +84,35 @@ export default class CreateAccount extends Component{
       });
     }
     else{
-      this.setState({
-        usernameError: false,
-        usernameHelper: ""
+          this.setState({
+          usernameHelper: ""
+          })
+
+         const requestOptions = {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          credentials: 'include',
+          body: JSON.stringify({
+            username:event.target.value
+          })
+          };
+
+        fetch("/api/postCheckUsername",requestOptions)
+        .then(res => res.json()).then(newData => {
+              if(newData.usernameExists===true)
+              {
+                this.setState({
+                  usernameError: true,
+                  usernameHelper: errorText +"Username already exists.  "
+                })
+              }
+              else
+              {
+                this.setState({
+                usernameError: false
+              })
+          }
+          
       });
     }
   }
@@ -95,7 +123,8 @@ export default class CreateAccount extends Component{
    */
   emailHandler=(event)=>{
     let email = String(event.target.value);
-    if(!(email.includes("@")) && (!(email.includes(".")))){
+    var regex = /^.+@.+\..+/
+    if(!email.match(regex)){
       this.setState({
         email: "",
         emailError: true
@@ -239,6 +268,16 @@ export default class CreateAccount extends Component{
   },
 }));
 return (
+  <>
+  <div style={{paddingLeft:0,left:5,top:15,position:"absolute"}} align="left">
+        {/*Back Button*/}
+        <Link to={{pathname: "/home/login"}}>
+            <Button startIcon={<BackIcon/>}>
+            Back
+            </Button>
+        </Link>
+  </div>
+
   <form className={classes.root} noValidate autoComplete="off">
     <Box m={2} pt={3}>
     <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
@@ -260,6 +299,7 @@ return (
     </div>
     </Box>
   </form>
+  </>
   );
   }
 }

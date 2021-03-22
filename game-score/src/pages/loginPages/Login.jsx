@@ -11,6 +11,10 @@ import Logo from '../../images/GameScore App Logo.png';
 import { Component } from "react";
 import {ToastsContainer, ToastsStore} from 'react-toasts';
 import Home from '../Home';
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
+import { Link } from 'react-router-dom'
+import BackIcon from '@material-ui/icons/ArrowBackIos';
 
 export default class Login extends Component{
   constructor(props){
@@ -20,7 +24,8 @@ export default class Login extends Component{
       password: "",
       usernameError: false,
       passwordError: false,
-      data: false
+      data: false,
+      loginFailedAlert:false
     }
   }
 
@@ -113,13 +118,17 @@ export default class Login extends Component{
     this.setState({ data: data.successful });
     console.log(this.state.data);
     if(this.state.data === false){
-      alert("Incorrect login information\nPlease try again");
+      this.setState({
+        loginFailedAlert:true,
+        username:"",
+        password:""
+      })
+
     }
     else{
 
         if(this.props.location!=null&&this.props.location.state!=null &&this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
           {
-              ToastsStore.success("Login Successful");
               this.props.history.push({
               pathname:"/playgame",
               search:"?joinCode="+this.props.location.state.joinCodeQR
@@ -128,7 +137,6 @@ export default class Login extends Component{
         else
           {
               this.props.history.push("/");
-              ToastsStore.success("Login Successful");
           }
     }
   }
@@ -143,22 +151,29 @@ export default class Login extends Component{
       },
     }));
     return (
-      <div>
-        <Home {...this.props}/>
-        <form className={classes.root} noValidate autoComplete="off">
-          <Box m={2} pt={3}>
-          <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
-          <h1>Login Page</h1>
-          <div>
-            <TextField required id="standard-required" label="Username" onChange={this.usernameHandler} value = {this.state.username} error={this.state.usernameError}/>
-          </div>
-          <div>
-            <TextField required id="standard-required" label="Password" type="password" onChange={this.passwordHandler} value={this.state.password} error={this.state.passwordError}/>
-          </div>
-          <Button onClick={()=>{this.confirmSubmission()}}>Login</Button>
-          <Button onClick={()=>{this.props.history.push("/login/forgetpassword")}}>Forget Login?</Button>
-          <Button onClick={()=>{
+      <>
+      <div style={{paddingLeft:0,left:5,top:15,position:"absolute"}} align="left">
+              {/*Back Button*/}
+              <Link to={{pathname: "/home"}}>
+                  <Button startIcon={<BackIcon/>}>
+                  Back
+                  </Button>
+              </Link>
+        </div>
 
+      <form className={classes.root} noValidate autoComplete="off">
+        <Box m={2} pt={3}>
+        <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
+        <h1>Login Page</h1>
+        <div>
+          <TextField required id="standard-required" label="Username" onChange={this.usernameHandler} value = {this.state.username} error={this.state.usernameError}/>
+        </div>
+        <div>
+          <TextField required id="standard-required" label="Password" type="password" onChange={this.passwordHandler} value={this.state.password} error={this.state.passwordError}/>
+        </div>
+        <Button onClick={()=>{this.confirmSubmission()}}>Login</Button>
+        <Button onClick={()=>{this.props.history.push("/login/forgetpassword")}}>Forget Login?</Button>
+        <Button onClick={()=>{
             if(this.props.location!=null&&this.props.location.state!=null&&this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
             {
                 this.props.history.push({
@@ -170,12 +185,15 @@ export default class Login extends Component{
             {
               this.props.history.push("/login/createaccount")
             }
-
-            }}>Create Account</Button>
-            <ToastsContainer store={ToastsStore}/>
-          </Box>
-        </form>
-      </div>
+          }}>Create Account</Button>
+          <Snackbar open={this.state.loginFailedAlert} autoHideDuration={3000} onClose={()=>{this.setState({loginFailedAlert:false})}}>
+            <Alert variant = "filled" severity="error">
+              Incorrect account credentials.
+            </Alert>
+          </Snackbar>
+        </Box>
+      </form>
+      </>
     );
   }
 }

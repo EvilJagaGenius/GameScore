@@ -11,7 +11,7 @@ import BusinessMan from '../../images/avatarIcons/business-man.png';
 import Woman from '../../images/avatarIcons/woman.png';
 
 
-export default class Profile extends React.Component{
+class Profile extends React.Component{
     constructor(props){
         super();
         this.state={
@@ -121,4 +121,4 @@ export default class Profile extends React.Component{
         );
     }
 }
-withRouter(Profile)
+export default withRouter(Profile)

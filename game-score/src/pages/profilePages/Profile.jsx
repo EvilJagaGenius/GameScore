@@ -2,7 +2,7 @@ import React from "react";
 import {Button} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import Cookies from 'js-cookie';
-import { BrowserRouter as Router, Link,withRouter } from 'react-router-dom';
+import {Link,withRouter } from 'react-router-dom';
 import Hacker from '../../images/avatarIcons/hacker.png';
 import Programmer from '../../images/avatarIcons/programmer.png';
 import Astronaut from '../../images/avatarIcons/astronaut.png';

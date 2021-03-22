@@ -7,7 +7,7 @@
  //import resources
 import React from "react";  //basic React framework
 import { Tabs, Tab, AppBar, Button } from "@material-ui/core";  //Material UI for tab bar
-import { BrowserRouter as Router, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
 //All pages to be imported are to be used in the tabs

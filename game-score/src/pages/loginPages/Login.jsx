@@ -172,19 +172,17 @@ export default class Login extends Component{
         <Button onClick={()=>{this.confirmSubmission()}}>Login</Button>
         <Button onClick={()=>{this.props.history.push("/login/forgetpassword")}}>Forget Login?</Button>
         <Button onClick={()=>{
-
-          if(this.props.location!=null&&this.props.location.state!=null&&this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
-          {
-              this.props.history.push({
-              pathname:"/login/createaccount",
-              state:{joinCodeQR:this.props.location.state.joinCodeQR}
-              });
-          }
-          else
-          {
-            this.props.history.push("/login/createaccount")
-          }
-
+            if(this.props.location!=null&&this.props.location.state!=null&&this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
+            {
+                this.props.history.push({
+                pathname:"/login/createaccount",
+                state:{joinCodeQR:this.props.location.state.joinCodeQR}
+                });
+            }
+            else
+            {
+              this.props.history.push("/login/createaccount")
+            }
           }}>Create Account</Button>
           <Snackbar open={this.state.loginFailedAlert} autoHideDuration={3000} onClose={()=>{this.setState({loginFailedAlert:false})}}>
             <Alert variant = "filled" severity="error">

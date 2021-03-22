@@ -587,7 +587,8 @@ export default class ConditionEditor extends Component {
                             var newData = this.state.data
                             newData["conditions"][this.state.condPos].description = e.target.value
                             this.setState({
-                                data:newData
+                                data:newData,
+                                madeChanges:true
                             })
                             }}>
 

@@ -83,7 +83,11 @@ export default function BottomUI(props) {
 											</TableCell>
                                             <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
 												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
-												onClick = {()=> setRatingPopup(true)}>
+												onClick = {()=> {
+                                                    console.log("Previous rating: " + props.prevRating);
+                                                    setRatingValue(props.prevRating);
+                                                    setRatingPopup(true);
+                                                }}>
 													<div style={{margin:-5}}>
 														
 														<div>

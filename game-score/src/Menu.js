@@ -136,6 +136,7 @@ constructor(props) {
                                 templateName = {this.state.data["favoritedTemplates"][key].templateName}
                                 templateID = {this.state.data["favoritedTemplates"][key].templateID}
                                 gameID = {this.state.data["favoritedTemplates"][key].gameID}
+                                prevRating = {this.state.data["favoritedTemplates"][key].prevRating}
                                 selected = {this.isSelected(0,key)}
                                 play = {true}>
                                 </BottomUI>
@@ -185,6 +186,7 @@ constructor(props) {
                                 templateName = {this.state.data["recentlyPlayed"][key].templateName}
                                 templateID = {this.state.data["recentlyPlayed"][key].templateID}
                                 gameID = {this.state.data["recentlyPlayed"][key].gameID}
+                                prevRating = {this.state.data["recentlyPlayed"][key].prevRating}
                                 selected = {this.isSelected(1,key)}
                                 play = {true}>
                                 </BottomUI>
@@ -234,6 +236,7 @@ constructor(props) {
                                 templateName = {this.state.data["highestRated"][key].templateName}
                                 templateID = {this.state.data["highestRated"][key].templateID}
                                 gameID = {this.state.data["highestRated"][key].gameID}
+                                prevRating = {this.state.data["highestRated"][key].prevRating}
                                 selected = {this.isSelected(2,key)}
                                 play = {true}>
                                 </BottomUI>

@@ -114,15 +114,15 @@ export default class ResetPassword extends Component{
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          newPassword: this.state.password,
-          token: this.state.token
+          newPassword: this.state.password, //the new password the user entered
+          token: this.state.token   //the unique token generated
         })
     };
     const response = await fetch('api/postResetPassword', requestOptions);
     const data = await response.json();     //wait for the response from the server
     this.setState({data: data.successful});   //update the data state so it can be accessed
-    //errors and error message
     console.log(this.state.data);
+
     //display an alert on whether or not the reset worked
     if(this.state.data === true){
       alert("Password reset successful");
@@ -154,7 +154,7 @@ export default class ResetPassword extends Component{
    * @returns elements that will make up the on-screen component
    */
   render(){
-  //material ui styling const
+    //material ui styling const
     const classes = makeStyles((theme) => ({
       root: {
         '& .MuiTextField-root': {

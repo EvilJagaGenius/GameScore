@@ -95,6 +95,11 @@ export default function BottomUI(props) {
                                                             })
                                                         }
                                                         fetch('/api/favoriteTemplate', requestOptions)
+                                                        .then(res => res.json())
+														.then(data => {
+															props.update();
+														})
+                                                         
                                                     }
                                                 }>
                                                     {props.favorited === 1 &&

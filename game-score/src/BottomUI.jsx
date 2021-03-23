@@ -12,8 +12,7 @@ import Star from '@material-ui/icons/Star';
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Table from '@material-ui/core/Table';
-
-
+import ReportIcon from '@material-ui/icons/Report';
 
 const useStyles = makeStyles((theme) => ({
 
@@ -47,9 +46,11 @@ export default function BottomUI(props) {
 		const [modalStyle] = React.useState(getModalStyle);
 		const [createGamePopup, setCreateGamePopup] = useState(false);
 		const [deletePopup, setDeletePopup] = useState(false);
+		const [reportPopup, setReportPopup] = useState(false);
 		const [play, setPlay] = useState(props.play || false);
 		const [edit, setEdit] = useState(props.edit || false);
 		const [del, setDel] = useState(props.del || false);
+		const [rep, setRep] = useState(props.rep || false); 
 		var [numPlayers, setNumPlayers] = useState(2);
 		let history = useHistory()
         return(
@@ -125,6 +126,22 @@ export default function BottomUI(props) {
 													</div>
 											</Button>
 										</TableCell>		
+										</>
+									}
+
+									{rep === true &&
+										<>
+											<TableCell style={{margin:0,padding:0,padding:Left3,paddingRight:3}}>
+												<Button style={{height:60,width:"100%"}} variant = "contained" color="primary" size="large"
+													onClick = {() => setReportPopup(true)}>
+													<div>
+														<ReportIcon style={{fontSize:35}} />
+													</div>
+													<div style={{marginTop:-10}}>
+														Report
+													</div>
+												</Button>
+											</TableCell>
 										</>
 									}
 
@@ -244,6 +261,39 @@ export default function BottomUI(props) {
 												onClick={()=>setDeletePopup(false)}>
 													Cancel
 												</Button>
+											</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</Modal>
+						<Modal
+							open={reportPopup}
+							aria-labelledby="simple-modal-title"
+							aria-describedby="simple-modal-description">
+							
+							<div style={modalStyle} className={classes.paper}>
+								<h3 style={{textAlign:"center"}}>Report</h3>
+								<h4 style={{textAlign:"center"}}>Author</h4>
+
+								<h4 style={{textAlign:"center"}}>Template</h4>
+
+								<div>
+									<table style={{margin:"auto",paddingTop:20,paddingBottom:-15}}>
+										<tr>
+											<td style={{paddingRight:7}}>
+												<Button className={classes.button} variant = "contained" color="primary" size = "large"
+													onClick={() => {
+														setReportPopup(false);
+													}}>
+													Report
+												</Button>
+											</td>
+											<td style={{paddingLeft:7}}>
+												<Button className={classes.button} variant = "contained" color="primary" size = "large"
+													onClick={()=>setReportPopup(false)}>
+														Cancel
+													</Button>
 											</td>
 										</tr>
 									</table>

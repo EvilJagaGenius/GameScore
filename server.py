@@ -2138,21 +2138,34 @@ if __name__ == '__main__':
     
 ##################################### Report API ########################################
 # Submit reports
-@app.route("/api/reportTemplate")
+@app.route("/api/reportTemplate", methods=["POST"])
 def reportTemplate():
     # Right now, until I understand this better, we're just going to report templates..?  It looks like that's all the DB supports right now
     # So we need the game ID, template ID and description
-    gameID = request.form.get("game_id")
-    templateID = request.form.get("template_id")
-    description = request.form.get("description")
+    content = request.json
+    gameID = content["gameID"]
+    templateID = content["templateID"]
+    userID = content["userID"]
+    tReport = content["tReport"]
+    uReport = content["uReport"]
     
     mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)
-    statement = """
-    INSERT INTO Report (description, reason, templateID, gameID)
-    VALUES %s, Template, %s, %s
-    """
-    cursor.execute(statement, (description, templateID, gameID))
+
+    if (tReport == True):
+        statement = """
+        INSERT INTO Report (reason, templateID, gameID, userID)
+        VALUES Template, %s, %s, %s
+        """
+        cursor.execute(statement, (templateID, gameID, userID))
+
+    if (uReport == True):
+        statement = """
+        INSERT INTO Report (reason, templateID, gameID, userID)
+        VALUES Username, %s, %s, %s
+        """
+
+        cursor.execute(statement, (templateID, gameID, userID))
     
     cursor.close()
     mydb.close()

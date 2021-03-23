@@ -13,6 +13,7 @@ import CreateIcon from '@material-ui/icons/Create';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Table from '@material-ui/core/Table';
 import ReportIcon from '@material-ui/icons/Report';
+import Checkbox from '@material-ui/core/Checkbox';
 
 const useStyles = makeStyles((theme) => ({
 
@@ -53,6 +54,9 @@ export default function BottomUI(props) {
 		const [rep, setRep] = useState(props.rep || false); 
 		var [numPlayers, setNumPlayers] = useState(2);
 		let history = useHistory()
+		const [repUser, setRepUser] = useState(false);
+		const [repTemplate, setRepTemplate] = useState(false);
+
         return(
         <>
 	          <>
@@ -275,8 +279,22 @@ export default function BottomUI(props) {
 							<div style={modalStyle} className={classes.paper}>
 								<h3 style={{textAlign:"center"}}>Report</h3>
 								<h4 style={{textAlign:"center"}}>Author</h4>
+								<Checkbox style={{marginLeft:-12,marginRight:-2,marginTop:-2}} checked={repUser}
+                                    onChange={(e)=>{
+										setRepUser(e.target.checked);
+									}}>
 
+								</Checkbox>
+								<b>{props.userName}</b>
+								
 								<h4 style={{textAlign:"center"}}>Template</h4>
+								<Checkbox style={{marginLeft:-12, marginRight:-2,marginTop:-2}} checked={repTemplate}
+									onChange={(e) => {
+										setRepTemplate(e.target.checked);
+									}}>
+
+								</Checkbox>
+								<b>{props.templateName}</b>
 
 								<div>
 									<table style={{margin:"auto",paddingTop:20,paddingBottom:-15}}>
@@ -284,7 +302,25 @@ export default function BottomUI(props) {
 											<td style={{paddingRight:7}}>
 												<Button className={classes.button} variant = "contained" color="primary" size = "large"
 													onClick={() => {
-														setReportPopup(false);
+														const requestOptions = {
+															method:'POST',
+															headers: { 'Content-Type': 'application/json' },
+															credentials: 'include',
+															body: JSON.stringify({
+																gameID: props.gameID,
+																templateID: props.templateID,
+																userID: props.userID,
+																tReport: repTemplate,
+																uReport: repUser
+															})
+														}
+														fetch('/api/reportTemplate', requestOptions)
+															.then(res => res.json())
+															.then(data => {
+																props.update();
+																console.log("Report Submitted");
+																setReportPopup(false)
+															})
 													}}>
 													Report
 												</Button>
@@ -293,7 +329,7 @@ export default function BottomUI(props) {
 												<Button className={classes.button} variant = "contained" color="primary" size = "large"
 													onClick={()=>setReportPopup(false)}>
 														Cancel
-													</Button>
+												</Button>
 											</td>
 										</tr>
 									</table>

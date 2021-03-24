@@ -500,20 +500,27 @@ def apiGetHomePage():
     #Execute sql call to get appropriate data
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor2 = mydb.cursor(prepared=True)
-    stmt = ("select pictureURL, templateName, numRatings, averageRating,Game.gameID,Template.templateID from Template JOIN Game ON Template.gameID=Game.gameID ORDER BY averageRating DESC LIMIT 10")
+    stmt = """
+SELECT pictureURL, templateName, numRatings, averageRating, Game.gameID, Template.templateID, AppUserInteractTemplate.rating FROM
+Template JOIN Game ON Template.gameID=Game.gameID LEFT JOIN AppUserInteractTemplate ON (Template.templateID=AppUserInteractTemplate.templateID AND AppUserInteractTemplate.userID=%s)
+ORDER BY averageRating DESC LIMIT 10
+"""
     mycursor2.execute(stmt,())
     myresult = mycursor2.fetchall()
     mycursor2.close()
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-        picURL, templateName, numRatings, averageRating,gameID,templateID = row
+        picURL, templateName, numRatings, averageRating, gameID, templateID, prevRating = row
+        if prevRating == None:
+            prevRating = 0
         template = {"pictureURL":"{}".format(picURL)
                     ,"templateName":"{}".format(templateName)
                     ,"numRatings":numRatings
                     ,"averageRating":float(averageRating)
                     ,"gameID":"{}".format(gameID)
-                    ,"templateID":"{}".format(templateID)}
+                    ,"templateID":"{}".format(templateID)
+                    ,"prevRating":"{}".format(prevRating)}
         #append each new dictionary to its appropriate list
         result["highestRated"].append(template)
 
@@ -540,20 +547,23 @@ def apiGetHomePage():
     
     #Execute sql call to get appropriate data
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select pictureURL, templateName, numRatings, averageRating,Game.gameID,Template.templateID from Template JOIN Game ON Template.gameID=Game.gameID JOIN AppUserInteractTemplate ON Template.templateID=AppUserInteractTemplate.templateID WHERE favorited=true AND AppUserInteractTemplate.userID=%s ORDER BY averageRating DESC LIMIT 10")
+    stmt = ("select pictureURL, templateName, numRatings, averageRating, Game.gameID, Template.templateID, AppUserInteractTemplate.rating from Template JOIN Game ON Template.gameID=Game.gameID JOIN AppUserInteractTemplate ON Template.templateID=AppUserInteractTemplate.templateID WHERE favorited=true AND AppUserInteractTemplate.userID=%s ORDER BY averageRating DESC LIMIT 10")
     mycursor.execute(stmt,(userID,))
     myresult = mycursor.fetchall()
     mycursor.close()
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-        picURL, templateName, numRatings, averageRating,gameID,templateID = row
+        picURL, templateName, numRatings, averageRating, gameID, templateID, prevRating = row
+        if prevRating == None:
+            prevRating = 0
         template = {"pictureURL":"{}".format(picURL)
                     ,"templateName":"{}".format(templateName)
                     ,"numRatings":numRatings
                     ,"averageRating":round(float(averageRating),2)
                     ,"gameID":"{}".format(gameID)
-                    ,"templateID":"{}".format(templateID)}
+                    ,"templateID":"{}".format(templateID)
+                    ,"prevRating":"{}".format(prevRating)}
         #append each new dictionary to its appropriate list
         result["favoritedTemplates"].append(template)
 
@@ -563,20 +573,23 @@ def apiGetHomePage():
     
     #Execute sql call to get appropriate data
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select pictureURL, templateName, numRatings, averageRating, Game.gameID,Template.templateID from Template JOIN Game ON Template.gameID=Game.gameID JOIN AppUserInteractTemplate ON Template.templateID=AppUserInteractTemplate.templateID WHERE AppUserInteractTemplate.userID=%s ORDER BY lastPlayed DESC, averageRating DESC LIMIT 10")
+    stmt = ("select pictureURL, templateName, numRatings, averageRating, Game.gameID, Template.templateID, AppUserInteractTemplate.rating from Template JOIN Game ON Template.gameID=Game.gameID JOIN AppUserInteractTemplate ON Template.templateID=AppUserInteractTemplate.templateID WHERE AppUserInteractTemplate.userID=%s ORDER BY lastPlayed DESC, averageRating DESC LIMIT 10")
     mycursor.execute(stmt,(userID,))
     myresult = mycursor.fetchall()
     mycursor.close()
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-        picURL, templateName, numRatings, averageRating,gameID,templateID = row
+        picURL, templateName, numRatings, averageRating, gameID, templateID, prevRating = row
+        if prevRating == None:
+            prevRating = 0
         template = {"pictureURL":"{}".format(picURL)
                     ,"templateName":"{}".format(templateName)
                     ,"numRatings":numRatings
                     ,"averageRating":round(float(averageRating),2)
                     ,"gameID":"{}".format(gameID)
-                    ,"templateID":"{}".format(templateID)}
+                    ,"templateID":"{}".format(templateID)
+                    ,"prevRating":"{}".format(prevRating)}
         #append each new dictionary to its appropriate list
 
         result["recentlyPlayed"].append(template)

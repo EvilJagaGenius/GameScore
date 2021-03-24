@@ -29,6 +29,7 @@ constructor(props) {
             usernameData: getCookieValue("username"),
             searchQuery: ""
           };
+    this.callAPI = this.callAPI.bind(this)
     };
 
   
@@ -60,6 +61,23 @@ constructor(props) {
       this.setState({
         usernameData: getCookieValue("username")
       })
+  }
+  
+  callAPI() {
+    fetch("/api/getHomePage")
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            data: result,
+            loaded: "True"
+          }
+          );
+        },
+        // Note: it's important to handle errors here
+        // instead of a catch() block so that we don't swallow
+        // exceptions from actual bugs in components.
+      );
   }
 
 
@@ -138,7 +156,8 @@ constructor(props) {
                                 gameID = {this.state.data["favoritedTemplates"][key].gameID}
                                 prevRating = {this.state.data["favoritedTemplates"][key].prevRating}
                                 selected = {this.isSelected(0,key)}
-                                play = {true}>
+                                play = {true}
+                                update = {this.callAPI}>
                                 </BottomUI>
                             </>
                           }
@@ -188,7 +207,8 @@ constructor(props) {
                                 gameID = {this.state.data["recentlyPlayed"][key].gameID}
                                 prevRating = {this.state.data["recentlyPlayed"][key].prevRating}
                                 selected = {this.isSelected(1,key)}
-                                play = {true}>
+                                play = {true}
+                                update = {this.callAPI}>
                                 </BottomUI>
                             </>
                           }
@@ -238,7 +258,8 @@ constructor(props) {
                                 gameID = {this.state.data["highestRated"][key].gameID}
                                 prevRating = {this.state.data["highestRated"][key].prevRating}
                                 selected = {this.isSelected(2,key)}
-                                play = {true}>
+                                play = {true}
+                                update = {this.callAPI}>
                                 </BottomUI>
                             </>
                           }

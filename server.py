@@ -500,24 +500,31 @@ def apiGetHomePage():
     #Execute sql call to get appropriate data
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor2 = mydb.cursor(prepared=True)
+
     stmt = """
-SELECT pictureURL, templateName, numRatings, averageRating, Game.gameID, Template.templateID, AppUserInteractTemplate.rating FROM
+SELECT pictureURL, templateName, numRatings, averageRating, Game.gameID, Template.templateID, AppUserInteractTemplate.rating, AppUserInteractTemplate.favorited FROM
 Template JOIN Game ON Template.gameID=Game.gameID LEFT JOIN AppUserInteractTemplate ON (Template.templateID=AppUserInteractTemplate.templateID AND AppUserInteractTemplate.userID=%s)
 ORDER BY averageRating DESC LIMIT 10
 """
-    mycursor2.execute(stmt,())
+    mycursor2.execute(stmt,(userID,))
+
     myresult = mycursor2.fetchall()
     mycursor2.close()
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-        picURL, templateName, numRatings, averageRating, gameID, templateID, prevRating = row
+
+        picURL, templateName, numRatings, averageRating, gameID, templateID, prevRating, favorited = row
         if prevRating == None:
             prevRating = 0
+        if favorited == None:
+            favorited = 0
+
         template = {"pictureURL":"{}".format(picURL)
                     ,"templateName":"{}".format(templateName)
                     ,"numRatings":numRatings
                     ,"averageRating":float(averageRating)
+                    ,"favorited":favorited
                     ,"gameID":"{}".format(gameID)
                     ,"templateID":"{}".format(templateID)
                     ,"prevRating":"{}".format(prevRating)}
@@ -561,6 +568,7 @@ ORDER BY averageRating DESC LIMIT 10
                     ,"templateName":"{}".format(templateName)
                     ,"numRatings":numRatings
                     ,"averageRating":round(float(averageRating),2)
+                    ,"favorited":1
                     ,"gameID":"{}".format(gameID)
                     ,"templateID":"{}".format(templateID)
                     ,"prevRating":"{}".format(prevRating)}
@@ -573,20 +581,25 @@ ORDER BY averageRating DESC LIMIT 10
     
     #Execute sql call to get appropriate data
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select pictureURL, templateName, numRatings, averageRating, Game.gameID, Template.templateID, AppUserInteractTemplate.rating from Template JOIN Game ON Template.gameID=Game.gameID JOIN AppUserInteractTemplate ON Template.templateID=AppUserInteractTemplate.templateID WHERE AppUserInteractTemplate.userID=%s ORDER BY lastPlayed DESC, averageRating DESC LIMIT 10")
+
+    stmt = ("select pictureURL, templateName, numRatings, averageRating, Game.gameID, Template.templateID, AppUserInteractTemplate.rating, AppUserInteractTemplate.favorited from Template JOIN Game ON Template.gameID=Game.gameID JOIN AppUserInteractTemplate ON Template.templateID=AppUserInteractTemplate.templateID WHERE AppUserInteractTemplate.userID=%s ORDER BY lastPlayed DESC, averageRating DESC LIMIT 10")
+
     mycursor.execute(stmt,(userID,))
     myresult = mycursor.fetchall()
     mycursor.close()
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-        picURL, templateName, numRatings, averageRating, gameID, templateID, prevRating = row
+        picURL, templateName, numRatings, averageRating, gameID, templateID, prevRating, favorited = row
         if prevRating == None:
             prevRating = 0
+        if favorited == None:
+            favorited = 0
         template = {"pictureURL":"{}".format(picURL)
                     ,"templateName":"{}".format(templateName)
                     ,"numRatings":numRatings
                     ,"averageRating":round(float(averageRating),2)
+                    ,"favorited":favorited
                     ,"gameID":"{}".format(gameID)
                     ,"templateID":"{}".format(templateID)
                     ,"prevRating":"{}".format(prevRating)}
@@ -2240,8 +2253,7 @@ def doReports():
     # Do something, Taipu
     return "ok"
 
-
-# Rate Bottom UI (move this)
+# Rate template button
 @app.route("/api/rateTemplate", methods=["POST"])
 def rateTemplate():
     print("Recieved rateTemplate")
@@ -2298,7 +2310,49 @@ def rateTemplate():
     
     return jsonify(response)
     
+# Favorite template button
+@app.route("/api/favoriteTemplate", methods=["POST"])
+def favoriteTemplate():
+    print("Recieved favoriteTemplate")
     
+    content = request.json
+    templateID = content["templateID"]
+    gameID = content["gameID"]
+    userID = getUserID()
+    
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    # See if the user already has data for that template
+    statement = "SELECT favorited FROM AppUserInteractTemplate WHERE userID=%s AND gameID=%s AND templateID=%s"
+    cursor.execute(statement, (userID, gameID, templateID))
+    results = cursor.fetchall()
+    #print(len(results))  # I think if the user doesn't have an entry for that template, this should be 0
+    if len(results) > 0:  # The user has an entry for that template
+        print("Found table entry")
+        favorited = results[0][0]
+        print("Before:", favorited)
+        # Change the favorited status
+        if favorited == 0:  # Out of curiosity, why are we using an int and not a boolean here?
+            favorited = 1
+        elif favorited == 1:
+            favorited = 0
+        print("After:", favorited)
+        statement = "UPDATE AppUserInteractTemplate SET favorited=%s WHERE userID=%s AND gameID=%s AND templateID=%s"
+        cursor.execute(statement, (favorited, userID, gameID, templateID))
+    else:  # The user has no entry for that template
+        print("Creating new entry")
+        statement = "INSERT INTO AppUserInteractTemplate (userID, gameID, templateID, favorited) VALUES (%s, %s, %s, 1)"  # Favorite when inserting a new entry
+        cursor.execute(statement, (userID, gameID, templateID))
+    
+    mydb.commit()
+    cursor.close()
+    mydb.close()
+    
+    response = {"successful": True}
+    return jsonify(response)
+    
+    
+
 
 ##################################### Profile API ########################################
 @app.route("/api/profile/changePassword", methods=["POST"])

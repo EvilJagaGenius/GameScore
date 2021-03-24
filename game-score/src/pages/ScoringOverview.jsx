@@ -72,6 +72,9 @@ function ScoringOverview() {
     const [showManagePlayers,setShowManagePlayers] = useState(false)
     const [showFinalizeScore,setShowFinalizeScore] = useState(false)
     const [showKicked,setShowKicked] = useState(false)
+    const [showLeave,setShowLeave] = useState(false)
+    const [showKicking,setShowKicking] = useState(false)
+    const [kickingPos,setKickingPos] = useState(0)
     const [modalStyle] = React.useState(getModalStyle);
     const [loaded, setLoaded] = useState(false);
 
@@ -140,6 +143,7 @@ function ScoringOverview() {
         return () => {
           Socket.off("sendNewScores",eventHandlerUpdateScore)
           Socket.off("gameEnd",eventHandlerGameEnd)
+          Socket.off("kickPlayer",eventHandlerKick)
           Socket.disconnect();
         }
 
@@ -222,60 +226,71 @@ function ScoringOverview() {
             </AccordionSummary>
             <AccordionDetails>
 
-              <TableContainer component={Paper}>
-               <Table size="small">
-                <TableHead>
-                    <TableRow>
-                       {/*Table Headers*/}
-                       <TableCell align="center"> 
-                            <Typography>Condition</Typography>
-                        </TableCell>
-                        {
-                          //Conditional drawing based on if data is valid
-                          Object.keys((data.globalAwards)).length > 0 &&
-                          Object.keys((data.globalAwards[0])).length > 0 &&
-                          Object.keys((data.globalAwards[0]["players"])).length > 0 &&
-                          <>
-                            {Object.keys((data.globalAwards[0].players)).map(key => (
-                                <TableCell align="center"> 
-                                  <Typography>{data.globalAwards[0]["players"][key].displayName}</Typography>
-                                </TableCell>
-                                ))}
-                          </>
-                        }
-                    </TableRow>
-                </TableHead>
-                  {
-                  Object.keys(data.globalAwards).length > 0 &&
-                    <>
-                      {/*For each global award in game*/}
-                      {Object.keys(data.globalAwards).map(key => (
-                          <TableRow>
-
-                            {/*Add Condition Name*/}
-                            <TableCell align="center">
-                              <Typography><b>{data.globalAwards[key].conditionName}</b></Typography>
-                              <Typography>(Max: {data.globalAwards[key].maxPerGame})</Typography>
+              {
+                Object.keys((data.globalAwards)).length > 0 &&
+                <TableContainer component={Paper}>
+                 <Table size="small">     
+                     
+                      <TableHead>
+                        <TableRow>
+                           {/*Table Headers*/}
+                            
+                            <TableCell align="center"> 
+                                <Typography>Condition</Typography>
                             </TableCell>
-
-                            {/*For each player, show value*/}
                             {
-                              Object.keys((data.globalAwards[key])).length > 0 &&
-                              Object.keys((data.globalAwards[key]["players"])).length > 0 &&
+                              //Conditional drawing based on if data is valid
+                              Object.keys((data.globalAwards)).length > 0 &&
+                              Object.keys((data.globalAwards[0])).length > 0 &&
+                              Object.keys((data.globalAwards[0]["players"])).length > 0 &&
                               <>
-                                {Object.keys((data.globalAwards[key]["players"])).map(key2 => (
-                                  <TableCell align="center">
-                                    <Typography>{Math.round(data.globalAwards[key]["players"][key2].value/0.01)*0.01}</Typography>
-                                  </TableCell>
-                                  ))}
+                                {Object.keys((data.globalAwards[0].players)).map(key => (
+                                    <TableCell align="center"> 
+                                      <Typography>{data.globalAwards[0]["players"][key].displayName}</Typography>
+                                    </TableCell>
+                                    ))}
                               </>
                             }
-                          </TableRow>
+                        </TableRow>
+                      </TableHead>
+                  
+                    {
+                    Object.keys(data.globalAwards).length > 0 &&
+                      <>
+                        {/*For each global award in game*/}
+                        {Object.keys(data.globalAwards).map(key => (
+                            <TableRow>
+
+                              {/*Add Condition Name*/}
+                              <TableCell align="center">
+                                <Typography><b>{data.globalAwards[key].conditionName}</b></Typography>
+                                <Typography>(Max: {data.globalAwards[key].maxPerGame})</Typography>
+                              </TableCell>
+
+                              {/*For each player, show value*/}
+                              {
+                                Object.keys((data.globalAwards[key])).length > 0 &&
+                                Object.keys((data.globalAwards[key]["players"])).length > 0 &&
+                                <>
+                                  {Object.keys((data.globalAwards[key]["players"])).map(key2 => (
+                                    <TableCell align="center">
+                                      <Typography>{Math.round(data.globalAwards[key]["players"][key2].value/0.01)*0.01}</Typography>
+                                    </TableCell>
+                                    ))}
+                                </>
+                              }
+                            </TableRow>
                         ))}
-                    </>
-                  }
+                      </>
+                    }
                 </Table>
               </TableContainer>
+              }
+              
+              {
+                Object.keys((data.globalAwards)).length <=0 &&
+                <Typography style={{marginLeft:20}}>No Global Awards in this Template</Typography>
+              }
             </AccordionDetails>
           </Accordion>
           {/*End Score Global Awards Accordion*/}
@@ -320,23 +335,12 @@ function ScoringOverview() {
                                         key !=0 && 
                                         <IconButton style={{display:"inlineFlex",width:30,height:30,float:"right",marginLeft:-40,marginRight:-10}}><CloseIcon onClick={()=>{
                                               
-                                                //Set Fetch Params
-                                                const requestOptions = {
-                                                  method: 'POST',
-                                                  headers: {'Content-Type': 'application/json'},
-                                                  credentials: 'include',
-                                                  body: JSON.stringify({
-                                                    playerID: data.scoringOverview.players[key].playerID
-                                                  })
-                                                };
-
-                                                //Execute API Call
-                                               fetch("/api/postKickPlayer",requestOptions)
-                                                  .then(res => res.json()).then(data => {
-                                                        setData(data)
-                                                    })
-
+                                               setShowKicking(true)
+                                               setKickingPos(parseInt(key))
+                                               console.log(parseInt(key))
                                              }}
+
+
                                         /> </IconButton>
                                     }
                                </>
@@ -472,24 +476,248 @@ function ScoringOverview() {
                   </Modal>//End Finalize Score Modal
                 }
 
-              {/*Bottom UI Scoring Buttons*/}
-          	  <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
-                <>
-                  {
-                   Cookies.get('username') === data.isHost && 
-      	           <Button className={classes.button} startIcon={<DoneIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowFinalizeScore(true)}>Finalize Score</Button>
-                  }
-                </>
-                <>
-                  {
-                  Cookies.get('username') === data.isHost && 
-      	          <Button className={classes.button} startIcon={<SettingsIcon />} variant = "contained" color="primary" size = "large" onClick={()=>setShowManagePlayers(true)}>Manage Players</Button>
-                  }
-                </>
-    	          <Link to='/play/invite'>
-    	            <Button className={classes.button} startIcon={<InviteIcon />} variant = "contained" color="primary" size = "large">Invite Friends</Button>
-    	          </Link>
-          	  </div>
+
+                {/*Kick Player Modal*/}
+              { 
+              loaded === true &&
+                <Modal
+                    open={showKicking}
+                    aria-labelledby="simple-modal-title"
+                    aria-describedby="simple-modal-description"
+                  >
+                  <div style={modalStyle} className={classes.paper}>
+                    {console.log(data)}
+                      <h3 style={{textAlign:"center"}}>Kick {data.individualScoring[kickingPos].displayName}?</h3>
+                    
+                      <Typography>Are you sure you want to kick this player. {data.individualScoring[kickingPos].displayName} will be removed from the match and his profile will not be updated. </Typography>
+
+
+                       <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
+
+                          {/*Confirm Finalize Score*/}
+                          <Button className={classes.button}  variant = "contained" color="primary" size = "large" onClick={()=>{
+                                
+                                        setShowKicking(false)
+                                        //Set Fetch Params
+                                        const requestOptions = {
+                                          method: 'POST',
+                                          headers: {'Content-Type': 'application/json'},
+                                          credentials: 'include',
+                                          body: JSON.stringify({
+                                            playerID: data.individualScoring[kickingPos].playerID
+                                          })
+                                        };
+
+                                        //Execute API Call
+                                       fetch("/api/postKickPlayer",requestOptions)
+                                          .then(res => res.json()).then(data => {
+                                                setData(data)
+                                            })
+
+                          }}>Kick</Button>
+
+                          {/*Cancel Finalize Scoring*/}
+                          <Button className={classes.button}variant = "contained" color="primary" size = "large" onClick={()=>setShowKicking(false)
+                          }>Cancel</Button>
+
+                      </div>
+
+                    </div>
+                  </Modal>//End Finalize Score Modal
+                }
+
+                {/*Leave Game Modal*/}
+                {
+                  loaded == true &&
+                <Modal
+                    open={showLeave}
+                    aria-labelledby="simple-modal-title"
+                    aria-describedby="simple-modal-description"
+                                      >
+                  <div style={modalStyle} className={classes.paper}>
+                     
+                     <div style={{display:"inline"}}>
+                         <div style={{marginTop:11}}>
+                          {
+                             Cookies.get('username') === data.isHost  &&
+                            <h3 style={{textAlign:"center"}}>Disband Game?</h3>
+                          }
+                          {
+                             Cookies.get('username') !== data.isHost  &&
+                            <h3 style={{textAlign:"center"}}>Leave Game?</h3>
+                          }
+                         </div>
+                         {
+                          Cookies.get('username') === data.isHost  &&
+                          <Typography>Disbanding the game will end the game for all other players as well. </Typography>
+                         }
+                         {
+                          Cookies.get('username') !== data.isHost  &&
+                          <Typography>Leaving the game will remove you from the game, but your scores will stay and can be altered by others.</Typography>
+                         }
+
+                           <div style={{ justifyContent:'center',marginTop:11,display:"flex"}}>
+
+                              {
+                               Cookies.get('username') === data.isHost  &&
+                                <Button variant = "contained" color="primary" size = "large" onClick={()=>{
+
+                                      const requestOptions = {
+                                          method: 'POST',
+                                          headers: {'Content-Type': 'application/json'},
+                                          credentials: 'include',
+                                          body: JSON.stringify({
+                                          })
+                                        };
+
+                                fetch("/api/postLeaveGame",requestOptions)
+                                  .then(res => res.json())
+                                  .then(
+                                    (result) => {
+                                      console.log(result)
+                                      history.push('/home')
+                                    },
+                                  )
+
+                                  }}
+                                  >Disband Game</Button>
+                                }
+
+                                {
+                               Cookies.get('username') !== data.isHost  &&
+                                <Button variant = "contained" color="primary" size = "large" onClick={()=>{
+
+                                       const requestOptions = {
+                                          method: 'POST',
+                                          headers: {'Content-Type': 'application/json'},
+                                          credentials: 'include',
+                                          body: JSON.stringify({
+                                          })
+                                        };
+
+
+                                  fetch("/api/postLeaveGame",requestOptions) 
+                                  .then(res => res.json())
+                                  .then(
+                                    (result) => {
+                                      console.log(result)
+                                      history.push('/home')
+                                    },
+                                  )
+
+                                  }}
+                                  >Leave Game</Button>
+                                }
+                                
+                                 <Button variant = "contained" color="primary" size = "large" onClick={()=>{
+                                setShowLeave(false)
+                                }}
+                                >Cancel</Button>
+
+                          </div>
+                      </div>
+                    </div>
+                  </Modal>
+                }
+
+
+
+                <Table style={{ tableLayout: 'fixed',marginTop:15}}>
+                    <TableRow >
+                  
+                    {
+                    Cookies.get('username') === data.isHost && 
+                    <>
+
+                        <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+                          <Button style ={{minHeight:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+                          onClick={()=>setShowFinalizeScore(true)}>
+                            <div style={{margin:-5}}>
+                              
+                              <div>
+                                <DoneIcon style={{fontSize:35}} />
+                              </div>
+                              <div style={{marginTop:-10}}>
+                                Finalize Score
+                              </div>
+                            </div>
+                          </Button>
+                        </TableCell>
+                        </>
+                    }
+
+                    {
+                    Cookies.get('username') === data.isHost && 
+                    <>
+
+                        <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+                          <Button style ={{minHeight:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+                          onClick={()=>setShowManagePlayers(true)}>
+                            <div style={{margin:-5}}>
+                              
+                              <div>
+                                <SettingsIcon style={{fontSize:35}} />
+                              </div>
+                              <div style={{marginTop:-10}}>
+                                Manage Players
+                              </div>
+                            </div>
+                          </Button>
+                        </TableCell>
+                        </>
+                    }
+
+                    {
+                    Cookies.get('username') === data.isHost && 
+                    <>
+
+                        <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+                          <Link to='/play/invite'>
+                          <Button style ={{minHeight:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+                          onClick={()=>setShowManagePlayers(true)}>
+                            <div style={{margin:-5}}>
+                              
+                              <div>
+                                <InviteIcon style={{fontSize:35}} />
+                              </div>
+                              <div style={{marginTop:-10}}>
+                                Invite Friends
+                              </div>
+                            </div>
+                          </Button>
+                        </Link>
+                        </TableCell>
+                        </>
+                    }
+
+                    {
+                    <>
+                        <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+                          <Button style ={{minHeight:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+                          onClick={()=>setShowLeave(true)}>
+                            <div style={{margin:-5}}>
+                              
+                              <div>
+                                <CloseIcon style={{fontSize:35}} />
+                              </div>
+                              <div style={{marginTop:-10}}>
+                                {
+                                Cookies.get('username') === data.isHost &&  
+                                <>Disband Game</>
+                               }
+                               {
+                               Cookies.get('username') !== data.isHost &&  
+                               <>Leave Game</>
+                                }
+                              </div>
+                            </div>
+                          </Button>
+                        </TableCell>
+                        </>
+                    }
+
+                </TableRow>
+              </Table>
             <KickedModal history={history} show={showKicked}></KickedModal>
         </div>
         

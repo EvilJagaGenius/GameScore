@@ -16,12 +16,12 @@ export default function TemplateRow(props) {
         return(
         <>
                 <TableCell style = {{width:125,padding:5}} align="left">
-                  <ImagePlaceholder style={{width: 58,  height:58}}/>
+                  <img src={props.pictureURL} style={{width: 58,  height:58}}/>
                 </TableCell>
-                <TableCell s align="left" style={{padding:5}}>
-                    <p style={{marginLeft:-65,fontSize:17}}>{props.templateName}</p>
+                <TableCell align="left" style={{padding:5,width:"calc(100% - 130px)"}}>
+                    <p style={{marginLeft:-55,fontSize:17}}>{props.templateName}</p>
                 </TableCell>
-                <TableCell align="right" style={{padding:5}}>
+                <TableCell align="right" style={{padding:5,width:80}}>
                     <div>
                      <div style ={{float:"right"}}>
                        <Star  style={{marginTop:2,position:"relative",width:32,height:32}} alt = "tempAlt" fontsize = "medium"></Star >

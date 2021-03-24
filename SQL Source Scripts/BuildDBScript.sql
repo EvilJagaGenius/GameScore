@@ -23,15 +23,15 @@ PRIMARY KEY (gameID));
 CREATE TABLE AppUser(
 userID INT NOT NULL AUTO_INCREMENT,
 username VARCHAR(30),
-userPassword BLOB (1000),
+userPassword VARCHAR(100),
 winRate FLOAT DEFAULT 0.0,
 avatarID INT DEFAULT 0,
 hiddenProfile BOOLEAN DEFAULT false,
 email VARCHAR(100),
-credHash BLOB (1000),
+credHash VARCHAR(100),
 admin BOOL DEFAULT FALSE,
-resetPasswordToken BLOB(1000),
-resetUsernameToken BLOB(1000),
+resetPasswordToken VARCHAR(100),
+resetUsernameToken VARCHAR(100),
 PRIMARY KEY(userID));
 
 CREATE TABLE Template (
@@ -133,7 +133,7 @@ userID INT,
 gameID INT,
 templateID INT,
 rating FLOAT,
-favorited BOOLEAN DEFAULT true,
+favorited BOOLEAN DEFAULT false,
 lastPlayed datetime,
 PRIMARY KEY(userID,gameID,templateID),
 CONSTRAINT fk_appuserinteracttemplate_gameID_game FOREIGN KEY(gameID) REFERENCES Game(gameID),

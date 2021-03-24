@@ -208,8 +208,11 @@ constructor(props) {
                                 templateName = {this.state.data["favoritedTemplates"][key].templateName}
                                 templateID = {this.state.data["favoritedTemplates"][key].templateID}
                                 gameID = {this.state.data["favoritedTemplates"][key].gameID}
+                                userID = {this.state.data["favoritedTemplates"][key].userID}
+                                userName = {this.state.data["favoritedTemplates"][key].userName}
                                 selected = {this.isSelected(0,key)}
-                                play = {true}>
+                                play = {true}
+                                rep = {true}>
                                 </BottomUI>
                             </>
                           }
@@ -257,8 +260,11 @@ constructor(props) {
                                 templateName = {this.state.data["recentlyPlayed"][key].templateName}
                                 templateID = {this.state.data["recentlyPlayed"][key].templateID}
                                 gameID = {this.state.data["recentlyPlayed"][key].gameID}
+                                userID = {this.state.data["recentlyPlayed"][key].userID}
+                                userName = {this.state.data["recentlyPlayed"][key].userName}
                                 selected = {this.isSelected(1,key)}
-                                play = {true}>
+                                play = {true}
+                                rep = {true}>
                                 </BottomUI>
                             </>
                           }
@@ -306,8 +312,11 @@ constructor(props) {
                                 templateName = {this.state.data["highestRated"][key].templateName}
                                 templateID = {this.state.data["highestRated"][key].templateID}
                                 gameID = {this.state.data["highestRated"][key].gameID}
+                                userID = {this.state.data["highestRated"][key].userID}
+                                userName = {this.state.data["highestRated"][key].userName}
                                 selected = {this.isSelected(2,key)}
-                                play = {true}>
+                                play = {true}
+                                rep = {true}>
                                 </BottomUI>
                             </>
                           }
@@ -375,8 +384,11 @@ constructor(props) {
                     templateName = {this.state.filtered[key].templateName}
                     templateID = {this.state.filtered[key].templateID}
                     gameID = {this.state.filtered[key].gameID}
+                    userID = {this.state.filtered[key].userID}
+                    userName = {this.state.filtered[key].userName}
                     selected = {this.isSelected(key)}
-                    play = {true}>
+                    play = {true}
+                    rep = {true}>
                     </BottomUI>
                   </>
                 }

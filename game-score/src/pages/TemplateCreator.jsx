@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
-import { Autocomplete } from '@material-ui/lab';
+import { Autocomplete, createFilterOptions } from '@material-ui/lab';
 import TextField from '@material-ui/core/TextField';
 import { Button } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
@@ -8,6 +8,15 @@ import ClearIcon from '@material-ui/icons/Clear';
 import {ToastsContainer, ToastsStore,ToastsContainerPosition} from 'react-toasts';
 import SaveIcon from '@material-ui/icons/Save';
 import Typography from '@material-ui/core/Typography';
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
+
+
+
+const filterOptions = createFilterOptions({
+  limit:30
+});
+
 
 export default class TemplateCreator extends React.Component {
 
@@ -18,7 +27,9 @@ export default class TemplateCreator extends React.Component {
         loaded:false,
         cloneID:-1,
         templateName:"",
-        gameID:0
+        gameID:0,
+        showError:false,
+        errorText:""
         })
     }
 
@@ -48,11 +59,14 @@ export default class TemplateCreator extends React.Component {
                         <h2 textAlign="center">Create New Template</h2>
                     </div>
                     
+
+
                     <Typography style={{marginLeft:"5%"}}><b>Game:</b></Typography>
                     <Autocomplete
                       options={this.state.data.games}
                       style={{width:"90%",marginLeft:"5%"}}
                       getOptionLabel={(option) => option.gameName}
+                      filterOptions={filterOptions}
                       onChange={(e,newValue,reason)=>{
 
                         if(reason ==='clear')
@@ -71,7 +85,7 @@ export default class TemplateCreator extends React.Component {
                     <Typography style={{marginLeft:"5%", marginTop:15}}><b>Template Name:</b></Typography>
                     <TextField variant="outlined" style={{width:"90%",marginLeft:"5%"}} onChange={(e)=>this.setState({templateName:e.target.value})}> </TextField>
 
-                    <Typography style={{marginLeft:"5%", marginTop:15}}><b>Template Name:</b></Typography>
+                    <Typography style={{marginLeft:"5%", marginTop:15}}><b>Template to Clone from:</b></Typography>
                     <Autocomplete
                       defaultValue={{templateName:"<Do Not Clone>",templateID:-1}}
                       style={{width:"90%",marginLeft:"5%"}}
@@ -98,15 +112,31 @@ export default class TemplateCreator extends React.Component {
                         
                             if(this.state.gameID===0)
                             {
-                                ToastsStore.error("Game Missing");
+                                this.setState({
+                                  showError:true,
+                                  errorText:"No Game Selected"
+                                })
                             }
                             else if(this.state.templateName==="")
                             {
-                                ToastsStore.error("Template Name Missing");
+                                this.setState({
+                                  showError:true,
+                                  errorText:"Template Name Missing"
+                                })
+                            }
+                            else if(this.state.templateName.length<4 || this.state.templateName.length>30)
+                            {
+                              this.setState({
+                                  showError:true,
+                                  errorText:"Template Name must be between 4 and 30 characters"
+                                })
                             }
                             else if(this.state.cloneID===0)
                             {
-                                ToastsStore.error("Tempalate to Clone Missing");
+                                this.setState({
+                                  showError:true,
+                                  errorText:"Template to Clone From Missing"
+                                })
                             }
                             else //If Good
                             {
@@ -125,7 +155,6 @@ export default class TemplateCreator extends React.Component {
                                 fetch(`/api/postCreateTemplate`,requestOptions)
                                     .then(res => res.json()).then(data => {
                                     console.log(data);
-                                    ToastsStore.success("Template Created");
 
                                       this.props.history.push({
                                       pathname:"/mytemplates/editor",
@@ -138,7 +167,7 @@ export default class TemplateCreator extends React.Component {
 
 
                         > Create</Button>
-                        <Button style={{marginLeft:7}}size = "large" startIcon={<SaveIcon/>} variant = "contained" color="primary"
+                        <Button style={{marginLeft:7}}size = "large" startIcon={<ClearIcon/>} variant = "contained" color="primary"
                         onClick={()=>{
                         this.props.history.goBack()
                         }}
@@ -147,7 +176,11 @@ export default class TemplateCreator extends React.Component {
 
                     </div>
 
-                    <ToastsContainer position={ToastsContainerPosition.BOTTOM_CENTER} store={ToastsStore}/>
+                  <Snackbar open={this.state.showError} autoHideDuration={3000} onClose={()=>{this.setState({showError:false})}}>
+                    <Alert variant = "filled" severity="error">
+                      {this.state.errorText}
+                    </Alert>
+                  </Snackbar>
                 </>
 
                 

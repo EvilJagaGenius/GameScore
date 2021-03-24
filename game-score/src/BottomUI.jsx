@@ -15,7 +15,7 @@ import Table from '@material-ui/core/Table';
 import Rating from '@material-ui/lab/Rating';
 import Favorite from '@material-ui/icons/Favorite';
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
-
+import Cookies from 'js-cookie';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -45,6 +45,22 @@ function getModalStyle() {
     };
 }
 
+function validateNumPlayers(inputVal)
+{
+	if(inputVal<=0)
+	{
+		inputVal = 1;
+	}
+	if(inputVal>12)
+	{
+		inputVal = 12;
+	}
+	inputVal = Math.round(inputVal)
+
+	return inputVal;
+}
+
+
 export default function BottomUI(props) {
 		const classes = useStyles();
 		const [modalStyle] = React.useState(getModalStyle);
@@ -54,8 +70,13 @@ export default function BottomUI(props) {
 		const [edit, setEdit] = useState(props.edit || false);
 		const [del, setDel] = useState(props.del || false);
 		var [numPlayers, setNumPlayers] = useState(2);
-        const [ratingValue, setRatingValue] = useState(0);
+        const [ratingValue, setRatingValue] = useState(props.prevRating);
+        const [ratingPopup, setRatingPopup] = useState(false);
 		let history = useHistory()
+
+
+
+
         return(
         <>
 	          <>
@@ -65,12 +86,21 @@ export default function BottomUI(props) {
 	          			<TableCell colSpan={10} style={{padding:4,paddingLeft:5,paddingRight:5,margin:0}}>
 	          			<Table style={{ tableLayout: 'fixed' }}>
 	          				<TableRow >
-			          	
 									{play === true &&
 										<>
 											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
 												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
-												onClick = {()=> setCreateGamePopup(true)}>
+												onClick = {()=> {
+
+													if(Cookies.get("username") != null)
+													{
+														setCreateGamePopup(true)
+													}
+													else
+													{
+														history.push('/home/login')
+													}
+													}}>
 													<div style={{margin:-5}}>
 														
 														<div>
@@ -82,8 +112,50 @@ export default function BottomUI(props) {
 													</div>
 												</Button>
 											</TableCell>
+                                          
+									   	</>
+									}
+									{props.playagain === true &&
+										<>
+											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+												onClick = {()=> {
+
+													if(Cookies.get("username") != null)
+													{
+														fetch(`/api/postCreateNewGame?templateID=${props.templateID}&gameID=${props.gameID}&numOfPlayers=${props.numPlayers}`)
+									 					.then(res => res.json()).then(data => {
+									 					console.log(data)
+									 					history.push('/play/overview')
+									 					window.location.reload(true);
+														});
+														
+													}
+													else
+													{
+														history.push('/home/login')
+													}
+													}}>
+													<div style={{margin:-5}}>
+														
+														<div>
+															<SportsEsports style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															Play Again
+														</div>
+													</div>
+												</Button>
+											</TableCell>
+                                          
+									   	</>
+									}
+									{props.rate === true &&
+										<>
+											
                                             <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
 												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+
                                                     onClick = {()=> {
                                                         const requestOptions = {
                                                             method:'POST',
@@ -126,27 +198,32 @@ export default function BottomUI(props) {
                                                     }
 												</Button>
 											</TableCell>
-                                            <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
-												<Rating
-                                                value={ratingValue}
-                                                name="rating"
-                                                onChange={(event, newValue) => {
-                                                    setRatingValue(newValue);
-                                                    // Need to send something to the server here
-                                                    const requestOptions = {
-														method:'POST',
-            											headers: { 'Content-Type': 'application/json' },
-            											credentials: 'include',
-            											body: JSON.stringify({
-                											templateID: props.templateID,
-                                                            gameID: props.gameID,
-                                                            val: newValue
-            											})
+
+                        <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+												onClick = {()=> {
+
+													if(Cookies.get("username") != null)
+													{
+														setRatingPopup(true)
 													}
-													fetch('/api/rateTemplate', requestOptions)
-                                                }}
-                                                onClick={props.handleInputChange}
-                                                />
+													else
+													{
+														history.push('/home/login')
+													}
+													
+													}}>
+
+													<div style={{margin:-5}}>
+														
+														<div>
+															<Star style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															Rate
+														</div>
+													</div>
+												</Button>
 											</TableCell>
 									   	</>
 									}
@@ -223,23 +300,12 @@ export default function BottomUI(props) {
 
 								  		</td>
 								  		<td>
-								  			<Input name="numPlayersInput" type="number" onChange={(e)=>{
+								  			<Input id="numPlayersInput" name="numPlayersInput" type="number" onChange={(e)=>{
 								  					setNumPlayers(e.target.value)
 								  				}}
 								  				onBlur={(e)=>
 								  				{
-								  					if(e.target.value <=0)
-									  				{
-									  					setNumPlayers(2)
-									  				}
-									  				else if(isNaN(e.target.value)===true)
-									  				{
-									  					setNumPlayers(2)
-									  				}
-									  				else
-									  				{
-									  					setNumPlayers(e.target.value)
-									  				}
+								  					setNumPlayers(validateNumPlayers(e.target.value))
 								  				}}
 								  				
 								  			 value={numPlayers} defaultValue={props.value}>
@@ -268,6 +334,55 @@ export default function BottomUI(props) {
 								  		<td style ={{paddingLeft:7}}>
 								  			<Button className={classes.button} variant = "contained" color="primary" size = "large"
 								  			onClick={()=>setCreateGamePopup(false)}>
+								  			Cancel</Button>
+								  		</td>
+								  	</tr>
+							  	</table>
+
+							  </div>
+						  </div>
+						</Modal>
+                        <Modal
+						  open={ratingPopup}
+						  aria-labelledby="simple-modal-title"
+						  aria-describedby="simple-modal-description"
+						>
+						<div style={modalStyle} className={classes.paper}>
+							  <h3 style={{textAlign:"center"}}>Rate {props.templateName}</h3>
+							  <div align="center">
+								 <table style={{marginTop:10}}>
+								  	<tr w>
+								  		<td>
+								  			<Rating
+                                                value={ratingValue}
+                                                name="rating"
+                                                onClick={props.handleInputChange}
+                                                onChange={(event, newValue) => {
+                                                    setRatingValue(newValue);
+                                                    const requestOptions = {
+                                                        method:'POST',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        credentials: 'include',
+                                                        body: JSON.stringify({
+                                                            templateID: props.templateID,
+                                                            gameID: props.gameID,
+                                                            val: newValue
+                                                        })
+                                                    }
+                                                    fetch('/api/rateTemplate', requestOptions)
+                                                    setRatingPopup(false)
+                                                    props.update()
+                                                }}
+                                                
+                                            />
+								  		</td>
+								  	</tr>
+							  	</table>
+							  	<table style={{margin:"auto",paddingTop:20,paddingBottom:-15}}>
+								  	<tr>
+								  		<td style ={{paddingLeft:7}}>
+								  			<Button className={classes.button} variant = "contained" color="primary" size = "large"
+								  			onClick={()=>setRatingPopup(false)}>
 								  			Cancel</Button>
 								  		</td>
 								  	</tr>

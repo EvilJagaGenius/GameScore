@@ -55,3 +55,15 @@ padding-right:10px !important
 {
 margin-right:-15px !important
 }
+
+.MuiTooltip-popper
+{
+position:absolute;
+top:0;
+right:20%;
+width:70%;
+}
+
+.errorCondition{
+background-color:rgba(214, 48, 49,0.05);
+}

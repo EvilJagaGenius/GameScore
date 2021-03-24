@@ -11,13 +11,15 @@ import AddIcon from '@material-ui/icons/Add';
 import Modal from '@material-ui/core/Modal';
 import { IconButton } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
-import {ToastsContainer, ToastsStore,ToastsContainerPosition} from 'react-toasts';
 import { Button } from '@material-ui/core';
 import TemplateHintModal from './TemplateHintModal';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import Typography from '@material-ui/core/Typography';
 import DeleteIcon from '@material-ui/icons/Delete';
 import BackIcon from '@material-ui/icons/ArrowBackIos'
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
+
 
     //Code adapted from: https://morioh.com/p/4576fa674ed8
     //Centers Modal on page
@@ -52,7 +54,11 @@ export default class TemplateEditor extends Component {
             loaded:false,
             showDeleteTemplate:false,
             modalStyle:getModalStyle(),
-            showHintModal:false
+            showHintModal:false,
+            showError:false,
+            showSuccess:false,
+            errorText:"",
+            successText:""
         })
          this.closedHintModal = this.closedHintModal.bind(this)
     }
@@ -117,30 +123,43 @@ export default class TemplateEditor extends Component {
                                  <TextField inputProps={{style: {fontSize: 25,textAlign:"center"} }} style={{width:"70%",marginTop:10}} defaultValue={this.state.data.templateName}
                                     onBlur={(e)=>{
 
-                                         const requestOptions = {
-                                            method: 'POST',
-                                            headers: {'Content-Type': 'application/json'},
-                                            credentials: 'include',
-                                            body: JSON.stringify({
-                                              templateID: this.state.templateID,
-                                              templateName:e.target.value
+                                        if(e.target.value.length<4 || e.target.value.length>30)
+                                        {
+                                            this.setState({
+                                            showError:true,
+                                            errorText:"Template Name must be between 4 and 30 characters"
                                             })
-                                        };
+                                            console.log("showing errorText")
+                                            e.target.value = this.state.data.templateName
+                                        }
+                                        else
+                                        {
 
-                                        fetch("/api/postEditTemplateName",requestOptions)
-                                          .then(res => res.json())
-                                          .then((result) => {
+                                             const requestOptions = {
+                                                method: 'POST',
+                                                headers: {'Content-Type': 'application/json'},
+                                                credentials: 'include',
+                                                body: JSON.stringify({
+                                                  templateID: this.state.templateID,
+                                                  templateName:e.target.value
+                                                })
+                                            };
 
-                                              console.log(result)
-                                              this.setState({
-                                                data:result,
-                                                loaded: true
-                                              })
+                                            fetch("/api/postEditTemplateName",requestOptions)
+                                              .then(res => res.json())
+                                              .then((result) => {
 
-                                              ToastsStore.success("Template Name Updated");
+                                                  console.log(result)
+                                                  this.setState({
+                                                    data:result,
+                                                    loaded: true,
+                                                    showSuccess:true,
+                                                    successText:"Template Name Successfully Updated"
+                                                  })
 
-                                          },) //End Fetch
-                            }}
+                                              },) //End Fetch
+                                        }
+                                    }}
                             ></TextField>
                               </div>
 
@@ -173,7 +192,7 @@ export default class TemplateEditor extends Component {
                               </div>
                             </div>
                     <>
-                        {/*For each Player, show scores*/}
+                        {/*For each Condition, show values*/}
                         {Object.keys((this.state.data["conditions"])).map(key=> (
                               <TableContainer component = {Paper} style={{marginBottom:20}}> 
                                 <Table size="small" style={{ tableLayout: 'fixed' }}>
@@ -292,7 +311,7 @@ export default class TemplateEditor extends Component {
                                     </TableRow>
                                     }
 
-                                    <TableRow>
+                                    <TableRow style={{display:"none"}}>
                                         <TableCell align="left:"><b>Input Type:</b></TableCell>
                                         <TableCell align="center">{this.state.data["conditions"][key].inputType}</TableCell>
                                     </TableRow>
@@ -300,12 +319,33 @@ export default class TemplateEditor extends Component {
                                 </Table>
                               </TableContainer>
                          ))}
+
+                        <>
+                        <Snackbar open={this.state.showError} autoHideDuration={3000} onClose={(e,reason)=>{
+                            if(reason !== "clickaway")
+                            {
+                            this.setState({showError:false})
+                            console.log(reason)}
+                            }
+
+                            }>
+                            <Alert variant = "filled" severity="error">
+                              {this.state.errorText}
+                            </Alert>
+                         </Snackbar>
+
+                       <Snackbar open={this.state.showSuccess} autoHideDuration={3000} onClose={()=>{this.setState({showSuccess:false})}}>
+                        <Alert variant = "filled" severity="success">
+                          {this.state.successText}
+                        </Alert>
+                      </Snackbar>
+                    </>
+
                     </>
 
                     <div style={{position:"fixed",marginRight: "5% auto",marginLeft: "5% auto", bottom:0,display:"flex",justifyContent:"center", left:0,right:0,backgroundColor:"white",marginTop:0}}>
                         <Button  variant = "contained" color="primary" size = "large" style={{margin:5}} startIcon={<AddIcon />}
                         onClick={()=>{
-                        //Create Game with Same number of players API call
 
                         const requestOptions = {
                         method: 'POST',
@@ -321,10 +361,13 @@ export default class TemplateEditor extends Component {
                           .then((result) => {
 
                               console.log(result)
-                              this.setState({
-                                data:result,
-                                loaded: true
-                              })
+                              this.props.history.push({
+                              pathname:"/mytemplates/conditioneditor",
+                              state:
+                              {templateID:this.state.data.templateID,
+                               conditionID:result.conditionID}
+                               
+                            });
 
                           })
                         }}> Add Condition</Button>
@@ -341,6 +384,8 @@ export default class TemplateEditor extends Component {
 
                     </div>
 
+                        
+
                     <div style={{height:60}}>
                         
                     </div>
@@ -353,8 +398,10 @@ export default class TemplateEditor extends Component {
 
                   >
                   <div style={this.state.modalStyle} component={Paper}>
+                    <div>
                       <h3 style={{textAlign:"center"}}>Delete Template?</h3>
                     
+                      <Typography>Delete [{this.state.data.templateName}]?  This template will be gone forever.</Typography>
 
                        <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
 
@@ -387,11 +434,14 @@ export default class TemplateEditor extends Component {
                       </div>
 
                     </div>
+                 </div>
                   </Modal>
+                
+                <TemplateHintModal show={this.state.showHintModal} closeHint={this.closedHintModal}></TemplateHintModal>
+
+                 
                 </>
                 }
-                <TemplateHintModal show={this.state.showHintModal} closeHint={this.closedHintModal}></TemplateHintModal>
-                <ToastsContainer position={ToastsContainerPosition.BOTTOM_CENTER} store={ToastsStore}/>
             </>
         );
     }

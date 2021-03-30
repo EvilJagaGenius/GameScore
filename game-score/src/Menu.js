@@ -102,7 +102,7 @@ constructor(props) {
       );
   }
   
-  callAPI() {
+  /*callAPI() {
     fetch("/api/getHomePage")
       .then(res => res.json())
       .then(
@@ -117,7 +117,7 @@ constructor(props) {
         // instead of a catch() block so that we don't swallow
         // exceptions from actual bugs in components.
       );
-  }
+  }*/
 
 
 
@@ -397,10 +397,25 @@ constructor(props) {
                   <> 
                     {/* Iterate through favorited templates and render the data in a tabular format */}
                     {Object.keys(this.state.data.recommendedGames).map(key => (
-                      <GameRow rowPos={key} accPos="3" 
-                      pictureURL = {this.state.data["recommendedGames"][key].pictureURL} 
-                      gameName = {this.state.data["recommendedGames"][key].gameName}
-                      />
+                      <>
+                      <TableRow onClick={()=>this.selectTemplate(3,key)}>
+                        <GameRow rowPos={key} accPos="3" 
+                        pictureURL = {this.state.data["recommendedGames"][key].pictureURL} 
+                        gameName = {this.state.data["recommendedGames"][key].gameName}
+                        selected = {this.isSelected(3,key)}
+                        />
+                      </TableRow>
+                        {this.isSelected(3,key) === true &&
+                          <>
+                          <BottomUI
+                            gameURL = {"https://www.boardgamegeek.com" + this.state.data["recommendedGames"][key].gameURL}
+                            gameBottomUI = {true}
+                            selected = {this.isSelected(3,key)}
+                            >
+                          </BottomUI>
+                          </>
+                        }
+                      </>
                     ))}
                   </>
                 </div>

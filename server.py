@@ -535,16 +535,17 @@ ORDER BY averageRating DESC LIMIT 10
     ### Recommended Games ###
     #Execute sql call to get appropriate data
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select pictureURL, gameName from AppUserRecommendedGame JOIN Game ON AppUserRecommendedGame.gameID=Game.gameID WHERE userID=%s LIMIT 8")
+    stmt = ("select pictureURL, gameName, gameURL from AppUserRecommendedGame JOIN Game ON AppUserRecommendedGame.gameID=Game.gameID WHERE userID=%s LIMIT 8")
     mycursor.execute(stmt,(userID,))
     myresult = mycursor.fetchall()
     mycursor.close()
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-        picURL, gameName = row
+        picURL, gameName, gameURL = row
         template = {"pictureURL":"{}".format(picURL)
-                    ,"gameName":"{}".format(gameName)}
+                    ,"gameName":"{}".format(gameName)
+                    ,"gameURL":"{}".format(gameURL)}
         #append each new dictionary to its appropriate list
         result["recommendedGames"].append(template)
 

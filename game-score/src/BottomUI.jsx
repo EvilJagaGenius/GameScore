@@ -15,6 +15,7 @@ import Table from '@material-ui/core/Table';
 import Rating from '@material-ui/lab/Rating';
 import Favorite from '@material-ui/icons/Favorite';
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
+import Description from '@material-ui/icons/Description';
 import Cookies from 'js-cookie';
 
 
@@ -271,6 +272,27 @@ export default function BottomUI(props) {
 														</div>
 													</div>
 											</Button>
+										</TableCell>		
+										</>
+									}
+                  
+                  {props.gameBottomUI === true &&
+										<>
+											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+                      <a href={props.gameURL}>
+											<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+											onClick = {()=> console.log(props.gameURL)}>
+												<div style={{margin:-5}}>
+														
+														<div>
+															<Description style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															BGG Page
+														</div>
+													</div>
+											</Button>
+                      </a>
 										</TableCell>		
 										</>
 									}

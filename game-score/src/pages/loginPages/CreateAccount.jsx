@@ -38,81 +38,36 @@ export default class CreateAccount extends Component{
     });
     console.log("username is")
     console.log(event.target.value);
-    var name = String(event.target.value);
-    var capCheck = false;
-    var validCharCheck = false;
-    var errorText = "";
-    if(name.length > 30 || name.length < 4){
-      console.log("length not met");
-      errorText += "Length requirements not met. ";
-      console.log(errorText)
-    }
-    for(var i = 0; i < name.length; i++){
-      var tempCode = name.charCodeAt(i);
-      //use ASCII code to attempt to detect lowercase characters
-      if(tempCode >= 97 && tempCode <= 122){
-        //lowercase found
-        console.log("lower case found")
-        validCharCheck = true;
-        if(capCheck){
-          capCheck = true;
-        }
-        else{
-          capCheck = false;
-        }
-      }
-      else if(tempCode >= 65 && tempCode <= 90){
-        //capital found
-        console.log("captial found");
-        capCheck = true;
-      }
-      else{
-        console.log("lower case check failed");
-        validCharCheck = false;
-      }
-    }
-    if(!validCharCheck){
-      errorText += "Invalid character found. ";
-    }
-    if(!capCheck){
-      errorText += "Capital letter not found. ";
-    }
-    if(errorText.length !== 0){
+    var usernameRequirements = /^(?=.*[a-z])(?=.*[A-Z]).{4,30}/;
+    if(String(event.target.value).match(usernameRequirements)){
       this.setState({
-        usernameError: true,
-        usernameHelper: errorText
+        usernameError: false
+      });
+      const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        credentials: 'include',
+        body: JSON.stringify({
+          username:event.target.value
+        })
+      };
+      fetch("/api/postCheckUsername",requestOptions)
+        .then(res => res.json()).then(newData => {
+          if(newData.usernameExists === true){
+            this.setState({
+              usernameError: true
+            });
+          }
+          else{
+            this.setState({
+              usernameError: false
+          });
+        }
       });
     }
     else{
-          this.setState({
-          usernameHelper: ""
-          })
-
-         const requestOptions = {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          credentials: 'include',
-          body: JSON.stringify({
-            username:event.target.value
-          })
-          };
-
-        fetch("/api/postCheckUsername",requestOptions)
-        .then(res => res.json()).then(newData => {
-              if(newData.usernameExists===true)
-              {
-                this.setState({
-                  usernameError: true,
-                  usernameHelper: errorText +"Username already exists.  "
-                })
-              }
-              else
-              {
-                this.setState({
-                usernameError: false
-              })
-          }
-          
+      this.setState({
+        usernameError: true
       });
     }
   }
@@ -144,8 +99,8 @@ export default class CreateAccount extends Component{
    * @param {*} event 
    */
   passwordHandler=(event)=>{
-    console.log(event.target.value)
-    var pass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{4,30}/
+    console.log(event.target.value);
+    var pass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{4,30}/;
     if(String(event.target.value).match(pass)){
       this.setState({
         passwordError: false,

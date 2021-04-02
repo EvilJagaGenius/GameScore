@@ -168,7 +168,3 @@ export default class SearchResults extends Component {
         )
     }
 }
-
-class List extends Component {
-    
-}

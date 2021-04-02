@@ -10,19 +10,16 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import { Button } from '@material-ui/core';
 import BackIcon from '@material-ui/icons/ArrowBackIos';
-import AccountCircle from '@material-ui/icons/AccountCircle';
 import { Link } from 'react-router-dom'
 import Cookies from 'js-cookie';
 import MySocket from './Socket';
 import KickedModal from './KickedModal';
-import getAvatar from './Avatars';
+import getAvatar from '/profilePages/Avatars';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
-import IncrementIcon from '@material-ui/icons/ExposurePlus1';
-import DecrementIcon from '@material-ui/icons/ExposureNeg1';
 import UpArrow from '@material-ui/icons/ArrowUpward';
 import DownArrow from '@material-ui/icons/ArrowDownward';
 
@@ -43,8 +40,6 @@ export default class ScoringPage extends React.Component{
           data:"",
           showKicked: false
         };
-
-        var Socket = null;
     };
 
     //When Component Loads
@@ -80,7 +75,7 @@ export default class ScoringPage extends React.Component{
           });
 
          this.Socket.on("kickPlayer", username => {
-           if(username.userName==Cookies.get('username'))
+           if(username.userName===Cookies.get('username'))
             {
               this.Socket.disconnect()
               this.setState({
@@ -183,13 +178,13 @@ export default class ScoringPage extends React.Component{
         let field =  document.getElementById(pos)
         //console.log(pos)
 
-        if(field!=null && field.name=="editingButton" && this.state.data.individualScoring[newKey]["conditions"][parseInt(pos)].value == parseInt(field.value))
+        if(field!=null && field.name==="editingButton" && this.state.data.individualScoring[newKey]["conditions"][parseInt(pos)].value === parseInt(field.value))
         {
           field.name="editingFalse"
           console.log("reset")
         }
 
-        if(field!==null && field.name=="editingFalse")
+        if(field!==null && field.name==="editingFalse")
         {
           
           field.value = this.state.data.individualScoring[newKey]["conditions"][parseInt(pos)].value
@@ -218,7 +213,7 @@ export default class ScoringPage extends React.Component{
                 <div style={{whiteSpace:"nowrap"}}>
                   <div style={{textAlign:"center",display:"inlineBlock",paddingTop:15,paddingBottom:10}} align="center" textAlign= "center">
                      {/*Name + Icon*/}
-                     <img src = {getAvatar(this.state.data.individualScoring[this.state.key].avatarID)} style={{width:30,height:30,marginBottom:-7,marginRight:10}}></img>
+                     <img alt = "avatar icon" src = {getAvatar(this.state.data.individualScoring[this.state.key].avatarID)} style={{width:30,height:30,marginBottom:-7,marginRight:10}}></img>
                      {/*<h2 style={{display:"inline"}}>{this.state.data.individualScoring[this.state.key].displayName}</h2>*/}
                       
                       <Select style={{fontSize:25}} id="select" defaultValue={this.state.key} select

@@ -21,7 +21,6 @@ import ResetUsernameEmail from './pages/loginPages/ForgetUsername';
 import EditAccount from './pages/profilePages/EditAccount';
 import EditAvatar from './pages/profilePages/EditAvatar';
 import InviteFriends from './pages/InviteFriends';
-import JoinGame from './pages/JoinGame';
 import SearchResults from './pages/SearchResults';
 import RejoinGame from './pages/RejoinGame';
 

@@ -1,6 +1,4 @@
-
 import React, { Component } from "react";
-import GameRow from "../GameRow"
 import TemplateRow from "../TemplateRow";
 import Table from '@material-ui/core/Table';
 import TableContainer from '@material-ui/core/TableContainer';
@@ -132,7 +130,6 @@ export default class MyTemplates extends Component {
   }
 
   render() {
-    const { classes } = this.props;
     return (
       
       <>
@@ -162,7 +159,7 @@ export default class MyTemplates extends Component {
                         selected = {this.isSelected(key)}
                         />
                       </TableRow>
-                      {this.isSelected(key) == true &&
+                      {this.isSelected(key) === true &&
                         <>
                           {console.log(this.state.data[key])}
                           <BottomUI

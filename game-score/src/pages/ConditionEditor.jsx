@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { Link } from "react-router-dom"
 import Table from '@material-ui/core/Table';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
@@ -11,11 +10,10 @@ import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField';
 import { Button } from '@material-ui/core';
 import SaveIcon from '@material-ui/icons/Save';
-import {ToastsContainer, ToastsStore,ToastsContainerPosition} from 'react-toasts';
 import BackIcon from '@material-ui/icons/ArrowBackIos';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Modal from '@material-ui/core/Modal';
-import { makeStyles } from '@material-ui/core/styles';
+import {ToastsStore} from 'react-toasts';
 import { IconButton } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import TemplateHintModal from './TemplateHintModal';
@@ -288,7 +286,7 @@ export default class ConditionEditor extends Component {
                         <>
                             {
 
-                            this.state.data["conditions"][this.state.condPos].scoringType == "Linear" && 
+                            this.state.data["conditions"][this.state.condPos].scoringType === "Linear" && 
                             <TableRow>
                                 <TableCell align="right:">
                                      <div style={{marginLeft:24}}><b>Point Multiplier:</b></div>
@@ -322,8 +320,7 @@ export default class ConditionEditor extends Component {
                             }
 
                             {
-
-                                this.state.data["conditions"][this.state.condPos].scoringType == "Tabular" && 
+                                this.state.data["conditions"][this.state.condPos].scoringType === "Tabular" && 
                                 <TableRow>
                                     <TableCell colSpan={2}>
                                         <TableContainer  component = {Paper}>
@@ -396,7 +393,7 @@ export default class ConditionEditor extends Component {
                                                                         data:newData,
                                                                         madeChanges:true
                                                                     })
-                                                                    }}>>                                                    
+                                                                    }}>                                                 
                                                             </TextField>
                                                         </TableCell>
                                                         <TableCell style={{width:"50%"}}> 
@@ -417,7 +414,7 @@ export default class ConditionEditor extends Component {
                                                                         data:newData,
                                                                         madeChanges:true
                                                                     })
-                                                                    }}>>
+                                                                    }}>
                                                             </TextField>
                                                         </TableCell>
                                                         <TableCell>
@@ -475,7 +472,6 @@ export default class ConditionEditor extends Component {
 
                         <TableRow>
                             <TableCell style={{width:"50%"}} align="left:">
-
                                 <Checkbox style={{marginLeft:-12,marginRight:-2,marginTop:-2}} checked={this.state.data["conditions"][this.state.condPos].maxPerGameActive}
                                      onChange={(e)=>{
                                         var newData = this.state.data
@@ -485,8 +481,6 @@ export default class ConditionEditor extends Component {
                                             madeChanges:true
                                         })
                                         }}>
-                                    >
-                                    
                                 </Checkbox>
 
                                 <b>Max Per Game:</b>
@@ -512,7 +506,7 @@ export default class ConditionEditor extends Component {
                                                 data:newData,
                                                 madeChanges:true
                                             })
-                                        }}>>
+                                        }}>
                                 </TextField>
                              </TableCell>
                         </TableRow>
@@ -528,8 +522,6 @@ export default class ConditionEditor extends Component {
                                             madeChanges:true
                                         })
                                         }}>
-                                    >
-                                    
                                 </Checkbox>
                                 <b>Max Per Player:</b>
                             </TableCell>

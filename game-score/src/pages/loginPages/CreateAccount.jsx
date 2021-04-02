@@ -65,6 +65,11 @@ export default class CreateAccount extends Component{
         }
       });
     }
+    else if(String(event.target.value).length > 30){
+      this.setState({
+        usernameError: true
+      });
+    }
     else{
       this.setState({
         usernameError: true

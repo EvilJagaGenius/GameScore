@@ -1,15 +1,6 @@
-import React, {Component} from 'react';
-import {Link} from 'react-router-dom';
-import { Autocomplete } from '@material-ui/lab';
-import TextField from '@material-ui/core/TextField';
+import React from 'react';
 import { Button } from '@material-ui/core';
-import AddIcon from '@material-ui/icons/Add';
-import ClearIcon from '@material-ui/icons/Clear';
-import {ToastsContainer, ToastsStore,ToastsContainerPosition} from 'react-toasts';
-import SaveIcon from '@material-ui/icons/Save';
 import Modal from '@material-ui/core/Modal';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
 import Table from '@material-ui/core/Table';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
@@ -21,8 +12,6 @@ import TableRow from '@material-ui/core/TableRow';
 //Centers Modal on page
 function getModalStyle()
 {
-    const top = 100;
-    const left = 50;
     return {
         top: `5%`,
         left: `6%`,

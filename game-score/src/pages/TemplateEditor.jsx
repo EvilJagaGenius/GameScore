@@ -1,5 +1,4 @@
-import React,  {Component} from 'react'
-import { Link, useHistory } from "react-router-dom"
+import React,  {Component} from 'react';
 import Table from '@material-ui/core/Table';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
@@ -248,7 +247,7 @@ export default class TemplateEditor extends Component {
 
                                     <>
                                         {
-                                        this.state.data["conditions"][key].scoringType=="Linear" &&
+                                        this.state.data["conditions"][key].scoringType==="Linear" &&
                                         <TableRow>
                                             <TableCell align="left:"><b>Point Multiplier:</b></TableCell>
                                             <TableCell align="center">{this.state.data["conditions"][key].pointMultiplier}</TableCell>
@@ -256,7 +255,7 @@ export default class TemplateEditor extends Component {
                                         }
 
                                         {
-                                        this.state.data["conditions"][key].scoringType == "Tabular" && 
+                                        this.state.data["conditions"][key].scoringType === "Tabular" && 
                                         <TableRow>
                                             <TableCell colSpan={2}>
                                                 <TableContainer  component = {Paper}>
@@ -296,7 +295,7 @@ export default class TemplateEditor extends Component {
                                      </>
                                      <>
                                     {
-                                        this.state.data["conditions"][key].maxPerGameActive == true &&
+                                        this.state.data["conditions"][key].maxPerGameActive === true &&
                                         <TableRow>
                                             <TableCell align="left:"><b>Max Per Game:</b></TableCell>
                                             <TableCell align="center">{this.state.data["conditions"][key].maxPerGame}</TableCell>
@@ -304,7 +303,7 @@ export default class TemplateEditor extends Component {
                                     }
                                     </>
                                     {
-                                    this.state.data["conditions"][key].maxPerPlayerActive == true &&
+                                    this.state.data["conditions"][key].maxPerPlayerActive === true &&
                                     <TableRow>
                                         <TableCell align="left:"><b>Max Per Player:</b></TableCell>
                                         <TableCell align="center">{this.state.data["conditions"][key].maxPerPlayer}</TableCell>

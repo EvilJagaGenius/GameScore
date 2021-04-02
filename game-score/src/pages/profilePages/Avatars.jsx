@@ -1,9 +1,9 @@
-import Hacker from '../images/avatarIcons/hacker.png';
-import Programmer from '../images/avatarIcons/programmer.png';
-import Astronaut from '../images/avatarIcons/astronaut.png';
-import Lawyer from '../images/avatarIcons/lawyer.png';
-import BusinessMan from '../images/avatarIcons/business-man.png';
-import Woman from '../images/avatarIcons/woman.png';
+import Hacker from '../../images/avatarIcons/hacker.png';
+import Programmer from '../../images/avatarIcons/programmer.png';
+import Astronaut from '../../images/avatarIcons/astronaut.png'
+import Lawyer from '../../images/avatarIcons/lawyer.png';
+import BusinessMan from '../../images/avatarIcons/business-man.png';
+import Woman from '../../images/avatarIcons/woman.png';
 
 export default function getAvatar(avatarID){
 switch(avatarID){

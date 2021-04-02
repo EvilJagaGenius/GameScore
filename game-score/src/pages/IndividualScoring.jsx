@@ -1,4 +1,3 @@
-
 //import resources
 import React from 'react';
 import Table from '@material-ui/core/Table';
@@ -14,7 +13,7 @@ import { Link } from 'react-router-dom'
 import Cookies from 'js-cookie';
 import MySocket from './Socket';
 import KickedModal from './KickedModal';
-import getAvatar from '/profilePages/Avatars';
+import getAvatar from './profilePages/Avatars';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import Select from '@material-ui/core/Select';

@@ -37,16 +37,12 @@ constructor(props) {
           };
     };
 
-  
-
   handleClick = (e, titleProps) => {
     const { index } = titleProps
     const { activeIndex } = this.state
     const newIndex = activeIndex === index ? -1 : index
-
     this.setState({ activeIndex: newIndex,selectedTemplate:{accPos:index,rowPos:-1} })
   }
-
 
   componentDidMount() {
     Promise.all([
@@ -167,46 +163,46 @@ constructor(props) {
           Favorited Templates
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 0}>
-        <TableContainer component={Paper}>
-         <Table>
-                {
-                  this.state.loaded === "True" && Cookies.get("username") != null &&
-                    <> 
-                      {Object.keys(this.state.data.favoritedTemplates).map(key => (
-                          <>
-                            <TableRow onClick={()=>this.selectTemplate(0,key)}>
-                              <TemplateRow 
-                              pictureURL = {this.state.data["favoritedTemplates"][key].pictureURL} 
-                              templateName = {this.state.data["favoritedTemplates"][key].templateName}
-                              numRatings = {this.state.data["favoritedTemplates"][key].numRatings}
-                              averageRating = {this.state.data["favoritedTemplates"][key].averageRating}
-                              />
-                            </TableRow>
-                              {
-                              this.isSelected(0,key) === true &&
-                              <>
-                                <BottomUI
-                                  templateName = {this.state.data["favoritedTemplates"][key].templateName}
-                                  templateID = {this.state.data["favoritedTemplates"][key].templateID}
-                                  gameID = {this.state.data["favoritedTemplates"][key].gameID}
-                                  selected = {this.isSelected(0,key)}
-                                  play = {true}
-                                  rate= {true}>
-                                  </BottomUI>
-                              </>
-                            }
-                        </>
-                      ))}
-                    </>
-                }
-            </Table>
-          </TableContainer>
-          
-            {
-              this.state.loaded === "True" && Cookies.get("username") == null &&
-                <Typography style={{marginLeft:20}}>Login for full functionality.</Typography>
-            } 
-          
+
+        {/*Start conditional rendering*/}
+        {isLoggedIn
+        ? <TableContainer component={Paper}>
+        <Table>
+               {
+                 this.state.loaded === "True" && Cookies.get("username") != null &&
+                   <> 
+                     {Object.keys(this.state.data.favoritedTemplates).map(key => (
+                         <>
+                           <TableRow onClick={()=>this.selectTemplate(0,key)}>
+                             <TemplateRow 
+                             pictureURL = {this.state.data["favoritedTemplates"][key].pictureURL} 
+                             templateName = {this.state.data["favoritedTemplates"][key].templateName}
+                             numRatings = {this.state.data["favoritedTemplates"][key].numRatings}
+                             averageRating = {this.state.data["favoritedTemplates"][key].averageRating}
+                             />
+                           </TableRow>
+                             {
+                             this.isSelected(0,key) === true &&
+                             <>
+                               <BottomUI
+                                 templateName = {this.state.data["favoritedTemplates"][key].templateName}
+                                 templateID = {this.state.data["favoritedTemplates"][key].templateID}
+                                 gameID = {this.state.data["favoritedTemplates"][key].gameID}
+                                 selected = {this.isSelected(0,key)}
+                                 play = {true}
+                                 rate= {true}>
+                                 </BottomUI>
+                             </>
+                           }
+                       </>
+                     ))}
+                   </>
+               }
+           </Table>
+         </TableContainer>
+        : <h2>You must log in to view this content</h2>
+        }
+        {/*End conditional rendering*/}
         </Accordion.Content>
         
 
@@ -216,6 +212,8 @@ constructor(props) {
           Recently Played
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 1}>
+        
+        {/*Start conditional rendering*/}
         {isLoggedIn
         ? 
         <TableContainer component={Paper}>
@@ -258,6 +256,7 @@ constructor(props) {
           </TableContainer>
         : <h2>You must log in to view this content</h2>
         }
+        {/*End conditional rendering*/}
         </Accordion.Content>
 
         {/* Highest Rated Templates accordian */}

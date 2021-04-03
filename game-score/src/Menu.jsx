@@ -145,6 +145,7 @@ constructor(props) {
 
   render() {
     const { activeIndex } = this.state
+    const isLoggedIn = Cookies.get("username");
     return (
     <div>
       {/* Search Bar */}
@@ -207,17 +208,16 @@ constructor(props) {
             } 
           
         </Accordion.Content>
+        
 
         {/* Recently Played */}
-        <Accordion.Title
-          active={activeIndex === 1}
-          index={1}
-          onClick={this.handleClick}
-        >
+        <Accordion.Title active={activeIndex === 1} index={1} onClick={this.handleClick}>
           <Icon name='dropdown' />
           Recently Played
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 1}>
+        {isLoggedIn
+        ? 
         <TableContainer component={Paper}>
           <Table size="small">
                 {
@@ -256,10 +256,8 @@ constructor(props) {
               }
           </Table>
           </TableContainer>
-            {
-              this.state.loaded === "True" && Cookies.get("username") == null &&
-                <Typography style={{marginLeft:20}}>Login for full functionality.</Typography>
-            } 
+        : <h2>You must log in to view this content</h2>
+        }
         </Accordion.Content>
 
         {/* Highest Rated Templates accordian */}

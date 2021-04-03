@@ -61,28 +61,10 @@ constructor(props) {
 
       console.log(searchResponse);
     });
-    /*
-    fetch("/api/getHomePage")
-      .then(res => res.json())
-      .then(
-        (result) => {
-          this.setState({
-            data: result,
-            loaded: "True"
-          }
-          );
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-      );
-      */
       this.setState({
         usernameData: getCookieValue("username")
       });
   }
-
-
 
   selectTemplate(newAccPos,newRowPos)
   {

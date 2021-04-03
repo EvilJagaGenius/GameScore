@@ -23,9 +23,17 @@ import EditAvatar from './pages/profilePages/EditAvatar';
 import InviteFriends from './pages/InviteFriends';
 import SearchResults from './pages/SearchResults';
 import RejoinGame from './pages/RejoinGame';
-
+import Cookies from 'js-cookie';
+import { Alert } from "@material-ui/lab";
 
 export default function App() {
+  const isLoggedIn = Cookies.get("username");
+  if(isLoggedIn){
+    console.log("Logged in");
+  }
+  else{
+    console.log("Not logged in");
+  }
   return (
     <Switch>
       <Redirect exact from="/" to="/home" />
@@ -38,20 +46,36 @@ export default function App() {
         }>
       </Route>
       <Route path="/profile/editaccount" 
-        render={(props) => 
-        <>
-          <RejoinGame />
+        render={(props) =>
+          <>
+        {isLoggedIn 
+          ? <>
+          <RejoinGame/>
           <Home {...props}></Home>
           <EditAccount {...props}></EditAccount>
-        </> 
+            </>
+          : <>
+          <Alert severity="error">You must be logged in to view the Edit Account page</Alert>
+          <Home {...props}></Home>
+            </>
+        }
+        </>
       }>
       </Route>
       <Route path="/profile/editavatar" 
         render={(props) => 
         <>
-          <RejoinGame />
+          {isLoggedIn 
+          ? <>
+          <RejoinGame/>
           <Home {...props}></Home>
           <EditAvatar {...props}></EditAvatar>
+            </>
+          : <>
+          <Alert severity="error">You must be logged in to view the Edit Avatar page</Alert>
+          <Home {...props}></Home>
+            </>
+        }
         </> 
       }>
       </Route>
@@ -95,24 +119,51 @@ export default function App() {
       <Route path="/mytemplates/conditioneditor" 
         render={(props) => 
         <>
-          <RejoinGame />
-          <ConditionEditor {...props}></ConditionEditor>
+          {isLoggedIn 
+          ? <>
+              <RejoinGame/>
+              <Home {...props}></Home>
+              <ConditionEditor {...props}></ConditionEditor>
+            </>
+          : <>
+              <Alert severity="error">You must be logged in to view the Edit Template page</Alert>
+              <Home {...props}></Home>
+            </>
+          }
         </> 
       }>
       </Route>
       <Route path="/mytemplates/creator"
         render={(props) => 
         <>
-          <RejoinGame />
-          <TemplateCreator {...props}></TemplateCreator>
+          {isLoggedIn 
+          ? <>
+              <RejoinGame/>
+              <Home {...props}></Home>
+              <TemplateCreator {...props}></TemplateCreator>
+            </>
+          : <>
+              <Alert severity="error">You must be logged in to view the Template Creator page</Alert>
+              <Home {...props}></Home>
+            </>
+          }
         </> 
       }>
       </Route>
       <Route path="/mytemplates/editor"
         render={(props) => 
         <>
-          <RejoinGame />
-          <TemplateEditor {...props}></TemplateEditor>
+          {isLoggedIn 
+          ? <>
+              <RejoinGame/>
+              <Home {...props}></Home>
+              <TemplateEditor {...props}></TemplateEditor>
+            </>
+          : <>
+              <Alert severity="error">You must be logged in to view the Edit Template page</Alert>
+              <Home {...props}></Home>
+            </>
+          }
         </> 
       }>
       </Route>

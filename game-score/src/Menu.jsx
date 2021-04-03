@@ -1,5 +1,5 @@
 /**
- * Menu.js-Jonathan Beels
+ * Menu.js-Jonathan Beels/Jonathon Lannon
  */
 
 import React, { Component } from 'react'

@@ -24,7 +24,7 @@ import InviteFriends from './pages/InviteFriends';
 import SearchResults from './pages/SearchResults';
 import RejoinGame from './pages/RejoinGame';
 import Cookies from 'js-cookie';
-import { Alert } from "@material-ui/lab";
+import {Alert} from "@material-ui/lab";
 
 export default function App() {
   const isLoggedIn = Cookies.get("username");

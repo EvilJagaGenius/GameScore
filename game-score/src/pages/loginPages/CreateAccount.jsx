@@ -11,6 +11,7 @@ import { Component } from "react";
 import Logo from '../../images/GameScore App Logo.png';
 import { Link } from 'react-router-dom'
 import BackIcon from '@material-ui/icons/ArrowBackIos';
+import {Alert} from "@material-ui/lab";
 
 export default class CreateAccount extends Component{
   constructor(props){
@@ -21,9 +22,16 @@ export default class CreateAccount extends Component{
       password: "",
       confirmPassword: "",
       usernameError: false,
+      usernameHelper: "",
       emailError: false,
+      emailHelper: "",
       passwordError: false,
+      passwordHelper: "",
       confrimPasswordError: false,
+      confirmPasswordHelper: "",
+      displayAlert: false,
+      alertText: "",
+      alertSeverity: "",
       data: false
     }
   }
@@ -55,7 +63,8 @@ export default class CreateAccount extends Component{
         .then(res => res.json()).then(newData => {
           if(newData.usernameExists === true){
             this.setState({
-              usernameError: true
+              usernameError: true,
+              usernameHelper: "Username already exists"
             });
           }
           else{
@@ -67,12 +76,14 @@ export default class CreateAccount extends Component{
     }
     else if(String(event.target.value).length > 30){
       this.setState({
-        usernameError: true
+        usernameError: true,
+        usernameHelper: "Username does not meet requirements"
       });
     }
     else{
       this.setState({
-        usernameError: true
+        usernameError: true,
+        usernameHelper: "Username does not meet requirements"
       });
     }
   }
@@ -87,13 +98,15 @@ export default class CreateAccount extends Component{
     if(!email.match(regex)){
       this.setState({
         email: "",
-        emailError: true
+        emailError: true,
+        emailHelper: "Invalid email entered"
       })
     }
     else{
       this.setState({
         email: event.target.value,
-        emailError: false
+        emailError: false,
+        emailHelper: ""
       })
     }
   }
@@ -109,7 +122,8 @@ export default class CreateAccount extends Component{
     if(String(event.target.value).match(pass)){
       this.setState({
         passwordError: false,
-        password: event.target.value
+        password: event.target.value,
+        passwordHelper: ""
       });
       console.log("requirements met");
     }
@@ -117,7 +131,8 @@ export default class CreateAccount extends Component{
       console.log("requirments not met")
       this.setState({
         password: event.target.value,
-        passwordError: true
+        passwordError: true,
+        passwordHelper: "Password requirements not met"
       });
     }
   }
@@ -132,12 +147,14 @@ export default class CreateAccount extends Component{
     });
     if(String(event.target.value) !== String(this.state.password)){
       this.setState({
-        confrimPasswordError: true
+        confrimPasswordError: true,
+        confirmPasswordHelper: "Passwords do not match"
       });
     }
     else{
       this.setState({
-        confrimPasswordError: false
+        confrimPasswordError: false,
+        confirmPasswordHelper: ""
       });
     }
   }
@@ -175,9 +192,12 @@ export default class CreateAccount extends Component{
         }
     }
     else{
-      alert("Unable to create account");
+      this.setState({
+        displayAlert: true,
+        alertText: "Unable to create account",
+        alertSeverity: "error"
+      });
     }
-    
   }
 
   /**
@@ -189,8 +209,10 @@ export default class CreateAccount extends Component{
     var passCheck = false
     //username 4-30 characters
     if(this.state.username === ""){
-      alert("No username entered. Please enter a username");
       this.setState({
+        displayAlert: true,
+        alertText: "No username entered",
+        alertSeverity: "warning",
         usernameError: true
       });
     }
@@ -198,8 +220,10 @@ export default class CreateAccount extends Component{
       userCheck = true
     }
     if(this.state.email===""){
-      alert("Please enter your email address");
       this.setState({
+        displayAlert: true,
+        alertText: "No email address entered",
+        alertSeverity: "warning",
         emailError: true
       });
     }
@@ -208,7 +232,11 @@ export default class CreateAccount extends Component{
     }
     //all tests passed
     if(this.state.passwordError === true && this.state.confrimPasswordError === true){
-      alert("Errors detected with password")
+      this.setState({
+        displayAlert: true,
+        alertText: "Password error found",
+        alertSeverity: "warning"
+      })
     }
     else{
       passCheck = true
@@ -220,46 +248,49 @@ export default class CreateAccount extends Component{
 
   render(){
   const classes = makeStyles((theme) => ({
-  root: {
-    '& .MuiTextField-root': {
-      margin: theme.spacing(1),
-      width: '25ch',
+    root: {
+      '& .MuiTextField-root': {
+        margin: theme.spacing(1),
+        width: '25ch',
+      },
     },
-  },
-}));
-return (
-  <>
-  <div style={{paddingLeft:0,left:5,top:15,position:"absolute"}} align="left">
-        {/*Back Button*/}
-        <Link to={{pathname: "/home/login"}}>
-            <Button startIcon={<BackIcon/>}>
-            Back
-            </Button>
-        </Link>
-  </div>
-
-  <form className={classes.root} noValidate autoComplete="off" onSubmit={this.confirmSubmission}>
-    <Box m={2} pt={3}>
-    <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
-    <h1>Create Account</h1>
-    <div>
-      <TextField required id="standard-required" name = "username" label="Username" onChange={this.usernameHandler} error={this.state.usernameError}/>
+  }));
+  return (
+    <>
+    <div style={{paddingLeft:0,left:5,top:55,position:"absolute"}} align="left">
+          {/*Back Button*/}
+          <Link to={{pathname: "/home/login"}}>
+              <Button startIcon={<BackIcon/>}>
+              Back
+              </Button>
+          </Link>
     </div>
-    <div>
-      <TextField required id="standard-required" name = "email" label="Email Address" onChange={this.emailHandler} error={this.state.emailError}/>
-    </div>
-    <div>
-      <TextField required id="standard-required" name = "password" label="Password" type="password" onChange={this.passwordHandler} error={this.state.passwordError}/>
-    </div>
-    <div>
-      <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
-    </div>
-    <div>
-      <Button type = "submit">Create Account</Button>
-    </div>
-    </Box>
-  </form>
-  </>
-  );
+    {this.state.displayAlert
+          ? <Alert severity={this.state.alertSeverity}>{this.state.alertText}</Alert>
+          : null
+    }
+    <form className={classes.root} noValidate autoComplete="off" onSubmit={this.confirmSubmission}>
+      <Box m={3} pt={5}>
+        <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
+        <h1>Create Account</h1>
+        <div>
+          <TextField required id="standard-required" name = "username" type = "text" label="Username" helperText = {this.state.usernameHelper} onChange={this.usernameHandler} error={this.state.usernameError}/>
+        </div>
+        <div>
+          <TextField required id="standard-required" name = "email" type = "email" label="Email Address" helperText={this.state.emailHelper} onChange={this.emailHandler} error={this.state.emailError}/>
+        </div>
+        <div>
+          <TextField required id="standard-required" name = "password" label="Password" type="password" helperText = {this.state.passwordHelper} onChange={this.passwordHandler} error={this.state.passwordError}/>
+        </div>
+        <div>
+          <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" helperText = {this.state.confirmPasswordHelper} type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
+        </div>
+        <div>
+          <Button type = "submit">Create Account</Button>
+        </div>
+      </Box>
+    </form>
+    </>
+    );
   }
 }

@@ -185,7 +185,7 @@ export default class Login extends Component{
     }));
     return (
       <>
-      <div style={{paddingLeft:0,left:5,top:15,position:"absolute"}} align="left">
+      <div style={{paddingLeft:0,left:5,top:55,position:"absolute"}} align="left">
               {/*Back Button*/}
               <Link to={{pathname: "/home"}}>
                   <Button startIcon={<BackIcon/>}>
@@ -194,7 +194,7 @@ export default class Login extends Component{
               </Link>
       </div>
       <form className={classes.root} noValidate autoComplete="off" onSubmit={this.confirmSubmission}>
-        <Box m={2} pt={3}>
+        <Box m={3} pt={5}>
         <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
         <h1>Login Page</h1>
         <div>

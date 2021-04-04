@@ -25,6 +25,9 @@ import BackIcon from '@material-ui/icons/ArrowBackIos';
  * passwordError: boolean value deciding whether or not the textfield error property is on, if there is an error in the password textfield
  * data: variable for storing the JSON data recieved from the server
  * loginFailedAlert: boolean value for triggering/removing the alert if a login fails
+ * displayAlert: boolean value for triggering error related alerts
+ * alertText: string for the text for the alert
+ * alertSeverity: configure the severity property for the alert
  */
 export default class Login extends Component{
   constructor(props){

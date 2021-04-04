@@ -6,8 +6,7 @@
 
  //import resources
 import React from "react";  //basic React framework
-import { Tabs, Tab, AppBar, Button } from "@material-ui/core";  //Material UI for tab bar
-import { Link } from 'react-router-dom';
+import { Tabs, Tab, AppBar} from "@material-ui/core";  //Material UI for tab bar
 import Cookies from 'js-cookie';
 
 //All pages to be imported are to be used in the tabs
@@ -70,10 +69,10 @@ export default class Home extends React.Component{
           <Tab label="Profile" />
         </Tabs>
       </AppBar>
-      {this.state.loggedIn
+      {/* {this.state.loggedIn
         ? null
         : <Link to = "/home/login"><Button>Click here to log in for full functionality</Button></Link>
-      }
+      } */}
       {this.state.selectedTab === 0 && <HomeMenu />}
       {this.state.selectedTab === 1 && <MyTemplates />}
       {this.state.selectedTab === 2 && <PlayGame history={this.props.history} location={this.props.location}/>}

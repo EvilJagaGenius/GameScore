@@ -14,6 +14,8 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Cookies from 'js-cookie';
 import Typography from '@material-ui/core/Typography';
+import { Link } from 'react-router-dom';
+import {Button} from "@material-ui/core";
 
 function getCookieValue(name) {
   let result = document.cookie.match("(^|[^;]+)\\s*" + name + "\\s*=\\s*([^;]+)")
@@ -21,21 +23,20 @@ function getCookieValue(name) {
 }
 
 export default class Menu extends Component {
-
-constructor(props) {
+  constructor(props) {
     super(props);
     this.state = { activeIndex: 0,
-            data:{},
-            loaded:"False",
-            selectedTemplate:{accPos:0,rowPos:-1},
-            usernameData: getCookieValue("username"),
-            searchQuery: "",
-            searching: "false",
-            filtered: {},
-            searchData: {}
-
-          };
+      data:{},
+      loaded:"False",
+      selectedTemplate:{accPos:0,rowPos:-1},
+      usernameData: getCookieValue("username"),
+      searchQuery: "",
+      searching: "false",
+      filtered: {},
+      searchData: {},
+      isLoggedIn: Cookies.get("username")
     };
+  };
 
   handleClick = (e, titleProps) => {
     const { index } = titleProps
@@ -140,10 +141,16 @@ constructor(props) {
   }
 
   render() {
-    const { activeIndex } = this.state
-    const isLoggedIn = Cookies.get("username");
+    const { activeIndex } = this.state;
     return (
     <div>
+
+      {/*Login Button*/}
+      {this.state.isloggedIn
+        ? null
+        : <Link to = "/home/login"><Button>Click here to log in for full functionality</Button></Link>
+      }
+
       {/* Search Bar */}
       <TextField id="outlined-basic" label="Search Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} style={{width:"90%",marginLeft:"5%", marginTop:"1%",marginBottom:"1%"}}/>
 
@@ -165,7 +172,7 @@ constructor(props) {
         <Accordion.Content active={activeIndex === 0}>
 
         {/*Start conditional rendering*/}
-        {isLoggedIn
+        {this.state.isLoggedIn
         ? <TableContainer component={Paper}>
         <Table>
                {
@@ -214,7 +221,7 @@ constructor(props) {
         <Accordion.Content active={activeIndex === 1}>
         
         {/*Start conditional rendering*/}
-        {isLoggedIn
+        {this.state.isLoggedIn
         ? 
         <TableContainer component={Paper}>
           <Table size="small">

@@ -183,7 +183,7 @@ export default class CreateAccount extends Component{
   /**
    * confirmSubmission: function for handling submission events
    */
-  confirmSubmission(){
+  confirmSubmission = e =>{
     var userCheck = false
     var emailCheck = false
     var passCheck = false
@@ -238,7 +238,7 @@ return (
         </Link>
   </div>
 
-  <form className={classes.root} noValidate autoComplete="off">
+  <form className={classes.root} noValidate autoComplete="off" onSubmit={this.confirmSubmission}>
     <Box m={2} pt={3}>
     <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
     <h1>Create Account</h1>
@@ -255,7 +255,7 @@ return (
       <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
     </div>
     <div>
-      <Button onClick={()=>{this.confirmSubmission("email")}}>Create Account</Button>
+      <Button type = "submit">Create Account</Button>
     </div>
     </Box>
   </form>

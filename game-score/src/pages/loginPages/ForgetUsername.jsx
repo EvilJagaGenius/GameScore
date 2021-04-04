@@ -16,6 +16,7 @@ export default class ForgetUsername extends Component{
     this.state = {
       username: "",
       usernameError: false,
+      usernameHelper: "",
       token: "",
       data: ""
     }
@@ -28,64 +29,68 @@ export default class ForgetUsername extends Component{
   }
 
   /**
-   * usernameHandler
-   * @param {*} event 
+   * usernameHandler: function for handing username related errors
+   * @param {*} event: event parameter for processing the new value in the username textfield
    */
-  usernameHandler=(event)=>{
+   usernameHandler=(event)=>{
+    //update the state with the current username entered in the field
     this.setState({
       username: event.target.value
     });
-    console.log("username is")
-    console.log(event.target.value);
-    var name = String(event.target.value);
-    var capCheck = false;
-    var validCharCheck = false;
-    var errorText = "";
-    if(name.length > 30 || name.length < 4){
-      console.log("length not met");
-      errorText += "Length requirements not met. ";
-      console.log(errorText)
-    }
-    for(var i = 0; i < name.length; i++){
-      var tempCode = name.charCodeAt(i);
-      //use ASCII code to attempt to detect lowercase characters
-      if(tempCode >= 97 && tempCode <= 122){
-        //lowercase found
-        console.log("lower case found")
-        validCharCheck = true;
-        if(capCheck){
-          capCheck = true;
-        }
-        else{
-          capCheck = false;
-        }
-      }
-      else if(tempCode >= 65 && tempCode <= 90){
-        //capital found
-        console.log("captial found");
-        capCheck = true;
-      }
-      else{
-        console.log("lower case check failed");
-        validCharCheck = false;
-      }
-    }
-    if(!validCharCheck){
-      errorText += "Invalid character found. ";
-    }
-    if(!capCheck){
-      errorText += "Capital letter not found. ";
-    }
-    if(errorText.length !== 0){
+    console.log("Username is " + event.target.value);
+    //create the requirements for the username
+
+    /* Username Requirements
+    4-30 characters
+    One uppercase letter
+    One lowercase letter
+    */
+
+    var usernameRequirements = /^(?=.*[a-z])(?=.*[A-Z]).{4,30}/;
+    //if the string entered matches the requirements, don't trigger an error
+    if(String(event.target.value).match(usernameRequirements)){
       this.setState({
-        usernameError: true,
-        usernameHelper: errorText
+        usernameError: false
+      });
+      //launch an API call to check if the username is already taken or not
+      //if taken already, an error is triggered
+      const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        credentials: 'include',
+        body: JSON.stringify({
+          username:event.target.value
+        })
+      };
+      fetch("/api/postCheckUsername",requestOptions)
+        .then(res => res.json()).then(newData => {
+          if(newData.usernameExists === true){
+            //declare an error, and update the error and helper text properties
+            this.setState({
+              usernameError: true,
+              usernameHelper: "Username already exists"
+            });
+          }
+          else{
+            //otherwise, turn the error off
+            this.setState({
+              usernameError: false
+          });
+        }
       });
     }
+    //if the username is too long, trigger an error and update the needed properties
+    else if(String(event.target.value).length > 30){
+      this.setState({
+        usernameError: true,
+        usernameHelper: "Username does not meet requirements"
+      });
+    }
+    //otherwise, remove the error
     else{
       this.setState({
-        usernameError: false,
-        usernameHelper: ""
+        usernameError: true,
+        usernameHelper: "Username does not meet requirements"
       });
     }
   }

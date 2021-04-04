@@ -174,7 +174,7 @@ export default class ForgetUsername extends Component{
         <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
         <h1>Reset Username</h1>
         <div>
-          <TextField required id="standard-required" name = "username" label="New Username" onChange={this.usernameHandler} error={this.state.username}/>
+          <TextField required id="standard-required" name = "username" label="New Username" helperText={this.state.usernameHelper} onChange={this.usernameHandler} error={this.state.username}/>
         </div>
         <div>
           <Button type = "submit" >Reset Username</Button>

@@ -35,7 +35,10 @@ export default class Login extends Component{
       usernameError: false,
       passwordError: false,
       data: false,
-      loginFailedAlert: false
+      loginFailedAlert: false,
+      displayAlert: false,
+      alertText: "",
+      alertSeverity: ""
     }
   }
 
@@ -95,8 +98,10 @@ export default class Login extends Component{
   confirmSubmission = e =>{
     //if both the username and password fields are empty, activate both errors for both fiels, and display an alert
     if(this.state.username === "" && this.state.password === ""){
-      alert("No username and password entered\nPlease enter your login information");
       this.setState({
+        displayAlert: true,
+        alertText: "No username and password entered. Please enter your login information",
+        alertSeverity: "warning",
         usernameError: true,
         passwordError: true
       });
@@ -104,16 +109,20 @@ export default class Login extends Component{
 
     //if just the password fields is empty, update the passwordError state and display an alert to the user
     else if(this.state.password===""){
-      alert("Please enter your password");
       this.setState({
+        displayAlert: true,
+        alertText: "No password entered. Please enter your login information",
+        alertSeverity: "warning",
         passwordError: true
       });
     }
 
     //if just the username fields is empty, update the usernameError state and display an alert to the user
     else if(this.state.username===""){
-      alert("Please enter your username");
       this.setState({
+        displayAlert: true,
+        alertText: "No username entered. Please enter your login information",
+        alertSeverity: "warning",
         usernameError: true
       });
     }
@@ -193,6 +202,10 @@ export default class Login extends Component{
                   </Button>
               </Link>
       </div>
+      {this.state.displayAlert
+          ? <Alert severity={this.state.alertSeverity}>{this.state.alertText}</Alert>
+          : null
+      }
       <form className={classes.root} noValidate autoComplete="off" onSubmit={this.confirmSubmission}>
         <Box m={3} pt={5}>
         <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>

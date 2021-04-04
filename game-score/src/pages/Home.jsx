@@ -7,7 +7,6 @@
  //import resources
 import React from "react";  //basic React framework
 import { Tabs, Tab, AppBar} from "@material-ui/core";  //Material UI for tab bar
-import Cookies from 'js-cookie';
 
 //All pages to be imported are to be used in the tabs
 import HomeMenu from '../Menu';
@@ -15,6 +14,15 @@ import MyTemplates from './MyTemplates';
 import Profile from './profilePages/Profile';
 import PlayGame from './JoinGame';
 
+/**
+ * Home class: class for providing the Tab Bar component for navigating the main parts of GameScore
+ * state @param
+ * selectedTab: the number value for the currently selected tab
+ * match @param: prop containing the history
+ * params @param: equal to match
+ * pages @param: equal to params for navigation purposes
+ * indexToTabName: const map for interpreting which value should be applied when given one
+ */
 export default class Home extends React.Component{
   constructor(props){
     super();
@@ -28,10 +36,15 @@ export default class Home extends React.Component{
       profile: 3
     };
     this.state = {
-      loggedIn: Cookies.get("username"),
       selectedTab: indexToTabName[page]
     };
   }
+
+  /**
+   * tabNameToIndex: function for returning the string value of the page needed based on newValue
+   * @param {*} newValue: value of the currently selected tab
+   * @returns: a string that contains the string name of the tab
+   */
   tabNameToIndex(newValue){
     switch (newValue) {
       case 0:
@@ -46,18 +59,27 @@ export default class Home extends React.Component{
         break;
     }
   }
+
+  /**
+   * tabHandler: event handler for clicking on tabs
+   * @param {*} event: the event contained when clicking on the tab
+   * @param {*} newValue: the new integer value of the selected tab
+   */
   tabHandler=(event, newValue)=>{
-    console.log("newValue is ");
-    console.log(newValue);
+    console.log("newValue is " + newValue);
     console.log(this.tabNameToIndex(newValue));
+    //push the correct push into History based on the newValue value
     this.props.history.push(`/${this.tabNameToIndex(newValue)}`);
+    //update the state of the selected tab
     this.setState({
-      selectedTab: newValue,
-      loggedIn: Cookies.get("username")
+      selectedTab: newValue
     });
-    console.log("the username cookie is...");
-    console.log(Cookies.get("username"));
   }
+
+  /**
+   * render: React function for rendering the component
+   * @returns elements that will make up the on-screen component
+   */
   render(){
     return(
     <>
@@ -69,10 +91,6 @@ export default class Home extends React.Component{
           <Tab label="Profile" />
         </Tabs>
       </AppBar>
-      {/* {this.state.loggedIn
-        ? null
-        : <Link to = "/home/login"><Button>Click here to log in for full functionality</Button></Link>
-      } */}
       {this.state.selectedTab === 0 && <HomeMenu />}
       {this.state.selectedTab === 1 && <MyTemplates />}
       {this.state.selectedTab === 2 && <PlayGame history={this.props.history} location={this.props.location}/>}

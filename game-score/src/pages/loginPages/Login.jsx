@@ -92,7 +92,7 @@ export default class Login extends Component{
   /**
    * confirmSubmisson: function for handing submission upon clicking the login button
    */
-  confirmSubmission(){
+  confirmSubmission = e =>{
     //if both the username and password fields are empty, activate both errors for both fiels, and display an alert
     if(this.state.username === "" && this.state.password === ""){
       alert("No username and password entered\nPlease enter your login information");
@@ -193,7 +193,7 @@ export default class Login extends Component{
                   </Button>
               </Link>
       </div>
-      <form className={classes.root} noValidate autoComplete="off">
+      <form className={classes.root} noValidate autoComplete="off" onSubmit={this.confirmSubmission}>
         <Box m={2} pt={3}>
         <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
         <h1>Login Page</h1>
@@ -203,7 +203,7 @@ export default class Login extends Component{
         <div>
           <TextField required id="standard-required" label="Password" type="password" onChange={this.passwordHandler} value={this.state.password} error={this.state.passwordError}/>
         </div>
-        <Button onClick={()=>{this.confirmSubmission()}}>Login</Button>
+        <Button type = "submit" >Login</Button>
         <Button onClick={()=>{this.props.history.push("/login/forgetpassword")}}>Forget Login?</Button>
         <Button onClick={()=>{
             if(this.props.location!=null&&this.props.location.state!=null&&this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining

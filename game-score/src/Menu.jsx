@@ -36,6 +36,7 @@ export default class Menu extends Component {
       searchData: {},
       isLoggedIn: Cookies.get("username")
     };
+    this.callAPI = this.callAPI.bind(this);
   };
 
   handleClick = (e, titleProps) => {
@@ -58,9 +59,43 @@ export default class Menu extends Component {
 
       console.log(searchResponse);
     });
+    /*
+    fetch("/api/getHomePage")
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            data: result,
+            loaded: "True"
+          }
+          );
+        },
+        // Note: it's important to handle errors here
+        // instead of a catch() block so that we don't swallow
+        // exceptions from actual bugs in components.
+      );
+      */
       this.setState({
         usernameData: getCookieValue("username")
       });
+  }
+
+  
+  callAPI() {
+    fetch("/api/getHomePage")
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            data: result,
+            loaded: "True"
+          }
+          );
+        },
+        // Note: it's important to handle errors here
+        // instead of a catch() block so that we don't swallow
+        // exceptions from actual bugs in components.
+      );
   }
 
   selectTemplate(newAccPos,newRowPos)
@@ -170,7 +205,6 @@ export default class Menu extends Component {
           Favorited Templates
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 0}>
-
         {/*Start conditional rendering*/}
         {this.state.isLoggedIn
         ? <TableContainer component={Paper}>
@@ -248,8 +282,11 @@ export default class Menu extends Component {
                                 templateName = {this.state.data["recentlyPlayed"][key].templateName}
                                 templateID = {this.state.data["recentlyPlayed"][key].templateID}
                                 gameID = {this.state.data["recentlyPlayed"][key].gameID}
+                                prevRating = {this.state.data["recentlyPlayed"][key].prevRating}
+                                favorited = {this.state.data["recentlyPlayed"][key].favorited}
                                 selected = {this.isSelected(1,key)}
                                 play = {true}
+                                update = {this.callAPI}
                                 rate= {true}>
                                 </BottomUI>
                             </>
@@ -301,8 +338,11 @@ export default class Menu extends Component {
                                 templateName = {this.state.data["highestRated"][key].templateName}
                                 templateID = {this.state.data["highestRated"][key].templateID}
                                 gameID = {this.state.data["highestRated"][key].gameID}
+                                prevRating = {this.state.data["highestRated"][key].prevRating}
+                                favorited = {this.state.data["highestRated"][key].favorited}
                                 selected = {this.isSelected(2,key)}
                                 play = {true}
+                                update = {this.callAPI}
                                 rate= {true}>
                                 </BottomUI>
                             </>
@@ -377,6 +417,7 @@ export default class Menu extends Component {
                     gameID = {this.state.filtered[key].gameID}
                     selected = {this.isSelected(key)}
                     play = {true}
+                    update = {this.callAPI}
                     rate= {true}>
                     </BottomUI>
                   </>

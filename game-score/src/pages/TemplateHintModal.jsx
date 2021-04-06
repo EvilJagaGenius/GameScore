@@ -6,6 +6,11 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Typography from '@material-ui/core/Typography';
 
 
 //Code adapted from: https://morioh.com/p/4576fa674ed8
@@ -22,6 +27,7 @@ function getModalStyle()
         width: "90%",
         padding:10,
         backgroundColor:"white",
+        minHeight:"90%"
     };
 }
 
@@ -54,76 +60,184 @@ export default class TemplateHintModal extends React.Component {
                   >
                   <div style={this.state.modalStyle}>
                      
-                     <div style={{display:"inline"}}>
+                     <div style={{display:"block",margin:0,maginTop:0,marginBottom:"auto",height:"90%"}}>
+
+
+                        <div style={{height:"90%"}}>
+
                          <div style={{marginTop:11}}>
-                            <h3 style={{textAlign:"center"}}>Template Help:</h3>
+                            <h2 style={{textAlign:"center",marginBottom:10}}>Template Help:</h2>
                          </div>
                         
+
+
+
                         <div style={{width:"100%",display:"block"}}>
-                           <TableContainer>
-                                <Table>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>
-                                                Parameter
-                                            </TableCell>
-                                            <TableCell align="center">
-                                                Explanation
-                                            </TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableRow>
-                                            <TableCell>
-                                                Scoring Type
-                                            </TableCell>
-                                            <TableCell>
-                                                <b>Linear:</b> Deault. Every value of this condition is given the same score.  The 5th 'X' will score the same as the 27th 'X'.  Good for most use-cases. <br/>
-                                                <b>Tabular:</b> Allows specification of ranges to determine condition score.  The player will receive a score specific to which range the value falls within.  Ranges are specified with a min (inclusive), max value (exclusive), and acompanying score.  Ranges are checked in order of position, stopping once the value falls within a range.
-                                            </TableCell>
-                                    </TableRow>
 
-                                    <TableRow>
-                                            <TableCell>
-                                                Point Multiplier
-                                            </TableCell>
-                                            <TableCell>
-                                                Only used with linear scoring.  Will be multiplied by the 'value' to determine the score for the given condition.  Example: If a use enters a value of 4 - when the point multiplier is 3 - the score will be 12.
-                                            </TableCell>
-                                    </TableRow>
+                         <Accordion >
+                            <AccordionSummary
+                              expandIcon={<ExpandMoreIcon />}
+                              aria-controls="panel1a-content"
+                              id="panel1a-header">
+                              <Typography variant="h6" style={{fontSize:16}}>Scoring Type</Typography>
+                            </AccordionSummary>
 
-                                    <TableRow>
-                                            <TableCell>
-                                                Input Type
-                                            </TableCell>
-                                            <TableCell>
-                                                <b>Textbox:</b> Players will be able to type in their values using their keyboard for this condition. Good for conditions with large, expected values or decimals. <br/>
-                                                <b>Increment:</b> Players will change the values using arrows.  Good for integers and low-valued conditions.
-                                            </TableCell>
-                                    </TableRow>
+                            {/*Score Overview Rows*/}
+                            <AccordionDetails>
+                                <Typography>
+                                <b>Overview:</b> <br/>
+                                <ul>
+                                    <li>
+                                         Determines how player's input is translated into a score.
+                                    </li>
+                                </ul>
 
-                                    <TableRow>
-                                            <TableCell>
-                                                Max Per Game
-                                            </TableCell>
-                                            <TableCell>
-                                                Specifies max of sum of 'values' for this condition, regardless of player.  A Max Per Game of 2 stipulates that the sum of all values for this condition be less than or equal to 2.  Good for superlatives and global awards.  A (bypassable) prompt will warn players if trying to finalize without meeting this criteria. 
-                                            </TableCell>
-                                    </TableRow>
+                                <b>Option: Linear</b> <br/>
+                                <ul>
+                                    <li>
+                                         Score = Input * Point Multiplier
+                                    </li>
+                                    <li>
+                                         Use Case: <i>Scoring is simple and predictable.</i>
+                                    </li>
+                                    <li>
+                                         Example: <i>Each cow is worth 2 points.  Linear scoring is correct because getting the 1st cow is worth the same amount as getting the 8th cow.</i> <br/>
 
-                                    <TableRow>
-                                            <TableCell>
-                                                Max Per Player
-                                            </TableCell>
-                                            <TableCell>
-                                                Same as 'Max Per Game', but counts each player individually.  Specifies max of sum of 'values' for this condition for each player.  A Max Per Player of 4 stipulates that each player's value for this condition must be less than or equal to 4.  Good for individual awards and elements limited by supply.  A (bypassable) prompt will warn players if trying to finalize without meeting this criteria. 
-                                            </TableCell>
-                                    </TableRow>
-                                </Table>
-                            </TableContainer>
+                                    </li>
+                                </ul>
+
+                                 <b>Option: Tabular</b> <br/>
+                                <ul>
+                                    <li>
+                                         Score = Determined by table.
+                                    </li>
+                                    <li>
+                                         Use Case: <i>Similar inputs can receive the same score or ranges of inputs dictate score.</i>
+                                    </li>
+                                    <li>
+                                         Example: <i>Having 1 cow is worth 1 point, having 2 or 3 cows is worth 2 points. Tabular is necessary since every additional cow increases the score by a different amount.</i> <br/>
+                                    </li>
+                                    <li>
+                                         Details: <i> The player will receive a score specific to which range the value falls within. Ranges are specified with a min (inclusive), max value (exclusive), and acompanying score.  Ranges are checked in order of position, stopping once the player's input falls within a range.</i> <br/>
+                                    </li>
+                                </ul>
+                            
+                                </Typography>
+                            </AccordionDetails>
+                          </Accordion>
+
+                         <Accordion >
+                            <AccordionSummary
+                              expandIcon={<ExpandMoreIcon />}
+                              aria-controls="panel1a-content"
+                              id="panel1a-header">
+                              <Typography variant="h6" style={{fontSize:16}}> Point Multiplier</Typography>
+                            </AccordionSummary>
+
+                            {/*Score Overview Rows*/}
+                            <AccordionDetails>
+                                <Typography>
+                                <b>Overview:</b> <br/>
+                                <ul>
+                                    <li>
+                                         Only used in Linear Scoring.
+                                    </li>
+                                     <li>
+                                         Score = Input * Point Multiplier.
+                                    </li>
+                                </ul>
+
+                                <b>Details</b> <br/>
+                                <ul>
+                                     <li>
+                                         Can be negative.
+                                    </li>
+                                    <li>
+                                         Example: <i>Each cow is worth 2 points.  A point multiplier of 2 is necessary.  When the user inputs 4 they will score (2 * 4) = 8.</i> <br/>
+                                    </li>
+                                </ul>
+                                </Typography>
+                            </AccordionDetails>
+                          </Accordion>
+
+                           <Accordion >
+                            <AccordionSummary
+                              expandIcon={<ExpandMoreIcon />}
+                              aria-controls="panel1a-content"
+                              id="panel1a-header">
+                              <Typography variant="h6" style={{fontSize:16}}>Max Per Player</Typography>
+                            </AccordionSummary>
+
+                            {/*Score Overview Rows*/}
+                            <AccordionDetails>
+                                <Typography>
+                                <b>Overview:</b> <br/>
+                                <ul>
+                                    <li>
+                                         Specifies max input that each player should have.
+                                    </li>
+                                </ul>
+
+                                <b>Details</b> <br/>
+                                <ul>
+                                     <li>
+                                         Use Case: <i>Good for player-based limitations and enforcing easily-forgotten rules.</i>
+                                    </li>
+                                    <li>
+                                         Example: <i>Each cow is worth 2 points.  However, each player can only have up to 4 cows.  Using a max per player of 4 remind users that only up to 4 cows are allowed.</i> <br/>
+                                    </li>
+                                     <li>
+                                         If Over: <i>Conditions where the player has exceeded the maximum will be shown as red.  Additionally, a bypassable prompt will warn players when they attempt to finalize the game.</i> <br/>
+                                    </li>
+                                </ul>
+
+  
+                            
+                                </Typography>
+                            </AccordionDetails>
+                          </Accordion>
+
+                           <Accordion >
+                            <AccordionSummary
+                              expandIcon={<ExpandMoreIcon />}
+                              aria-controls="panel1a-content"
+                              id="panel1a-header">
+                              <Typography variant="h6" style={{fontSize:16}}>Max Per Game</Typography>
+                            </AccordionSummary>
+
+                            {/*Score Overview Rows*/}
+                            <AccordionDetails>
+                                <Typography>
+                                <b>Overview:</b> <br/>
+                                <ul>
+                                    <li>
+                                         Specifies max input that all players combined can have for this condition.
+                                    </li>
+                                </ul>
+
+                                <b>Details</b> <br/>
+                                <ul>
+                                     <li>
+                                         Use Case: <i>Good for global awards (Longest Road, Largest Army, etc) or elements with fixed supplies (Only X of this building is allowed) .</i>
+                                    </li>
+                                    <li>
+                                         Example: <i>Three awards worth 5 points are given for the most animals (sheep, pigs, and cows).  We call the condition 'Animal Awards'.  We set the max per game to 3 (because of three animal types) and the point multiplier to 5.  If a player has the most pigs and sheep, they would enter 2 - giving them 10 points.  The other player may only have the most cows - giving them 5 points.</i> <br/>
+                                    </li>
+                                     <li>
+                                         If Over: <i>Conditions where the lobby of players has exceeded the maximum will be shown as red.  Additionally, a bypassable prompt will warn players when they attempt to finalize the game.</i> <br/>
+                                    </li>
+                                </ul>
+
+  
+                            
+                                </Typography>
+                            </AccordionDetails>
+                          </Accordion>
                         </div>
 
+                        </div>
 
-                           <div style={{ justifyContent:'center',marginTop:11,display:"flex"}}>
+                           <div style={{ justifyContent:'center',marginTop:20,marginBottom:0,display:"flex"}}>
 
                            
 

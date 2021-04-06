@@ -220,7 +220,7 @@ export default class ConditionEditor extends Component {
                                     }}>
                                 </TextField>
                               </div>
-                              <div style={{paddingLeft:0,right:10,top:10,position:"absolute"}} align="left">
+                              <div style={{paddingLeft:0,right:5,top:5,position:"absolute"}} align="left">
                                   {/*Back Button*/}
                                       <IconButton onClick={()=>{
                                         this.setState({
@@ -229,7 +229,7 @@ export default class ConditionEditor extends Component {
                                     }}
 
                                     >
-                                     <HelpOutlineIcon></HelpOutlineIcon>
+                                     <HelpOutlineIcon style={{fontSize:30}}></HelpOutlineIcon>
                                     </IconButton>
                               </div>
 
@@ -349,7 +349,7 @@ export default class ConditionEditor extends Component {
                                                 </TableHead>
                                                 {console.log(this.state.data["conditions"][this.state.condPos]["valueRows"])}
                                                  {Object.keys((this.state.data["conditions"][this.state.condPos]["valueRows"])).map(key=> (
-                                                    <TableRow className={((parseFloat(this.state.data["conditions"][this.state.condPos]["valueRows"][parseInt(key)].inputMin)>=
+                                                    <TableRow className={((parseFloat(this.state.data["conditions"][this.state.condPos]["valueRows"][parseInt(key)].inputMin)>
                                                         parseFloat(this.state.data["conditions"][this.state.condPos]["valueRows"][parseInt(key)].inputMax)) ? 'errorCondition' : '')}>
 
                                                         <TableCell style={{width:"100%"}}>

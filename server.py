@@ -909,7 +909,7 @@ def getScore(conditionID,value=0):
         score = 0
         for row in valueRows:
             inputMax,inputMin,outputValue = row
-            if value >= inputMin and value <inputMax:
+            if (value >= inputMin and value <inputMax) or (value == inputMin and value == inputMax):
                 score = outputValue
                 break
     mydb.close()
@@ -921,6 +921,7 @@ def getScore(conditionID,value=0):
 def apiPostCreateNewGame():
 
     userID = getUserID()
+    colors = ["RED","BLUE","YELLOW","PURPLE","GREEN","PINK","GRAY","ORANGE"]
 
     if userID == -1:
         result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
@@ -983,8 +984,8 @@ def apiPostCreateNewGame():
             	isHost=True
             #Create Players in the DB
             mycursor = mydb.cursor(prepared=True)
-            stmt = ("INSERT INTO Player(userID,color,displayOrder,totalScore,displayName,matchID,isHost) VALUES(%s,'RED',%s,0,%s,%s,%s)")
-            mycursor.execute(stmt,(userIDToEnter,x,displayName,matchID,isHost))
+            stmt = ("INSERT INTO Player(userID,color,displayOrder,totalScore,displayName,matchID,isHost) VALUES(%s,%s,%s,0,%s,%s,%s)")
+            mycursor.execute(stmt,(userIDToEnter,colors[(x-1)%len(colors)],x,displayName,matchID,isHost))
             mycursor.close()
 
             #Find new PlayerID

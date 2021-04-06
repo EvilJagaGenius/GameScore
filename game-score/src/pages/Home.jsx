@@ -7,6 +7,7 @@
  //import resources
 import React from "react";  //basic React framework
 import { Tabs, Tab, AppBar} from "@material-ui/core";  //Material UI for tab bar
+import Cookies from 'js-cookie';
 
 //All pages to be imported are to be used in the tabs
 import HomeMenu from '../Menu';
@@ -66,14 +67,29 @@ export default class Home extends React.Component{
    * @param {*} newValue: the new integer value of the selected tab
    */
   tabHandler=(event, newValue)=>{
-    console.log("newValue is " + newValue);
-    console.log(this.tabNameToIndex(newValue));
-    //push the correct push into History based on the newValue value
-    this.props.history.push(`/${this.tabNameToIndex(newValue)}`);
-    //update the state of the selected tab
-    this.setState({
-      selectedTab: newValue
-    });
+    if(Cookies.get("username") === ""){
+      this.props.history.push(`/home/login`);
+      console.log("if hit");
+    }
+    else{
+      console.log("newValue is " + newValue);
+      console.log(this.tabNameToIndex(newValue));
+      //push the correct push into History based on the newValue value
+      this.props.history.push(`/${this.tabNameToIndex(newValue)}`);
+      //update the state of the selected tab
+      this.setState({
+        selectedTab: newValue
+      });
+      console.log("else hit")
+    }
+    // console.log("newValue is " + newValue);
+    // console.log(this.tabNameToIndex(newValue));
+    // //push the correct push into History based on the newValue value
+    // this.props.history.push(`/${this.tabNameToIndex(newValue)}`);
+    // //update the state of the selected tab
+    // this.setState({
+    //   selectedTab: newValue
+    // });
   }
 
   /**

@@ -50,6 +50,7 @@ class Profile extends React.Component{
         //errors and error message
         console.log(this.state.data);
         this.props.history.push('/home/login');
+        Cookies.remove("username");
       }
 
     /**

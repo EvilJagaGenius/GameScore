@@ -2,6 +2,7 @@
  * EditAccount.jsx-Jonathon Lannon
  */
 
+//import resources
 import React from 'react';
 import TextField from '@material-ui/core/TextField';
 import {makeStyles} from '@material-ui/core/styles';
@@ -10,6 +11,17 @@ import Box from '@material-ui/core/Box';
 import Logo from '../../images/GameScore App Logo.png';
 import { Link } from 'react-router-dom';
 
+/**
+ * EditAccount class: React component that allows users to edit account information on GameScore
+ * state @param
+ * username: string for the new username entered by the user
+ * email: string for the new email entered by the user
+ * password: string for the new password entered by the user
+ * usernameError: boolean for determining whether or not to activate the error property for the username textfield
+ * emailError: boolean for determining whether or not to activate the error property for the email textfield
+ * passwordError: boolean for determining whether or not to activate the error property for the password textfield
+ * confirmPasswordError: boolean for determining whether or not to activate the error property for the confirm password textfield
+ */
 export default class EditAccount extends React.Component{
     constructor(props){
         super();
@@ -17,10 +29,11 @@ export default class EditAccount extends React.Component{
             username: "",
             email: "",
             password: "",
+            confirmPassword: "",
             usernameError: false,
             emailError: false,
             passwordError: false,
-            newPasswordError: false
+            confirmPasswordError: false
         }
     }
 
@@ -240,7 +253,7 @@ export default class EditAccount extends React.Component{
   }
 
   confirmPasswordSubmission(){
-    if(this.state.passwordError === false && this.state.newPasswordError){
+    if(this.state.passwordError === false && this.state.confirmPasswordError){
       this.sendPasswordRequest();
     }
     else{

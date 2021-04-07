@@ -160,7 +160,15 @@ export default function BottomUI(props) {
 									{review === true &&
 										<>
 											<TableCell style={{margin:0, padding:0, paddingLeft:3, paddingRight:3}}>
-												<Button style={{height:60, width:"100%"}} variant ="contained" color="primary" size="large">
+												<Button style={{height:60, width:"100%"}} variant ="contained" color="primary" size="large"
+													onClick={() => {
+														fetch(`/api/postCreateNewGame?templateID=${props.templateID}&gameID=${props.gameID}&numOfPlayers=${1}`)
+								 							.then(res => res.json()).then(data => {
+								 								console.log(data)
+								 								history.push('/play/overview')
+								 								window.location.reload(true);
+															});
+													}}>
 													<div style={{margin:-5}}>
 														<div>
 															<GavelIcon style={{fontSize:35}} />
@@ -211,9 +219,7 @@ export default function BottomUI(props) {
 
 											<TableCell style={{margin:0, padding:0, paddingLeft:3, paddingRight:3}}>
 												<Button style={{height:60,width:"100%"}} variant="contained" color="primary" size="large"
-													onClick={() => {
-
-													}}>
+													onClick={() => setAdminPopup(true)}>
 													<div style={{margin:-5}}>
 														<div>
 															<BlockIcon style={{fontSize:35}} />
@@ -319,7 +325,7 @@ export default function BottomUI(props) {
 											<td style={{paddingRight:7}}>
 												<Button className={classes.button} variant = "contained" color="primary" size = "large"
 												onClick={()=>{
-
+													console.log("flag")
 													const requestOptions = {
 														method:'POST',
             											headers: { 'Content-Type': 'application/json' },
@@ -328,9 +334,11 @@ export default function BottomUI(props) {
                 											templateID: props.templateID
             											})
 													}
+													console.log("flag")
 													fetch('/api/postDeleteTemplate', requestOptions)
 														.then(res => res.json())
 														.then(data => {
+															console.log("flag")
 															props.update();
 															setDeletePopup(false)
 														})
@@ -445,8 +453,8 @@ export default function BottomUI(props) {
 													fetch('/api/manageReports', requestOptions)
 														.then(res => res.json())
 														.then(data => {
-															props.update();
 															setAdminPopup(false);
+															window.location.reload(true);
 														})
 												}}>
 													Delete
@@ -454,7 +462,7 @@ export default function BottomUI(props) {
 											</td>
 											<td style={{paddingLeft:7}}>
 												<Button className={classes.button} variant = "contained" color="primary" size = "large"
-												onClick={()=>setDeletePopup(false)}>
+												onClick={()=>setAdminPopup(false)}>
 													Cancel
 												</Button>
 											</td>

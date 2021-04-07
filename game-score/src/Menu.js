@@ -65,10 +65,10 @@ constructor(props) {
 
       console.log(reportResponse);
     });
-      /*
+      
       this.setState({
         usernameData: getCookieValue("username")
-      });*/
+      });
   }
 
   selectTemplate(newAccPos,newRowPos)
@@ -386,6 +386,7 @@ constructor(props) {
                                 userID = {this.state.reportData["templates"][key].userID}
                                 reportID = {this.state.reportData["templates"][key].reportID}
                                 reason = {this.state.reportData["templates"][key].reason}
+                                gameID = {this.state.reportData["templates"][key].gameID}
                                 selected = {this.isSelected(4,key)}
                                 review = {true}
                                 judge = {true}>
@@ -419,12 +420,28 @@ constructor(props) {
                     <>
                       {/* Iterated through the list of reported users */}
                       {Object.keys(this.state.reportData.users).map(key => (
+                        <>
                         <TableRow onClick={()=>this.selectTemplate(5, key)}>
                           <UserRow
                             avatarID = {this.state.reportData["users"][key].avatarID}
                             userName = {this.state.reportData["users"][key].username}
                           />
                         </TableRow>
+                        {
+                          this.isSelected(5,key) === true &&
+                          <>
+                            <BottomUI
+                              templateID = {this.state.reportData["users"][key].templateID}
+                              userID = {this.state.reportData["users"][key].userID}
+                              reportID = {this.state.reportData["users"][key].reportID}
+                              reason = {this.state.reportData["users"][key].reason}
+                              selected = {this.isSelected(5,key)}
+                              review = {true}
+                              judge = {true}>
+                            </BottomUI>
+                          </>
+                        }
+                        </>
                       ))}
                     </>
                   </div>

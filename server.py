@@ -2061,26 +2061,26 @@ def postDeleteTemplate():
             result = {"successful":False,"error":120,"errorMessage":"User does not have access to edit this template."}
             response = jsonify(result)
             mydb.close()
-            return response;
+            return response
         else:
             templateName,gameID = row
 
             mycursor = mydb.cursor(prepared=True)
             stmt = "DELETE FROM ValueRow WHERE templateID=%s"
             mycursor.execute(stmt,(templateID,))
-            mycursor.close();
+            mycursor.close()
 
             mycursor = mydb.cursor(prepared=True)
             stmt = "DELETE FROM ScoringCondition WHERE templateID=%s"
             mycursor.execute(stmt,(templateID,))
-            mycursor.close();
+            mycursor.close()
 
             mycursor = mydb.cursor(prepared=True)
             stmt = "DELETE FROM Template WHERE templateID=%s"
             mycursor.execute(stmt,(templateID,))
-            mycursor.close();
+            mycursor.close()
 
-            mydb.commit();
+            mydb.commit()
             mydb.close()
             return getConditionsSeperate(userID,templateID)
     
@@ -2214,6 +2214,7 @@ def reportTemplate():
 
         cursor.execute(statement, (templateID, gameID, userID))
     
+    mydb.commit()
     cursor.close()
     mydb.close()
     # What should we send as a response?
@@ -2310,17 +2311,18 @@ def doReports():
     mydb = mysql.connector.connect(pool_name = "mypool")
     
     if (reason == "Template"):
-        if (allow == True):
-            mycursor = mydb.cursor(prepared=True)
-            stmt = ("""
-            DELETE FROM Report WHERE reportID=%s;
-            """)
+        print("flag 1")
+        print("flag 4")
+        mycursor = mydb.cursor(prepared=True)
+        stmt = ("""
+        DELETE FROM Report WHERE reportID=%s;
+        """)
 
-            mycursor.execute(stmt, (reportID,))
-            mydb.commit()
-            response = {"successful": True}
+        mycursor.execute(stmt, (reportID,))
+        mydb.commit()
         
         if (allow == False):
+            print("flag 5")
             mycursor = mydb.cursor(prepared=True)
             stmt = "DELETE FROM ValueRow WHERE templateID=%s"
             mycursor.execute(stmt,(templateID,))
@@ -2336,28 +2338,27 @@ def doReports():
             mycursor.execute(stmt,(templateID,))
             mycursor.close()
 
-            mycursor = mydb.cursor(prepared=True)
-            stmt="DELETE FROM Report WHERE reportID=%s;"
-            mycursor.execute(stmt,(templateID,))
-            mycursor.close()
-
             mydb.commit()
             response = {"successful":True}
 
         else:
+            print("flag 6")
             response = {"successful": False}
 
-    if (reason == "User"):
-        if (allow == True):
-            mycursor = mydb.cursor(prepared=True)
-            stmt = ("""
+    elif (reason == "Username"):
+        print("flag 2")
+        print("flag 7")
+        mycursor = mydb.cursor(prepared=True)
+        stmt = ("""
             DELETE FROM Report WHERE reportID=%s;
-            """)
+        """)
 
-            mycursor.execute(stmt, (reportID,))
-            response = {"successful":True}
+        mycursor.execute(stmt, (reportID,))
+        mydb.commit()
+        response = {"successful":True}
         
         if (allow == False):
+            print("flag 8")
             mycursor = mydb.cursor(prepared=True)
             stmt = ("""UPDATE AppUser SET username='User%s' WHERE userID=%s;""")
             mycursor.execute(stmt,(userID,userID,))
@@ -2372,9 +2373,11 @@ def doReports():
             response = {"successful":True}
 
         else:
+            print("flag 9")
             response = {"successful": False}
 
     else:
+        print("flag 3")
         response = {"successful": False}
 
     mydb.close()

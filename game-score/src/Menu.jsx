@@ -29,7 +29,7 @@ export default class Menu extends Component {
       searching: "false",
       filtered: {},
       searchData: {},
-      isLoggedIn: Cookies.get("username")
+      isLoggedIn: true
     };
     this.callAPI = this.callAPI.bind(this);
   };
@@ -54,9 +54,19 @@ export default class Menu extends Component {
 
       console.log(searchResponse);
     });
+    if(Cookies.get("username")){
+      console.log("logged in")
       this.setState({
-        isLoggedIn: Cookies.get("username")
-      });
+        isLoggedIn: true
+      })
+    }
+    else{
+      console.log("else hit agian")
+      this.setState({
+        isLoggedIn: false
+      })
+    }
+    console.log(Cookies.get("username"))
   }
 
   
@@ -160,7 +170,7 @@ export default class Menu extends Component {
     <div>
 
       {/*Login Button*/}
-      {this.state.isloggedIn
+      {this.state.isLoggedIn
         ? null
         : <Link to = "/home/login"><Button>Click here to log in for full functionality</Button></Link>
       }

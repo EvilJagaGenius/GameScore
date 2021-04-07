@@ -437,6 +437,7 @@ constructor(props) {
                     templateName = {this.state.filtered[key].templateName}
                     templateID = {this.state.filtered[key].templateID}
                     gameID = {this.state.filtered[key].gameID}
+                    favorited = {this.state.filtered[key].favorited}
                     selected = {this.isSelected(key)}
                     play = {true}
                     update = {this.callAPI}

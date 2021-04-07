@@ -67,7 +67,7 @@ export default class Home extends React.Component{
    * @param {*} newValue: the new integer value of the selected tab
    */
   tabHandler=(event, newValue)=>{
-    if(Cookies.get("username") === ""){
+    if(Cookies.get("username") == null){
       this.props.history.push(`/home/login`);
       console.log("if hit");
     }
@@ -80,7 +80,7 @@ export default class Home extends React.Component{
       this.setState({
         selectedTab: newValue
       });
-      console.log("else hit")
+      console.log("else hit in Home")
     }
     // console.log("newValue is " + newValue);
     // console.log(this.tabNameToIndex(newValue));

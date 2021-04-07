@@ -17,11 +17,6 @@ import Typography from '@material-ui/core/Typography';
 import { Link } from 'react-router-dom';
 import {Button} from "@material-ui/core";
 
-function getCookieValue(name) {
-  let result = document.cookie.match("(^|[^;]+)\\s*" + name + "\\s*=\\s*([^;]+)")
-  return result ? result.pop() : ""
-}
-
 export default class Menu extends Component {
   constructor(props) {
     super(props);
@@ -29,7 +24,7 @@ export default class Menu extends Component {
       data:{},
       loaded:"False",
       selectedTemplate:{accPos:0,rowPos:-1},
-      usernameData: getCookieValue("username"),
+      usernameData: Cookies.get("username"),
       searchQuery: "",
       searching: "false",
       filtered: {},
@@ -60,7 +55,7 @@ export default class Menu extends Component {
       console.log(searchResponse);
     });
       this.setState({
-        usernameData: getCookieValue("username")
+        isLoggedIn: Cookies.get("username")
       });
   }
 

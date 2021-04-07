@@ -137,7 +137,7 @@ export default class MyTemplates extends Component {
       
       <>
         {/* Search Bar */}
-        <TextField id="outlined-basic" label="Search Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} style={{width:"90%",marginLeft:"5%", marginTop:"1%",marginBottom:"1%"}} />
+        <TextField id="outlined-basic" label="Search My Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} style={{width:"90%",marginLeft:"5%", marginTop:"1%",marginBottom:"1%"}} />
 
         {/* Wipe out default content when actively searching */}
         {this.state.searching === "false" &&

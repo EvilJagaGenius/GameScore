@@ -3,9 +3,10 @@
  */
 
 import React, { Component } from 'react'
-import { Accordion, Icon } from 'semantic-ui-react'
+import { Accordion, AccordionPanel, Icon } from 'semantic-ui-react'
 import GameRow from "./GameRow"
 import TemplateRow from "./TemplateRow"
+import UserRow from "./UserRow"
 import BottomUI from "./BottomUI"
 import Table from '@material-ui/core/Table';
 import TableContainer from '@material-ui/core/TableContainer';
@@ -32,8 +33,9 @@ constructor(props) {
             searchQuery: "",
             searching: "false",
             filtered: {},
-            searchData: {}
-
+            searchData: {},
+            reportData: {},
+            admin: {}
           };
     };
 
@@ -51,38 +53,23 @@ constructor(props) {
   componentDidMount() {
     Promise.all([
       fetch("/api/getHomePage").then(res => res.json()),
-      fetch("/api/search/templates").then(res => res.json())
-    ]).then(([homeResponse, searchResponse]) => {
+      fetch("/api/search/templates").then(res => res.json()),
+      fetch("/api/listReports").then(res => res.json())
+    ]).then(([homeResponse, searchResponse, reportResponse, adminStatus]) => {
       this.setState({
         data: homeResponse,
         searchData: searchResponse.templates,
+        reportData: reportResponse,
         loaded: "True"
       });
 
-      console.log(searchResponse);
+      console.log(reportResponse);
     });
-    /*
-    fetch("/api/getHomePage")
-      .then(res => res.json())
-      .then(
-        (result) => {
-          this.setState({
-            data: result,
-            loaded: "True"
-          }
-          );
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-      );
-      */
+      /*
       this.setState({
         usernameData: getCookieValue("username")
-      });
+      });*/
   }
-
-
 
   selectTemplate(newAccPos,newRowPos)
   {
@@ -168,7 +155,7 @@ constructor(props) {
     return (
     <div>
       {/* Search Bar */}
-      <TextField id="outlined-basic" label="Search Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} style={{width:"90%",marginLeft:"5%", marginTop:"1%",marginBottom:"1%"}}/>
+      <TextField id="outlined-basic" label="Search All Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} style={{width:"90%",marginLeft:"5%", marginTop:"1%",marginBottom:"1%"}}/>
 
       {/* Wipe out accordians if the user is actively searching */}
       { this.state.searching === "false" &&
@@ -305,7 +292,7 @@ constructor(props) {
                             selected = {this.isSelected(2,key)}
                             />
                           </TableRow>
-                            {
+                          {
                             this.isSelected(2,key) === true &&
                             <>
                               <BottomUI
@@ -317,7 +304,7 @@ constructor(props) {
                                 selected = {this.isSelected(2,key)}
                                 play = {true}
                                 rep = {true}>
-                                </BottomUI>
+                              </BottomUI>
                             </>
                           }
                       </>
@@ -359,7 +346,95 @@ constructor(props) {
           </Table>
         </TableContainer>
         </Accordion.Content>
-      </Accordion>
+        
+        {/* Displays only when user is admin */}
+        { this.state.reportData.admin === 1 &&
+        <>
+
+          {/* Reported Templates */}
+          <Accordion.Title
+            active={activeIndex === 4}
+            index={4}
+            onClick={this.handleClick}
+          >
+            <Icon name='dropdown' />
+            Reported Templates
+          </Accordion.Title>
+          <Accordion.Content active={activeIndex === 4}>
+            <TableContainer component={Paper}>
+              <Table size="small">
+                {/* Table displays reported templates */}
+                { this.state.loaded === "True" &&
+                  <div className="ReportedTemplates">
+                    <>
+                      {/* Iterated through the list of reported templates */}
+                      {Object.keys(this.state.reportData.templates).map(key => (
+                        <>
+                        <TableRow onClick={()=>this.selectTemplate(4, key)}>
+                          <TemplateRow 
+                            pictureURL = {this.state.reportData["templates"][key].pictureURL}
+                            templateName = {this.state.reportData["templates"][key].templateName}
+                            averageRating = {null}
+                            numRatings = {null}
+                          />
+                        </TableRow>
+                        {
+                            this.isSelected(4,key) === true &&
+                            <>
+                              <BottomUI
+                                templateID = {this.state.reportData["templates"][key].templateID}
+                                userID = {this.state.reportData["templates"][key].userID}
+                                reportID = {this.state.reportData["templates"][key].reportID}
+                                reason = {this.state.reportData["templates"][key].reason}
+                                selected = {this.isSelected(4,key)}
+                                review = {true}
+                                judge = {true}>
+                              </BottomUI>
+                            </>
+                          }
+                        </>
+                      ))}
+                    </>
+                  </div>
+                }
+              </Table>
+            </TableContainer>
+          </Accordion.Content> 
+
+          {/* Reported Users */}
+          <Accordion.Title
+            active={activeIndex === 5}
+            index={5}
+            onClick={this.handleClick}
+          >
+            <Icon name='dropdown' />
+            Reported Users
+          </Accordion.Title>
+          <Accordion.Content active={activeIndex === 5}>
+            <TableContainer component={Paper}>
+              <Table size="small">
+                {/* Table displays reports users */}
+                {this.state.loaded === "True" &&
+                  <div className="ReportedUsers">
+                    <>
+                      {/* Iterated through the list of reported users */}
+                      {Object.keys(this.state.reportData.users).map(key => (
+                        <TableRow onClick={()=>this.selectTemplate(5, key)}>
+                          <UserRow
+                            avatarID = {this.state.reportData["users"][key].avatarID}
+                            userName = {this.state.reportData["users"][key].username}
+                          />
+                        </TableRow>
+                      ))}
+                    </>
+                  </div>
+                }
+              </Table>
+            </TableContainer>
+          </Accordion.Content>
+        </>
+        }
+      </Accordion> 
       </>
       }
 

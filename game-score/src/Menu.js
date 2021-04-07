@@ -38,6 +38,7 @@ constructor(props) {
 
           };
     this.callAPI = this.callAPI.bind(this);
+    this.gameSearchButton = this.gameSearchButton.bind(this);
     };
 
   
@@ -195,6 +196,14 @@ constructor(props) {
 
     this.setState({
       filtered: newList
+    })
+  }
+  
+  gameSearchButton(gameName) {
+    console.log("Search button clicked");
+    this.setState({
+      searching: "true",
+      searchQuery: gameName
     })
   }
 
@@ -409,7 +418,9 @@ constructor(props) {
                           <>
                           <BottomUI
                             gameURL = {"https://www.boardgamegeek.com" + this.state.data["recommendedGames"][key].gameURL}
+                            gameName = {this.state.data["recommendedGames"][key].gameName}
                             gameBottomUI = {true}
+                            searchFunction = {this.gameSearchButton}
                             selected = {this.isSelected(3,key)}
                             >
                           </BottomUI>

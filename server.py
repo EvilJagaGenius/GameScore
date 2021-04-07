@@ -2528,6 +2528,11 @@ def avatarPOST():
 ##################################### Search API ########################################
 @app.route("/api/search/templates", methods=["GET"])
 def templateSearch():
+    # How do we get input from the search box?
+    gameID = request.args.get("gid", "")
+    gameIDStatement = ""
+    if gameID.isnumeric():
+        gameIDStatement = "WHERE gameID = " + str(gameID)
     
     #Create JSON framework for what we will return
     result = {"templates":[]}
@@ -2537,14 +2542,25 @@ def templateSearch():
     #Execute sql call to get appropriate data
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("""
-    SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName
-    FROM AppUser u
-        INNER JOIN Template t ON u.userID = t.userID
-        INNER JOIN Game g ON t.gameID = g.gameID
-    ORDER BY t.averageRating DESC;
-    """)
-    mycursor.execute(stmt)
+    if gameID == "":
+        stmt = ("""
+        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName
+        FROM AppUser u
+            INNER JOIN Template t ON u.userID = t.userID
+            INNER JOIN Game g ON t.gameID = g.gameID
+        ORDER BY t.averageRating DESC;
+        """)
+        mycursor.execute(stmt)
+    else:
+        stmt = ("""
+        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName
+        FROM AppUser u
+            INNER JOIN Template t ON u.userID = t.userID
+            INNER JOIN Game g ON t.gameID = g.gameID
+        WHERE gameID = %s
+        ORDER BY t.averageRating DESC;
+        """)
+        mycursor.execute(stmt, (gameID,))
     myresult = mycursor.fetchall()
     mycursor.close()
 

@@ -73,7 +73,7 @@ class RejoinGame extends React.Component
 		return(
 			<>
                 {
-                this.state.loaded === true &&
+                this.state.loaded == true &&
                 <Modal
                     open={this.state.doShow}
                     aria-labelledby="simple-modal-title"
@@ -86,18 +86,18 @@ class RejoinGame extends React.Component
                             <h3 style={{textAlign:"center"}}>Game in Progress!</h3>
                          </div>
                          {
-                         	this.state.isHost===true &&
+                         	this.state.isHost==true &&
                          	<Typography>You are currently hosting a game.  Either disband or rejoin the game.  Disbanding the game will end the game for all other players as well. </Typography>
                          }
                          {
-                         	this.state.isHost===false &&
+                         	this.state.isHost==false &&
                          	<Typography>You are currently in a game.  Either leave or rejoin the game.</Typography>
                          }
 
                            <div style={{ justifyContent:'center',marginTop:11,display:"flex"}}>
 
                            		{
-                           		 this.state.isHost===true &&
+                           		 this.state.isHost==true &&
 	                              <Button variant = "contained" color="primary" size = "large" onClick={()=>{
 
 
@@ -131,7 +131,7 @@ class RejoinGame extends React.Component
                                 }
 
                                 {
-                           		 this.state.isHost===false &&
+                           		 this.state.isHost==false &&
 	                              <Button variant = "contained" color="primary" size = "large" onClick={()=>{
 
 	                              		  const requestOptions = {

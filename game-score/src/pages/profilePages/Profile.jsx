@@ -97,14 +97,12 @@ class Profile extends React.Component{
     render(){
         return(
             <div>
-                {!this.state.loggedIn
-                ? <h3>You must be logged in to view this page</h3>
-                :<Box m={2} pt={3}>
+                <Box m={2} pt={3}>
                     <div>
                         <h1>Profile Page</h1>
                     </div>
                     <div>
-                        <img alt="avatar" src={this.state.image} width="150" height="150"></img>
+                        <img alt="Avatar Icon" src={this.state.image} width="150" height="150"></img>
                     </div>
                     <div>
                         <Button><Link to="/profile/editaccount">Edit Account</Link></Button>
@@ -115,8 +113,7 @@ class Profile extends React.Component{
                     <div>
                         <Button onClick={()=>{this.sendRequest()}}>Sign Out</Button>
                     </div>
-                    </Box>
-                }
+                </Box>
             </div>
         );
     }

@@ -2120,7 +2120,7 @@ def getMyTemplates():
         #Execute sql call to get appropriate data
         mydb = mysql.connector.connect(pool_name = "mypool")
         mycursor = mydb.cursor(prepared=True)
-        stmt  = "select pictureURL, templateName, numRatings, averageRating,Game.gameID,Template.templateID from Template JOIN Game ON Template.gameID=Game.gameID WHERE Template.userID=%s ORDER BY averageRating"
+        stmt  = "select pictureURL, templateName, numRatings, averageRating,Game.gameID,Template.templateID from Template JOIN Game ON Template.gameID=Game.gameID WHERE Template.userID=%s ORDER BY averageRating DESC"
         mycursor.execute(stmt,(userID,))
         myresult = mycursor.fetchall()
         mycursor.close()

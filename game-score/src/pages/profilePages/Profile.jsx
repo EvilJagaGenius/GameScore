@@ -102,7 +102,7 @@ class Profile extends React.Component{
                         <h1>Profile Page</h1>
                     </div>
                     <div>
-                        <img alt="Avatar Icon" src={this.state.image} width="150" height="150"></img>
+                        <img alt="Avatar" src={this.state.image} width="150" height="150"></img>
                     </div>
                     <div>
                         <Button><Link to="/profile/editaccount">Edit Account</Link></Button>

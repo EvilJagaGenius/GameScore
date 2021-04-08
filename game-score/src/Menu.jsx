@@ -168,13 +168,13 @@ export default class Menu extends Component {
     const { activeIndex } = this.state;
     return (
     <div>
-
-      {/*Login Button*/}
-      {this.state.isLoggedIn
-        ? null
-        : <Link to = "/home/login"><Button>Click here to log in for full functionality</Button></Link>
-      }
-
+      <div style={{textAlign:"center",display:"inlineBlock",marginTop:15,marginBottom:5}} align="center" textAlign= "center">
+        {/*Login Button*/}
+        {this.state.isLoggedIn
+          ? null
+          : <Link to = "/home/login"><Button variant="outlined" color="primary">Click here to log in for full functionality</Button></Link>
+        }
+      </div>
       {/* Search Bar */}
       <TextField id="outlined-basic" label="Search Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} style={{width:"90%",marginLeft:"5%", marginTop:"1%",marginBottom:"1%"}}/>
 
@@ -230,7 +230,7 @@ export default class Menu extends Component {
                }
            </Table>
          </TableContainer>
-        : <h2>You must log in to view this content</h2>
+        : <Typography>Log in for full functionality.</Typography>
         }
         {/*End conditional rendering*/}
         </Accordion.Content>
@@ -287,7 +287,7 @@ export default class Menu extends Component {
               }
           </Table>
           </TableContainer>
-        : <h2>You must log in to view this content</h2>
+        : <Typography>Log in for full functionality.</Typography>
         }
         {/*End conditional rendering*/}
         </Accordion.Content>

@@ -212,9 +212,10 @@ export default class Login extends Component{
           ? <Alert severity={this.state.alertSeverity}>{this.state.alertText}</Alert>
           : null
       }
+      <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
       <form className={classes.root} noValidate autoComplete="off">
         <Box m={3} pt={5}>
-        <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
+        <img src={Logo} alt="GameScore Logo" width="130" height="130"></img>
         <h1>Login Page</h1>
         <div>
           <TextField required id="standard-required" label="Username" onChange={this.usernameHandler} value = {this.state.username} error={this.state.usernameError}/>
@@ -222,6 +223,7 @@ export default class Login extends Component{
         <div>
           <TextField required id="standard-required" label="Password" type="password" onChange={this.passwordHandler} value={this.state.password} error={this.state.passwordError}/>
         </div>
+        <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
         <Button type="submit" onClick={this.confirmSubmission}>Login</Button>
         <Button onClick={()=>{this.props.history.push("/login/forgetpassword")}}>Forget Login?</Button>
         <Button onClick={()=>{
@@ -237,6 +239,7 @@ export default class Login extends Component{
               this.props.history.push("/login/createaccount")
             }
           }}>Create Account</Button>
+          </div>
           <Snackbar open={this.state.loginFailedAlert} autoHideDuration={3000} onClose={()=>{this.setState({loginFailedAlert:false})}}>
             <Alert variant = "filled" severity="error">
               Incorrect account credentials.
@@ -244,6 +247,7 @@ export default class Login extends Component{
           </Snackbar>
         </Box>
       </form>
+      </div>
       </>
     );
   }

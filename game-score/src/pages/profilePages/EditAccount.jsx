@@ -11,6 +11,7 @@ import Box from '@material-ui/core/Box';
 import Logo from '../../images/GameScore App Logo.png';
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import BackIcon from '@material-ui/icons/ArrowBackIos';
 
 /**
  * EditAccount class: React component that allows users to edit account information on GameScore
@@ -273,13 +274,20 @@ export default class EditAccount extends React.Component{
             },
           }));
         return(
+          <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
             <form className={classes.root} noValidate autoComplete="off">
               <Box m={2} pt={3}>
                 <div>
-                  <div>
-                    <Button><Link to="/profile">Back</Link></Button>
-                  </div>
-                <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
+                <div style={{paddingLeft:0,left:5,top:55,position:"absolute"}} align="left">
+                {/*Back Button*/}
+                <Link to={{pathname: "/profile"}}>
+                  <Button startIcon={<BackIcon/>}>
+                  Back
+                  </Button>
+                </Link>
+                </div>
+                <h1>Edit Account</h1>
+                <img src={Logo} alt="GameScore Logo" width="130" height="130"></img>
                     <div>
                       <TextField required id="standard-required" name = "username" label="Username" onChange={this.usernameHandler} error={this.state.usernameError} helperText={this.state.usernameHelper}/>
                     </div>
@@ -304,6 +312,7 @@ export default class EditAccount extends React.Component{
                 </div>
                 </Box>
             </form>
+            </div>
         );
     }
 }

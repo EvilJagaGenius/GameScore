@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import { Button } from '@material-ui/core';
@@ -30,8 +30,7 @@ const useStyles = makeStyles((theme) => ({
         width: "90%",
         backgroundColor: theme.palette.background.paper,
         boxShadow: theme.shadows[5],
-        padding: theme.spacing(2, 4, 3),
-        padding:18	
+        padding: theme.spacing(2, 4, 3)
     },
 }));
 

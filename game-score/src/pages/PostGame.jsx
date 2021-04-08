@@ -11,7 +11,6 @@
  import Paper from '@material-ui/core/Paper';
  import { useHistory } from "react-router-dom";
  import { makeStyles } from '@material-ui/core/styles';
- import SportsEsports from '@material-ui/icons/SportsEsports';
  import HomeIcon from '@material-ui/icons/Home';
  import BottomUI from "../BottomUI"
 

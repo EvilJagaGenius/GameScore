@@ -101,7 +101,6 @@ export default class JoinGame extends React.Component {
    //Join Game via JoinCode call
    joinGameAPICall(joinCode,isQRCode)
    {
-      var result = ""
       //Params
 		  const requestOptions = {
         method: 'POST',
@@ -121,14 +120,14 @@ export default class JoinGame extends React.Component {
         }
         else
         {
-          if(data.error==111)
+          if(data.error===111)
           {
             this.setState({
               showError:true,
               errorText:"Invalid Join Code"
             })
           }
-          else if(data.error==113)
+          else if(data.error===113)
           {
             this.setState({
               showError:true,

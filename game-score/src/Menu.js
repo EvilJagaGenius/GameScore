@@ -11,8 +11,6 @@ import Table from '@material-ui/core/Table';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import {Link} from 'react-router-dom';
-import RejoinGame from './pages/RejoinGame';
 import TextField from '@material-ui/core/TextField';
 import Cookies from 'js-cookie';
 import Typography from '@material-ui/core/Typography';
@@ -101,25 +99,6 @@ constructor(props) {
         // exceptions from actual bugs in components.
       );
   }
-  
-  callAPI() {
-    fetch("/api/getHomePage")
-      .then(res => res.json())
-      .then(
-        (result) => {
-          this.setState({
-            data: result,
-            loaded: "True"
-          }
-          );
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-      );
-  }
-
-
 
   selectTemplate(newAccPos,newRowPos)
   {
@@ -200,8 +179,6 @@ constructor(props) {
 
   render() {
     const { activeIndex } = this.state
-    const { classes } = this.props;
-
     return (
     <div>
       {/* Search Bar */}

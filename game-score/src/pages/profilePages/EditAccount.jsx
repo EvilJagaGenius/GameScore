@@ -44,27 +44,22 @@ export default class EditAccount extends React.Component{
    */
   usernameHandler=(event)=>{
     //update the state with the current username entered in the field
-    this.setState({
-      username: event.target.value
-    });
     console.log("Username is " + event.target.value);
     //create the requirements for the username
-
     /* Username Requirements
     4-30 characters
     One uppercase letter
     One lowercase letter
     */
-
     var usernameRequirements = /^(?=.*[a-z])(?=.*[A-Z]).{4,30}/;
-    console.log(String("jbeels").match(usernameRequirements));
     //if the string entered matches the requirements, don't trigger an error
     if(String(event.target.value).match(usernameRequirements)){
       
       console.log("username meets requirements")
       this.setState({
         usernameError: false,
-        usernameHelper: ""
+        usernameHelper: "",
+        username: event.target.value
       });
       //launch an API call to check if the username is already taken or not
       //if taken already, an error is triggered
@@ -222,7 +217,7 @@ export default class EditAccount extends React.Component{
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          new_email: this.state.email
+          new_password: this.state.password
         })
     };
     const response = await fetch('/api/profile/changePassword', requestOptions);
@@ -233,6 +228,8 @@ export default class EditAccount extends React.Component{
       alert("Password change successful");
     }
     else{
+      console.log("password change failed");
+      console.log(this.state.data);
       alert("Unable to change password");
     }
   }
@@ -256,7 +253,7 @@ export default class EditAccount extends React.Component{
   }
 
   confirmPasswordSubmission(){
-    if(this.state.passwordError === false && this.state.confirmPasswordError){
+    if(this.state.passwordError === false && this.state.confirmPasswordError === false){
       this.sendPasswordRequest();
     }
     else{

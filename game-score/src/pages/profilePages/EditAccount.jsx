@@ -10,6 +10,7 @@ import {Button} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import Logo from '../../images/GameScore App Logo.png';
 import { Link } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 /**
  * EditAccount class: React component that allows users to edit account information on GameScore
@@ -34,7 +35,8 @@ export default class EditAccount extends React.Component{
             confirmPassword: "",
             emailError: false,
             passwordError: false,
-            confirmPasswordError: false
+            confirmPasswordError: false,
+            isLoggedIn: Cookies.get("username")
         }
     }
 
@@ -279,19 +281,25 @@ export default class EditAccount extends React.Component{
                   </div>
                 <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
                     <div>
-                        <TextField required id="standard-required" name = "username" label="Username" onChange={this.usernameHandler} error={this.state.usernameError} helperText={this.state.usernameHelper}/>
-                        <Button onClick={()=>{this.confirmUsernameSubmission()}}>Change Username</Button>
+                      <TextField required id="standard-required" name = "username" label="Username" onChange={this.usernameHandler} error={this.state.usernameError} helperText={this.state.usernameHelper}/>
                     </div>
                     <div>
-                        <TextField required id="standard-required" name = "email" label="Email Address" onChange={this.emailHandler} error={this.state.emailError}/>
-                        <Button onClick={()=>{this.confirmEmailSubmission()}}>Change Email</Button>
+                      <Button onClick={()=>{this.confirmUsernameSubmission()}}>Change Username</Button>
                     </div>
                     <div>
-                        <TextField required id="standard-required" name = "password" label="Password" type="password" onChange={this.passwordHandler} error={this.state.passwordError}/>
+                      <TextField required id="standard-required" name = "email" label="Email Address" onChange={this.emailHandler} error={this.state.emailError}/>
                     </div>
                     <div>
-                        <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
-                        <Button onClick={()=>{this.confirmPasswordSubmission()}}>Change Password</Button>
+                      <Button onClick={()=>{this.confirmEmailSubmission()}}>Change Email</Button> 
+                    </div>
+                    <div>
+                      <TextField required id="standard-required" name = "password" label="Password" type="password" onChange={this.passwordHandler} error={this.state.passwordError}/>
+                    </div>
+                    <div>
+                      <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
+                    </div>
+                    <div>
+                      <Button onClick={()=>{this.confirmPasswordSubmission()}}>Change Password</Button>
                     </div>
                 </div>
                 </Box>

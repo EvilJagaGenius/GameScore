@@ -145,7 +145,7 @@ export default class ForgetPassword extends Component{
           email: this.state.email
         })
     };
-    const response = await fetch('http://localhost:5000/api/postResetUsernameEmail', requestOptions);
+    const response = await fetch('/api/postResetUsernameEmail', requestOptions);
     const data = await response.json();
     this.setState({emailData: data.successful});
     //errors and error message

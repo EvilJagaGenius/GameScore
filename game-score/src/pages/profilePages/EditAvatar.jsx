@@ -12,6 +12,7 @@ import Astronaut from '../../images/avatarIcons/astronaut.png';
 import Lawyer from '../../images/avatarIcons/lawyer.png';
 import BusinessMan from '../../images/avatarIcons/business-man.png';
 import Woman from '../../images/avatarIcons/woman.png';
+import BackIcon from '@material-ui/icons/ArrowBackIos';
 
 export default class EditAvatar extends React.Component{
 
@@ -45,9 +46,16 @@ export default class EditAvatar extends React.Component{
 
     render(){
         return(
-            <div>
+            <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
+                <div style={{paddingLeft:0,left:5,top:55,position:"absolute"}} align="left">
+                {/*Back Button*/}
+                <Link to={{pathname: "/profile"}}>
+                  <Button startIcon={<BackIcon/>}>
+                  Back
+                  </Button>
+                </Link>
+                </div>
                 <Box m={2} pt={3}>
-                <Button><Link to="/profile">Back</Link></Button>
                 <h1>Edit Avatar</h1>
                 <div>
                     <Button onClick={()=>{
@@ -55,21 +63,21 @@ export default class EditAvatar extends React.Component{
                             avatar: 0
                         })
                     }}>
-                        <img src={Hacker} alt="Avatar 1" width="100" height="100"></img>
+                        <img src={Hacker} alt="Avatar 1" width="130" height="130"></img>
                     </Button>
                     <Button onClick={()=>{
                         this.setState({
                             avatar: 1
                         })
                     }}>
-                        <img src={Programmer} alt="Avatar 2" width="100" height="100"></img>
+                        <img src={Programmer} alt="Avatar 2" width="130" height="130"></img>
                     </Button>
                     <Button onClick={()=>{
                         this.setState({
                             avatar: 2
                         })
                     }}>
-                        <img src={Astronaut} alt="Avatar 3" width="100" height="100"></img>
+                        <img src={Astronaut} alt="Avatar 3" width="130" height="130"></img>
                     </Button>
                 </div>
                 <div>
@@ -78,21 +86,21 @@ export default class EditAvatar extends React.Component{
                             avatar: 3
                         })
                     }}>
-                        <img src={Lawyer} alt="Avatar 4" width="100" height="100"></img>
+                        <img src={Lawyer} alt="Avatar 4" width="130" height="130"></img>
                     </Button>
                     <Button onClick={()=>{
                         this.setState({
                             avatar: 4
                         })
                     }}>
-                        <img src={BusinessMan} alt="Avatar 5" width="100" height="100"></img>
+                        <img src={BusinessMan} alt="Avatar 5" width="130" height="130"></img>
                     </Button>
                     <Button onClick={()=>{
                         this.setState({
                             avatar: 5
                         })
                     }}>
-                        <img src={Woman} alt="Avatar 6" width="100" height="100"></img>
+                        <img src={Woman} alt="Avatar 6" width="130" height="130"></img>
                     </Button>
                 </div>
                 <div>

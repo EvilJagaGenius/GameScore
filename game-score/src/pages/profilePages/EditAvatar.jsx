@@ -13,13 +13,17 @@ import Lawyer from '../../images/avatarIcons/lawyer.png';
 import BusinessMan from '../../images/avatarIcons/business-man.png';
 import Woman from '../../images/avatarIcons/woman.png';
 import BackIcon from '@material-ui/icons/ArrowBackIos';
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
 
 export default class EditAvatar extends React.Component{
 
     constructor(props){
         super();
         this.state={
-            avatar: 0
+            avatar: 0,
+            avatarSuccess: false,
+            avatarFailure: false
         }
     }
 
@@ -37,10 +41,14 @@ export default class EditAvatar extends React.Component{
         this.setState({data: data.successful});
         console.log(this.state.data);
         if(this.state.data){
-            alert("Avatar change successful");
+            this.setState({
+                avatarSuccess: true
+            });
         }
         else{
-            alert("Unable to change avatar");
+            this.setState({
+                avatarFailure: true
+            });
         }
     }
 
@@ -107,6 +115,12 @@ export default class EditAvatar extends React.Component{
                     <Button onClick={()=>{this.updateAvatar()}}>Save Avatar</Button>
                 </div>
                 </Box>
+                <Snackbar open={this.state.avatarSuccess} autoHideDuration={3000} onClose={()=>{this.setState({avatarSuccess:false})}}>
+                    <Alert variant = "filled" severity="success">Avatar Change Successful</Alert>
+                </Snackbar>
+                <Snackbar open={this.state.avatarFailure} autoHideDuration={3000} onClose={()=>{this.setState({avatarFailure:false})}}>
+                    <Alert variant = "filled" severity="error">Avatar Change Failed</Alert>
+                </Snackbar>
             </div>
         );
     }

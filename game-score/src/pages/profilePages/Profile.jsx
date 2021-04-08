@@ -1,6 +1,5 @@
 import React from "react";
 import {Button} from "@material-ui/core";
-import Box from '@material-ui/core/Box';
 import Cookies from 'js-cookie';
 import {Link,withRouter} from 'react-router-dom';
 import Hacker from '../../images/avatarIcons/hacker.png';
@@ -96,24 +95,22 @@ class Profile extends React.Component{
 
     render(){
         return(
-            <div>
-                <Box m={2} pt={3}>
-                    <div>
-                        <h1>Profile Page</h1>
-                    </div>
-                    <div>
-                        <img alt="Avatar" src={this.state.image} width="150" height="150"></img>
-                    </div>
-                    <div>
-                        <Button><Link to="/profile/editaccount">Edit Account</Link></Button>
-                    </div>
-                    <div>
-                        <Button><Link to="/profile/editavatar">Edit Avatar</Link></Button>
-                    </div>
-                    <div>
-                        <Button onClick={()=>{this.sendRequest()}}>Sign Out</Button>
-                    </div>
-                </Box>
+            <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
+                <div>
+                    <h1>Profile Page</h1>
+                </div>
+                <div>
+                    <img alt="Avatar" src={this.state.image} width="150" height="150"></img>
+                </div>
+                <div>
+                    <Button><Link to="/profile/editaccount">Edit Account</Link></Button>
+                </div>
+                <div>
+                    <Button><Link to="/profile/editavatar">Edit Avatar</Link></Button>
+                </div>
+                <div>
+                    <Button onClick={()=>{this.sendRequest()}}>Sign Out</Button>
+                </div>
             </div>
         );
     }

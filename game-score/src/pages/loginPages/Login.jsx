@@ -208,10 +208,6 @@ export default class Login extends Component{
                   </Button>
               </Link>
       </div>
-      {this.state.displayAlert
-          ? <Alert severity={this.state.alertSeverity}>{this.state.alertText}</Alert>
-          : null
-      }
       <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
       <form className={classes.root} noValidate autoComplete="off">
         <Box m={3} pt={5}>
@@ -249,6 +245,11 @@ export default class Login extends Component{
           <Snackbar open={this.state.loginFailedAlert} autoHideDuration={3000} onClose={()=>{this.setState({loginFailedAlert:false})}}>
             <Alert variant = "filled" severity="error">
               Incorrect account credentials.
+            </Alert>
+          </Snackbar>
+          <Snackbar open={this.state.displayAlert} autoHideDuration={3000} onClose={()=>{this.setState({displayAlert:false})}}>
+            <Alert variant = "filled" severity="warning">
+              {this.state.alertText}
             </Alert>
           </Snackbar>
         </Box>

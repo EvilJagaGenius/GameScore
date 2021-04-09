@@ -29,7 +29,8 @@ class Profile extends React.Component{
             avatarID: 0,
             image: "",
             loggedIn: "",
-            data: ""
+            data: "",
+            username: Cookies.get("username")
         }
     }
 
@@ -132,10 +133,10 @@ class Profile extends React.Component{
         return(
             <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
                 <div style={{marginTop: 15, marginBottom: 10}}>
-                    <Typography variant = "h3">Profile Page</Typography>
+                    <img alt="Avatar" src={this.state.image} width="150" height="150"></img>
                 </div>
                 <div style={{marginTop: 15, marginBottom: 10}}>
-                    <img alt="Avatar" src={this.state.image} width="150" height="150"></img>
+                    <Typography variant = "h3">{this.state.username}</Typography>
                 </div>
                 <div style={{marginTop: 15, marginBottom: 10}}>
                     <Button size = "large" variant = "contained"><Link to="/profile/editaccount">Edit Account</Link></Button>

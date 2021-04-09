@@ -25,7 +25,7 @@ export default class Menu extends Component {
             data:{},
             loaded:"False",
             selectedTemplate:{accPos:0,rowPos:-1},
-            usernameData: Cookies.getCookieValue("username"),
+            usernameData: Cookies.get("username"),
             searchQuery: "",
             searching: "false",
             filtered: {},

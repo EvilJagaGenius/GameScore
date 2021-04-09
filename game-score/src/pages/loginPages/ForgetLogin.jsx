@@ -1,5 +1,5 @@
 /**
- * ForgetPassword.jsx-Jonathon Lannon
+ * ForgetLogin.jsx-Jonathon Lannon
  */
 
 import React from "react";  //basic React framework
@@ -10,7 +10,7 @@ import Box from '@material-ui/core/Box';
 import { Component } from "react";
 import Logo from '../../images/GameScore App Logo.png';
 
-export default class ForgetPassword extends Component{
+export default class ForgetLogin extends Component{
   constructor(props){
     super();
     this.state = {

@@ -14,7 +14,7 @@ import TemplateCreator from './pages/TemplateCreator';
 import TemplateEditor from './pages/TemplateEditor';
 import Profile from './pages/profilePages/Profile';
 import Login from './pages/loginPages/Login';
-import ForgetPassword from './pages/loginPages/ForgetPassword';
+import ForgetLogin from './pages/loginPages/ForgetLogin';
 import CreateAccount from './pages/loginPages/CreateAccount';
 import ResetPasswordUsername from './pages/loginPages/ResetPassword';
 import ResetUsernameEmail from './pages/loginPages/ForgetUsername';
@@ -191,11 +191,11 @@ export default function App() {
         </> 
       }>
       </Route>
-      <Route path="/login/forgetpassword"
+      <Route path="/login/forgetlogin"
         render={(props) => 
         <>
           <Home {...props}></Home>
-          <ForgetPassword {...props}></ForgetPassword>
+          <ForgetLogin {...props}></ForgetLogin>
         </> 
       }>
       </Route>

@@ -224,7 +224,7 @@ export default class Login extends Component{
           <Button variant = "contained" color="primary" type="submit" onClick={this.confirmSubmission}>Login</Button>
         </div>
         <div style={{marginTop: 15, marginBottom: 10}}>
-          <Button variant = "contained" color="secondary" onClick={()=>{this.props.history.push("/login/forgetpassword")}}>Forget Login?</Button>
+          <Button variant = "contained" color="secondary" onClick={()=>{this.props.history.push("/login/forgetlogin")}}>Forget Login?</Button>
         </div>
         <div style={{marginTop: 15, marginBottom: 10}}>
         <Button variant = "contained" color="secondary" onClick={()=>{

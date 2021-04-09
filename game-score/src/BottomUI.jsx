@@ -16,6 +16,8 @@ import Rating from '@material-ui/lab/Rating';
 import Favorite from '@material-ui/icons/Favorite';
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
 import Cookies from 'js-cookie';
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -68,6 +70,8 @@ export default function BottomUI(props) {
 		const [play, setPlay] = useState(props.play || false);
 		const [edit, setEdit] = useState(props.edit || false);
 		const [del, setDel] = useState(props.del || false);
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertText, setAlertText] = useState("");
 		var [numPlayers, setNumPlayers] = useState(2);
         const [ratingValue, setRatingValue] = useState(props.prevRating);
         const [ratingPopup, setRatingPopup] = useState(false);
@@ -78,6 +82,11 @@ export default function BottomUI(props) {
 
         return(
         <>
+          <Snackbar open={showAlert} autoHideDuration={3000} onClose={()=>{setShowAlert(false)}}>
+            <Alert variant = "filled">
+              {alertText}
+            </Alert>
+          </Snackbar>
 	          <>
 	            {
 	          	<>
@@ -152,27 +161,25 @@ export default function BottomUI(props) {
 									{props.rate === true &&
 										<>
 											
-                                            <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+                      <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
 												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
-
-                                                    onClick = {()=> {
-                                                        const requestOptions = {
-                                                            method:'POST',
-                                                            headers: { 'Content-Type': 'application/json' },
-                                                            credentials: 'include',
-                                                            body: JSON.stringify({
-                                                                templateID: props.templateID,
-                                                                gameID: props.gameID
-                                                            })
-                                                        }
-                                                        fetch('/api/favoriteTemplate', requestOptions)
-                                                        .then(res => res.json())
+                        onClick = {()=> {
+                            const requestOptions = {
+                                method:'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                credentials: 'include',
+                                body: JSON.stringify({
+                                    templateID: props.templateID,
+                                    gameID: props.gameID
+                                })
+                            }
+                            fetch('/api/favoriteTemplate', requestOptions)
+                            .then(res => res.json())
 														.then(data => {
 															props.update();
 														})
-                                                         
-                                                    }
-                                                }>
+                            .then(setAlertText("Changed favorite status")).then(setShowAlert(true))
+                        }}>
                                                     {props.favorited === 1 &&
                                                         <div style={{margin:-5}}>
                                                             

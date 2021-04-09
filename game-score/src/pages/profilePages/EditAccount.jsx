@@ -11,6 +11,8 @@ import Box from '@material-ui/core/Box';
 import Logo from '../../images/GameScore App Logo.png';
 import { Link } from 'react-router-dom';
 import BackIcon from '@material-ui/icons/ArrowBackIos';
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
 
 /**
  * EditAccount class: React component that allows users to edit account information on GameScore
@@ -35,7 +37,13 @@ export default class EditAccount extends React.Component{
             confirmPassword: "",
             emailError: false,
             passwordError: false,
-            confirmPasswordError: false
+            confirmPasswordError: false,
+            editSuccessUsername: false,
+            editFailureUsername: false,
+            editSuccessEmail: false,
+            editFailureEmail: false,
+            editSuccessPassword: false,
+            editFailurePassword: false
         }
     }
 
@@ -179,10 +187,14 @@ export default class EditAccount extends React.Component{
     this.setState({data: data.successful});
     console.log(this.state.data);
     if(this.state.data){
-      alert("Username change successful");
+      this.setState({
+        editSuccessUsername: true
+      })
     }
     else{
-      alert("Unable to change username");
+      this.setState({
+        editFailureUsername: true
+      })
     }
     
   }
@@ -201,10 +213,14 @@ export default class EditAccount extends React.Component{
     this.setState({data: data.successful});
     console.log(this.state.data);
     if(this.state.data){
-      alert("Email change successful");
+      this.setState({
+        editSuccessEmail: true
+      })
     }
     else{
-      alert("Unable to change email");
+      this.setState({
+        editFailureEmail: true
+      })
     }
     
   }
@@ -226,12 +242,16 @@ export default class EditAccount extends React.Component{
     this.setState({data: data.successful});
     console.log(this.state.data);
     if(this.state.data){
-      alert("Password change successful");
+      this.setState({
+        editSuccessPassword: true
+      })
     }
     else{
       console.log("password change failed");
       console.log(this.state.data);
-      alert("Unable to change password");
+      this.setState({
+        editFailurePassword: true
+      })
     }
   }
 
@@ -301,14 +321,44 @@ export default class EditAccount extends React.Component{
                       <Button variant = "contained" color = "primary" onClick={()=>{this.confirmEmailSubmission()}}>Change Email</Button> 
                     </div>
                     <div style={{marginTop: 15, marginBottom: 10}}>
-                      <TextField size = "medium" required id="standard-required" name = "password" label="Password" type="password" onChange={this.passwordHandler} error={this.state.passwordError}/>
+                      <TextField size = "medium" required id="standard-required" name = "password" label="New Password" type="password" onChange={this.passwordHandler} error={this.state.passwordError}/>
                     </div>
                     <div style={{marginTop: 15, marginBottom: 10}}>
-                      <TextField size = "medium" required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
+                      <TextField size = "medium" required id="standard-required" name = "confirmpassword" label="Confirm New Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
                     </div>
                     <div style={{marginTop: 15, marginBottom: 10}}>
                       <Button variant = "contained" color = "primary" onClick={()=>{this.confirmPasswordSubmission()}}>Change Password</Button>
                     </div>
+                    <Snackbar open={this.state.editSuccessUsername} autoHideDuration={3000} onClose={()=>{this.setState({editSuccessUsername:false})}}>
+                      <Alert variant = "filled" severity="success">
+                        Account Username Updated
+                      </Alert>
+                    </Snackbar>
+                    <Snackbar open={this.state.editFailureUsername} autoHideDuration={3000} onClose={()=>{this.setState({editFailureUsername:false})}}>
+                      <Alert variant = "filled" severity="success">
+                        Error Updating Username
+                      </Alert>
+                    </Snackbar>
+                    <Snackbar open={this.state.editSuccessEmail} autoHideDuration={3000} onClose={()=>{this.setState({editSuccessEmail:false})}}>
+                      <Alert variant = "filled" severity="success">
+                        Account Email Updated
+                      </Alert>
+                    </Snackbar>
+                    <Snackbar open={this.state.editFailureEmail} autoHideDuration={3000} onClose={()=>{this.setState({editFailureEmail:false})}}>
+                      <Alert variant = "filled" severity="error">
+                        Error Updating Email
+                      </Alert>
+                    </Snackbar>
+                    <Snackbar open={this.state.editSuccessPassword} autoHideDuration={3000} onClose={()=>{this.setState({editSuccessPassword:true})}}>
+                      <Alert variant = "filled" severity="success">
+                        Account Password Updated
+                      </Alert>
+                    </Snackbar>
+                    <Snackbar open={this.state.editFailurePassword} autoHideDuration={3000} onClose={()=>{this.setState({editFailurePassword:true})}}>
+                      <Alert variant = "filled" severity="success">
+                        Error Updating Password
+                      </Alert>
+                    </Snackbar>
                 </div>
                 </Box>
             </form>

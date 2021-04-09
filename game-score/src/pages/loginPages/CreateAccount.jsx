@@ -5,13 +5,14 @@
 import React from "react";
 import TextField from '@material-ui/core/TextField';
 import {makeStyles} from '@material-ui/core/styles';
-import {Button} from "@material-ui/core";
+import {Button, Typography} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import { Component } from "react";
 import Logo from '../../images/GameScore App Logo.png';
 import { Link } from 'react-router-dom'
 import BackIcon from '@material-ui/icons/ArrowBackIos';
 import {Alert} from "@material-ui/lab";
+import Snackbar from '@material-ui/core/Snackbar';
 
 /**
  * CreateAccount class: React component for allowing users to create GameScore accounts
@@ -266,6 +267,7 @@ export default class CreateAccount extends Component{
     var passCheck = false   //boolean for checking if the password is good to submit
 
     //if the username field is blank, display an error
+    var currentText = this.state.alertText;
     if(this.state.username === ""){
       this.setState({
         displayAlert: true,
@@ -279,6 +281,7 @@ export default class CreateAccount extends Component{
       userCheck = true
     }
 
+    currentText += this.state.alertText;
     //if the email field is blank, display an error
     if(this.state.email===""){
       this.setState({
@@ -293,6 +296,7 @@ export default class CreateAccount extends Component{
       emailCheck = true
     }
 
+    currentText += this.state.alertText;
     //if there are any errors relating to the password, display an alert
     if(this.state.passwordError === true && this.state.confrimPasswordError === true){
       this.setState({
@@ -305,6 +309,10 @@ export default class CreateAccount extends Component{
     else{
       passCheck = true
     }
+
+    this.setState({
+      alertText: currentText
+    });
 
     //if the username, password, and email are ok submit, call the send request function to contact the server
     if(userCheck && emailCheck && passCheck){
@@ -327,7 +335,7 @@ export default class CreateAccount extends Component{
       },
     }));
     return (
-      <>
+      <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
       {/*Back Button*/}
       <div style={{paddingLeft:0,left:5,top:55,position:"absolute"}} align="left">
             {/*Back Button*/}
@@ -337,33 +345,35 @@ export default class CreateAccount extends Component{
                 </Button>
             </Link>
       </div>
-      {/*Conditionally rendered Alert element*/}
-      {this.state.displayAlert
-            ? <Alert severity={this.state.alertSeverity}>{this.state.alertText}</Alert>
-            : null
-      }
       <form className={classes.root} noValidate autoComplete="off" onSubmit={this.confirmSubmission}>
         <Box m={3} pt={5}>
-          <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
-          <h1>Create Account</h1>
-          <div>
+          <img src={Logo} alt="GameScore Logo" width="130" height="130"></img>
+          <div style={{marginTop: 15, marginBottom: 10}}>
+            <Typography variant="h4">Create Account</Typography>
+          </div>
+          <div style={{marginTop: 15, marginBottom: 10}}>
             <TextField required id="standard-required" name = "username" type = "text" label="Username" helperText = {this.state.usernameHelper} onChange={this.usernameHandler} error={this.state.usernameError}/>
           </div>
-          <div>
+          <div style={{marginTop: 15, marginBottom: 10}}>
             <TextField required id="standard-required" name = "email" type = "email" label="Email Address" helperText={this.state.emailHelper} onChange={this.emailHandler} error={this.state.emailError}/>
           </div>
-          <div>
+          <div style={{marginTop: 15, marginBottom: 10}}>
             <TextField required id="standard-required" name = "password" label="Password" type="password" helperText = {this.state.passwordHelper} onChange={this.passwordHandler} error={this.state.passwordError}/>
           </div>
-          <div>
+          <div style={{marginTop: 15, marginBottom: 10}}>
             <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" helperText = {this.state.confirmPasswordHelper} type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
           </div>
-          <div>
-            <Button type = "submit">Create Account</Button>
+          <div style={{marginTop: 15, marginBottom: 10}}>
+            <Button variant = "contained" color = "primary" type = "submit">Create Account</Button>
           </div>
+          <Snackbar open={this.state.displayAlert} autoHideDuration={3000} onClose={()=>{this.setState({displayAlert:false})}}>
+            <Alert variant = "filled" severity="warning">
+              {this.state.alertText}
+            </Alert>
+          </Snackbar>
         </Box>
       </form>
-      </>
+      </div>
     );
   }
 }

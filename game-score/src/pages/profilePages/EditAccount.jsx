@@ -22,7 +22,6 @@ import BackIcon from '@material-ui/icons/ArrowBackIos';
  * emailError: boolean for determining whether or not to activate the error property for the email textfield
  * passwordError: boolean for determining whether or not to activate the error property for the password textfield
  * confirmPasswordError: boolean for determining whether or not to activate the error property for the confirm password textfield
- * 
  */
 export default class EditAccount extends React.Component{
     constructor(props){

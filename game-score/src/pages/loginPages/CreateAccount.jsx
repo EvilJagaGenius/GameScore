@@ -5,7 +5,7 @@
 import React from "react";
 import TextField from '@material-ui/core/TextField';
 import {makeStyles} from '@material-ui/core/styles';
-import {Button} from "@material-ui/core";
+import {Button, Typography} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import { Component } from "react";
 import Logo from '../../images/GameScore App Logo.png';
@@ -327,7 +327,7 @@ export default class CreateAccount extends Component{
       },
     }));
     return (
-      <>
+      <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
       {/*Back Button*/}
       <div style={{paddingLeft:0,left:5,top:55,position:"absolute"}} align="left">
             {/*Back Button*/}
@@ -345,25 +345,27 @@ export default class CreateAccount extends Component{
       <form className={classes.root} noValidate autoComplete="off" onSubmit={this.confirmSubmission}>
         <Box m={3} pt={5}>
           <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
-          <h1>Create Account</h1>
-          <div>
+          <div style={{marginTop: 15, marginBottom: 10}}>
+            <Typography variant="h4">Create Account</Typography>
+          </div>
+          <div style={{marginTop: 15, marginBottom: 10}}>
             <TextField required id="standard-required" name = "username" type = "text" label="Username" helperText = {this.state.usernameHelper} onChange={this.usernameHandler} error={this.state.usernameError}/>
           </div>
-          <div>
+          <div style={{marginTop: 15, marginBottom: 10}}>
             <TextField required id="standard-required" name = "email" type = "email" label="Email Address" helperText={this.state.emailHelper} onChange={this.emailHandler} error={this.state.emailError}/>
           </div>
-          <div>
+          <div style={{marginTop: 15, marginBottom: 10}}>
             <TextField required id="standard-required" name = "password" label="Password" type="password" helperText = {this.state.passwordHelper} onChange={this.passwordHandler} error={this.state.passwordError}/>
           </div>
-          <div>
+          <div style={{marginTop: 15, marginBottom: 10}}>
             <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" helperText = {this.state.confirmPasswordHelper} type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
           </div>
-          <div>
-            <Button type = "submit">Create Account</Button>
+          <div style={{marginTop: 15, marginBottom: 10}}>
+            <Button variant = "contained" color = "primary" type = "submit">Create Account</Button>
           </div>
         </Box>
       </form>
-      </>
+      </div>
     );
   }
 }

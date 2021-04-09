@@ -27,13 +27,6 @@ import Cookies from 'js-cookie';
 import {Alert} from "@material-ui/lab";
 
 export default function App() {
-  const isLoggedIn = Cookies.get("username");
-  if(isLoggedIn){
-    console.log("Logged in");
-  }
-  else{
-    console.log("Not logged in");
-  }
   return (
     <Switch>
       <Redirect exact from="/" to="/home" />
@@ -48,7 +41,7 @@ export default function App() {
       <Route path="/profile/editaccount" 
         render={(props) =>
           <>
-        {isLoggedIn 
+        {Cookies.get("username") 
           ? <>
           <RejoinGame/>
           <Home {...props}></Home>
@@ -65,7 +58,7 @@ export default function App() {
       <Route path="/profile/editavatar" 
         render={(props) => 
         <>
-          {isLoggedIn 
+          {Cookies.get("username")
           ? <>
           <RejoinGame/>
           <Home {...props}></Home>
@@ -119,7 +112,7 @@ export default function App() {
       <Route path="/mytemplates/conditioneditor" 
         render={(props) => 
         <>
-          {isLoggedIn 
+          {Cookies.get("username")
           ? <>
               <RejoinGame/>
               <Home {...props}></Home>
@@ -136,7 +129,7 @@ export default function App() {
       <Route path="/mytemplates/creator"
         render={(props) => 
         <>
-          {isLoggedIn 
+          {Cookies.get("username")
           ? <>
               <RejoinGame/>
               <Home {...props}></Home>
@@ -153,7 +146,7 @@ export default function App() {
       <Route path="/mytemplates/editor"
         render={(props) => 
         <>
-          {isLoggedIn 
+          {Cookies.get("username")
           ? <>
               <RejoinGame/>
               <Home {...props}></Home>

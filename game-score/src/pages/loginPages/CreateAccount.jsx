@@ -12,6 +12,7 @@ import Logo from '../../images/GameScore App Logo.png';
 import { Link } from 'react-router-dom'
 import BackIcon from '@material-ui/icons/ArrowBackIos';
 import {Alert} from "@material-ui/lab";
+import Snackbar from '@material-ui/core/Snackbar';
 
 /**
  * CreateAccount class: React component for allowing users to create GameScore accounts
@@ -266,6 +267,7 @@ export default class CreateAccount extends Component{
     var passCheck = false   //boolean for checking if the password is good to submit
 
     //if the username field is blank, display an error
+    var currentText = this.state.alertText;
     if(this.state.username === ""){
       this.setState({
         displayAlert: true,
@@ -279,6 +281,7 @@ export default class CreateAccount extends Component{
       userCheck = true
     }
 
+    currentText += this.state.alertText;
     //if the email field is blank, display an error
     if(this.state.email===""){
       this.setState({
@@ -293,6 +296,7 @@ export default class CreateAccount extends Component{
       emailCheck = true
     }
 
+    currentText += this.state.alertText;
     //if there are any errors relating to the password, display an alert
     if(this.state.passwordError === true && this.state.confrimPasswordError === true){
       this.setState({
@@ -305,6 +309,10 @@ export default class CreateAccount extends Component{
     else{
       passCheck = true
     }
+
+    this.setState({
+      alertText: currentText
+    });
 
     //if the username, password, and email are ok submit, call the send request function to contact the server
     if(userCheck && emailCheck && passCheck){
@@ -337,11 +345,6 @@ export default class CreateAccount extends Component{
                 </Button>
             </Link>
       </div>
-      {/*Conditionally rendered Alert element*/}
-      {this.state.displayAlert
-            ? <Alert severity={this.state.alertSeverity}>{this.state.alertText}</Alert>
-            : null
-      }
       <form className={classes.root} noValidate autoComplete="off" onSubmit={this.confirmSubmission}>
         <Box m={3} pt={5}>
           <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
@@ -363,6 +366,11 @@ export default class CreateAccount extends Component{
           <div style={{marginTop: 15, marginBottom: 10}}>
             <Button variant = "contained" color = "primary" type = "submit">Create Account</Button>
           </div>
+          <Snackbar open={this.state.displayAlert} autoHideDuration={3000} onClose={()=>{this.setState({displayAlert:false})}}>
+            <Alert variant = "filled" severity="warning">
+              {this.state.alertText}
+            </Alert>
+          </Snackbar>
         </Box>
       </form>
       </div>

@@ -1,17 +1,17 @@
 /**
- * ForgetUsername.jsx-Jonathon Lannon
+ * ResetUsername.jsx-Jonathon Lannon
  */
 
 import React from "react";  //basic React framework
 import TextField from '@material-ui/core/TextField';
 import {makeStyles} from '@material-ui/core/styles';
-import {Button} from "@material-ui/core";
+import {Button, Typography} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import { Component } from "react";
 import Logo from '../../images/GameScore App Logo.png';
 
 /**
- * ForgetUsername class: React component for allowing users to reset their GameScore account usernames
+ * ResetUsername class: React component for allowing users to reset their GameScore account usernames
  * state @param
  * username: string for holding the username value entered in the username textfield
  * usernameError: boolean value deciding whether or not the textfield error property is on, if there is an error in the username textfield
@@ -19,7 +19,7 @@ import Logo from '../../images/GameScore App Logo.png';
  * token: parameter for the unique token needed to access the session
  * data: variable for storing the JSON data recieved from the server
  */
-export default class ForgetUsername extends Component{
+export default class ResetUsername extends Component{
   constructor(props){
     super();
     this.state = {
@@ -168,19 +168,25 @@ export default class ForgetUsername extends Component{
         },
       },
     }));
-  return (
-    <form className={classes.root} noValidate autoComplete="off" onSubmit={this.confirmSubmission}>
-      <Box m={2} pt={3}>
-        <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
-        <h1>Reset Username</h1>
-        <div>
-          <TextField required id="standard-required" name = "username" label="New Username" helperText={this.state.usernameHelper} onChange={this.usernameHandler} error={this.state.username}/>
-        </div>
-        <div>
-          <Button type = "submit" >Reset Username</Button>
-        </div>
-      </Box>
-    </form>
+    return (
+      <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
+        <form className={classes.root} noValidate autoComplete="off" onSubmit={this.confirmSubmission}>
+          <Box m={2} pt={3}>
+            <div style={{marginTop: 15, marginBottom: 10}}>
+              <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
+            </div>
+            <div style={{marginTop: 15, marginBottom: 10}}>
+              <Typography variant = "h3">Reset Username</Typography>
+            </div>
+            <div style={{marginTop: 15, marginBottom: 10}}>
+              <TextField required id="standard-required" name = "username" label="New Username" helperText={this.state.usernameHelper} onChange={this.usernameHandler} error={this.state.username}/>
+            </div>
+            <div style={{marginTop: 15, marginBottom: 10}}>
+              <Button type = "submit" variant = "contained" color = "primary" >Reset Username</Button>
+            </div>
+          </Box>
+        </form>
+      </div>
     );
   }
 }

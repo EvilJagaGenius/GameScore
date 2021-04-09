@@ -17,7 +17,7 @@ import Login from './pages/loginPages/Login';
 import ForgetLogin from './pages/loginPages/ForgetLogin';
 import CreateAccount from './pages/loginPages/CreateAccount';
 import ResetPasswordUsername from './pages/loginPages/ResetPassword';
-import ResetUsernameEmail from './pages/loginPages/ForgetUsername';
+import ResetUsernameEmail from './pages/loginPages/ResetUsername';
 import EditAccount from './pages/profilePages/EditAccount';
 import EditAvatar from './pages/profilePages/EditAvatar';
 import InviteFriends from './pages/InviteFriends';

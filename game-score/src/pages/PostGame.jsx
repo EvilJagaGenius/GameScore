@@ -113,7 +113,8 @@
             selected = {true}
             rate = {true}
             playagain = {true}
-            numPlayers = {postGameData.numOfPlayers}>
+            numPlayers = {postGameData.numOfPlayers}
+            favorited = {postGameData.favorited}>
             </BottomUI>
 
             <div style={{display: 'flex',  justifyContent:'center'}}>

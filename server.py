@@ -820,7 +820,14 @@ def apiGetScoring():
 def getPostGame(userID):
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select gameName, templateName,matchID,Game.gameID,Template.templateID FROM ActiveMatch JOIN Game using(gameID) JOIN Template using(templateID) JOIN Player using (matchID) WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1")
+    stmt = """
+SELECT gameName, templateName, matchID, Game.gameID, Template.templateID, favorited
+FROM ActiveMatch
+JOIN Game using(gameID)
+JOIN Template using(templateID)
+JOIN Player using (matchID)
+LEFT JOIN AppUserInteractTemplate ON Template.templateID=AppUserInteractTemplate.templateID
+WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1"""
     mycursor.execute(stmt,(userID,))
     myresult = mycursor.fetchone()
     mycursor.close()
@@ -831,7 +838,9 @@ def getPostGame(userID):
         mydb.close()
         return response
     else:
-        gameName,templateName,matchID,gameID,templateID = myresult
+        gameName, templateName, matchID, gameID, templateID, favorited = myresult
+        if favorited == None:
+            favorited = 0
 
         mycursor = mydb.cursor(prepared=True)
         stmt = ("select displayName FROM Player WHERE totalScore in (Select MAX(totalScore) FROM Player WHERE matchID=%s GROUP BY matchID) AND matchID=%s LIMIT 1")
@@ -847,7 +856,8 @@ def getPostGame(userID):
                         ,"gameID":"{}".format(gameID)
                         ,"templateID":"{}".format(templateID)
                         ,"scoreTable":[] 
-                        ,"numOfPlayers":[]}
+                        ,"numOfPlayers":[]
+                        ,"favorited":favorited}
 
         mycursor = mydb.cursor(prepared=True)
         stmt = ("select RANK() OVER (PARTITION BY matchID ORDER BY totalScore desc),displayName,totalScore FROM Player WHERE matchID=%s")

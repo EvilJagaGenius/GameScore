@@ -10,7 +10,6 @@ import {Button, Typography} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import Logo from '../../images/GameScore App Logo.png';
 import { Link } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import BackIcon from '@material-ui/icons/ArrowBackIos';
 
 /**
@@ -23,6 +22,7 @@ import BackIcon from '@material-ui/icons/ArrowBackIos';
  * emailError: boolean for determining whether or not to activate the error property for the email textfield
  * passwordError: boolean for determining whether or not to activate the error property for the password textfield
  * confirmPasswordError: boolean for determining whether or not to activate the error property for the confirm password textfield
+ * 
  */
 export default class EditAccount extends React.Component{
     constructor(props){
@@ -36,8 +36,7 @@ export default class EditAccount extends React.Component{
             confirmPassword: "",
             emailError: false,
             passwordError: false,
-            confirmPasswordError: false,
-            isLoggedIn: Cookies.get("username")
+            confirmPasswordError: false
         }
     }
 

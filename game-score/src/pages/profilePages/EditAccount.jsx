@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 import BackIcon from '@material-ui/icons/ArrowBackIos';
 import Alert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
+import Cookies from 'js-cookie';
 
 /**
  * EditAccount class: React component that allows users to edit account information on GameScore
@@ -189,12 +190,13 @@ export default class EditAccount extends React.Component{
     if(this.state.data){
       this.setState({
         editSuccessUsername: true
-      })
+      });
+      Cookies.set("username", this.state.username);
     }
     else{
       this.setState({
         editFailureUsername: true
-      })
+      });
     }
     
   }
@@ -215,12 +217,12 @@ export default class EditAccount extends React.Component{
     if(this.state.data){
       this.setState({
         editSuccessEmail: true
-      })
+      });
     }
     else{
       this.setState({
         editFailureEmail: true
-      })
+      });
     }
     
   }
@@ -244,14 +246,14 @@ export default class EditAccount extends React.Component{
     if(this.state.data){
       this.setState({
         editSuccessPassword: true
-      })
+      });
     }
     else{
       console.log("password change failed");
       console.log(this.state.data);
       this.setState({
         editFailurePassword: true
-      })
+      });
     }
   }
 

@@ -4,7 +4,7 @@
  */
 
 import React from "react";
-import {Button} from "@material-ui/core";
+import {Button, Typography} from "@material-ui/core";
 import Cookies from 'js-cookie';
 import {Link,withRouter} from 'react-router-dom';
 import Hacker from '../../images/avatarIcons/hacker.png';
@@ -131,20 +131,20 @@ class Profile extends React.Component{
     render(){
         return(
             <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
-                <div>
-                    <h1>Profile Page</h1>
+                <div style={{marginTop: 15, marginBottom: 10}}>
+                    <Typography variant = "h3">Profile Page</Typography>
                 </div>
-                <div>
+                <div style={{marginTop: 15, marginBottom: 10}}>
                     <img alt="Avatar" src={this.state.image} width="150" height="150"></img>
                 </div>
-                <div>
-                    <Button><Link to="/profile/editaccount">Edit Account</Link></Button>
+                <div style={{marginTop: 15, marginBottom: 10}}>
+                    <Button size = "large" variant = "contained"><Link to="/profile/editaccount">Edit Account</Link></Button>
                 </div>
-                <div>
-                    <Button><Link to="/profile/editavatar">Edit Avatar</Link></Button>
+                <div style={{marginTop: 15, marginBottom: 10}}>
+                    <Button size = "large" variant = "contained"><Link to="/profile/editavatar">Edit Avatar</Link></Button>
                 </div>
-                <div>
-                    <Button onClick={()=>{this.sendSignOutRequest()}}>Sign Out</Button>
+                <div style={{marginTop: 15, marginBottom: 10}}>
+                    <Button size = "large" variant = "contained" color="primary" onClick={()=>{this.sendSignOutRequest()}}>Sign Out</Button>
                 </div>
             </div>
         );

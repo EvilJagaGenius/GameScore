@@ -6,7 +6,7 @@
 import React from 'react';
 import TextField from '@material-ui/core/TextField';
 import {makeStyles} from '@material-ui/core/styles';
-import {Button} from "@material-ui/core";
+import {Button, Typography} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import Logo from '../../images/GameScore App Logo.png';
 import { Link } from 'react-router-dom';
@@ -286,28 +286,30 @@ export default class EditAccount extends React.Component{
                   </Button>
                 </Link>
                 </div>
-                <h1>Edit Account</h1>
+                <div style={{marginTop: 15, marginBottom: 10}}>
+                  <Typography variant="h4">Edit Account</Typography>
+                </div>
                 <img src={Logo} alt="GameScore Logo" width="130" height="130"></img>
-                    <div>
-                      <TextField required id="standard-required" name = "username" label="Username" onChange={this.usernameHandler} error={this.state.usernameError} helperText={this.state.usernameHelper}/>
+                    <div style={{marginTop: 15, marginBottom: 10}}>
+                      <TextField size = "medium" required id="standard-required" name = "username" label="Username" onChange={this.usernameHandler} error={this.state.usernameError} helperText={this.state.usernameHelper}/>
                     </div>
-                    <div>
-                      <Button onClick={()=>{this.confirmUsernameSubmission()}}>Change Username</Button>
+                    <div style={{marginTop: 15, marginBottom: 10}}>
+                      <Button variant = "contained" color = "primary" onClick={()=>{this.confirmUsernameSubmission()}}>Change Username</Button>
                     </div>
-                    <div>
-                      <TextField required id="standard-required" name = "email" label="Email Address" onChange={this.emailHandler} error={this.state.emailError}/>
+                    <div style={{marginTop: 15, marginBottom: 10}}>
+                      <TextField size = "medium" required id="standard-required" name = "email" label="Email Address" onChange={this.emailHandler} error={this.state.emailError}/>
                     </div>
-                    <div>
-                      <Button onClick={()=>{this.confirmEmailSubmission()}}>Change Email</Button> 
+                    <div style={{marginTop: 15, marginBottom: 10}}>
+                      <Button variant = "contained" color = "primary" onClick={()=>{this.confirmEmailSubmission()}}>Change Email</Button> 
                     </div>
-                    <div>
-                      <TextField required id="standard-required" name = "password" label="Password" type="password" onChange={this.passwordHandler} error={this.state.passwordError}/>
+                    <div style={{marginTop: 15, marginBottom: 10}}>
+                      <TextField size = "medium" required id="standard-required" name = "password" label="Password" type="password" onChange={this.passwordHandler} error={this.state.passwordError}/>
                     </div>
-                    <div>
-                      <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
+                    <div style={{marginTop: 15, marginBottom: 10}}>
+                      <TextField size = "medium" required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
                     </div>
-                    <div>
-                      <Button onClick={()=>{this.confirmPasswordSubmission()}}>Change Password</Button>
+                    <div style={{marginTop: 15, marginBottom: 10}}>
+                      <Button variant = "contained" color = "primary" onClick={()=>{this.confirmPasswordSubmission()}}>Change Password</Button>
                     </div>
                 </div>
                 </Box>

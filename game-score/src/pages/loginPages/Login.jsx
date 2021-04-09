@@ -224,9 +224,14 @@ export default class Login extends Component{
           <TextField required id="standard-required" label="Password" type="password" onChange={this.passwordHandler} value={this.state.password} error={this.state.passwordError}/>
         </div>
         <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
-        <Button variant = "outlined" color="primary" type="submit" onClick={this.confirmSubmission}>Login</Button>
-        <Button variant = "outlined" color="secondary" onClick={()=>{this.props.history.push("/login/forgetpassword")}}>Forget Login?</Button>
-        <Button variant = "outlined" color="secondary" onClick={()=>{
+        <div style={{marginTop: 15, marginBottom: 10}}>
+          <Button variant = "contained" color="primary" type="submit" onClick={this.confirmSubmission}>Login</Button>
+        </div>
+        <div style={{marginTop: 15, marginBottom: 10}}>
+          <Button variant = "contained" color="secondary" onClick={()=>{this.props.history.push("/login/forgetpassword")}}>Forget Login?</Button>
+        </div>
+        <div style={{marginTop: 15, marginBottom: 10}}>
+        <Button variant = "contained" color="secondary" onClick={()=>{
             if(this.props.location!=null&&this.props.location.state!=null&&this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
             {
                 this.props.history.push({
@@ -239,6 +244,7 @@ export default class Login extends Component{
               this.props.history.push("/login/createaccount")
             }
           }}>Create Account</Button>
+          </div>
           </div>
           <Snackbar open={this.state.loginFailedAlert} autoHideDuration={3000} onClose={()=>{this.setState({loginFailedAlert:false})}}>
             <Alert variant = "filled" severity="error">

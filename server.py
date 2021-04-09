@@ -641,7 +641,7 @@ def apiGetHomePage():
                     ,"favorited":favorited
                     ,"gameID":"{}".format(gameID)
                     ,"templateID":"{}".format(templateID)
-                    ,"gameName":"{}".format(gameName)}
+                    ,"gameName":"{}".format(gameName)
                     ,"prevRating":"{}".format(prevRating)}
         #append each new dictionary to its appropriate list
 

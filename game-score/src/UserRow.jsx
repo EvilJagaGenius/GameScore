@@ -10,7 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import { useHistory } from "react-router-dom";
 import Star from '@material-ui/icons/Star';
 import ImagePlaceholder from '@material-ui/icons/Casino';
-import Avatars from'./pages/Avatars';
+import Avatars from'./pages/profilePages/Avatars';
 
 export default function UserRow(props) {
     return(

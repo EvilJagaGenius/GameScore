@@ -148,7 +148,7 @@ export default function BottomUI(props) {
 															<SportsEsports style={{fontSize:35}} />
 														</div>
 														<div style={{marginTop:-10}}>
-															Play Again
+															Replay
 														</div>
 													</div>
 												</Button>

@@ -226,7 +226,7 @@ export default class TemplateEditor extends Component {
                                  ></TextField>
                               </div>
 
-                                 <div style={{paddingLeft:0,left:10,top:10,position:"absolute"}} align="left">
+                                 <div style={{paddingLeft:0,left:10,top:55,position:"absolute"}} align="left">
                                   {/*Back Button*/}
                                     <IconButton onClick={()=>{
                                             //Go to my template page
@@ -242,7 +242,7 @@ export default class TemplateEditor extends Component {
 
                                         ({this.state.data.gameName})
                                 </div>
-                              <div style={{paddingLeft:0,right:5,top:5,position:"absolute"}} align="left">
+                              <div style={{paddingLeft:0,right:5,top:50,position:"absolute"}} align="left">
                                   {/*Back Button*/}
                                       <IconButton onClick={()=>{
                                         this.setState({

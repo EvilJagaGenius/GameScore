@@ -109,6 +109,7 @@ function ScoringOverview() {
         fetch("/api/getScoring").then(res => res.json()).then(data => {
           setData(data)
           setLoaded(true)
+          console.log(data)
         });
 
         //Create handler function for when socket updates
@@ -157,7 +158,22 @@ function ScoringOverview() {
       <>
         {
         loaded === true && /*Only display if data is loaded*/
-
+        <>
+          {
+          data["successful"] == false &&
+          <>
+            {
+              data["errorMessage"]!=null && 
+              <h2>{data["errorMessage"]}</h2>
+            }
+            <link>
+              
+            </link>
+            <Button onClick={()=> history.push('/home')}variant = "contained" color="primary" size = "large">Return Home</Button>
+          </> 
+          }
+        {
+         data["successful"] == true &&
         <div className={classes.root}>
 
             {/*Header Info*/}
@@ -194,7 +210,7 @@ function ScoringOverview() {
                   </TableHead>
                     {/*For each player in game*/}
                     {Object.keys((data.scoringOverview.players)).map(key => (
-                        <TableRow>
+                        <TableRow className={(data.scoringOverview.players[parseInt(key)].color)+"LT"}>
                             <TableCell>
                                 <div style={{float:"left",marginTop:4}}>
                                     {/*Display Play icon*/}
@@ -272,7 +288,7 @@ function ScoringOverview() {
                       <>
                         {/*For each global award in game*/}
                         {Object.keys(data.globalAwards).map(key => (
-                            <TableRow>
+                            <TableRow className={(data.globalAwards[parseInt(key)].exceedsLimit ? 'errorCondition' : '')}> 
 
                               {/*Add Condition Name*/}
                               <TableCell align="center">
@@ -475,6 +491,7 @@ function ScoringOverview() {
                           <Button className={classes.button}  variant = "contained" color="primary" size = "large" onClick={()=>{
                                 
                                 fetch("/api/postFinalizeScore").then(res => res.json()).then(data => {
+                                history.push('/play/postgame')
                                 })
 
                           }}>Finalize Score</Button>
@@ -740,7 +757,8 @@ function ScoringOverview() {
               </Table>
             <KickedModal history={history} show={showKicked}></KickedModal>
         </div>
-        
+        }
+        </>
         }
       </>
     );

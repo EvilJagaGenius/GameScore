@@ -46,7 +46,7 @@ export default class ScoringPage extends React.Component{
     componentDidMount = () => {
 
         //Load Data from Scoring overview if provided
-        if(this.props.location.state.data !=null)
+        if(this.props.location.state != null && this.props.location.state.data !=null)
         {
           this.setState({data:this.props.location.state.data,
           loaded:true,
@@ -95,16 +95,21 @@ export default class ScoringPage extends React.Component{
                 data:result,
                 loaded: true
               })
-              {this.updateValues()}
-              
-              //Identify what position this player is from the provided PlayerID
-              for(var i=0;i<Object.keys(result["individualScoring"]).length;i++)
-              {
-                if(result["individualScoring"][i].playerID===this.props.location.state.individualPlayerID)
+
+              if(result.successful==true)
                 {
-                  this.setState({key:i})
+                  {this.updateValues()}
+                  
+                  //Identify what position this player is from the provided PlayerID
+                  for(var i=0;i<Object.keys(result["individualScoring"]).length;i++)
+                  {
+                    if(result["individualScoring"][i].playerID===this.props.location.state.individualPlayerID)
+                    {
+                      this.setState({key:i})
+                    }
+                  }
+                
                 }
-              }
 
           },) //End Fetch
 
@@ -113,10 +118,13 @@ export default class ScoringPage extends React.Component{
     //Cancel all updates when component disconnects
     componentWillUnmount()
     {
-      this.Socket.removeAllListeners("sendNewScores")
-      this.Socket.removeAllListeners("gameEnd")
-      this.Socket.removeAllListeners("kickPlayer")
-      this.Socket.disconnect()
+      if(this.Socket!=null)
+        {
+        this.Socket.removeAllListeners("sendNewScores")
+        this.Socket.removeAllListeners("gameEnd")
+        this.Socket.removeAllListeners("kickPlayer")
+        this.Socket.disconnect()
+       }
     }
 
     //Changed Value in textbox which procs API call
@@ -201,101 +209,120 @@ export default class ScoringPage extends React.Component{
         return(
           <div>
           {
+
           this.state.loaded === true && 
             <>
-              {/*Header*/}
-              <div class={this.state.data.individualScoring[this.state.key].color}>
-                <div style={{whiteSpace:"nowrap"}}>
-                  <div style={{textAlign:"center",display:"inlineBlock",paddingTop:15,paddingBottom:10}} align="center" textAlign= "center">
-                     {/*Name + Icon*/}
-                     <img alt = "avatar icon" src = {getAvatar(this.state.data.individualScoring[this.state.key].avatarID)} style={{width:30,height:30,marginBottom:-7,marginRight:10}}></img>
-                      {/* Player select dropdown*/}
-                      <Select style={{fontSize:25}} id="select" defaultValue={this.state.key} select
-                              onChange={(event)=>{
+              {
+                 this.state.data["successful"] == false &&
+                 <>
+                    {
+                      this.state.data["errorMessage"]!=null && 
+                      <h2>{this.state.data["errorMessage"]}</h2>
+                    }
+                    <link>
+                      
+                    </link>
+                    <Button onClick={()=> this.props.history.push('/home')}variant = "contained" color="primary" size = "large">Return Home</Button>
+                </>
+              }
 
-                                  //Change Player being shown
-                                  this.setState({
-                                    key:event.target.value
-                                  })
-                                  //Reload values column with new numbers
-                                  {this.updateValues(event.target.value)}
-                              }}
-                              >
+              {
+              this.state.data["successful"] == true &&
+              <>
+                {/*Header*/}
+                <div class={this.state.data.individualScoring[this.state.key].color}>
+                  <div style={{whiteSpace:"nowrap"}}>
+                    <div style={{textAlign:"center",display:"inlineBlock",paddingTop:15,paddingBottom:10}} align="center" textAlign= "center">
+                       {/*Name + Icon*/}
+                       <img alt = "avatar icon" src = {getAvatar(this.state.data.individualScoring[this.state.key].avatarID)} style={{width:30,height:30,marginBottom:-7,marginRight:10}}></img>
+                        {/* Player select dropdown*/}
+                        <Select style={{fontSize:25}} id="select" defaultValue={this.state.key} select
+                                onChange={(event)=>{
 
-                                {/*Player Options*/}
-                                {Object.keys((this.state.data.individualScoring)).map(pos => (
-                                    <MenuItem value={pos}>{this.state.data.individualScoring[parseInt(pos)].displayName}</MenuItem>
-                              ))}
-                        </Select>
-                  </div>
-                  <div style={{paddingLeft:0,left:5,top:15,position:"absolute"}} align="left">
-                      {/*Back Button*/}
-                      <Link to={{pathname: "/play/overview" , state:{playerData:this.state.data["scoringOverview"]["players"],awardsData:this.state.data["globalAwards"],finalizeData:this.state.data["finalizeScore"],summaryData:this.state.data["scoringOverview"]}}}>
-                          <Button startIcon={<BackIcon/>}>
-                          </Button>
-                      </Link>
+                                    //Change Player being shown
+                                    this.setState({
+                                      key:event.target.value
+                                    })
+                                    //Reload values column with new numbers
+                                    {this.updateValues(event.target.value)}
+                                }}
+                                >
+
+                                  {/*Player Options*/}
+                                  {Object.keys((this.state.data.individualScoring)).map(pos => (
+                                      <MenuItem className={(this.state.data.individualScoring[pos].color)+"LT"} value={pos}>{this.state.data.individualScoring[parseInt(pos)].displayName}</MenuItem>
+                                ))}
+                          </Select>
+                    </div>
+                    <div style={{paddingLeft:0,left:5,top:15,position:"absolute"}} align="left">
+                        {/*Back Button*/}
+                        <Link to={{pathname: "/play/overview" , state:{playerData:this.state.data["scoringOverview"]["players"],awardsData:this.state.data["globalAwards"],finalizeData:this.state.data["finalizeScore"],summaryData:this.state.data["scoringOverview"]}}}>
+                            <Button startIcon={<BackIcon/>}>
+                            </Button>
+                        </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <TableContainer component={Paper}>
-                <Table style={{ tableLayout: 'fixed' }} size="small">
-                  <colgroup>
-                    <col style={{width:'25%'}}/>
-                    <col style={{width:'53%'}}/>
-                    <col style={{width:'20%'}}/>
-                 </colgroup>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell align="left">Condition</TableCell>
-                      <TableCell align="center">Value</TableCell>
-                      <TableCell align="center">Score</TableCell>
-                    </TableRow>
-                  </TableHead>
-
-                  {/*For Each Scoring Condition*/}
-                    {Object.keys(this.state.data.individualScoring[this.state.key]["conditions"]).map(condPos=>( 
-
-                      <TableRow className={(this.state.data.individualScoring[this.state.key]["conditions"][parseInt(condPos)].exceedsLimits ? 'errorCondition' : '')}>  
-
-                        <> {/*Condition Name*/}
-                      
-                            <TableCell style={{padding:0,paddingLeft:10}}align="left">
-                              <div style={{width:"100%"}}>
-                                <Tooltip enterTouchDelay={0} leaveTouchDelay={5000} placement="below" title={this.getTooltip(condPos)}>
-                                 
-                                 <Typography>{this.state.data.individualScoring[this.state.key]["conditions"][condPos].conditionName}</Typography>
-                                
-                               </Tooltip>
-                               </div>
-                            </TableCell>
-                          
-                        </>
-                        {/*Editable Textbox*/}
-                        <TableCell align="center">
-                          <Textbox playerID={this.state.data.individualScoring[this.state.key].playerID} conditionID={this.state.data.individualScoring[this.state.key]["conditions"][condPos].conditionID} onValueChange={(e) => {
-                            this.handleChange(e,condPos,this.state.key)}} defaultValue={this.state.data.individualScoring[this.state.key]["conditions"][condPos].value} condPos={condPos} playerPos={this.state.key}/>
-                        </TableCell>
-
-                        {/*Score*/}
-                        <TableCell align="center">{this.roundValues(this.state.data.individualScoring[this.state.key]["conditions"][condPos].score).toFixed(2)}</TableCell>
+                <TableContainer component={Paper}>
+                  <Table style={{ tableLayout: 'fixed' }} size="small">
+                    <colgroup>
+                      <col style={{width:'25%'}}/>
+                      <col style={{width:'53%'}}/>
+                      <col style={{width:'20%'}}/>
+                   </colgroup>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell align="left">Condition</TableCell>
+                        <TableCell align="center">Value</TableCell>
+                        <TableCell align="center">Score</TableCell>
                       </TableRow>
-                    ))}
+                    </TableHead>
+
+                    {/*For Each Scoring Condition*/}
+                      {Object.keys(this.state.data.individualScoring[this.state.key]["conditions"]).map(condPos=>( 
+
+                        <TableRow className={(this.state.data.individualScoring[this.state.key]["conditions"][parseInt(condPos)].exceedsLimits ? 'errorCondition' : '')}>  
+
+                          <> {/*Condition Name*/}
+                        
+                              <TableCell style={{padding:0,paddingLeft:10}}align="left">
+                                <div style={{width:"100%"}}>
+                                  <Tooltip enterTouchDelay={0} leaveTouchDelay={5000} placement="below" title={this.getTooltip(condPos)}>
+                                   
+                                   <Typography>{this.state.data.individualScoring[this.state.key]["conditions"][condPos].conditionName}</Typography>
+                                  
+                                 </Tooltip>
+                                 </div>
+                              </TableCell>
+                            
+                          </>
+                          {/*Editable Textbox*/}
+                          <TableCell align="center">
+                            <Textbox playerID={this.state.data.individualScoring[this.state.key].playerID} conditionID={this.state.data.individualScoring[this.state.key]["conditions"][condPos].conditionID} onValueChange={(e) => {
+                              this.handleChange(e,condPos,this.state.key)}} defaultValue={this.state.data.individualScoring[this.state.key]["conditions"][condPos].value} condPos={condPos} playerPos={this.state.key}/>
+                          </TableCell>
+
+                          {/*Score*/}
+                          <TableCell align="center">{this.roundValues(this.state.data.individualScoring[this.state.key]["conditions"][condPos].score).toFixed(2)}</TableCell>
+                        </TableRow>
+                      ))}
 
 
-                  {/*Total Row for Player*/}
-                  <TableRow style={{height:"45px"}}>
-                    <TableCell align="left"><b>Total</b></TableCell>
-                    <TableCell align="center">
-                        <p></p>
-                    </TableCell>
-                    <TableCell align="center">
-                        <p><b>{this.roundValues(this.state.data.individualScoring[this.state.key].totalScore).toFixed(2)}</b></p>
-                    </TableCell>
-                  </TableRow>
+                    {/*Total Row for Player*/}
+                    <TableRow style={{height:"45px"}}>
+                      <TableCell align="left"><b>Total</b></TableCell>
+                      <TableCell align="center">
+                          <p></p>
+                      </TableCell>
+                      <TableCell align="center">
+                          <p><b>{this.roundValues(this.state.data.individualScoring[this.state.key].totalScore).toFixed(2)}</b></p>
+                      </TableCell>
+                    </TableRow>
 
-                </Table>
-              </TableContainer>
-              
+                  </Table>
+                </TableContainer>
+                </>
+              }
             </>
           }
           {/*Modal to show if you have been kicked*/}

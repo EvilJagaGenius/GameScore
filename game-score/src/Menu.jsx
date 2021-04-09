@@ -264,6 +264,7 @@ export default class Menu extends Component {
                 {
                 this.state.loaded === "True" &&
                   <> 
+                    {console.log(this.state.loaded)}
                     {Object.keys(this.state.data.recentlyPlayed).map(key => (
                         <>
                           <TableRow onClick={()=>this.selectTemplate(1,key)}>

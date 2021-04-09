@@ -92,7 +92,7 @@ export default class Menu extends Component {
     });
       
       this.setState({
-        usernameData: getCookieValue("username")
+        usernameData: Cookies.get("username")
       });
   }
 

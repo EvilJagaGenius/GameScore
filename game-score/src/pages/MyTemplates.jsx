@@ -4,7 +4,6 @@ import Table from '@material-ui/core/Table';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-// import { Container, Link } from 'react-floating-action-button';
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import { Link } from 'react-router-dom';
@@ -13,28 +12,31 @@ import TextField from '@material-ui/core/TextField';
 
 export default class MyTemplates extends Component {
 
+  //Default Constructor to Init Component
   constructor(props)
   {
       super(props)
 
-        this.state =({
-        data:{},
-        loaded:false,
-        selectedTemplate:-1,
-        searching: "false",
-        searchQuery: "",
-        filtered: {}
+      this.state =({
+      data:{},
+      loaded:false,
+      selectedTemplate:-1,
+      searching: "false",
+      searchQuery: "",
+      filtered: {}
       })
 
       this.callAPI = this.callAPI.bind(this)
   }
 
-
+  //API call gets list of my templates in JSON form for displaying list
   callAPI()
   {
+
     this.setState({
       selectedTemplate:-1})
 
+    //Create API Headers
       const requestOptions = {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -43,7 +45,8 @@ export default class MyTemplates extends Component {
       })
     };
 
-    fetch("/api/getMyTemplates",requestOptions) //Needs an actual route
+    ///Send API Call
+    fetch("/api/getMyTemplates",requestOptions)
       .then(res => res.json())
       .then(
         (result) => {
@@ -54,15 +57,15 @@ export default class MyTemplates extends Component {
           console.log(result)
         },
       )
-
   }
 
+  //On Load
   componentDidMount() 
   {
     this.callAPI()
   }
 
-
+  //Select template and show bottom UI
   selectTemplate(newRowPos)
   {
     this.setState({
@@ -71,6 +74,7 @@ export default class MyTemplates extends Component {
     console.log(this.state.selectedTemplate)
   }
 
+  //Determine if certain row is selected (to show bottom UI)
   isSelected(checkRowPos)
   {
     if(checkRowPos === this.state.selectedTemplate)
@@ -83,6 +87,7 @@ export default class MyTemplates extends Component {
     }
   }
 
+  //On Search Bar Text Change
   handleChange = (e) => {
     this.setState({
         searchQuery: e.target.value,
@@ -91,6 +96,7 @@ export default class MyTemplates extends Component {
 
   }
 
+  //Event which updates search results based upon new values
   templateSearch = () => {
     //hold original list of results
     let currentList = {};
@@ -116,6 +122,7 @@ export default class MyTemplates extends Component {
 
     }
 
+    //Remove search results if search bar is empty
     if (this.state.searchQuery === "") {
       this.setState({
         searching: "false"
@@ -129,6 +136,7 @@ export default class MyTemplates extends Component {
     })
   }
 
+
   render() {
     return (
       
@@ -141,7 +149,7 @@ export default class MyTemplates extends Component {
         <>
         <TableContainer component={Paper}>
           <Table size="small">
-                {/*Table displaying the dynamic data for the users created templates*/}
+                {/*Table displaying the dynamic data for the user's created templates*/}
                 {
                 this.state.loaded === true &&
                 <> 
@@ -173,7 +181,7 @@ export default class MyTemplates extends Component {
                             rate= {true}
                             update ={this.callAPI}>
 
-                            </BottomUI>
+                          </BottomUI>
                         </>
                       }
                       </>
@@ -217,6 +225,7 @@ export default class MyTemplates extends Component {
         </TableContainer>
         </>
         }
+          {/*Floating Action Button to create new template */}
           <Link to="/mytemplates/creator">
             <Fab color="primary" aria-label="add" style={{position:"fixed",right:20,bottom:20}}>
               <AddIcon fontSize="large"/>

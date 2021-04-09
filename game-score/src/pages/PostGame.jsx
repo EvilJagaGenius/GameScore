@@ -1,5 +1,6 @@
 
- //import resources
+//Shows the results from the recently finished game.  Shows player scores and gives a chance for users to rate the template.
+
  import React from "react";
  import { Button } from '@material-ui/core';
  import { useState, useEffect } from 'react';
@@ -104,7 +105,6 @@
                 <h5>What did you think of {postGameData.templateName}?</h5>
             </div>
             {/*Post Game Buttons*/}
-
 
             <BottomUI
             templateName = {postGameData.templateName}

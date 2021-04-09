@@ -1,3 +1,5 @@
+/* Acts as an array for returning picture based upon given avatarID*/
+
 import Hacker from '../../images/avatarIcons/hacker.png';
 import Programmer from '../../images/avatarIcons/programmer.png';
 import Astronaut from '../../images/avatarIcons/astronaut.png'

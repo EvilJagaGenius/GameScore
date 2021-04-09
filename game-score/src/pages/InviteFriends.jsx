@@ -9,14 +9,14 @@ var QRCode = require('qrcode.react');
 
 function InviteFriends() {
 
-  //Set States
+  //Set States and Defaults
   const [data, setData] = useState({"joinCode":"000-000-000"});
   const [loaded, setLoaded] = useState(false);
 
   //On Load
   useEffect(() => {
 
-      //Call API to get Invite Info
+      //Call API to get Invite Info; Provides join code to show / create QR code from
       if(loaded === false)
       {
         fetch("/api/getInviteInfo").then(res => res.json()).then(newData => {
@@ -25,12 +25,14 @@ function InviteFriends() {
           console.log(newData)
         });
       }
+
   },[]);
 
 
+  //Returns Components to draw on screen
   return (
     <>
-      {/*Header*/}
+      {/*Header with title and back button*/}
       <div style={{whiteSpace:"nowrap"}}>
           <div style={{textAlign:"center",display:"inlineBlock",marginTop:15,marginBottom:10}} aligxn="center" textAlign= "center">
               <h2 style={{display:"inline"}}>Invite Friends</h2>
@@ -46,6 +48,7 @@ function InviteFriends() {
       { //Show Join Stuffs if loaded
         loaded === true &&
         <>
+          {/*QR Code*/}
           <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:0}} align="center" textAlign= "center">
               <h4 style={{display:"inline"}}>Invite via QR Code:</h4>
           </div>
@@ -57,6 +60,7 @@ function InviteFriends() {
               <h2 style={{display:"inline"}}>OR</h2>
           </div>
           
+          {/*Join Code*/}
           <div style={{textAlign:"center",display:"inlineBlock",marginTop:40,marginBottom:0}} align="center" textAlign= "center">
               <h4 style={{display:"inline"}}>Invite via Join Code:</h4>
           </div>

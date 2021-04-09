@@ -39,8 +39,10 @@ class RejoinGame extends React.Component
 		
 	}
 
+	//On Load
 	componentDidMount()
 	{
+		//Request Header
 		 const requestOptions = {
 	      method: 'POST',
 	      headers: {'Content-Type': 'application/json'},
@@ -49,12 +51,13 @@ class RejoinGame extends React.Component
 	      })
 	    };
 
-	    fetch("/api/postInGame",requestOptions) //Needs an actual route
+	    //Check if user is already in a game
+	    fetch("/api/postInGame",requestOptions)
 	      .then(res => res.json())
 	      .then(
 	        (result) => {
 	          console.log(result)
-	          if(result.successful===true)
+	          if(result.successful===true) //if user in in game, set state
 	          {
 	          	console.log("Succesful")
 	          	this.setState({
@@ -64,6 +67,69 @@ class RejoinGame extends React.Component
 	          	})
 	          }
 	          
+	        },
+	      )
+	}
+
+	//Player is leaving the game he was in
+	handleDisbandGame(e)
+	{
+		//Header Setup
+		const requestOptions = {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          credentials: 'include',
+          body: JSON.stringify({
+          })
+        };
+
+        //Tell server this player is leaving the game and he was the hsot
+	    fetch("/api/postLeaveGame",requestOptions) //Needs an actual route
+	      .then(res => res.json())
+	      .then(
+	        (result) => {
+	          console.log(result)
+	          this.setState({
+	          doShow:false
+	          })
+
+	          //If you are trying to join via QR, hard reload the page to recall the QR code joining scripts
+	          if(window.location.pathname.includes("/playgame"))
+	          	{
+	          		window.location.reload(false);
+	          	}
+
+	        },
+	      )
+	}
+
+	//User is leaving game and is not the host
+	handleLeaveGame(e)
+	{
+		//Request Header
+		 const requestOptions = {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              credentials: 'include',
+              body: JSON.stringify({
+              })
+            };
+
+         //User is not the host and is going to leave the game
+        fetch("/api/postLeaveGame",requestOptions)
+	      .then(res => res.json())
+	      .then(
+	        (result) => {
+	          console.log(result)
+	          this.setState({
+	          doShow:false
+	          })
+
+	          //If you are trying to join via QR, hard reload the page to recall the QR code joining scripts
+	          	if(window.location.pathname.includes("/playgame"))
+	          	{
+	          		window.location.reload(false);
+	          	}
 	        },
 	      )
 	}
@@ -98,72 +164,26 @@ class RejoinGame extends React.Component
 
                            		{
                            		 this.state.isHost==true &&
-	                              <Button variant = "contained" color="primary" size = "large" onClick={()=>{
-
-
-	                              	const requestOptions = {
-                                          method: 'POST',
-                                          headers: {'Content-Type': 'application/json'},
-                                          credentials: 'include',
-                                          body: JSON.stringify({
-                                          })
-                                        };
-
-								    fetch("/api/postLeaveGame",requestOptions) //Needs an actual route
-								      .then(res => res.json())
-								      .then(
-								        (result) => {
-								          console.log(result)
-								          this.setState({
-								          doShow:false
-								          })
-
-								          if(window.location.pathname.includes("/playgame"))
-								          	{
-								          		window.location.reload(false);
-								          	}
-
-								        },
-								      )
-
+	                              <Button variant = "contained" color="primary" size = "large" onClick={(e)=>{
+	                              		this.handleDisbandGame(e)
 	                                }}
 	                                >Disband Game</Button>
                                 }
 
                                 {
                            		 this.state.isHost==false &&
-	                              <Button variant = "contained" color="primary" size = "large" onClick={()=>{
-
-	                              		  const requestOptions = {
-                                          method: 'POST',
-                                          headers: {'Content-Type': 'application/json'},
-                                          credentials: 'include',
-                                          body: JSON.stringify({
-                                          })
-                                        };
-
-	                                fetch("/api/postLeaveGame",requestOptions)
-								      .then(res => res.json())
-								      .then(
-								        (result) => {
-								          console.log(result)
-								          this.setState({
-								          doShow:false
-								          })
-								          	if(window.location.pathname.includes("/playgame"))
-								          	{
-								          		window.location.reload(false);
-								          	}
-								        },
-								      )
-
+	                              <Button variant = "contained" color="primary" size = "large" onClick={(e)=>{
+	                              		this.handleLeaveGame(e)
 	                                }}
 	                                >Leave Game</Button>
                                 }
                                 
                                  <Button variant = "contained" color="primary" size = "large" onClick={()=>{
-                                 const { history } = this.props;
-                                history.push('/play/overview')
+
+                                 	//Send back to overview scoring page
+
+                                	const { history } = this.props;
+                                	history.push('/play/overview')
 
                                 }}
                                 >Rejoin Game</Button>

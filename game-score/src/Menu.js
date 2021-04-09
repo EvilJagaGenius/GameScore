@@ -204,7 +204,7 @@ constructor(props) {
     this.setState({
       searching: "true",
       searchQuery: gameName
-    })
+    }, this.templateSearch)
   }
 
   render() {

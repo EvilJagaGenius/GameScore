@@ -1,8 +1,5 @@
-import io from "socket.io-client";
-import Cookies from 'js-cookie';
 import React from "react";  //basic React framework
 import Modal from '@material-ui/core/Modal';
-import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { Button } from '@material-ui/core';
 import { withRouter } from 'react-router'
@@ -57,7 +54,7 @@ class RejoinGame extends React.Component
 	      .then(
 	        (result) => {
 	          console.log(result)
-	          if(result.successful==true)
+	          if(result.successful===true)
 	          {
 	          	console.log("Succesful")
 	          	this.setState({
@@ -76,7 +73,7 @@ class RejoinGame extends React.Component
 		return(
 			<>
                 {
-                this.state.loaded === true &&
+                this.state.loaded == true &&
                 <Modal
                     open={this.state.doShow}
                     aria-labelledby="simple-modal-title"

@@ -1,6 +1,4 @@
-
 import React, { Component } from "react";
-import GameRow from "../GameRow"
 import TemplateRow from "../TemplateRow";
 import Table from '@material-ui/core/Table';
 import TableContainer from '@material-ui/core/TableContainer';
@@ -132,12 +130,11 @@ export default class MyTemplates extends Component {
   }
 
   render() {
-    const { classes } = this.props;
     return (
       
       <>
         {/* Search Bar */}
-        <TextField id="outlined-basic" label="Search Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} style={{width:"90%",marginLeft:"5%", marginTop:"1%",marginBottom:"1%"}} />
+        <TextField id="outlined-basic" label="Search My Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} style={{width:"90%",marginLeft:"5%", marginTop:"1%",marginBottom:"1%"}} />
 
         {/* Wipe out default content when actively searching */}
         {this.state.searching === "false" &&
@@ -162,7 +159,7 @@ export default class MyTemplates extends Component {
                         selected = {this.isSelected(key)}
                         />
                       </TableRow>
-                      {this.isSelected(key) == true &&
+                      {this.isSelected(key) === true &&
                         <>
                           {console.log(this.state.data[key])}
                           <BottomUI

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import { Button } from '@material-ui/core';
@@ -9,9 +9,14 @@ import Input from '@material-ui/core/Input';
 import Typography from '@material-ui/core/Typography';
 import { useHistory } from "react-router-dom";
 import Star from '@material-ui/icons/Star';
+import GavelIcon from '@material-ui/icons/Gavel';
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteIcon from '@material-ui/icons/Delete';
+import CheckIcon from '@material-ui/icons/Check';
+import BlockIcon from '@material-ui/icons/Block';
 import Table from '@material-ui/core/Table';
+import ReportIcon from '@material-ui/icons/Report';
+import Checkbox from '@material-ui/core/Checkbox';
 import Rating from '@material-ui/lab/Rating';
 import Favorite from '@material-ui/icons/Favorite';
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
@@ -32,8 +37,7 @@ const useStyles = makeStyles((theme) => ({
         width: "90%",
         backgroundColor: theme.palette.background.paper,
         boxShadow: theme.shadows[5],
-        padding: theme.spacing(2, 4, 3),
-        padding:18	
+        padding: theme.spacing(2, 4, 3)
     },
 }));
 
@@ -68,16 +72,20 @@ export default function BottomUI(props) {
 		const [modalStyle] = React.useState(getModalStyle);
 		const [createGamePopup, setCreateGamePopup] = useState(false);
 		const [deletePopup, setDeletePopup] = useState(false);
+		const [reportPopup, setReportPopup] = useState(false);
+		const [adminPopup, setAdminPopup] = useState(false);
 		const [play, setPlay] = useState(props.play || false);
 		const [edit, setEdit] = useState(props.edit || false);
 		const [del, setDel] = useState(props.del || false);
+		const [rep, setRep] = useState(props.rep || false); 
+		const [review, setReview] = useState(props.review || false);
+		const [judge, setjudge] = useState(props.judge || false);
 		var [numPlayers, setNumPlayers] = useState(2);
         const [ratingValue, setRatingValue] = useState(props.prevRating);
         const [ratingPopup, setRatingPopup] = useState(false);
 		let history = useHistory()
-
-
-
+		const [repUser, setRepUser] = useState(false);
+		const [repTemplate, setRepTemplate] = useState(false);
 
         return(
         <>
@@ -313,6 +321,102 @@ export default function BottomUI(props) {
 										</>
 									}
 
+									{rep === true &&
+										<>
+											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+												<Button style={{height:60,width:"100%"}} variant = "contained" color="primary" size="large"
+													onClick = {() => setReportPopup(true)}>
+													<div style={{margin:-5}}>
+														<div>
+															<ReportIcon style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															Report
+														</div>
+													</div>
+												</Button>
+											</TableCell>
+										</>
+									}
+
+									{review === true &&
+										<>
+											<TableCell style={{margin:0, padding:0, paddingLeft:3, paddingRight:3}}>
+												<Button style={{height:60, width:"100%"}} variant ="contained" color="primary" size="large"
+													onClick={() => {
+														fetch(`/api/postCreateNewGame?templateID=${props.templateID}&gameID=${props.gameID}&numOfPlayers=${1}`)
+								 							.then(res => res.json()).then(data => {
+								 								console.log(data)
+								 								history.push('/play/overview')
+								 								props.update();
+															});
+													}}>
+													<div style={{margin:-5}}>
+														<div>
+															<GavelIcon style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															Review
+														</div>
+													</div>
+												</Button>
+											</TableCell>
+										</>
+									}
+
+									{judge === true &&
+										<>
+											<TableCell style={{margin:0, padding:0, paddingLeft:3, paddingRight:3}}>
+												<Button style={{height:60,width:"100%"}} variant="contained" color="primary" size="large"
+													onClick={() => {
+														console.log(props.reportID)
+														const requestOptions = {
+															method:'POST',
+															headers: { 'Content-Type': 'application/json' },
+															credentials: 'include',
+															body: JSON.stringify({
+																templateID: props.templateID,
+																reason:props.reason,
+																userID:props.userID,
+																reportID:props.reportID,
+																allow: true
+															})
+														}
+														fetch('/api/manageReports', requestOptions)
+															.then(res => res.json())
+															.then(data => {
+																console.log(data);
+															})
+
+														props.update();
+													}}>
+													<div style={{margin:-5}}>	
+														<div>
+															<CheckIcon style={{fontSize:35}} />
+														</div>
+														<div style={{margin:-10}}>
+															Allow
+														</div>
+													</div>
+												</Button>
+											</TableCell>
+
+											<TableCell style={{margin:0, padding:0, paddingLeft:3, paddingRight:3}}>
+												<Button style={{height:60,width:"100%"}} variant="contained" color="primary" size="large"
+													onClick={() => setAdminPopup(true)}>
+													<div style={{margin:-5}}>
+														<div>
+															<BlockIcon style={{fontSize:35}} />
+														</div>
+														<div style={{margin:-10}}>
+															Remove
+														</div>
+													</div>
+												</Button>
+											</TableCell>
+										</>
+									}
+
 								</TableRow>
 							</Table>
 						</TableCell>
@@ -443,7 +547,7 @@ export default function BottomUI(props) {
 											<td style={{paddingRight:7}}>
 												<Button className={classes.button} variant = "contained" color="primary" size = "large"
 												onClick={()=>{
-
+													console.log("flag")
 													const requestOptions = {
 														method:'POST',
             											headers: { 'Content-Type': 'application/json' },
@@ -452,9 +556,11 @@ export default function BottomUI(props) {
                 											templateID: props.templateID
             											})
 													}
+													console.log("flag")
 													fetch('/api/postDeleteTemplate', requestOptions)
 														.then(res => res.json())
 														.then(data => {
+															console.log("flag")
 															props.update();
 															setDeletePopup(false)
 														})
@@ -465,6 +571,131 @@ export default function BottomUI(props) {
 											<td style={{paddingLeft:7}}>
 												<Button className={classes.button} variant = "contained" color="primary" size = "large"
 												onClick={()=>setDeletePopup(false)}>
+													Cancel
+												</Button>
+											</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</Modal>
+						<Modal
+							open={reportPopup}
+							aria-labelledby="simple-modal-title"
+							aria-describedby="simple-modal-description">
+							
+							<div style={modalStyle} className={classes.paper}>
+								<h3 style={{textAlign:"center"}}>Report</h3>
+								<h4 style={{textAlign:"center"}}>Author</h4>
+								<Checkbox style={{marginLeft:-12,marginRight:-2,marginTop:-2}} checked={repUser}
+                                    onChange={(e)=>{
+										setRepUser(e.target.checked);
+									}}>
+
+								</Checkbox>
+								<b>{props.userName}</b>
+								
+								<h4 style={{textAlign:"center"}}>Template</h4>
+								<Checkbox style={{marginLeft:-12, marginRight:-2,marginTop:-2}} checked={repTemplate}
+									onChange={(e) => {
+										setRepTemplate(e.target.checked);
+									}}>
+
+								</Checkbox>
+								<b>{props.templateName}</b>
+
+								<div>
+									<table style={{margin:"auto",paddingTop:20,paddingBottom:-15}}>
+										<tr>
+											<td style={{paddingRight:7}}>
+												<Button className={classes.button} variant = "contained" color="primary" size = "large"
+													onClick={() => {
+														console.log(props.userID)
+														const requestOptions = {
+															method:'POST',
+															headers: { 'Content-Type': 'application/json' },
+															credentials: 'include',
+															body: JSON.stringify({
+																gameID: props.gameID,
+																templateID: props.templateID,
+																userID: props.userID,
+																tReport: repTemplate,
+																uReport: repUser
+															})
+														}
+														fetch('/api/report', requestOptions)
+															.then(res => res.json())
+															.then(data => {
+																console.log("Report Submitted");
+																setReportPopup(false);
+																props.update();
+															})
+													}}>
+													Report
+												</Button>
+											</td>
+											<td style={{paddingLeft:7}}>
+												<Button className={classes.button} variant = "contained" color="primary" size = "large"
+													onClick={()=>setReportPopup(false)}>
+														Cancel
+												</Button>
+											</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</Modal>
+						<Modal
+							open={adminPopup}
+							aria-labelledby="simple-modal-title"
+							aria-describedby="simple-modal-description">
+							
+							<div style={modalStyle} className={classes.paper}>
+								{ props.reason === "Template" &&
+								<>
+									<h3 style={{textAlign:"center"}}>Are you sure you want to delete?</h3>
+									<Typography>Are you sure you want to permanently delete this template?</Typography>
+								</>
+								}
+
+								{ props.reason === "Uername" &&
+								<>
+									<h3 style={{textAlign:"center"}}>Are you sure you want to change? </h3>
+									<Typography>Are sure you you want change this user's name?</Typography>
+								</>
+								}
+								<div>
+									<table style={{margin:"auto",paddingTop:20,paddingBottom:-15}}>
+										<tr>
+											<td style={{paddingRight:7}}>
+												<Button className={classes.button} variant = "contained" color="primary" size = "large"
+												onClick={()=>{
+
+													const requestOptions = {
+														method:'POST',
+														headers: { 'Content-Type': 'application/json' },
+														credentials: 'include',
+														body: JSON.stringify({
+															templateID: props.templateID,
+															reason:props.reason,
+															userID:props.userID,
+															reportID:props.reportID,
+															allow: false
+														})
+													}
+													fetch('/api/manageReports', requestOptions)
+														.then(res => res.json())
+														.then(data => {
+															setAdminPopup(false);
+															props.update();
+														})
+												}}>
+													Delete
+												</Button>
+											</td>
+											<td style={{paddingLeft:7}}>
+												<Button className={classes.button} variant = "contained" color="primary" size = "large"
+												onClick={()=>setAdminPopup(false)}>
 													Cancel
 												</Button>
 											</td>

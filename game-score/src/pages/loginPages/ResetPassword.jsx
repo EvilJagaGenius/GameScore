@@ -7,7 +7,7 @@
 import React from "react";
 import TextField from '@material-ui/core/TextField';
 import {makeStyles} from '@material-ui/core/styles';
-import {Button} from "@material-ui/core";
+import {Button, Typography} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import { Component } from "react";
 import Logo from '../../images/GameScore App Logo.png';
@@ -164,21 +164,27 @@ export default class ResetPassword extends Component{
       },
     }));
     return (
-      <form className={classes.root} noValidate autoComplete="off">
-        <Box m={2} pt={3}>
-        <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
-        <h1>Reset Password</h1>
-        <div>
-          <TextField required id="standard-required" name = "password" label="Password" type="password" onChange={this.passwordHandler}  error={this.state.passwordError}/>
-        </div>
-        <div>
-          <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
-        </div>
-        <div>
-          <Button onClick={()=>{this.confirmSubmission()}}>Reset Password</Button>
-        </div>
-        </Box>
-      </form>
+      <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
+        <form className={classes.root} noValidate autoComplete="off">
+          <Box m={2} pt={3}>
+          <div style={{marginTop: 15, marginBottom: 10}}>
+            <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
+          </div>
+          <div style={{marginTop: 15, marginBottom: 10}}>
+            <Typography>Reset Password</Typography>
+          </div>
+          <div style={{marginTop: 15, marginBottom: 10}}>
+            <TextField required id="standard-required" name = "password" label="Password" type="password" onChange={this.passwordHandler}  error={this.state.passwordError}/>
+          </div>
+          <div style={{marginTop: 15, marginBottom: 10}}>
+            <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
+          </div>
+          <div style={{marginTop: 15, marginBottom: 10}}>
+            <Button type = "submit" variant = "contained" color = "primary" onClick={()=>{this.confirmSubmission()}}>Reset Password</Button>
+          </div>
+          </Box>
+        </form>
+      </div>
     );
   }
 }

@@ -3,9 +3,10 @@
  */
 
 import React, { Component } from 'react'
-import { Accordion, Icon } from 'semantic-ui-react'
+import { Accordion, AccordionPanel, Icon } from 'semantic-ui-react'
 import GameRow from "./GameRow"
 import TemplateRow from "./TemplateRow"
+import UserRow from "./UserRow"
 import BottomUI from "./BottomUI"
 import Table from '@material-ui/core/Table';
 import TableContainer from '@material-ui/core/TableContainer';
@@ -29,12 +30,12 @@ export default class Menu extends Component {
             searching: "false",
             filtered: {},
             searchData: {},
+            reportData: {},
+            admin: {},
             isLoggedIn: true
-          };
+    };
     this.callAPI = this.callAPI.bind(this);
-    this.gameSearchButton = this.gameSearchButton.bind(this);
-  }
-    
+  };
 
   handleClick = (e, titleProps) => {
     const { index } = titleProps
@@ -46,15 +47,17 @@ export default class Menu extends Component {
   componentDidMount() {
     Promise.all([
       fetch("/api/getHomePage").then(res => res.json()),
-      fetch("/api/search/templates").then(res => res.json())
-    ]).then(([homeResponse, searchResponse]) => {
+      fetch("/api/search/templates").then(res => res.json()),
+      fetch("/api/listReports").then(res => res.json())
+    ]).then(([homeResponse, searchResponse, reportResponse]) => {
       this.setState({
         data: homeResponse,
         searchData: searchResponse.templates,
+        reportData: reportResponse,
         loaded: "True"
       });
 
-      console.log(searchResponse);
+      console.log(reportResponse);
     });
     if(Cookies.get("username")){
       console.log("logged in")
@@ -72,22 +75,26 @@ export default class Menu extends Component {
   }
 
   
-  /*callAPI() {
-    fetch("/api/getHomePage")
-      .then(res => res.json())
-      .then(
-        (result) => {
-          this.setState({
-            data: result,
-            loaded: "True"
-          }
-          );
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-      );
-  }*/
+  callAPI() {
+    Promise.all([
+      fetch("/api/getHomePage").then(res => res.json()),
+      fetch("/api/search/templates").then(res => res.json()),
+      fetch("/api/listReports").then(res => res.json())
+    ]).then(([homeResponse, searchResponse, reportResponse]) => {
+      this.setState({
+        data: homeResponse,
+        searchData: searchResponse.templates,
+        reportData: reportResponse,
+        loaded: "True"
+      });
+
+      console.log(reportResponse);
+    });
+      
+      this.setState({
+        usernameData: Cookies.get("username")
+      });
+  }
 
   selectTemplate(newAccPos,newRowPos)
   {
@@ -165,14 +172,6 @@ export default class Menu extends Component {
       filtered: newList
     })
   }
-  
-  gameSearchButton(gameName) {
-    console.log("Search button clicked");
-    this.setState({
-      searching: "true",
-      searchQuery: gameName
-    }, this.templateSearch)
-  }
 
   render() {
     const { activeIndex } = this.state;
@@ -186,7 +185,7 @@ export default class Menu extends Component {
         }
       </div>
       {/* Search Bar */}
-      <TextField id="outlined-basic" label="Search Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} style={{width:"90%",marginLeft:"5%", marginTop:"1%",marginBottom:"1%"}}/>
+      <TextField id="outlined-basic" label="Search All Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} style={{width:"90%",marginLeft:"5%", marginTop:"1%",marginBottom:"1%"}}/>
 
       {/* Wipe out accordians if the user is actively searching */}
       { this.state.searching === "false" &&
@@ -228,8 +227,12 @@ export default class Menu extends Component {
                                  templateName = {this.state.data["favoritedTemplates"][key].templateName}
                                  templateID = {this.state.data["favoritedTemplates"][key].templateID}
                                  gameID = {this.state.data["favoritedTemplates"][key].gameID}
+                                 userID = {this.state.data["favoritedTemplates"][key].userID}
+                                 userName = {this.state.data["favoritedTemplates"][key].userName}
                                  selected = {this.isSelected(0,key)}
                                  play = {true}
+                                 rep = {true}
+                                 update = {this.callAPI}
                                  rate= {true}>
                                  </BottomUI>
                              </>
@@ -281,6 +284,11 @@ export default class Menu extends Component {
                                 templateName = {this.state.data["recentlyPlayed"][key].templateName}
                                 templateID = {this.state.data["recentlyPlayed"][key].templateID}
                                 gameID = {this.state.data["recentlyPlayed"][key].gameID}
+                                userID = {this.state.data["recentlyPlayed"][key].userID}
+                                userName = {this.state.data["recentlyPlayed"][key].userName}
+                                selected = {this.isSelected(1,key)}
+                                play = {true}
+                                rep = {true}
                                 prevRating = {this.state.data["recentlyPlayed"][key].prevRating}
                                 favorited = {this.state.data["recentlyPlayed"][key].favorited}
                                 selected = {this.isSelected(1,key)}
@@ -330,20 +338,25 @@ export default class Menu extends Component {
                             selected = {this.isSelected(2,key)}
                             />
                           </TableRow>
-                            {
+                          {
                             this.isSelected(2,key) === true &&
                             <>
                               <BottomUI
                                 templateName = {this.state.data["highestRated"][key].templateName}
                                 templateID = {this.state.data["highestRated"][key].templateID}
                                 gameID = {this.state.data["highestRated"][key].gameID}
+                                userID = {this.state.data["highestRated"][key].userID}
+                                userName = {this.state.data["highestRated"][key].userName}
+                                selected = {this.isSelected(2,key)}
+                                play = {true}
+                                rep = {true}
                                 prevRating = {this.state.data["highestRated"][key].prevRating}
                                 favorited = {this.state.data["highestRated"][key].favorited}
                                 selected = {this.isSelected(2,key)}
                                 play = {true}
                                 update = {this.callAPI}
                                 rate= {true}>
-                                </BottomUI>
+                              </BottomUI>
                             </>
                           }
                       </>
@@ -374,27 +387,10 @@ export default class Menu extends Component {
                   <> 
                     {/* Iterate through favorited templates and render the data in a tabular format */}
                     {Object.keys(this.state.data.recommendedGames).map(key => (
-                      <>
-                      <TableRow onClick={()=>this.selectTemplate(3,key)}>
-                        <GameRow rowPos={key} accPos="3" 
-                        pictureURL = {this.state.data["recommendedGames"][key].pictureURL} 
-                        gameName = {this.state.data["recommendedGames"][key].gameName}
-                        selected = {this.isSelected(3,key)}
-                        />
-                      </TableRow>
-                        {this.isSelected(3,key) === true &&
-                          <>
-                          <BottomUI
-                            gameURL = {"https://www.boardgamegeek.com" + this.state.data["recommendedGames"][key].gameURL}
-                            gameName = {this.state.data["recommendedGames"][key].gameName}
-                            gameBottomUI = {true}
-                            searchFunction = {this.gameSearchButton}
-                            selected = {this.isSelected(3,key)}
-                            >
-                          </BottomUI>
-                          </>
-                        }
-                      </>
+                      <GameRow rowPos={key} accPos="3" 
+                      pictureURL = {this.state.data["recommendedGames"][key].pictureURL} 
+                      gameName = {this.state.data["recommendedGames"][key].gameName}
+                      />
                     ))}
                   </>
                 </div>
@@ -406,7 +402,114 @@ export default class Menu extends Component {
                 <Typography style={{marginLeft:20}}>Login for full functionality.</Typography>
             } 
         </Accordion.Content>
-      </Accordion>
+        
+        {/* Displays only when user is admin */}
+        { this.state.reportData.admin === 1 &&
+        <>
+
+          {/* Reported Templates */}
+          <Accordion.Title
+            active={activeIndex === 4}
+            index={4}
+            onClick={this.handleClick}
+          >
+            <Icon name='dropdown' />
+            Reported Templates
+          </Accordion.Title>
+          <Accordion.Content active={activeIndex === 4}>
+            <TableContainer component={Paper}>
+              <Table size="small">
+                {/* Table displays reported templates */}
+                { this.state.loaded === "True" &&
+                  <div className="ReportedTemplates">
+                    <>
+                      {/* Iterated through the list of reported templates */}
+                      {Object.keys(this.state.reportData.templates).map(key => (
+                        <>
+                        <TableRow onClick={()=>this.selectTemplate(4, key)}>
+                          <TemplateRow 
+                            pictureURL = {this.state.reportData["templates"][key].pictureURL}
+                            templateName = {this.state.reportData["templates"][key].templateName}
+                            averageRating = {null}
+                            numRatings = {null}
+                          />
+                        </TableRow>
+                        {
+                            this.isSelected(4,key) === true &&
+                            <>
+                              <BottomUI
+                                templateID = {this.state.reportData["templates"][key].templateID}
+                                userID = {this.state.reportData["templates"][key].userID}
+                                reportID = {this.state.reportData["templates"][key].reportID}
+                                reason = {this.state.reportData["templates"][key].reason}
+                                gameID = {this.state.reportData["templates"][key].gameID}
+                                selected = {this.isSelected(4,key)}
+                                review = {true}
+                                judge = {true}
+                                update = {this.callAPI}>
+                              </BottomUI>
+                            </>
+                          }
+                        </>
+                      ))}
+                    </>
+                  </div>
+                }
+              </Table>
+            </TableContainer>
+          </Accordion.Content> 
+
+          {/* Reported Users */}
+          <Accordion.Title
+            active={activeIndex === 5}
+            index={5}
+            onClick={this.handleClick}
+          >
+            <Icon name='dropdown' />
+            Reported Users
+          </Accordion.Title>
+          <Accordion.Content active={activeIndex === 5}>
+            <TableContainer component={Paper}>
+              <Table size="small">
+                {/* Table displays reports users */}
+                {this.state.loaded === "True" &&
+                  <div className="ReportedUsers">
+                    <>
+                      {/* Iterated through the list of reported users */}
+                      {Object.keys(this.state.reportData.users).map(key => (
+                        <>
+                        <TableRow onClick={()=>this.selectTemplate(5, key)}>
+                          <UserRow
+                            avatarID = {this.state.reportData["users"][key].avatarID}
+                            userName = {this.state.reportData["users"][key].username}
+                          />
+                        </TableRow>
+                        {
+                          this.isSelected(5,key) === true &&
+                          <>
+                            <BottomUI
+                              templateID = {this.state.reportData["users"][key].templateID}
+                              userID = {this.state.reportData["users"][key].userID}
+                              reportID = {this.state.reportData["users"][key].reportID}
+                              reason = {this.state.reportData["users"][key].reason}
+                              selected = {this.isSelected(5,key)}
+                              review = {true}
+                              judge = {true}
+                              update = {this.callAPI}>
+                            </BottomUI>
+                          </>
+                        }
+                        </>
+                      ))}
+                    </>
+                  </div>
+                }
+              </Table>
+            </TableContainer>
+          </Accordion.Content>
+        </>
+        }
+      </Accordion> 
       </>
       }
 
@@ -431,8 +534,11 @@ export default class Menu extends Component {
                     templateName = {this.state.filtered[key].templateName}
                     templateID = {this.state.filtered[key].templateID}
                     gameID = {this.state.filtered[key].gameID}
+                    userID = {this.state.filtered[key].userID}
+                    userName = {this.state.filtered[key].userName}
                     selected = {this.isSelected(key)}
                     play = {true}
+                    rep = {true}
                     update = {this.callAPI}
                     rate= {true}>
                     </BottomUI>

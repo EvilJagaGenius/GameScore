@@ -56,7 +56,7 @@ constructor(props) {
       fetch("/api/getHomePage").then(res => res.json()),
       fetch("/api/search/templates").then(res => res.json()),
       fetch("/api/listReports").then(res => res.json())
-    ]).then(([homeResponse, searchResponse, reportResponse, adminStatus]) => {
+    ]).then(([homeResponse, searchResponse, reportResponse]) => {
       this.setState({
         data: homeResponse,
         searchData: searchResponse.templates,
@@ -73,20 +73,24 @@ constructor(props) {
   }
   
   callAPI() {
-    fetch("/api/getHomePage")
-      .then(res => res.json())
-      .then(
-        (result) => {
-          this.setState({
-            data: result,
-            loaded: "True"
-          }
-          );
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-      );
+    Promise.all([
+      fetch("/api/getHomePage").then(res => res.json()),
+      fetch("/api/search/templates").then(res => res.json()),
+      fetch("/api/listReports").then(res => res.json())
+    ]).then(([homeResponse, searchResponse, reportResponse]) => {
+      this.setState({
+        data: homeResponse,
+        searchData: searchResponse.templates,
+        reportData: reportResponse,
+        loaded: "True"
+      });
+
+      console.log(reportResponse);
+    });
+      
+      this.setState({
+        usernameData: getCookieValue("username")
+      });
   }
 
   selectTemplate(newAccPos,newRowPos)
@@ -433,7 +437,8 @@ constructor(props) {
                                 gameID = {this.state.reportData["templates"][key].gameID}
                                 selected = {this.isSelected(4,key)}
                                 review = {true}
-                                judge = {true}>
+                                judge = {true}
+                                update = {this.callAPI}>
                               </BottomUI>
                             </>
                           }
@@ -481,7 +486,8 @@ constructor(props) {
                               reason = {this.state.reportData["users"][key].reason}
                               selected = {this.isSelected(5,key)}
                               review = {true}
-                              judge = {true}>
+                              judge = {true}
+                              update = {this.callAPI}>
                             </BottomUI>
                           </>
                         }

@@ -310,7 +310,7 @@ export default function BottomUI(props) {
 								 							.then(res => res.json()).then(data => {
 								 								console.log(data)
 								 								history.push('/play/overview')
-								 								window.location.reload(true);
+								 								props.update();
 															});
 													}}>
 													<div style={{margin:-5}}>
@@ -349,6 +349,8 @@ export default function BottomUI(props) {
 															.then(data => {
 																console.log(data);
 															})
+
+														props.update();
 													}}>
 													<div style={{margin:-5}}>	
 														<div>
@@ -588,7 +590,7 @@ export default function BottomUI(props) {
 															.then(data => {
 																console.log("Report Submitted");
 																setReportPopup(false);
-																window.location.reload(true);
+																props.update();
 															})
 													}}>
 													Report
@@ -611,8 +613,19 @@ export default function BottomUI(props) {
 							aria-describedby="simple-modal-description">
 							
 							<div style={modalStyle} className={classes.paper}>
-								<h3 style={{textAlign:"center"}}>Are you should you want to delete?</h3>
-								<Typography>Are you sure you want to permanently delete this template?</Typography>
+								{ props.reason === "Template" &&
+								<>
+									<h3 style={{textAlign:"center"}}>Are you sure you want to delete?</h3>
+									<Typography>Are you sure you want to permanently delete this template?</Typography>
+								</>
+								}
+
+								{ props.reason === "Uername" &&
+								<>
+									<h3 style={{textAlign:"center"}}>Are you sure you want to change? </h3>
+									<Typography>Are sure you you want change this user's name?</Typography>
+								</>
+								}
 								<div>
 									<table style={{margin:"auto",paddingTop:20,paddingBottom:-15}}>
 										<tr>
@@ -636,7 +649,7 @@ export default function BottomUI(props) {
 														.then(res => res.json())
 														.then(data => {
 															setAdminPopup(false);
-															window.location.reload(true);
+															props.update();
 														})
 												}}>
 													Delete

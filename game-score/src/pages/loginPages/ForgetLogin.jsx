@@ -5,10 +5,12 @@
 import React from "react";  //basic React framework
 import TextField from '@material-ui/core/TextField';
 import {makeStyles} from '@material-ui/core/styles';
-import {Button} from "@material-ui/core";  //Material UI for tab bar
+import {Button, Typography} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import { Component } from "react";
 import Logo from '../../images/GameScore App Logo.png';
+import { Link } from 'react-router-dom'
+import BackIcon from '@material-ui/icons/ArrowBackIos';
 
 export default class ForgetLogin extends Component{
   constructor(props){
@@ -169,27 +171,39 @@ export default class ForgetLogin extends Component{
   },
 }));
 return (
-  <form className={classes.root} noValidate autoComplete="off">
-    <Box m={2} pt={3}>
-    <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
-    <h1>Forget Password</h1>
-    <div>
-      <TextField required id="standard-required" label="Username" onChange={this.usernameHandler} error={this.state.usernameError}/>
-    </div>
-    <div>
-      <Button onClick={()=>{this.confirmSubmission("password")}}>Reset</Button>
-    </div>
-    <div>
-      <h1>Reset Username</h1>
-    </div>
-    <div>
-      <TextField required id="standard-required" label="Email Address" onChange={this.emailHandler} error={this.state.emailError}/>
-    </div>
-    <div>
-      <Button onClick={()=>{this.confirmSubmission("email")}}>Reset</Button>
-    </div>
-    </Box>
-  </form>
+  <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
+    <div style={{paddingLeft:0,left:5,top:55,position:"absolute"}} align="left">
+              {/*Back Button*/}
+              <Link to={{pathname: "/home/login"}}>
+                  <Button startIcon={<BackIcon/>}>
+                  Back
+                  </Button>
+              </Link>
+      </div>
+    <form className={classes.root} noValidate autoComplete="off">
+      <Box m={2} pt={3}>
+      <div style={{marginTop: 15, marginBottom: 10}}>
+        <img src={Logo} alt="GameScore Logo" width="130" height="130"></img>
+      </div>
+      <Typography variant="h4">Reset Password</Typography>
+      <div style={{marginTop: 15, marginBottom: 10}}>
+        <TextField required id="standard-required" label="Username" onChange={this.usernameHandler} error={this.state.usernameError}/>
+      </div>
+      <div style={{marginTop: 15, marginBottom: 10}}>
+        <Button variant = "contained" color="primary" onClick={()=>{this.confirmSubmission("password")}}>Reset</Button>
+      </div>
+      <div style={{marginTop: 15, marginBottom: 10}}>
+        <Typography variant="h4">Reset Username</Typography>
+      </div>
+      <div style={{marginTop: 15, marginBottom: 10}}>
+        <TextField required id="standard-required" label="Email Address" onChange={this.emailHandler} error={this.state.emailError}/>
+      </div>
+      <div style={{marginTop: 15, marginBottom: 10}}>
+        <Button variant = "contained" color="primary" onClick={()=>{this.confirmSubmission("email")}}>Reset</Button>
+      </div>
+      </Box>
+    </form>
+  </div>
   );
   }
 }

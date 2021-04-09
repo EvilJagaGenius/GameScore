@@ -347,7 +347,7 @@ export default class CreateAccount extends Component{
       </div>
       <form className={classes.root} noValidate autoComplete="off" onSubmit={this.confirmSubmission}>
         <Box m={3} pt={5}>
-          <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
+          <img src={Logo} alt="GameScore Logo" width="130" height="130"></img>
           <div style={{marginTop: 15, marginBottom: 10}}>
             <Typography variant="h4">Create Account</Typography>
           </div>

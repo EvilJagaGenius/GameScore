@@ -345,7 +345,7 @@ export default class CreateAccount extends Component{
                 </Button>
             </Link>
       </div>
-      <form className={classes.root} noValidate autoComplete="off" onSubmit={this.confirmSubmission}>
+      <form className={classes.root} noValidate autoComplete="off">
         <Box m={3} pt={5}>
           <img src={Logo} alt="GameScore Logo" width="130" height="130"></img>
           <div style={{marginTop: 15, marginBottom: 10}}>
@@ -364,7 +364,7 @@ export default class CreateAccount extends Component{
             <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" helperText = {this.state.confirmPasswordHelper} type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
           </div>
           <div style={{marginTop: 15, marginBottom: 10}}>
-            <Button variant = "contained" color = "primary" type = "submit">Create Account</Button>
+            <Button variant = "contained" color = "primary" type = "submit" onClick={()=>{this.confirmSubmission()}}>Create Account</Button>
           </div>
           <Snackbar open={this.state.displayAlert} autoHideDuration={3000} onClose={()=>{this.setState({displayAlert:false})}}>
             <Alert variant = "filled" severity="warning">

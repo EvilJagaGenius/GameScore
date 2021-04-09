@@ -2282,7 +2282,7 @@ def listReports():
     if adminStatus != 1:
         result = {"successful":False,"error":403,"errorMessage":"User is not an Admin."}
         response = jsonify(result)
-        return reponse
+        return response
     
     result = {
         "templates":[],

@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { Link } from "react-router-dom"
 import Table from '@material-ui/core/Table';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
@@ -11,17 +10,18 @@ import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField';
 import { Button } from '@material-ui/core';
 import SaveIcon from '@material-ui/icons/Save';
-import {ToastsContainer, ToastsStore,ToastsContainerPosition} from 'react-toasts';
 import BackIcon from '@material-ui/icons/ArrowBackIos';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Modal from '@material-ui/core/Modal';
-import { makeStyles } from '@material-ui/core/styles';
+import {ToastsStore} from 'react-toasts';
 import { IconButton } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import TemplateHintModal from './TemplateHintModal';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import Checkbox from '@material-ui/core/Checkbox';
 import Typography from '@material-ui/core/Typography';
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
 
 
 //Code adapted from: https://morioh.com/p/4576fa674ed8
@@ -62,7 +62,11 @@ export default class ConditionEditor extends Component {
             modalStyle:getModalStyle(),
             inputType:"Increment",
             scoringType:"Linear",
-            deletedRowIDs:[]
+            deletedRowIDs:[],
+            showError:false,
+            showSuccess:false,
+            errorText:"",
+            successText:""
 
         }
 
@@ -75,6 +79,50 @@ export default class ConditionEditor extends Component {
         this.setState({
             showHintModal:false
         })
+    }
+
+    validateNumber(newVal)
+    {
+        if(isNaN(newVal)===true || newVal ==="")
+        {
+            newVal = 0
+        }
+        else
+        {
+           
+        }
+        if(newVal>1000000)
+        {
+            newVal = 1000000
+        }
+        else if(newVal<-1000000)
+        {
+            newVal = -1000000
+        }
+
+        return newVal
+    }
+
+    validateMaxNumber(newVal)
+    {
+        if(isNaN(newVal)===true || newVal ==="")
+        {
+            newVal = 0
+        }
+        else
+        {
+           
+        }
+        if(newVal>1000000)
+        {
+            newVal = 1000000
+        }
+        else if(newVal<0)
+        {
+            newVal = 0
+        }
+        newVal = Math.round(newVal)
+        return newVal
     }
 
     componentDidMount()
@@ -147,14 +195,28 @@ export default class ConditionEditor extends Component {
                     <div style={{whiteSpace:"nowrap"}}>
                               <div style={{textAlign:"center",display:"inlineBlock",paddingTop:2,paddingBottom:15}} align="center" textAlign= "center">
 
-                                 <TextField inputProps={{style: {fontSize: 25,textAlign:"center"} }} style={{width:"70%",marginTop:10}} defaultValue={this.state.data["conditions"][this.state.condPos].conditionName}
-                                onChange={(e)=>{
-                                    var newData = this.state.data
-                                    newData["conditions"][this.state.condPos].conditionName = e.target.value
-                                    this.setState({
-                                        data:newData,
-                                        madeChanges:true
-                                    })
+                                <TextField inputProps={{style: {fontSize: 25,textAlign:"center"} }} style={{width:"70%",marginTop:10}} defaultValue={this.state.data["conditions"][this.state.condPos].conditionName}
+                                onBlur={(e)=>{
+
+                                     if(e.target.value.length<4 || e.target.value.length>30)
+                                        {
+                                            this.setState({
+                                            showError:true,
+                                            errorText:"Condition Name must be between 4 and 30 characters"
+                                            })
+                                            console.log("showing errorText")
+                                            e.target.value = this.state.data["conditions"][this.state.condPos].conditionName
+                                        }
+                                        else
+                                        {
+
+                                            var newData = this.state.data
+                                            newData["conditions"][this.state.condPos].conditionName = e.target.value
+                                            this.setState({
+                                                data:newData,
+                                                madeChanges:true
+                                            })
+                                        }
                                     }}>
                                 </TextField>
                               </div>
@@ -224,7 +286,7 @@ export default class ConditionEditor extends Component {
                         <>
                             {
 
-                            this.state.data["conditions"][this.state.condPos].scoringType == "Linear" && 
+                            this.state.data["conditions"][this.state.condPos].scoringType === "Linear" && 
                             <TableRow>
                                 <TableCell align="right:">
                                      <div style={{marginLeft:24}}><b>Point Multiplier:</b></div>
@@ -235,6 +297,18 @@ export default class ConditionEditor extends Component {
                                          onChange={(e)=>{
                                             var newData = this.state.data
                                             newData["conditions"][this.state.condPos].pointMultiplier = e.target.value
+
+                                            this.setState({
+                                                data:newData,
+                                                madeChanges:true
+                                            })
+                                            }}
+                                         onBlur={(e)=>{
+                                            var newData = this.state.data
+
+                                            let newVal =this.validateNumber(e.target.value)
+
+                                            newData["conditions"][this.state.condPos].pointMultiplier = newVal
                                             this.setState({
                                                 data:newData,
                                                 madeChanges:true
@@ -246,8 +320,7 @@ export default class ConditionEditor extends Component {
                             }
 
                             {
-
-                                this.state.data["conditions"][this.state.condPos].scoringType == "Tabular" && 
+                                this.state.data["conditions"][this.state.condPos].scoringType === "Tabular" && 
                                 <TableRow>
                                     <TableCell colSpan={2}>
                                         <TableContainer  component = {Paper}>
@@ -276,11 +349,23 @@ export default class ConditionEditor extends Component {
                                                 </TableHead>
                                                 {console.log(this.state.data["conditions"][this.state.condPos]["valueRows"])}
                                                  {Object.keys((this.state.data["conditions"][this.state.condPos]["valueRows"])).map(key=> (
-                                                    <TableRow>
+                                                    <TableRow className={((parseFloat(this.state.data["conditions"][this.state.condPos]["valueRows"][parseInt(key)].inputMin)>=
+                                                        parseFloat(this.state.data["conditions"][this.state.condPos]["valueRows"][parseInt(key)].inputMax)) ? 'errorCondition' : '')}>
 
                                                         <TableCell style={{width:"100%"}}>
                                                             <TextField inputProps={{style: {textAlign:"center"} }} type="number" value = {this.state.data["conditions"][this.state.condPos]["valueRows"][key].inputMin}
+                                                                onBlur={(e)=>{
+
+                                                                    var newData = this.state.data
+                                                                    newData["conditions"][this.state.condPos]["valueRows"][key].inputMin= this.validateNumber(e.target.value)
+                                                                    this.setState({
+                                                                        data:newData,
+                                                                        madeChanges:true
+                                                                    })
+                                                                    }}
+
                                                                 onChange={(e)=>{
+
                                                                     var newData = this.state.data
                                                                     newData["conditions"][this.state.condPos]["valueRows"][key].inputMin= e.target.value
                                                                     this.setState({
@@ -292,6 +377,15 @@ export default class ConditionEditor extends Component {
                                                         </TableCell>
                                                         <TableCell style={{width:"30%"}}>
                                                             <TextField inputProps={{style: {textAlign:"center"} }} type="number" value = {this.state.data["conditions"][this.state.condPos]["valueRows"][key].inputMax}
+                                                                    onBlur={(e)=>{
+                                                                    var newData = this.state.data
+                                                                    newData["conditions"][this.state.condPos]["valueRows"][key].inputMax= this.validateNumber(e.target.value)
+                                                                    this.setState({
+                                                                        data:newData,
+                                                                        madeChanges:true
+                                                                    })
+                                                                    }}
+
                                                                     onChange={(e)=>{
                                                                     var newData = this.state.data
                                                                     newData["conditions"][this.state.condPos]["valueRows"][key].inputMax= e.target.value
@@ -299,11 +393,20 @@ export default class ConditionEditor extends Component {
                                                                         data:newData,
                                                                         madeChanges:true
                                                                     })
-                                                                    }}>>                                                    
+                                                                    }}>                                                 
                                                             </TextField>
                                                         </TableCell>
                                                         <TableCell style={{width:"50%"}}> 
                                                             <TextField inputProps={{style: {textAlign:"center"} }} type="number" value={this.state.data["conditions"][this.state.condPos]["valueRows"][key].outputVal}
+                                                                    onBlur={(e)=>{
+                                                                    var newData = this.state.data
+                                                                    newData["conditions"][this.state.condPos]["valueRows"][key].outputVal= this.validateNumber(e.target.value)
+                                                                    this.setState({
+                                                                        data:newData,
+                                                                        madeChanges:true
+                                                                    })
+                                                                    }}
+
                                                                     onChange={(e)=>{
                                                                     var newData = this.state.data
                                                                     newData["conditions"][this.state.condPos]["valueRows"][key].outputVal= e.target.value
@@ -311,7 +414,7 @@ export default class ConditionEditor extends Component {
                                                                         data:newData,
                                                                         madeChanges:true
                                                                     })
-                                                                    }}>>
+                                                                    }}>
                                                             </TextField>
                                                         </TableCell>
                                                         <TableCell>
@@ -369,7 +472,6 @@ export default class ConditionEditor extends Component {
 
                         <TableRow>
                             <TableCell style={{width:"50%"}} align="left:">
-
                                 <Checkbox style={{marginLeft:-12,marginRight:-2,marginTop:-2}} checked={this.state.data["conditions"][this.state.condPos].maxPerGameActive}
                                      onChange={(e)=>{
                                         var newData = this.state.data
@@ -379,8 +481,6 @@ export default class ConditionEditor extends Component {
                                             madeChanges:true
                                         })
                                         }}>
-                                    >
-                                    
                                 </Checkbox>
 
                                 <b>Max Per Game:</b>
@@ -391,6 +491,14 @@ export default class ConditionEditor extends Component {
                               <TableCell align="right">
                                  
                                 <TextField style={{width:"60%",marginRight:"13%"}} inputProps={{style: {textAlign:"right"} }} id="maxPerGameInput" type="number" value={this.state.data["conditions"][this.state.condPos].maxPerGame}
+                                     onBlur={(e)=>{
+                                            var newData = this.state.data
+                                            newData["conditions"][this.state.condPos].maxPerGame = this.validateNumber(e.target.value)
+                                            this.setState({
+                                                data:newData,
+                                                madeChanges:true
+                                            })
+                                        }}
                                      onChange={(e)=>{
                                             var newData = this.state.data
                                             newData["conditions"][this.state.condPos].maxPerGame = e.target.value
@@ -398,7 +506,7 @@ export default class ConditionEditor extends Component {
                                                 data:newData,
                                                 madeChanges:true
                                             })
-                                        }}>>
+                                        }}>
                                 </TextField>
                              </TableCell>
                         </TableRow>
@@ -414,14 +522,20 @@ export default class ConditionEditor extends Component {
                                             madeChanges:true
                                         })
                                         }}>
-                                    >
-                                    
                                 </Checkbox>
                                 <b>Max Per Player:</b>
                             </TableCell>
                              <TableCell align="right">
                                
                                 <TextField style={{width:"60%",marginRight:"13%"}} inputProps={{style: {textAlign:"right"} }} id="maxPerPlayerInput" type="number" value={this.state.data["conditions"][this.state.condPos].maxPerPlayer}
+                                     onBlur={(e)=>{
+                                            var newData = this.state.data
+                                            newData["conditions"][this.state.condPos].maxPerPlayer = this.validateNumber(e.target.value)
+                                            this.setState({
+                                                data:newData,
+                                                madeChanges:true
+                                            })
+                                            }}
                                      onChange={(e)=>{
                                             var newData = this.state.data
                                             newData["conditions"][this.state.condPos].maxPerPlayer = e.target.value
@@ -434,7 +548,7 @@ export default class ConditionEditor extends Component {
                              </TableCell>
                         </TableRow>
 
-                        <TableRow>
+                        <TableRow style={{display:"none"}}>
                             <TableCell style={{width:"50%"}} align="left:">
                                 <div style={{marginLeft:24}}><b>Input Type:</b></div>
                             </TableCell>
@@ -465,7 +579,8 @@ export default class ConditionEditor extends Component {
                             var newData = this.state.data
                             newData["conditions"][this.state.condPos].description = e.target.value
                             this.setState({
-                                data:newData
+                                data:newData,
+                                madeChanges:true
                             })
                             }}>
 
@@ -613,8 +728,24 @@ export default class ConditionEditor extends Component {
                     </div>
                   </Modal>
                 <TemplateHintModal show={this.state.showHintModal} closeHint={this.closedHintModal}></TemplateHintModal>
-               <ToastsContainer position={ToastsContainerPosition.BOTTOM_CENTER} store={ToastsStore}/>
-        </>
+               <Snackbar open={this.state.showError} autoHideDuration={3000} onClose={(e,reason)=>{
+                if(reason !== "clickaway")
+                {
+                this.setState({showError:false})
+                console.log(reason)}
+                }
+
+                }>
+                <Alert variant = "filled" severity="error">
+                  {this.state.errorText}
+                </Alert>
+             </Snackbar>
+              <Snackbar open={this.state.showSuccess} autoHideDuration={3000} onClose={()=>{this.setState({showSuccess:false})}}>
+                <Alert variant = "filled" severity="success">
+                  {this.state.successText}
+                </Alert>
+              </Snackbar>
+            </>
       
         );
     }

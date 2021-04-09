@@ -2,6 +2,8 @@
 import React from "react";
 import TextField from '@material-ui/core/TextField';
 import { Button } from '@material-ui/core';
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
 
 //create component
 export default class JoinGame extends React.Component {
@@ -99,7 +101,6 @@ export default class JoinGame extends React.Component {
    //Join Game via JoinCode call
    joinGameAPICall(joinCode,isQRCode)
    {
-      var result = ""
       //Params
 		  const requestOptions = {
         method: 'POST',
@@ -116,6 +117,30 @@ export default class JoinGame extends React.Component {
         {
            //Move to Overview Scoring
         	 this.props.history.push("/play/overview");
+        }
+        else
+        {
+          if(data.error===111)
+          {
+            this.setState({
+              showError:true,
+              errorText:"Invalid Join Code"
+            })
+          }
+          else if(data.error===113)
+          {
+            this.setState({
+              showError:true,
+              errorText:"Game is Full"
+            })
+          }
+          else
+          {
+            this.setState({
+              showError:true,
+              errorText:"Could not join game"
+            })
+          }
         }
 
         console.log(data)
@@ -143,6 +168,11 @@ export default class JoinGame extends React.Component {
          <TextField placeholder="Join Code" style={{marginRight:15}}id="joinCodeBox" defaultValue={this.state.joinCode} value={JoinGame.dashedValue} onChange={this.handleChange}></TextField>
          <Button variant = "contained" color="primary" size = "large" onClick={this.handleSubmit} >Join Game</Button>
       </div>
+          <Snackbar open={this.state.showError} autoHideDuration={3000} onClose={()=>{this.setState({showError:false})}}>
+            <Alert variant = "filled" severity="error">
+              {this.state.errorText}
+            </Alert>
+        </Snackbar>
     </>
 	  
 	  )

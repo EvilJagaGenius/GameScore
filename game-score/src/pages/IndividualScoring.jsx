@@ -1,4 +1,3 @@
-
 //import resources
 import React from 'react';
 import Table from '@material-ui/core/Table';
@@ -10,15 +9,18 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import { Button } from '@material-ui/core';
 import BackIcon from '@material-ui/icons/ArrowBackIos';
-import AccountCircle from '@material-ui/icons/AccountCircle';
 import { Link } from 'react-router-dom'
 import Cookies from 'js-cookie';
 import MySocket from './Socket';
 import KickedModal from './KickedModal';
-import getAvatar from './Avatars';
+import getAvatar from './profilePages/Avatars';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
-
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import IconButton from '@material-ui/core/IconButton';
+import UpArrow from '@material-ui/icons/ArrowUpward';
+import DownArrow from '@material-ui/icons/ArrowDownward';
 
 export default class ScoringPage extends React.Component{
 
@@ -37,8 +39,6 @@ export default class ScoringPage extends React.Component{
           data:"",
           showKicked: false
         };
-
-        var Socket = null;
     };
 
     //When Component Loads
@@ -53,6 +53,8 @@ export default class ScoringPage extends React.Component{
         }
 
 
+
+
           var newSock = new MySocket()
           this.Socket = newSock.getMySocket
           console.log(this.Socket)
@@ -63,6 +65,7 @@ export default class ScoringPage extends React.Component{
               this.setState({
                 data:scores
               });
+              {this.updateValues()}
           });
 
          this.Socket.on("gameEnd", () => {
@@ -71,7 +74,7 @@ export default class ScoringPage extends React.Component{
           });
 
          this.Socket.on("kickPlayer", username => {
-           if(username.userName==Cookies.get('username'))
+           if(username.userName===Cookies.get('username'))
             {
               this.Socket.disconnect()
               this.setState({
@@ -90,6 +93,7 @@ export default class ScoringPage extends React.Component{
                 data:result,
                 loaded: true
               })
+              {this.updateValues()}
               
               //Identify what position this player is from the provided PlayerID
               for(var i=0;i<Object.keys(result["individualScoring"]).length;i++)
@@ -119,7 +123,7 @@ export default class ScoringPage extends React.Component{
         //Set Changd values to members vars so API can access
         ScoringPage.updatedValue = this.roundValues(value)
         ScoringPage.updatedConditionID=this.state.data.individualScoring[playerPos]["conditions"][condPos].conditionID
-        ScoringPage.updatedPlayerID= this.props.location.state.individualPlayerID;
+        ScoringPage.updatedPlayerID= this.state.data.individualScoring[this.state.key].playerID;
 
         //Change state to match the newly changed value
         this.setState(prevState => {
@@ -159,9 +163,35 @@ export default class ScoringPage extends React.Component{
               this.setState({
                 data:newData
               })
+              console.log(newData)
+              {this.updateValues()}
           })
 
       };
+
+    updateValues(newKey=this.state.key)
+    {
+       //console.log(this.state.loaded)
+        Object.keys((this.state.data.individualScoring[newKey]["conditions"])).map(pos=>{
+
+        let field =  document.getElementById(pos)
+        //console.log(pos)
+
+        if(field!=null && field.name==="editingButton" && this.state.data.individualScoring[newKey]["conditions"][parseInt(pos)].value === parseInt(field.value))
+        {
+          field.name="editingFalse"
+          console.log("reset")
+        }
+
+        if(field!==null && field.name==="editingFalse")
+        {
+          
+          field.value = this.state.data.individualScoring[newKey]["conditions"][parseInt(pos)].value
+          //console.log(field.name)
+        }
+
+        })
+    }
 
     //Round Values to avoid extreme precision
     roundValues(num){
@@ -182,9 +212,25 @@ export default class ScoringPage extends React.Component{
                 <div style={{whiteSpace:"nowrap"}}>
                   <div style={{textAlign:"center",display:"inlineBlock",paddingTop:15,paddingBottom:10}} align="center" textAlign= "center">
                      {/*Name + Icon*/}
-                     <img src = {getAvatar(this.state.data.individualScoring[this.state.key].avatarID)} style={{width:30,height:30,marginBottom:-7,marginRight:10}}></img>
-                     <h2 style={{display:"inline"}}>{this.state.data.individualScoring[this.state.key].displayName}</h2>
-            
+                     <img alt = "avatar icon" src = {getAvatar(this.state.data.individualScoring[this.state.key].avatarID)} style={{width:30,height:30,marginBottom:-7,marginRight:10}}></img>
+                     {/*<h2 style={{display:"inline"}}>{this.state.data.individualScoring[this.state.key].displayName}</h2>*/}
+                      
+                      <Select style={{fontSize:25}} id="select" defaultValue={this.state.key} select
+                              onChange={(event)=>{
+                                        
+                                        this.setState({
+                                          key:event.target.value
+                                        })
+                                        {this.updateValues(event.target.value)}
+                                    }}
+                              >
+                                {/*Player Options*/}
+                                {Object.keys((this.state.data.individualScoring)).map(pos => (
+                                    <MenuItem value={pos}>{this.state.data.individualScoring[parseInt(pos)].displayName}</MenuItem>
+                              ))}
+                        </Select>
+
+
                   </div>
                   <div style={{paddingLeft:0,left:5,top:15,position:"absolute"}} align="left">
                       {/*Back Button*/}
@@ -196,7 +242,12 @@ export default class ScoringPage extends React.Component{
                 </div>
               </div>
               <TableContainer component={Paper}>
-                <Table size="small">
+                <Table style={{ tableLayout: 'fixed' }} size="small">
+                  <colgroup>
+                    <col style={{width:'25%'}}/>
+                    <col style={{width:'53%'}}/>
+                    <col style={{width:'20%'}}/>
+                 </colgroup>
                   <TableHead>
                     <TableRow>
                       <TableCell align="left">Condition</TableCell>
@@ -206,12 +257,13 @@ export default class ScoringPage extends React.Component{
                   </TableHead>
 
                   {/*For Each Scoring Condition*/}
-                  {Object.keys(this.state.data.individualScoring[this.state.key]["conditions"]).map(condPos=> (
-                      <TableRow> 
-                        <>
-                        {/*Condition Name*/}
+                    {Object.keys(this.state.data.individualScoring[this.state.key]["conditions"]).map(condPos=>( 
+
+                      <TableRow className={(this.state.data.individualScoring[this.state.key]["conditions"][parseInt(condPos)].exceedsLimits ? 'errorCondition' : '')}>  
+
+                        <> {/*Condition Name*/}
                       
-                            <TableCell align="left">
+                            <TableCell style={{padding:0,paddingLeft:10}}align="left">
                               <div style={{width:"100%"}}>
                                 <Tooltip enterTouchDelay={0} leaveTouchDelay={5000} placement="below" title={this.getTooltip(condPos)}>
                                  
@@ -247,8 +299,10 @@ export default class ScoringPage extends React.Component{
 
                 </Table>
               </TableContainer>
+              
             </>
           }
+
           <KickedModal history={this.props.history} show={this.state.showKicked}></KickedModal>
         </div>
       );
@@ -272,7 +326,25 @@ class Textbox extends React.Component {
     //Return stuffs
     render() { 
       return (
-        <TextField type="number" id="outlined-basic" label="" variant="outlined" onBlur={this.handleInputChange} defaultValue={this.props.defaultValue}/>
+        <>
+          <IconButton style={{width:40,height:40,margin:0,marginRight:2,marginTop:8,padding:0,paddingTop:-5}} > <DownArrow style={{width:25,height:25}} onClick={()=>{
+            //Call API for Change
+            this.props.onValueChange(parseFloat(document.getElementById(this.props.condPos).value)-1,this.props.condPos,this.props.playerPos);
+            //Set Editing so doesnt get overwritten by lagging commits
+            document.getElementById(this.props.condPos).name="editingButton";
+            //Increments Value so You can see updated value
+            document.getElementById(this.props.condPos).value=parseFloat(document.getElementById(this.props.condPos).value)-1
+            }}></DownArrow> </IconButton>
+          <TextField style={{width:'calc(100% - 82px)'}} type="number" id={parseInt(this.props.condPos)} name="editingFalse" variant="outlined" onBlur={(e)=>{this.handleInputChange(e); e.target.name="editingFalse"}} onChange={(e)=>e.target.name="editingTextbox"} defaultValue={this.props.defaultValue}></TextField>
+          <IconButton style={{width:40,height:40,margin:0,marginLeft:0,padding:0,marginBottom:-5}} > <UpArrow style={{width:25,height:25}} onClick={()=>{
+            //Call API for Change
+            this.props.onValueChange(parseFloat(document.getElementById(this.props.condPos).value)+1,this.props.condPos,this.props.playerPos);
+            //Set Editing so doesnt get overwritten by lagging commits
+            document.getElementById(this.props.condPos).name="editingButton";
+            //Increments Value so You can see updated value
+            document.getElementById(this.props.condPos).value=parseFloat(document.getElementById(this.props.condPos).value)+1
+            }}></UpArrow> </IconButton>
+        </>
       );
     }
 }

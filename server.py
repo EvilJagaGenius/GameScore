@@ -203,6 +203,33 @@ def login_post():
         mydb.close()
         return response
 
+
+##################################### Check Username Exists ########################################
+
+@app.route('/api/postCheckUsername', methods=["POST"])
+def postCheckUsername():
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    #Get Form Info
+    content = request.json
+    username = content['username']
+
+    #Check to see if username/password combo exists
+    mycursor = mydb.cursor(prepared=True)
+    stmt = ("select username from AppUser where username = %s")
+    mycursor.execute(stmt,(username,))
+    myresult = mycursor.fetchone()
+    mycursor.close()
+
+    if myresult == None:
+        result = {"successful":True,"usernameExists":False}
+        response = jsonify(result)
+        mydb.close()
+        return response
+    else: #If Exists
+        result = {"successful":True,"usernameExists":True}
+        response = jsonify(result)
+        mydb.close()
+        return response
 ##################################### Reset Password Email ########################################
 
 @app.route("/api/postResetPasswordEmail", methods=["POST"])
@@ -490,19 +517,25 @@ def apiGetHomePage():
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor2 = mydb.cursor(prepared=True)
     stmt = ("""
-        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName
+        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName, i.rating as rating, i.favorited as favorited
         FROM AppUser u
             INNER JOIN Template t ON u.userID = t.userID
             INNER JOIN Game g ON t.gameID = g.gameID
+            INNER JOIN AppUserInteractTemplate i ON (t.templateID=i.templateID AND i.userID=%s)
         ORDER BY t.averageRating DESC LIMIT 10;
     """)
-    mycursor2.execute(stmt,())
+    mycursor2.execute(stmt,(userID,))
     myresult = mycursor2.fetchall()
     mycursor2.close()
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-        userID, userName, picURL, templateName, numRatings, averageRating, gameID, templateID, gameName = row
+        userID, userName, picURL, templateName, numRatings, averageRating, gameID, templateID, gameName, prevRating, favorited = row
+        if prevRating == None:
+            prevRating = 0
+        if favorited == None:
+            favorited = 0
+
         template = {"userID":"{}".format(userID)
                     ,"userName":"{}".format(userName)
                     ,"pictureURL":"{}".format(picURL)
@@ -511,7 +544,9 @@ def apiGetHomePage():
                     ,"averageRating":round(float(averageRating),2)
                     ,"gameID":"{}".format(gameID)
                     ,"templateID":"{}".format(templateID)
-                    ,"gameName":"{}".format(gameName)}
+                    ,"gameName":"{}".format(gameName)
+                    ,"prevRating":"{}".format(prevRating)
+                    ,"favorited":favorited}
         #append each new dictionary to its appropriate list
         result["highestRated"].append(template)
 
@@ -539,7 +574,7 @@ def apiGetHomePage():
     #Execute sql call to get appropriate data
     mycursor = mydb.cursor(prepared=True)
     stmt = ("""
-        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName
+        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName, a.rating
         FROM AppUser u
             INNER JOIN Template t ON u.userID = t.userID
             INNER JOIN Game g ON t.gameID = g.gameID
@@ -553,16 +588,21 @@ def apiGetHomePage():
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-        userID, userName, picURL, templateName, numRatings, averageRating, gameID, templateID, gameName = row
+        userID, userName, picURL, templateName, numRatings, averageRating, gameID, templateID, gameName, prevRating = row
+        if prevRating == None:
+            prevRating = 0
+            
         template = {"userID":"{}".format(userID)
                     ,"userName":"{}".format(userName)
                     ,"pictureURL":"{}".format(picURL)
                     ,"templateName":"{}".format(templateName)
                     ,"numRatings":numRatings
                     ,"averageRating":round(float(averageRating),2)
+                    ,"favorited":1
                     ,"gameID":"{}".format(gameID)
                     ,"templateID":"{}".format(templateID)
-                    ,"gameName":"{}".format(gameName)}
+                    ,"gameName":"{}".format(gameName)
+                    ,"prevRating":"{}".format(prevRating)}
         #append each new dictionary to its appropriate list
         result["favoritedTemplates"].append(template)
 
@@ -573,7 +613,7 @@ def apiGetHomePage():
     #Execute sql call to get appropriate data
     mycursor = mydb.cursor(prepared=True)
     stmt = ("""
-        SELECT u.userID as userID, u.username as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName
+        SELECT u.userID as userID, u.username as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName, a.rating, a.favorited
         FROM AppUser u
             INNER JOIN Template t ON u.userID = t.userID
             INNER JOIN Game g ON t.gameID = g.gameID
@@ -587,16 +627,22 @@ def apiGetHomePage():
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-        userID, userName, picURL, templateName, numRatings, averageRating, gameID, templateID, gameName = row
+        userID, userName, picURL, templateName, numRatings, averageRating, gameID, templateID, gameName, prevRating, favorited = row
+        if prevRating == None:
+            prevRating = 0
+        if favorited == None:
+            favorited = 0
         template = {"userID":"{}".format(userID)
                     ,"userName":"{}".format(userName)
                     ,"pictureURL":"{}".format(picURL)
                     ,"templateName":"{}".format(templateName)
                     ,"numRatings":numRatings
                     ,"averageRating":round(float(averageRating),2)
+                    ,"favorited":favorited
                     ,"gameID":"{}".format(gameID)
                     ,"templateID":"{}".format(templateID)
                     ,"gameName":"{}".format(gameName)}
+                    ,"prevRating":"{}".format(prevRating)}
         #append each new dictionary to its appropriate list
 
         result["recentlyPlayed"].append(template)
@@ -623,6 +669,7 @@ def apiGetHomePage():
 def getScoring(userID):
 #Get Template and GameName Info
     print(userID)
+    exceededLimitIDs = []
     result = {"scoringOverview":[]
           ,"globalAwards":[]
           ,"individualScoring":[]
@@ -696,6 +743,7 @@ def getScoring(userID):
             sumValue, = myresult
 
             if sumValue > maxPerGame:
+                exceededLimitIDs.append(conditionID)
                 result["finalizeScore"]["awards"].append({
                     "name":"{}".format(conditionName),
                     "sumValue":sumValue,
@@ -755,6 +803,9 @@ def getScoring(userID):
                 conditionName, conditionID, value, score, inputType, maxPerPlayer,maxPerPlayerActive,description = rowCondition
                 
                 isHigher = False
+
+                isHigher = conditionID in exceededLimitIDs
+
                 if value>maxPerPlayer and maxPerPlayer>0 and maxPerPlayerActive==True:
                     playerFinalizeScore["conditions"].append({
                         "conditionName":"{}".format(conditionName)
@@ -835,7 +886,7 @@ def getPostGame(userID):
                         ,"winnerDisplayName":"{}".format(winnerDisplayName)
                         ,"gameID":"{}".format(gameID)
                         ,"templateID":"{}".format(templateID)
-                        ,"scoreTable":[]
+                        ,"scoreTable":[] 
                         ,"numOfPlayers":[]}
 
         mycursor = mydb.cursor(prepared=True)
@@ -1979,11 +2030,13 @@ def postCreateCondition():
             mycursor = mydb.cursor(prepared=True)
             stmt = "INSERT INTO ScoringCondition (gameID,templateID,conditionName) VALUES(%s,%s,%s)"
             mycursor.execute(stmt,(gameID,templateID,"NewCondition"))
-            mycursor.fetchall()
+            conditionID = mycursor.lastrowid
             mydb.commit();
             mycursor.close()
             mydb.close()
-            return getConditionsSeperate(userID,templateID)
+            result={"succesful":True,"conditionID":conditionID}
+            response = jsonify(result)
+            return response
 
 
 ##################################### Delete Condition API ########################################
@@ -2383,31 +2436,56 @@ def doReports():
     mydb.close()
     return jsonify(response)
 
-
-# Rate Bottom UI (move this)
+# Rate template button
 @app.route("/api/rateTemplate", methods=["POST"])
 def rateTemplate():
-    # Do something, Taipu
     print("Recieved rateTemplate")
-    templateID = 1  # We need some way to get this.  Form?  Session?
-    gameID = 1
-    rating = float(request.form.get("rating", None))
+    content = request.json
+    templateID = content["templateID"]
+    gameID = content["gameID"]
+    userID = getUserID()
+    rating = content["val"]
+    print("Template ID: " + str(templateID))
+    print("Game ID: " + str(gameID))
     print("Rating: " + str(rating))
-    
     
     mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)
-    statement = "SELECT numRatings, averageRating FROM Template WHERE templateID = %s AND gameID = %s"
-    cursor.execute(statement, (templateID, gameID))
-    result = cursor.fetchone()
-    numberOfRatings = result[0]
-    prevTotalRating = numberOfRatings * result[1]
-    newRating = (prevTotalRating + rating) / numberOfRatings + 1
-    numberOfRatings += 1
+    statement = "SELECT rating FROM AppUserInteractTemplate WHERE userID=%s AND gameID=%s AND templateID=%s"
+    cursor.execute(statement, (userID, gameID, templateID))
+    results = cursor.fetchall()
+    if len(results) > 0:  # If we have an entry for the template
+        print("Found table entry")
+        statement = "UPDATE AppUserInteractTemplate SET rating=%s WHERE userID=%s AND gameID=%s AND templateID=%s"
+        cursor.execute(statement, (rating, userID, gameID, templateID))
+        results = cursor.fetchall()  # Flush results
+    else:
+        print("Creating new entry")
+        statement = "INSERT INTO AppUserInteractTemplate (userID, gameID, templateID, rating) VALUES (%s, %s, %s, %s)"
+        cursor.execute(statement, (userID, gameID, templateID, rating))
+        results = cursor.fetchall()  # Flush results
     
+    # Get all the ratings for the template
+    statement = "SELECT userID, rating FROM AppUserInteractTemplate WHERE gameID=%s AND templateID=%s"
+    cursor.execute(statement, (gameID, templateID))
+    results = cursor.fetchall()
+    # Sum up the ratings, get the average
+    numberOfRatings = 0
+    total = 0
+    for row in results:
+        rowValue = row[1]
+        if rowValue != None:
+            total += rowValue
+            numberOfRatings += 1
+    if numberOfRatings > 0:
+        average = total / numberOfRatings
+    else:
+        average = 0
+    # Update the template's info in the DB
     statement = "UPDATE Template SET numRatings = %s, averageRating = %s WHERE templateID = %s AND gameID = %s"
-    cursor.execute(statement, (numberOfRatings, newRating, templateID, gameID))
+    cursor.execute(statement, (numberOfRatings, average, templateID, gameID))
     
+    mydb.commit()
     cursor.close()
     mydb.close()
     
@@ -2415,7 +2493,49 @@ def rateTemplate():
     
     return jsonify(response)
     
+# Favorite template button
+@app.route("/api/favoriteTemplate", methods=["POST"])
+def favoriteTemplate():
+    print("Recieved favoriteTemplate")
     
+    content = request.json
+    templateID = content["templateID"]
+    gameID = content["gameID"]
+    userID = getUserID()
+    
+    mydb = mysql.connector.connect(pool_name = "mypool")
+    cursor = mydb.cursor(prepared=True)
+    # See if the user already has data for that template
+    statement = "SELECT favorited FROM AppUserInteractTemplate WHERE userID=%s AND gameID=%s AND templateID=%s"
+    cursor.execute(statement, (userID, gameID, templateID))
+    results = cursor.fetchall()
+    #print(len(results))  # I think if the user doesn't have an entry for that template, this should be 0
+    if len(results) > 0:  # The user has an entry for that template
+        print("Found table entry")
+        favorited = results[0][0]
+        print("Before:", favorited)
+        # Change the favorited status
+        if favorited == 0:  # Out of curiosity, why are we using an int and not a boolean here?
+            favorited = 1
+        elif favorited == 1:
+            favorited = 0
+        print("After:", favorited)
+        statement = "UPDATE AppUserInteractTemplate SET favorited=%s WHERE userID=%s AND gameID=%s AND templateID=%s"
+        cursor.execute(statement, (favorited, userID, gameID, templateID))
+    else:  # The user has no entry for that template
+        print("Creating new entry")
+        statement = "INSERT INTO AppUserInteractTemplate (userID, gameID, templateID, favorited) VALUES (%s, %s, %s, 1)"  # Favorite when inserting a new entry
+        cursor.execute(statement, (userID, gameID, templateID))
+    
+    mydb.commit()
+    cursor.close()
+    mydb.close()
+    
+    response = {"successful": True}
+    return jsonify(response)
+    
+    
+
 
 ##################################### Profile API ########################################
 @app.route("/api/profile/changePassword", methods=["POST"])

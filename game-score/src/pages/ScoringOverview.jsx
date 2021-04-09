@@ -8,8 +8,6 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { Link } from 'react-router-dom';
 import { Button } from '@material-ui/core';
 import DoneIcon from '@material-ui/icons/Done';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import HelpIcon from '@material-ui/icons/Help';
 import SettingsIcon from '@material-ui/icons/Settings';
 import CloseIcon from '@material-ui/icons/Close';
 import InviteIcon from '@material-ui/icons/GroupAdd';
@@ -30,8 +28,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import MySocket from './Socket';
 import Cookies from 'js-cookie';
 import KickedModal from './KickedModal';
-import getAvatar from './Avatars';
-
+import getAvatar from './profilePages/Avatars';
 
 //Overvide Styles for Modal
 const useStyles = makeStyles((theme) => ({
@@ -124,7 +121,7 @@ function ScoringOverview() {
 
         const eventHandlerKick = (username) => {
           console.log(username)
-          if(username.userName==Cookies.get('username'))
+          if(username.userName===Cookies.get('username'))
             {
               Socket.disconnect()
               setShowKicked(true)
@@ -154,7 +151,7 @@ function ScoringOverview() {
     return (
       <>
         {
-        loaded == true && /*Only display if data is loaded*/
+        loaded === true && /*Only display if data is loaded*/
 
         <div className={classes.root}>
 
@@ -194,7 +191,7 @@ function ScoringOverview() {
                             <TableCell>
                                 <div style={{float:"left",marginTop:4}}>
                                     {/*Display Play icon*/}
-                                    <img src = {getAvatar(data.scoringOverview.players[key].avatarID)} style={{width:30,height:30}}></img>
+                                    <img alt = "avatar icon" src = {getAvatar(data.scoringOverview.players[key].avatarID)} style={{width:30,height:30}}></img>
                                </div>
                                <div style={{float:"left",marginTop:7,marginLeft:12}}>
                                     {/*Display Player Name*/}
@@ -226,60 +223,71 @@ function ScoringOverview() {
             </AccordionSummary>
             <AccordionDetails>
 
-              <TableContainer component={Paper}>
-               <Table size="small">
-                <TableHead>
-                    <TableRow>
-                       {/*Table Headers*/}
-                       <TableCell align="center"> 
-                            <Typography>Condition</Typography>
-                        </TableCell>
-                        {
-                          //Conditional drawing based on if data is valid
-                          Object.keys((data.globalAwards)).length > 0 &&
-                          Object.keys((data.globalAwards[0])).length > 0 &&
-                          Object.keys((data.globalAwards[0]["players"])).length > 0 &&
-                          <>
-                            {Object.keys((data.globalAwards[0].players)).map(key => (
-                                <TableCell align="center"> 
-                                  <Typography>{data.globalAwards[0]["players"][key].displayName}</Typography>
-                                </TableCell>
-                                ))}
-                          </>
-                        }
-                    </TableRow>
-                </TableHead>
-                  {
-                  Object.keys(data.globalAwards).length > 0 &&
-                    <>
-                      {/*For each global award in game*/}
-                      {Object.keys(data.globalAwards).map(key => (
-                          <TableRow>
-
-                            {/*Add Condition Name*/}
-                            <TableCell align="center">
-                              <Typography><b>{data.globalAwards[key].conditionName}</b></Typography>
-                              <Typography>(Max: {data.globalAwards[key].maxPerGame})</Typography>
+              {
+                Object.keys((data.globalAwards)).length > 0 &&
+                <TableContainer component={Paper}>
+                 <Table size="small">     
+                     
+                      <TableHead>
+                        <TableRow>
+                           {/*Table Headers*/}
+                            
+                            <TableCell align="center"> 
+                                <Typography>Condition</Typography>
                             </TableCell>
-
-                            {/*For each player, show value*/}
                             {
-                              Object.keys((data.globalAwards[key])).length > 0 &&
-                              Object.keys((data.globalAwards[key]["players"])).length > 0 &&
+                              //Conditional drawing based on if data is valid
+                              Object.keys((data.globalAwards)).length > 0 &&
+                              Object.keys((data.globalAwards[0])).length > 0 &&
+                              Object.keys((data.globalAwards[0]["players"])).length > 0 &&
                               <>
-                                {Object.keys((data.globalAwards[key]["players"])).map(key2 => (
-                                  <TableCell align="center">
-                                    <Typography>{Math.round(data.globalAwards[key]["players"][key2].value/0.01)*0.01}</Typography>
-                                  </TableCell>
-                                  ))}
+                                {Object.keys((data.globalAwards[0].players)).map(key => (
+                                    <TableCell align="center"> 
+                                      <Typography>{data.globalAwards[0]["players"][key].displayName}</Typography>
+                                    </TableCell>
+                                    ))}
                               </>
                             }
-                          </TableRow>
+                        </TableRow>
+                      </TableHead>
+                  
+                    {
+                    Object.keys(data.globalAwards).length > 0 &&
+                      <>
+                        {/*For each global award in game*/}
+                        {Object.keys(data.globalAwards).map(key => (
+                            <TableRow>
+
+                              {/*Add Condition Name*/}
+                              <TableCell align="center">
+                                <Typography><b>{data.globalAwards[key].conditionName}</b></Typography>
+                                <Typography>(Max: {data.globalAwards[key].maxPerGame})</Typography>
+                              </TableCell>
+
+                              {/*For each player, show value*/}
+                              {
+                                Object.keys((data.globalAwards[key])).length > 0 &&
+                                Object.keys((data.globalAwards[key]["players"])).length > 0 &&
+                                <>
+                                  {Object.keys((data.globalAwards[key]["players"])).map(key2 => (
+                                    <TableCell align="center">
+                                      <Typography>{Math.round(data.globalAwards[key]["players"][key2].value/0.01)*0.01}</Typography>
+                                    </TableCell>
+                                    ))}
+                                </>
+                              }
+                            </TableRow>
                         ))}
-                    </>
-                  }
+                      </>
+                    }
                 </Table>
               </TableContainer>
+              }
+              
+              {
+                Object.keys((data.globalAwards)).length <=0 &&
+                <Typography style={{marginLeft:20}}>No Global Awards in this Template</Typography>
+              }
             </AccordionDetails>
           </Accordion>
           {/*End Score Global Awards Accordion*/}
@@ -313,7 +321,7 @@ function ScoringOverview() {
                                 <>
 
                                     {/*Account Icon*/}
-                                    <img src = {getAvatar(data.scoringOverview.players[key].avatarID)} style={{display:"inlineFlex", width:30,height:30,float:"left",marginLeft:-8}}></img>
+                                    <img alt = "avatar icon" src = {getAvatar(data.scoringOverview.players[key].avatarID)} style={{display:"inlineFlex", width:30,height:30,float:"left",marginLeft:-8}}></img>
                                     
                                     {/*Non-editable Name*/}
                                     <Typography style={{display:"inlineFlex",marginLeft:30,fontSize:14,marginBottom:-30,marginTop:5,marginRight:0,borderRight:0}} >{data.scoringOverview.players[key].displayName}</Typography>
@@ -321,7 +329,7 @@ function ScoringOverview() {
                                     {/*Kick Player Button*/}
                                     {
                                        //Cannot Kick Host/Yourself
-                                        key !=0 && 
+                                        key !==0 && 
                                         <IconButton style={{display:"inlineFlex",width:30,height:30,float:"right",marginLeft:-40,marginRight:-10}}><CloseIcon onClick={()=>{
                                               
                                                setShowKicking(true)
@@ -339,7 +347,7 @@ function ScoringOverview() {
                                data.scoringOverview.players[key].userID==null &&
                                 <>
                                     {/*Sepcial Icon*/}
-                                    <img src = {getAvatar(-1)} style={{width:30,height:30,float:"left",marginLeft:-8}}></img>
+                                    <img alt = "avatar icon" src = {getAvatar(-1)} style={{width:30,height:30,float:"left",marginLeft:-8}}></img>
               
                                     
                                     {/*Editable Text Field*/}
@@ -517,7 +525,7 @@ function ScoringOverview() {
 
                 {/*Leave Game Modal*/}
                 {
-                  loaded == true &&
+                  loaded === true &&
                 <Modal
                     open={showLeave}
                     aria-labelledby="simple-modal-title"

@@ -8,7 +8,7 @@ import {makeStyles} from '@material-ui/core/styles';
 import {Button} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import Logo from '../../images/GameScore App Logo.png';
-import { BrowserRouter as Router, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 export default class EditAccount extends React.Component{
     constructor(props){

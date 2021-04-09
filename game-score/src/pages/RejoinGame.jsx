@@ -1,8 +1,5 @@
-import io from "socket.io-client";
-import Cookies from 'js-cookie';
 import React from "react";  //basic React framework
 import Modal from '@material-ui/core/Modal';
-import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { Button } from '@material-ui/core';
 import { withRouter } from 'react-router'
@@ -57,7 +54,7 @@ class RejoinGame extends React.Component
 	      .then(
 	        (result) => {
 	          console.log(result)
-	          if(result.successful==true)
+	          if(result.successful===true)
 	          {
 	          	console.log("Succesful")
 	          	this.setState({
@@ -89,18 +86,18 @@ class RejoinGame extends React.Component
                             <h3 style={{textAlign:"center"}}>Game in Progress!</h3>
                          </div>
                          {
-                         	this.state.isHost==true &&
+                         	this.state.isHost===true &&
                          	<Typography>You are currently hosting a game.  Either disband or rejoin the game.  Disbanding the game will end the game for all other players as well. </Typography>
                          }
                          {
-                         	this.state.isHost==false &&
+                         	this.state.isHost===false &&
                          	<Typography>You are currently in a game.  Either leave or rejoin the game.</Typography>
                          }
 
                            <div style={{ justifyContent:'center',marginTop:11,display:"flex"}}>
 
                            		{
-                           		 this.state.isHost==true &&
+                           		 this.state.isHost===true &&
 	                              <Button variant = "contained" color="primary" size = "large" onClick={()=>{
 
 
@@ -120,6 +117,12 @@ class RejoinGame extends React.Component
 								          this.setState({
 								          doShow:false
 								          })
+
+								          if(window.location.pathname.includes("/playgame"))
+								          	{
+								          		window.location.reload(false);
+								          	}
+
 								        },
 								      )
 
@@ -128,7 +131,7 @@ class RejoinGame extends React.Component
                                 }
 
                                 {
-                           		 this.state.isHost==false &&
+                           		 this.state.isHost===false &&
 	                              <Button variant = "contained" color="primary" size = "large" onClick={()=>{
 
 	                              		  const requestOptions = {
@@ -139,7 +142,7 @@ class RejoinGame extends React.Component
                                           })
                                         };
 
-	                                fetch("/api/postLeaveGame",requestOptions) //Needs an actual route
+	                                fetch("/api/postLeaveGame",requestOptions)
 								      .then(res => res.json())
 								      .then(
 								        (result) => {
@@ -147,6 +150,10 @@ class RejoinGame extends React.Component
 								          this.setState({
 								          doShow:false
 								          })
+								          	if(window.location.pathname.includes("/playgame"))
+								          	{
+								          		window.location.reload(false);
+								          	}
 								        },
 								      )
 

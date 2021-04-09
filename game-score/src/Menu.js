@@ -12,9 +12,9 @@ import Table from '@material-ui/core/Table';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import {Link} from 'react-router-dom';
-import RejoinGame from './pages/RejoinGame';
 import TextField from '@material-ui/core/TextField';
+import Cookies from 'js-cookie';
+import Typography from '@material-ui/core/Typography';
 
 function getCookieValue(name) {
   let result = document.cookie.match("(^|[^;]+)\\s*" + name + "\\s*=\\s*([^;]+)")
@@ -37,6 +37,7 @@ constructor(props) {
             reportData: {},
             admin: {}
           };
+    this.callAPI = this.callAPI.bind(this);
     };
 
   
@@ -69,6 +70,23 @@ constructor(props) {
       this.setState({
         usernameData: getCookieValue("username")
       });
+  }
+  
+  callAPI() {
+    fetch("/api/getHomePage")
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            data: result,
+            loaded: "True"
+          }
+          );
+        },
+        // Note: it's important to handle errors here
+        // instead of a catch() block so that we don't swallow
+        // exceptions from actual bugs in components.
+      );
   }
 
   selectTemplate(newAccPos,newRowPos)
@@ -150,8 +168,6 @@ constructor(props) {
 
   render() {
     const { activeIndex } = this.state
-    const { classes } = this.props;
-
     return (
     <div>
       {/* Search Bar */}
@@ -176,7 +192,7 @@ constructor(props) {
         <TableContainer component={Paper}>
          <Table>
             {
-                this.state.loaded === "True" && 
+                this.state.loaded === "True" && Cookies.get("username") != null && 
                   <> 
                     {Object.keys(this.state.data.favoritedTemplates).map(key => (
                         <>
@@ -199,7 +215,9 @@ constructor(props) {
                                 userName = {this.state.data["favoritedTemplates"][key].userName}
                                 selected = {this.isSelected(0,key)}
                                 play = {true}
-                                rep = {true}>
+                                rep = {true}
+                                update = {this.callAPI}
+                                rate= {true}>
                                 </BottomUI>
                             </>
                           }
@@ -210,6 +228,12 @@ constructor(props) {
               }
           </Table>
           </TableContainer>
+          
+            {
+              this.state.loaded === "True" && Cookies.get("username") == null &&
+                <Typography style={{marginLeft:20}}>Login for full functionality.</Typography>
+            } 
+          
         </Accordion.Content>
 
         {/* Recently Played */}
@@ -251,7 +275,13 @@ constructor(props) {
                                 userName = {this.state.data["recentlyPlayed"][key].userName}
                                 selected = {this.isSelected(1,key)}
                                 play = {true}
-                                rep = {true}>
+                                rep = {true}
+                                prevRating = {this.state.data["recentlyPlayed"][key].prevRating}
+                                favorited = {this.state.data["recentlyPlayed"][key].favorited}
+                                selected = {this.isSelected(1,key)}
+                                play = {true}
+                                update = {this.callAPI}
+                                rate= {true}>
                                 </BottomUI>
                             </>
                           }
@@ -261,7 +291,11 @@ constructor(props) {
 
               }
           </Table>
-        </TableContainer>
+          </TableContainer>
+            {
+              this.state.loaded === "True" && Cookies.get("username") == null &&
+                <Typography style={{marginLeft:20}}>Login for full functionality.</Typography>
+            } 
         </Accordion.Content>
 
         {/* Highest Rated Templates accordian */}
@@ -303,7 +337,13 @@ constructor(props) {
                                 userName = {this.state.data["highestRated"][key].userName}
                                 selected = {this.isSelected(2,key)}
                                 play = {true}
-                                rep = {true}>
+                                rep = {true}
+                                prevRating = {this.state.data["highestRated"][key].prevRating}
+                                favorited = {this.state.data["highestRated"][key].favorited}
+                                selected = {this.isSelected(2,key)}
+                                play = {true}
+                                update = {this.callAPI}
+                                rate= {true}>
                               </BottomUI>
                             </>
                           }
@@ -345,6 +385,10 @@ constructor(props) {
               }
           </Table>
         </TableContainer>
+            {
+              this.state.loaded === "True" && Cookies.get("username") == null &&
+                <Typography style={{marginLeft:20}}>Login for full functionality.</Typography>
+            } 
         </Accordion.Content>
         
         {/* Displays only when user is admin */}
@@ -480,7 +524,9 @@ constructor(props) {
                     userName = {this.state.filtered[key].userName}
                     selected = {this.isSelected(key)}
                     play = {true}
-                    rep = {true}>
+                    rep = {true}
+                    update = {this.callAPI}
+                    rate= {true}>
                     </BottomUI>
                   </>
                 }

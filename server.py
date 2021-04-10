@@ -547,7 +547,7 @@ ORDER BY averageRating DESC LIMIT 10
                     ,"prevRating":"{}".format(prevRating)
                     ,"gameName":"{}".format(gameName)
                     ,"authorUserID":authorUserID
-                    ,"authorUsername":authorUsername}
+                    ,"authorUsername":"{}".format(authorUsername)}
         #append each new dictionary to its appropriate list
         result["highestRated"].append(template)
 
@@ -594,7 +594,7 @@ ORDER BY averageRating DESC LIMIT 10
                     ,"prevRating":"{}".format(prevRating)
                     ,"gameName":"{}".format(gameName)
                     ,"authorUserID":authorUserID
-                    ,"authorUsername":authorUsername}
+                     ,"authorUsername":"{}".format(authorUsername)}
         #append each new dictionary to its appropriate list
         result["favoritedTemplates"].append(template)
 
@@ -628,7 +628,7 @@ ORDER BY averageRating DESC LIMIT 10
                     ,"prevRating":"{}".format(prevRating)
                     ,"gameName":"{}".format(gameName)
                     ,"authorUserID":authorUserID
-                    ,"authorUsername":authorUsername}
+                    ,"authorUsername":"{}".format(authorUsername)}
         #append each new dictionary to its appropriate list
 
         result["recentlyPlayed"].append(template)

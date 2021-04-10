@@ -191,18 +191,18 @@ export default function BottomUI(props) {
 													//Yes this should be its own function, but got to difficult to do since functional component
 
 													// Send API call to favorite or unfavorite current template
-                                                    onClick = {()=> {
-                                                        const requestOptions = {
-                                                            method:'POST',
-                                                            headers: { 'Content-Type': 'application/json' },
-                                                            credentials: 'include',
-                                                            body: JSON.stringify({
-                                                                templateID: props.templateID,
-                                                                gameID: props.gameID
-                                                            })
-                                                        }
-                                                        fetch('/api/favoriteTemplate', requestOptions)
-                                                        .then(res => res.json())
+                        onClick = {()=> {
+                            const requestOptions = {
+                                method:'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                credentials: 'include',
+                                body: JSON.stringify({
+                                    templateID: props.templateID,
+                                    gameID: props.gameID
+                                })
+                            }
+                            fetch('/api/favoriteTemplate', requestOptions)
+                            .then(res => res.json())
 														.then(data => {
 															props.update();
 														})
@@ -765,5 +765,6 @@ export default function BottomUI(props) {
 					</div>
 	          	}
 	     </>
+       </>
         );
 }

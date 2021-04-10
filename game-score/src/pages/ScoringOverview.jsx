@@ -65,6 +65,25 @@ function getModalStyle()
     };
 }
 
+
+//Code adapted from: https://morioh.com/p/4576fa674ed8
+//Centers Modal on page
+function getModalStyle2()
+{
+    return {
+        top: `5%`,
+        left: `6%`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'absolute',
+        width: "90%",
+        padding:10,
+        backgroundColor:"white",
+        minHeight:"90%"
+    };
+}
+
 //Main Function for Rendering
 function ScoringOverview() {
 
@@ -78,6 +97,7 @@ function ScoringOverview() {
     const [showKicking,setShowKicking] = useState(false)
     const [kickingPos,setKickingPos] = useState(0)
     const [modalStyle] = React.useState(getModalStyle);
+    const [modalStyleScroll] = React.useState(getModalStyle2);
     const [loaded, setLoaded] = useState(false);
 
     var Socket = null;
@@ -210,13 +230,13 @@ function ScoringOverview() {
                   </TableHead>
                     {/*For each player in game*/}
                     {Object.keys((data.scoringOverview.players)).map(key => (
-                        <TableRow className={(data.scoringOverview.players[parseInt(key)].color)+"LT"}>
+                        <TableRow>
                             <TableCell>
-                                <div style={{float:"left",marginTop:4}}>
+                                <div  className={(data.scoringOverview.players[parseInt(key)].color)+"MED"} style={{float:"left",marginTop:4,padding:7,marginLeft:-16,marginTop:-6,marginBottom:-6}}>
                                     {/*Display Play icon*/}
                                     <img alt = "avatar icon" src = {getAvatar(data.scoringOverview.players[key].avatarID)} style={{width:30,height:30}}></img>
                                </div>
-                               <div style={{float:"left",marginTop:7,marginLeft:12}}>
+                               <div style={{float:"left",marginTop:6,marginLeft:12}}>
                                     {/*Display Player Name*/}
                                     <Typography style={{fontSize:17}}className={classes.heading}>{data.scoringOverview.players[key].displayName}</Typography>
                                 </div>
@@ -427,7 +447,7 @@ function ScoringOverview() {
                               >
                                 {/*Add color options*/}
                                 {Object.keys(data.colors).map(color => (
-                                    <MenuItem value={data.colors[color]}>{data.colors[color]}</MenuItem>
+                                    <MenuItem value={data.colors[color]}>{data.colors[color].charAt(0).toUpperCase() + data.colors[color].substring(1).toLowerCase()}</MenuItem>
                               ))}
                             </Select>
                         </TableCell>
@@ -455,19 +475,21 @@ function ScoringOverview() {
                     open={showFinalizeScore}
                     aria-labelledby="simple-modal-title"
                     aria-describedby="simple-modal-description"
+                    style= {{ overflow:'scroll'}}
                   >
-                  <div style={modalStyle} className={classes.paper}>
+                  <div style={modalStyle} className={classes.paper} >
+                    <div >
                       <h3 style={{textAlign:"center"}}>Done Scoring?</h3>
                     
-                      <Typography>Are you sure you want to finalize the scoring? All results will be final.</Typography>
+                      <Typography style={{marginBottom:10}}>Are you sure you want to finalize the scoring? All results will be final.</Typography>
 
                       {/*For each player with values over the limit*/}
                       {Object.keys((data.finalizeScore.players)).map(keyPlayer => (
                           <>
-                             <Typography>{data.finalizeScore.players[keyPlayer].displayName} has values that exceed the player limit:</Typography>
+                             <Typography style={{marginTop:8}}><b>Warning: </b>{data.finalizeScore.players[keyPlayer].displayName} has values that exceed the player limit:</Typography>
 
                               {Object.keys((data.finalizeScore.players[keyPlayer].conditions)).map(keyCondition => (
-                              <Typography>{data.finalizeScore.players[keyPlayer].conditions[keyCondition].conditionName}: {data.finalizeScore.players[keyPlayer].conditions[keyCondition].value} (Max: {data.finalizeScore.players[keyPlayer].conditions[keyCondition].maxPerPlayer})</Typography>
+                              <Typography> -  {data.finalizeScore.players[keyPlayer].conditions[keyCondition].conditionName}: {data.finalizeScore.players[keyPlayer].conditions[keyCondition].value} (Max: {data.finalizeScore.players[keyPlayer].conditions[keyCondition].maxPerPlayer})</Typography>
                               ))}
                           </>
                       ))}
@@ -476,10 +498,10 @@ function ScoringOverview() {
                       {Object.keys((data.finalizeScore.awards)).map(key => (
                           <>
                               {
-                                key === 0 &&
-                                <Typography>There are global awards that exceed the limit:</Typography>
+                                key == 0 &&
+                                <Typography style={{marginTop:8}}><b>Warning: </b>There are global awards that exceed the limit:</Typography>
                               }
-                             <Typography>{data.finalizeScore.awards[key].name}: {data.finalizeScore.awards[key].sumValue} (Max: {data.finalizeScore.awards[key].maxPerGame })</Typography>
+                             <Typography > - {data.finalizeScore.awards[key].name}: {data.finalizeScore.awards[key].sumValue} (Max: {data.finalizeScore.awards[key].maxPerGame })</Typography>
 
                           </>
                       ))}
@@ -488,7 +510,7 @@ function ScoringOverview() {
                        <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
 
                           {/*Confirm Finalize Score*/}
-                          <Button className={classes.button}  variant = "contained" color="primary" size = "large" onClick={()=>{
+                          <Button className={classes.button} style={{marginRight:5}}  variant = "contained" color="primary" size = "large" onClick={()=>{
                                 
                                 fetch("/api/postFinalizeScore").then(res => res.json()).then(data => {
                                 history.push('/play/postgame')
@@ -497,11 +519,12 @@ function ScoringOverview() {
                           }}>Finalize Score</Button>
 
                           {/*Cancel Finalize Scoring*/}
-                          <Button className={classes.button}variant = "contained" color="primary" size = "large" onClick={()=>setShowFinalizeScore(false)
+                          <Button className={classes.button}variant = "contained" style={{marginLeft:5}} color="primary" size = "large" onClick={()=>setShowFinalizeScore(false)
                           }>Cancel</Button>
 
                       </div>
 
+                    </div>
                     </div>
                   </Modal>//End Finalize Score Modal
                 }

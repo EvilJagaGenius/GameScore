@@ -114,6 +114,9 @@ export default class CreateAccount extends Component{
     if(usernameExists === true){
       errorText += "Username already exists"
     }
+    if(String(event.target.value).length === 0){
+      errorText = "Username is empty. "
+    }
     if(errorText.length === 0){
       this.setState({
         usernameError: false,
@@ -142,7 +145,14 @@ export default class CreateAccount extends Component{
       this.setState({
         email: "",
         emailError: true,
-        emailHelper: "Invalid email entered"
+        emailHelper: "Invalid email entered."
+      })
+    }
+    if(email.length === 0){
+      this.setState({
+        email: "",
+        emailError: true,
+        emailHelper: "Email is empty."
       })
     }
     //otherwise, remove any errors
@@ -163,10 +173,33 @@ export default class CreateAccount extends Component{
   passwordHandler=(event)=>{
     console.log(event.target.value);
     //create a special string for checking the password requirements
-    var pass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{4,30}/;
+    var pass1 = /^(?=.*[a-z])(?=.*[A-Z])/;
+    var pass2 = /^(?=.*[0-9])/;
     //if the requirements are met, don't create an error
     //otherwise, create an onscreen error by updating the textfield properties
-    if(String(event.target.value).match(pass)){
+    var errorText = "";
+    //check for letter requirements
+    if(!String(event.target.value).match(pass1)){
+      errorText += "Password letter requirements not met. ";
+    }
+    //check for number requirement
+    if(!String(event.target.value).match(pass2)){
+      errorText += "Password is missing a number. "
+    }
+    //check for length requirements
+    //too long
+    if(String(event.target.value).length > 30){
+      errorText += "Password is too long. "
+    }
+    //too short
+    if(String(event.target.value).length < 4){
+      errorText += "Password is too short. "
+    }
+    if(String(event.target.value).length === 0){
+      errorText = "Password is empty. "
+    }
+    //final error checking
+    if(errorText.length === 0){
       this.setState({
         passwordError: false,
         password: event.target.value,
@@ -175,12 +208,12 @@ export default class CreateAccount extends Component{
       console.log("requirements met");
     }
     else{
-      console.log("requirments not met")
       this.setState({
         password: event.target.value,
         passwordError: true,
-        passwordHelper: "Password requirements not met"
+        passwordHelper: errorText
       });
+      console.log("requirements not met");
     }
   }
 

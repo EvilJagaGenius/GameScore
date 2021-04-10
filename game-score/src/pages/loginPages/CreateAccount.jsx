@@ -205,63 +205,9 @@ export default class CreateAccount extends Component{
   }
 
   /**
-   * sendRequest: function for sending new account data to the database for the account to be created once submitted
-   */
-  async sendRequest() {
-    console.log(this.state.username);
-    console.log(this.state.email);
-    console.log(this.state.password);
-
-    // POST request using fetch with async/await
-    //create request options with username, password, and email server API parameters
-    const requestOptions = {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          username: this.state.username,
-          password: this.state.password,
-          email: this.state.email
-        })
-    };
-    //await the response from the server, and record the response in the console
-    //response will either be "true" or "false"
-    const response = await fetch('/api/postCreateAccount', requestOptions);
-    const data = await response.json();
-    this.setState({data: data.successful});   //update the state of the data property based on the server result
-    console.log(this.state.data);
-    
-    //if data is true
-    if(this.state.data)
-    {
-        //redirect the player to login if they are joining by QR code
-        if(this.props.location!=null&&this.props.location.state!=null &&this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
-        {
-            this.props.history.push({
-            pathname:"/home/login",
-            state:{joinCodeQR:this.props.location.state.joinCodeQR}
-            });
-        }
-        //otherwise, take them to the login screen if they haven't joined a game
-        else
-        {
-          this.props.history.push("/home/login");
-        }
-    }
-    //if false is received, display an error message
-    else{
-      this.setState({
-        displayAlert: true,
-        alertText: "Unable to create account",
-        alertSeverity: "error"
-      });
-    }
-  }
-
-  /**
    * confirmSubmission: event handler for handling submission events once the form is submitted
-   * @param {*} e: event related to the submission once the submit button is clicked
    */
-  confirmSubmission = e =>{
+   confirmSubmission(){
     var userCheck = false   //boolean for checking if the username is good to submit
     var emailCheck = false    //boolean for checking if the email is good to submit
     var passCheck = false   //boolean for checking if the password is good to submit
@@ -317,6 +263,59 @@ export default class CreateAccount extends Component{
     //if the username, password, and email are ok submit, call the send request function to contact the server
     if(userCheck && emailCheck && passCheck){
       this.sendRequest();
+    }
+  }
+
+  /**
+   * sendRequest: function for sending new account data to the database for the account to be created once submitted
+   */
+  async sendRequest() {
+    console.log(this.state.username);
+    console.log(this.state.email);
+    console.log(this.state.password);
+
+    // POST request using fetch with async/await
+    //create request options with username, password, and email server API parameters
+    const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          username: this.state.username,
+          password: this.state.password,
+          email: this.state.email
+        })
+    };
+    //await the response from the server, and record the response in the console
+    //response will either be "true" or "false"
+    const response = await fetch('/api/postCreateAccount', requestOptions);
+    const data = await response.json();
+    this.setState({data: data.successful});   //update the state of the data property based on the server result
+    console.log(this.state.data);
+    
+    //if data is true
+    if(data.successful)
+    {
+        //redirect the player to login if they are joining by QR code
+        if(this.props.location!=null&&this.props.location.state!=null &&this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
+        {
+            this.props.history.push({
+            pathname:"/home/login",
+            state:{joinCodeQR:this.props.location.state.joinCodeQR}
+            });
+        }
+        //otherwise, take them to the login screen if they haven't joined a game
+        else
+        {
+          this.props.history.push("/home/login");
+        }
+    }
+    //if false is received, display an error message
+    else{
+      this.setState({
+        displayAlert: true,
+        alertText: "Unable to create account",
+        alertSeverity: "error"
+      });
     }
   }
 
@@ -381,7 +380,7 @@ export default class CreateAccount extends Component{
             <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" helperText = {this.state.confirmPasswordHelper} type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
           </div>
           <div style={{marginTop: 15, marginBottom: 10}}>
-            <Button variant = "contained" color = "primary" type = "submit" onClick={()=>{this.confirmSubmission()}}>Create Account</Button>
+            <Button variant = "contained" color = "primary" onClick={()=>{this.confirmSubmission()}}>Create Account</Button>
           </div>
           <Snackbar open={this.state.displayAlert} autoHideDuration={3000} onClose={()=>{this.setState({displayAlert:false})}}>
             <Alert variant = "filled" severity="warning">

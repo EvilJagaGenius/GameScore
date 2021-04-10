@@ -20,6 +20,8 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Rating from '@material-ui/lab/Rating';
 import Favorite from '@material-ui/icons/Favorite';
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
+import Description from '@material-ui/icons/Description';
+import Search from '@material-ui/icons/Search';
 import Cookies from 'js-cookie';
 
 //Make Modal theme for this page
@@ -300,6 +302,42 @@ export default function BottomUI(props) {
 													</div>
 											</Button>
 										</TableCell>		
+										</>
+									}
+                  
+                  {props.gameBottomUI === true &&
+										<>
+											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+                      <a href={props.gameURL}>
+											<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+											onClick = {()=> console.log(props.gameURL)}>
+												<div style={{margin:-5}}>
+														
+														<div>
+															<Description style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															BGG Page
+														</div>
+													</div>
+											</Button>
+                      </a>
+                      </TableCell>		
+										
+											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+											<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+											onClick = {()=> props.searchFunction(props.gameName)}>
+                        {/* Need to set the searchQuery in Menu.js */}
+												<div style={{margin:-5}}>
+														<div>
+															<Search style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															Search for templates
+														</div>
+													</div>
+											</Button>
+                      </TableCell>		
 										</>
 									}
 

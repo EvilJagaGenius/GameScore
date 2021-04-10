@@ -530,7 +530,6 @@ ORDER BY averageRating DESC LIMIT 10
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-
         picURL, templateName, numRatings, averageRating, gameID, templateID, prevRating, favorited,gameName,authorUserID,authorUsername = row
         if prevRating == None:
             prevRating = 0
@@ -555,16 +554,17 @@ ORDER BY averageRating DESC LIMIT 10
     ### Recommended Games ###
     #Execute sql call to get appropriate data
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select pictureURL, gameName from AppUserRecommendedGame JOIN Game ON AppUserRecommendedGame.gameID=Game.gameID WHERE userID=%s LIMIT 8")
+    stmt = ("select pictureURL, gameName, gameURL from AppUserRecommendedGame JOIN Game ON AppUserRecommendedGame.gameID=Game.gameID WHERE userID=%s LIMIT 8")
     mycursor.execute(stmt,(userID,))
     myresult = mycursor.fetchall()
     mycursor.close()
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-        picURL, gameName = row
+        picURL, gameName, gameURL = row
         template = {"pictureURL":"{}".format(picURL)
-                    ,"gameName":"{}".format(gameName)}
+                    ,"gameName":"{}".format(gameName)
+                    ,"gameURL":"{}".format(gameURL)}
         #append each new dictionary to its appropriate list
         result["recommendedGames"].append(template)
 
@@ -2712,6 +2712,11 @@ def avatarPOST():
 ##################################### Search API ########################################
 @app.route("/api/search/templates", methods=["GET"])
 def templateSearch():
+    # How do we get input from the search box?
+    gameID = request.args.get("gid", "")
+    gameIDStatement = ""
+    if gameID.isnumeric():
+        gameIDStatement = "WHERE gameID = " + str(gameID)
     
     #Create JSON framework for what we will return
     result = {"templates":[]}
@@ -2721,14 +2726,25 @@ def templateSearch():
     #Execute sql call to get appropriate data
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("""
-    SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName
-    FROM AppUser u
-        INNER JOIN Template t ON u.userID = t.userID
-        INNER JOIN Game g ON t.gameID = g.gameID
-    ORDER BY t.averageRating DESC;
-    """)
-    mycursor.execute(stmt)
+    if gameID == "":
+        stmt = ("""
+        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName
+        FROM AppUser u
+            INNER JOIN Template t ON u.userID = t.userID
+            INNER JOIN Game g ON t.gameID = g.gameID
+        ORDER BY t.averageRating DESC;
+        """)
+        mycursor.execute(stmt)
+    else:
+        stmt = ("""
+        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName
+        FROM AppUser u
+            INNER JOIN Template t ON u.userID = t.userID
+            INNER JOIN Game g ON t.gameID = g.gameID
+        WHERE gameID = %s
+        ORDER BY t.averageRating DESC;
+        """)
+        mycursor.execute(stmt, (gameID,))
     myresult = mycursor.fetchall()
     mycursor.close()
 

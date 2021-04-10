@@ -182,6 +182,10 @@ export default class TemplateCreator extends React.Component {
 
                     </div>
 
+                    <Typography style = {{fontSize:10,display:"flex",justifyContent:"center",marginTop:30,marginLeft:15,marginRight:15}}>
+                      By creating a template, you are agreeing that all board game templates within GameScore that you create will fall under a CC0 copyright policy.
+                    </Typography>
+
                   {/*Error Alert*/}
                   <Snackbar open={this.state.showError} autoHideDuration={3000} onClose={()=>{this.setState({showError:false})}}>
                     <Alert variant = "filled" severity="error">

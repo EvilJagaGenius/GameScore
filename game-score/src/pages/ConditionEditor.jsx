@@ -575,7 +575,7 @@ export default class ConditionEditor extends Component {
                             {/* Max Per Game Textbox*/}
                               <TableCell align="right">
                                  
-                                <TextField style={{width:"60%",marginRight:"13%"}} inputProps={{style: {textAlign:"right"} }} id="maxPerGameInput" type="number" value={this.state.data["conditions"][this.state.condPos].maxPerGame}
+                                <TextField disabled= {this.state.data["conditions"][this.state.condPos].maxPerGameActive ==false} style={{width:"60%",marginRight:"13%"}} inputProps={{style: {textAlign:"right"} }} id="maxPerGameInput" type="number" value={this.state.data["conditions"][this.state.condPos].maxPerGame}
                                      // Validate and then save number to state when blurred
                                      onBlur={(e)=>{
                                             var newData = this.state.data
@@ -618,7 +618,7 @@ export default class ConditionEditor extends Component {
                             {/* Max Per Player Textbox*/}
                              <TableCell align="right">
                                
-                                <TextField style={{width:"60%",marginRight:"13%"}} inputProps={{style: {textAlign:"right"} }} id="maxPerPlayerInput" type="number" value={this.state.data["conditions"][this.state.condPos].maxPerPlayer}
+                                <TextField disabled= {this.state.data["conditions"][this.state.condPos].maxPerPlayerActive==false} style={{width:"60%",marginRight:"13%"}} inputProps={{style: {textAlign:"right"} }} id="maxPerPlayerInput" type="number" value={this.state.data["conditions"][this.state.condPos].maxPerPlayer}
                                      // On blur validate and save value to state
                                      onBlur={(e)=>{
                                             var newData = this.state.data

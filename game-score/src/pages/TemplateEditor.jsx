@@ -367,7 +367,7 @@ export default class TemplateEditor extends Component {
                                     {/*Show max per game if active*/}
                                     <>
                                     {
-                                        this.state.data["conditions"][key].maxPerGameActive === true &&
+                                        this.state.data["conditions"][key].maxPerGameActive == true &&
                                         <TableRow>
                                             <TableCell align="left:"><b>Max Per Game:</b></TableCell>
                                             <TableCell align="center">{this.state.data["conditions"][key].maxPerGame}</TableCell>
@@ -376,7 +376,7 @@ export default class TemplateEditor extends Component {
                                     </>
                                     {/*Show max per player if active*/}
                                     {
-                                    this.state.data["conditions"][key].maxPerPlayerActive === true &&
+                                    this.state.data["conditions"][key].maxPerPlayerActive == true &&
                                     <TableRow>
                                         <TableCell align="left:"><b>Max Per Player:</b></TableCell>
                                         <TableCell align="center">{this.state.data["conditions"][key].maxPerPlayer}</TableCell>

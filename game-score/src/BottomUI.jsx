@@ -52,6 +52,8 @@ function getModalStyle() {
 //Ensure number of players is a positive integer and less than 12
 function validateNumPlayers(inputVal)
 {
+	inputVal = Math.round(inputVal)
+
 	if(inputVal<=0)
 	{
 		inputVal = 1;
@@ -60,7 +62,7 @@ function validateNumPlayers(inputVal)
 	{
 		inputVal = 12;
 	}
-	inputVal = Math.round(inputVal)
+
 
 	return inputVal;
 }
@@ -180,22 +182,29 @@ export default function BottomUI(props) {
 
 													// Send API call to favorite or unfavorite current template
                                                     onClick = {()=> {
-                                                        const requestOptions = {
-                                                            method:'POST',
-                                                            headers: { 'Content-Type': 'application/json' },
-                                                            credentials: 'include',
-                                                            body: JSON.stringify({
-                                                                templateID: props.templateID,
-                                                                gameID: props.gameID
-                                                            })
-                                                        }
-                                                        fetch('/api/favoriteTemplate', requestOptions)
-                                                        .then(res => res.json())
-														.then(data => {
-															props.update();
-														})
-                                                         
-                                                    }
+
+                                                    	if(Cookies.get("username") != null) //If logged-in
+                                                    	{
+	                                                        const requestOptions = {
+	                                                            method:'POST',
+	                                                            headers: { 'Content-Type': 'application/json' },
+	                                                            credentials: 'include',
+	                                                            body: JSON.stringify({
+	                                                                templateID: props.templateID,
+	                                                                gameID: props.gameID
+	                                                            })
+	                                                        }
+	                                                        fetch('/api/favoriteTemplate', requestOptions)
+	                                                        .then(res => res.json())
+															.then(data => {
+																props.update();
+															})
+														}
+														else //Send to login screen if not logged-in
+														{
+															history.push('/home/login')
+                                                		}
+												}
                                                 }>
                                                     {props.favorited === 1 &&
                                                         <div style={{margin:-5}}>
@@ -307,7 +316,17 @@ export default function BottomUI(props) {
 										<>
 											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
 												<Button style={{height:60,width:"100%"}} variant = "contained" color="primary" size="large"
-													onClick = {() => setReportPopup(true)}>
+													onClick = {() => {
+														if(Cookies.get("username") != null)
+														{
+															setReportPopup(true)
+														}
+														else //send to login if not logged-in
+														{
+															history.push('/home/login')
+														}
+
+														}}>
 													<div style={{margin:-5}}>
 														<div>
 															<ReportIcon style={{fontSize:35}} />

@@ -27,8 +27,16 @@ export default class ScoringPage extends React.Component{
   //Provide tooltip for description when hovering name
   getTooltip(condPos)
   {
-    return <span><b>{this.state.data.individualScoring[this.state.key]["conditions"][condPos].conditionName+":"}</b> <br></br> 
-    {this.state.data.individualScoring[this.state.key]["conditions"][condPos].description}</span>
+    return( <span><b>{this.state.data.individualScoring[this.state.key]["conditions"][condPos].conditionName+":"}</b> <br></br> 
+      {this.state.data.individualScoring[this.state.key]["conditions"][condPos].description}
+
+      {
+        this.state.data.individualScoring[this.state.key]["conditions"][condPos].description=="" &&
+        <> -- No Description -- </>
+      }
+      </span>
+      );
+  
   }
 
    //Basic Constructor for init

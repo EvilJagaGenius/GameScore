@@ -331,6 +331,19 @@ export default class EditAccount extends React.Component{
                     <div style={{marginTop: 15, marginBottom: 10}}>
                       <Button variant = "contained" color = "primary" onClick={()=>{this.confirmPasswordSubmission()}}>Change Password</Button>
                     </div>
+                    <div style={{textAlign:"center"}}>
+                      <div style={{marginTop: 15, marginBottom: 10}}>
+                        <Typography variant="h6">Username Requirements</Typography>
+                        <Typography>4-30 characters in length</Typography>
+                        <Typography>At least one uppercase letter and lowercase letter</Typography>
+                      </div>
+                      <div style={{marginTop: 15, marginBottom: 10}}>
+                        <Typography variant="h6">Password Requirements</Typography>
+                        <Typography>4-30 characters in length</Typography>
+                        <Typography>At least one uppercase letter and lowercase letter</Typography>
+                        <Typography>At least one number</Typography>
+                      </div>
+                  </div>
                     <Snackbar open={this.state.editSuccessUsername} autoHideDuration={3000} onClose={()=>{this.setState({editSuccessUsername:false})}}>
                       <Alert variant = "filled" severity="success">
                         Account Username Updated

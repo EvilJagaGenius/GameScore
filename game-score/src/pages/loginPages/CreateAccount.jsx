@@ -366,6 +366,19 @@ export default class CreateAccount extends Component{
           <div style={{marginTop: 15, marginBottom: 10}}>
             <Button variant = "contained" color = "primary" type = "submit" onClick={()=>{this.confirmSubmission()}}>Create Account</Button>
           </div>
+          <div style={{textAlign:"center"}}>
+            <div style={{marginTop: 15, marginBottom: 10}}>
+              <Typography variant="h6">Username Requirements</Typography>
+              <Typography>4-30 characters in length</Typography>
+              <Typography>At least one uppercase letter and lowercase letter</Typography>
+            </div>
+            <div style={{marginTop: 15, marginBottom: 10}}>
+              <Typography variant="h6">Password Requirements</Typography>
+              <Typography>4-30 characters in length</Typography>
+              <Typography>At least one uppercase letter and lowercase letter</Typography>
+              <Typography>At least one number</Typography>
+            </div>
+          </div>
           <Snackbar open={this.state.displayAlert} autoHideDuration={3000} onClose={()=>{this.setState({displayAlert:false})}}>
             <Alert variant = "filled" severity="warning">
               {this.state.alertText}

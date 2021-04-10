@@ -252,8 +252,8 @@ export default class CreateAccount extends Component{
 
     //if the username field is blank, display an error
     var currentText = "";
-    if(this.state.username === ""){
-      currentText += "No username entered";
+    if(this.state.username === "" || this.state.usernameError === true){
+      currentText += "Problem found with username";
       this.setState({
         usernameError: true
       });
@@ -266,7 +266,7 @@ export default class CreateAccount extends Component{
       });
     }
     //if the email field is blank, display an error
-    if(this.state.email===""){
+    if(this.state.email=== "" || this.state.emailError === true){
       currentText += "No email address entered";
       this.setState({
         emailError: true
@@ -280,7 +280,7 @@ export default class CreateAccount extends Component{
       });
     }
     //if there are any errors relating to the password, display an alert
-    if(this.state.passwordError === true && this.state.confrimPasswordError === true){
+    if((this.state.passwordError === true && this.state.confrimPasswordError === true) || ((this.state.password==="" && this.state.confirmPassword === ""))){
       currentText += "Password error found";
       this.setState({
         passwordError: true,

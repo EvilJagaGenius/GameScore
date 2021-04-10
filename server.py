@@ -530,13 +530,13 @@ def apiGetHomePage():
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-        userID, userName, picURL, templateName, numRatings, averageRating, gameID, templateID, gameName, prevRating, favorited = row
+        authorUserID, userName, picURL, templateName, numRatings, averageRating, gameID, templateID, gameName, prevRating, favorited = row
         if prevRating == None:
             prevRating = 0
         if favorited == None:
             favorited = 0
 
-        template = {"userID":"{}".format(userID)
+        template = {"userID":"{}".format(authorUserID)
                     ,"userName":"{}".format(userName)
                     ,"pictureURL":"{}".format(picURL)
                     ,"templateName":"{}".format(templateName)

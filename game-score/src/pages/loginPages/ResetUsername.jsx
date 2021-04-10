@@ -68,15 +68,15 @@ export default class ResetUsername extends Component{
     var errorText = ""
     if(!testString.match(usernameRequirements)){
       console.log("does not meet letter")
-      errorText += "Username does not meet letter requirements";
+      errorText += "Username does not meet letter requirements. ";
     }
     if(testString.length >= 31){
       console.log("too long")
-      errorText += "Username is too long";
+      errorText += "Username is too long. ";
     }
     if(testString.length <= 3){
       console.log("too short")
-      errorText += "Username is too short";
+      errorText += "Username is too short. ";
     }
 
     const requestOptions = {

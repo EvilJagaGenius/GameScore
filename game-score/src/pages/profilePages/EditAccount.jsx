@@ -310,10 +310,18 @@ export default class EditAccount extends React.Component{
                   <Typography variant="h4">Edit Account</Typography>
                 </div>
                 <img src={Logo} alt="GameScore Logo" width="130" height="130"></img>
-                    <div style={{marginTop: 15, marginBottom: 10}}>
+                    <div style={{marginTop: 15}}>
                       <TextField size = "medium" required id="standard-required" name = "username" label="Username" onChange={this.usernameHandler} error={this.state.usernameError} helperText={this.state.usernameHelper}/>
                     </div>
-                    <div style={{marginTop: 15, marginBottom: 10}}>
+                    <div style={{textAlign:"center", marginTop: 5, marginBottom: 5}}>
+                      <div>
+                        <Typography variant="caption">4-30 characters in length</Typography>
+                      </div>
+                      <div>
+                        <Typography variant="caption">At least one uppercase letter and lowercase letter</Typography>
+                      </div>
+                  </div>
+                    <div style={{marginTop: 10, marginBottom: 10}}>
                       <Button variant = "contained" color = "primary" onClick={()=>{this.confirmUsernameSubmission()}}>Change Username</Button>
                     </div>
                     <div style={{marginTop: 15, marginBottom: 10}}>
@@ -322,28 +330,26 @@ export default class EditAccount extends React.Component{
                     <div style={{marginTop: 15, marginBottom: 10}}>
                       <Button variant = "contained" color = "primary" onClick={()=>{this.confirmEmailSubmission()}}>Change Email</Button> 
                     </div>
-                    <div style={{marginTop: 15, marginBottom: 10}}>
+                    <div style={{marginTop: 15}}>
                       <TextField size = "medium" required id="standard-required" name = "password" label="New Password" type="password" onChange={this.passwordHandler} error={this.state.passwordError}/>
                     </div>
-                    <div style={{marginTop: 15, marginBottom: 10}}>
+                    <div style={{textAlign:"center", marginTop: 5, marginBottom: 5}}>
+                      <div>
+                        <Typography variant="caption">4-30 characters in length</Typography>
+                      </div>
+                      <div>
+                        <Typography variant="caption">At least one uppercase letter and lowercase letter</Typography>
+                      </div>
+                      <div>
+                        <Typography variant="caption">At least one number</Typography>
+                      </div>
+                    </div>
+                    <div style={{marginTop: 3, marginBottom: 10}}>
                       <TextField size = "medium" required id="standard-required" name = "confirmpassword" label="Confirm New Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
                     </div>
                     <div style={{marginTop: 15, marginBottom: 10}}>
                       <Button variant = "contained" color = "primary" onClick={()=>{this.confirmPasswordSubmission()}}>Change Password</Button>
                     </div>
-                    <div style={{textAlign:"center"}}>
-                      <div style={{marginTop: 15, marginBottom: 10}}>
-                        <Typography variant="h6">Username Requirements</Typography>
-                        <Typography>4-30 characters in length</Typography>
-                        <Typography>At least one uppercase letter and lowercase letter</Typography>
-                      </div>
-                      <div style={{marginTop: 15, marginBottom: 10}}>
-                        <Typography variant="h6">Password Requirements</Typography>
-                        <Typography>4-30 characters in length</Typography>
-                        <Typography>At least one uppercase letter and lowercase letter</Typography>
-                        <Typography>At least one number</Typography>
-                      </div>
-                  </div>
                     <Snackbar open={this.state.editSuccessUsername} autoHideDuration={3000} onClose={()=>{this.setState({editSuccessUsername:false})}}>
                       <Alert variant = "filled" severity="success">
                         Account Username Updated

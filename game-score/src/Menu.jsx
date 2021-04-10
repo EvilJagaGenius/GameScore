@@ -58,7 +58,7 @@ export default class Menu extends Component {
         loaded: "True"
       });
 
-      console.log(reportResponse);
+      console.log(homeResponse);
     });
     if(Cookies.get("username")){
       console.log("logged in")
@@ -236,8 +236,8 @@ export default class Menu extends Component {
                                  templateName = {this.state.data["favoritedTemplates"][key].templateName}
                                  templateID = {this.state.data["favoritedTemplates"][key].templateID}
                                  gameID = {this.state.data["favoritedTemplates"][key].gameID}
-                                 userID = {this.state.data["favoritedTemplates"][key].userID}
-                                 userName = {this.state.data["favoritedTemplates"][key].userName}
+                                 userID = {this.state.data["favoritedTemplates"][key].authorUserID}
+                                userName = {this.state.data["favoritedTemplates"][key].authorUserName}
                                  selected = {this.isSelected(0,key)}
                                  play = {true}
                                  rep = {true}
@@ -294,10 +294,8 @@ export default class Menu extends Component {
                                 templateName = {this.state.data["recentlyPlayed"][key].templateName}
                                 templateID = {this.state.data["recentlyPlayed"][key].templateID}
                                 gameID = {this.state.data["recentlyPlayed"][key].gameID}
-                                userID = {this.state.data["recentlyPlayed"][key].userID}
-                                userName = {this.state.data["recentlyPlayed"][key].userName}
-                                selected = {this.isSelected(1,key)}
-                                play = {true}
+                                userID = {this.state.data["recentlyPlayed"][key].authorUserID}
+                                userName = {this.state.data["recentlyPlayed"][key].authorUserName}
                                 rep = {true}
                                 prevRating = {this.state.data["recentlyPlayed"][key].prevRating}
                                 favorited = {this.state.data["recentlyPlayed"][key].favorited}
@@ -355,10 +353,8 @@ export default class Menu extends Component {
                                 templateName = {this.state.data["highestRated"][key].templateName}
                                 templateID = {this.state.data["highestRated"][key].templateID}
                                 gameID = {this.state.data["highestRated"][key].gameID}
-                                userID = {this.state.data["highestRated"][key].userID}
-                                userName = {this.state.data["highestRated"][key].userName}
-                                selected = {this.isSelected(2,key)}
-                                play = {true}
+                                userID = {this.state.data["highestRated"][key].authorUserID}
+                                userName = {this.state.data["highestRated"][key].authorUserName}
                                 rep = {true}
                                 prevRating = {this.state.data["highestRated"][key].prevRating}
                                 favorited = {this.state.data["highestRated"][key].favorited}
@@ -520,7 +516,6 @@ export default class Menu extends Component {
                               reportID = {this.state.reportData["users"][key].reportID}
                               reason = {this.state.reportData["users"][key].reason}
                               selected = {this.isSelected(5,key)}
-                              review = {true}
                               judge = {true}
                               update = {this.callAPI}>
                             </BottomUI>

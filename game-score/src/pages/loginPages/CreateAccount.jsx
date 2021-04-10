@@ -218,56 +218,61 @@ export default class CreateAccount extends Component{
     var passCheck = false   //boolean for checking if the password is good to submit
 
     //if the username field is blank, display an error
-    var currentText = this.state.alertText;
+    var currentText = "";
     if(this.state.username === ""){
+      currentText += "No username entered";
       this.setState({
-        displayAlert: true,
-        alertText: "No username entered",
-        alertSeverity: "warning",
         usernameError: true
       });
     }
     //otherwise, the username is declared as being ok to submit
     else{
       userCheck = true
+      this.setState({
+        usernameError: false
+      });
     }
-
-    currentText += this.state.alertText;
     //if the email field is blank, display an error
     if(this.state.email===""){
+      currentText += "No email address entered";
       this.setState({
-        displayAlert: true,
-        alertText: "No email address entered",
-        alertSeverity: "warning",
         emailError: true
       });
     }
     //otherwise, the email is declared as being ok to submit
     else{
       emailCheck = true
+      this.setState({
+        emailError: false
+      });
     }
-
-    currentText += this.state.alertText;
     //if there are any errors relating to the password, display an alert
     if(this.state.passwordError === true && this.state.confrimPasswordError === true){
+      currentText += "Password error found";
       this.setState({
-        displayAlert: true,
-        alertText: "Password error found",
-        alertSeverity: "warning"
-      })
+        passwordError: true,
+        confrimPasswordError: true
+      });
     }
     //otherwise, the password is declared as being ok to submit
     else{
       passCheck = true
+      this.setState({
+        passwordError: false,
+        confrimPasswordError: false
+      });
     }
-
-    this.setState({
-      alertText: currentText
-    });
 
     //if the username, password, and email are ok submit, call the send request function to contact the server
     if(userCheck && emailCheck && passCheck){
       this.sendRequest();
+    }
+    else{
+      this.setState({
+        displayAlert: true,
+        alertText: currentText,
+        alertSeverity: "warning"
+      })
     }
   }
 

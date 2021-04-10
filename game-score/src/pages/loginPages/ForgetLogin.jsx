@@ -11,6 +11,8 @@ import { Component } from "react";
 import Logo from '../../images/GameScore App Logo.png';
 import { Link } from 'react-router-dom'
 import BackIcon from '@material-ui/icons/ArrowBackIos';
+import {Alert} from "@material-ui/lab";
+import Snackbar from '@material-ui/core/Snackbar';
 
 export default class ForgetLogin extends Component{
   constructor(props){
@@ -21,7 +23,13 @@ export default class ForgetLogin extends Component{
       usernameError: false,
       emailError: false,
       passwordData: false,
-      emailData: false
+      emailData: false,
+      displayNameAlert: false,
+      displayEmailAlert: false,
+      displayUsernameSuccess: false,
+      displayEmailSuccess: false,
+      displayUserFail: false,
+      displayEmailFail: false
     }
   }
 
@@ -79,9 +87,9 @@ export default class ForgetLogin extends Component{
   confirmSubmission(type){
     if(type === "password"){
       if(this.state.username === ""){
-        alert("No username entered");
         this.setState({
-          usernameError: true
+          usernameError: true,
+          displayNameAlert: true
         });
       }
       //all tests passed
@@ -97,9 +105,9 @@ export default class ForgetLogin extends Component{
       //if error found, handle it
       if(tempEmail.length === 0){
         this.setState({
-          emailError: true
+          emailError: true,
+          displayEmailAlert: true
         })
-        alert("Invalid email")
       }
       //no errors found
       else{
@@ -129,11 +137,15 @@ export default class ForgetLogin extends Component{
     //errors and error message
     console.log(this.state.passwordData);
     if(this.state.passwordData){
-      alert("Your password reset email has been sent to the email address connected with your account");
+      this.setState({
+        displayEmailSuccess: true
+      });
       this.props.history.push("/home/login");
     }
     else{
-      alert("Username has not been found. Please try again");
+      this.setState({
+        displayUserFail: true
+      });
     }
   }
 
@@ -153,57 +165,96 @@ export default class ForgetLogin extends Component{
     //errors and error message
     console.log(this.state.emailData);
     if(this.state.emailData){
-      alert("Your reset email has been sent");
-      this.props.history.push("/home/login");
+      this.setState({
+        displayEmailSuccess: true
+      });
     }
     else{
-      alert("Email has not been found. Please try again");
+      this.setState({
+        displayEmailFail: true
+      });
     }
   }
 
   render(){
   const classes = makeStyles((theme) => ({
-  root: {
-    '& .MuiTextField-root': {
-      margin: theme.spacing(1),
-      width: '25ch',
+    root: {
+      '& .MuiTextField-root': {
+        margin: theme.spacing(1),
+        width: '25ch',
+      },
     },
-  },
-}));
-return (
-  <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
-    <div style={{paddingLeft:0,left:5,top:55,position:"absolute"}} align="left">
-              {/*Back Button*/}
-              <Link to={{pathname: "/home/login"}}>
-                  <Button startIcon={<BackIcon/>}>
-                  Back
-                  </Button>
-              </Link>
-      </div>
-    <form className={classes.root} noValidate autoComplete="off">
-      <Box m={2} pt={3}>
-      <div style={{marginTop: 15, marginBottom: 10}}>
-        <img src={Logo} alt="GameScore Logo" width="130" height="130"></img>
-      </div>
-      <Typography variant="h4">Reset Password</Typography>
-      <div style={{marginTop: 15, marginBottom: 10}}>
-        <TextField required id="standard-required" label="Username" onChange={this.usernameHandler} error={this.state.usernameError}/>
-      </div>
-      <div style={{marginTop: 15, marginBottom: 10}}>
-        <Button variant = "contained" color="primary" onClick={()=>{this.confirmSubmission("password")}}>Reset</Button>
-      </div>
-      <div style={{marginTop: 15, marginBottom: 10}}>
-        <Typography variant="h4">Reset Username</Typography>
-      </div>
-      <div style={{marginTop: 15, marginBottom: 10}}>
-        <TextField required id="standard-required" label="Email Address" onChange={this.emailHandler} error={this.state.emailError}/>
-      </div>
-      <div style={{marginTop: 15, marginBottom: 10}}>
-        <Button variant = "contained" color="primary" onClick={()=>{this.confirmSubmission("email")}}>Reset</Button>
-      </div>
-      </Box>
-    </form>
-  </div>
-  );
+  }));
+  return (
+    <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
+      <div style={{paddingLeft:0,left:5,top:55,position:"absolute"}} align="left">
+                {/*Back Button*/}
+                <Link to={{pathname: "/home/login"}}>
+                    <Button startIcon={<BackIcon/>}>
+                    Back
+                    </Button>
+                </Link>
+        </div>
+      <form className={classes.root} noValidate autoComplete="off">
+        <Box m={2} pt={3}>
+        <div style={{marginTop: 15, marginBottom: 10}}>
+          <img src={Logo} alt="GameScore Logo" width="130" height="130"></img>
+        </div>
+        <Typography variant="h4">Reset Password</Typography>
+        <div style={{marginTop: 15, marginBottom: 10}}>
+          <TextField required id="standard-required" label="Username" onChange={this.usernameHandler} error={this.state.usernameError}/>
+        </div>
+        <div style={{marginTop: 15, marginBottom: 10}}>
+          <Button variant = "contained" color="primary" onClick={()=>{this.confirmSubmission("password")}}>Reset</Button>
+        </div>
+        <div style={{marginTop: 15, marginBottom: 10}}>
+          <Typography variant="h4">Reset Username</Typography>
+        </div>
+        <div style={{marginTop: 15, marginBottom: 10}}>
+          <TextField required id="standard-required" label="Email Address" onChange={this.emailHandler} error={this.state.emailError}/>
+        </div>
+        <div style={{marginTop: 15, marginBottom: 10}}>
+          <Button variant = "contained" color="primary" onClick={()=>{this.confirmSubmission("email")}}>Reset</Button>
+        </div>
+        <Snackbar open={this.state.displayNameAlert} autoHideDuration={3000} onClose={()=>{this.setState({displayNameAlert:false})}}>
+          <Alert variant = "filled" severity="warning">
+            Username not entered
+          </Alert>
+        </Snackbar>
+        <Snackbar open={this.state.displayEmailAlert} autoHideDuration={3000} onClose={()=>{this.setState({displayEmailAlert:false})}}>
+          <Alert variant = "filled" severity="warning">
+            Email not entered
+          </Alert>
+        </Snackbar>
+        <Snackbar open={this.state.displayUsernameSuccess} autoHideDuration={3000} onClose={()=>{
+          this.setState({displayUsernameSuccess:false})
+          this.props.history.push("/home/login");
+          }}>
+          <Alert variant = "filled" severity="success">
+            Your password reset email has been sent to the email address connected with your account
+          </Alert>
+        </Snackbar>
+        <Snackbar open={this.state.displayEmailSuccess} autoHideDuration={3000} onClose={()=>{
+          this.setState({displayEmailSuccess:false})
+          this.props.history.push("/home/login");
+          }}>
+          <Alert variant = "filled" severity="success">
+            Your reset email has been sent
+          </Alert>
+        </Snackbar>
+        <Snackbar open={this.state.displayUserFail} autoHideDuration={3000} onClose={()=>{this.setState({displayUserFail:false})}}>
+          <Alert variant = "filled" severity="error">
+            Username not found
+          </Alert>
+        </Snackbar>
+        <Snackbar open={this.state.displayEmailFail} autoHideDuration={3000} onClose={()=>{this.setState({displayEmailFail:false})}}>
+          <Alert variant = "filled" severity="error">
+            Email not found
+          </Alert>
+        </Snackbar>
+        </Box>
+      </form>
+    </div>
+    );
   }
 }

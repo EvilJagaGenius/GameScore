@@ -228,7 +228,7 @@ export default class Menu extends Component {
                                  templateID = {this.state.data["favoritedTemplates"][key].templateID}
                                  gameID = {this.state.data["favoritedTemplates"][key].gameID}
                                  userID = {this.state.data["favoritedTemplates"][key].authorUserID}
-                                userName = {this.state.data["favoritedTemplates"][key].authorUserName}
+                                userName = {this.state.data["favoritedTemplates"][key].authorUsername}
                                  selected = {this.isSelected(0,key)}
                                  play = {true}
                                  rep = {true}
@@ -286,7 +286,7 @@ export default class Menu extends Component {
                                 templateID = {this.state.data["recentlyPlayed"][key].templateID}
                                 gameID = {this.state.data["recentlyPlayed"][key].gameID}
                                 userID = {this.state.data["recentlyPlayed"][key].authorUserID}
-                                userName = {this.state.data["recentlyPlayed"][key].authorUserName}
+                                userName = {this.state.data["recentlyPlayed"][key].authorUsername}
                                 rep = {true}
                                 prevRating = {this.state.data["recentlyPlayed"][key].prevRating}
                                 favorited = {this.state.data["recentlyPlayed"][key].favorited}
@@ -345,7 +345,7 @@ export default class Menu extends Component {
                                 templateID = {this.state.data["highestRated"][key].templateID}
                                 gameID = {this.state.data["highestRated"][key].gameID}
                                 userID = {this.state.data["highestRated"][key].authorUserID}
-                                userName = {this.state.data["highestRated"][key].authorUserName}
+                                userName = {this.state.data["highestRated"][key].authorUsername}
                                 rep = {true}
                                 prevRating = {this.state.data["highestRated"][key].prevRating}
                                 favorited = {this.state.data["highestRated"][key].favorited}

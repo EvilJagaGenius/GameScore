@@ -9,6 +9,8 @@ import {Button, Typography} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import { Component } from "react";
 import Logo from '../../images/GameScore App Logo.png';
+import {Alert} from "@material-ui/lab";
+import Snackbar from '@material-ui/core/Snackbar';
 
 /**
  * ResetUsername class: React component for allowing users to reset their GameScore account usernames
@@ -27,7 +29,10 @@ export default class ResetUsername extends Component{
       usernameError: false,
       usernameHelper: "",
       token: "",
-      data: ""
+      data: "",
+      displayFail: false,
+      displayEmpty: false,
+      displayOther: false
     }
   }
 
@@ -132,23 +137,33 @@ export default class ResetUsername extends Component{
     console.log(this.state.data);
     //if successful, take the user to the login page
     if(this.state.data){
-        this.props.history.push("/home/login");
+        this.setState({
+          displaySuccess: true
+        });
     }
     //otherwise, display an alert
     else{
-        alert("Username is taken. Enter another username");
+      this.setState({
+        displayFail: true
+      });
     }
   }
 
   /**
    * confirmSubmission: function for handling submission events
    */
-  confirmSubmission = e =>{
+  confirmSubmission(){
     //if the username field is blank, display an alert
     if(this.state.username === ""){
-      alert("No username entered\nPlease enter a username");
+      console.log("empty")
       this.setState({
-        usernameError: true
+        usernameError: true,
+        displayEmpty: true
+      });
+    }
+    else if(this.state.usernameError === true){
+      this.setState({
+        displayOther: true
       });
     }
     //otherwise, send the request to the server
@@ -173,7 +188,7 @@ export default class ResetUsername extends Component{
     }));
     return (
       <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
-        <form className={classes.root} noValidate autoComplete="off" onSubmit={this.confirmSubmission}>
+        <form className={classes.root} noValidate autoComplete="off">
           <Box m={2} pt={3}>
             <div style={{marginTop: 15, marginBottom: 10}}>
               <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
@@ -185,8 +200,31 @@ export default class ResetUsername extends Component{
               <TextField required id="standard-required" name = "username" label="New Username" helperText={this.state.usernameHelper} onChange={this.usernameHandler} error={this.state.usernameError}/>
             </div>
             <div style={{marginTop: 15, marginBottom: 10}}>
-              <Button type = "submit" variant = "contained" color = "primary" >Reset Username</Button>
+              <Button onClick={()=>{this.confirmSubmission()}} variant = "contained" color = "primary" >Reset Username</Button>
             </div>
+            <Snackbar open={this.state.displayFail} autoHideDuration={3000} onClose={()=>{this.setState({displayFail:false})}}>
+              <Alert variant = "filled" severity="error">
+                Username already taken
+              </Alert>
+            </Snackbar>
+            <Snackbar open={this.state.displayEmpty} autoHideDuration={3000} onClose={()=>{this.setState({displayEmpty:false})}}>
+              <Alert variant = "filled" severity="warning">
+                Username field empty
+              </Alert>
+            </Snackbar>
+            <Snackbar open={this.state.displayOther} autoHideDuration={3000} onClose={()=>{this.setState({displayOther:false})}}>
+              <Alert variant = "filled" severity="warning">
+                Username errors found
+              </Alert>
+            </Snackbar>
+            <Snackbar open={this.state.displaySuccess} autoHideDuration={3000} onClose={()=>{
+              this.setState({displaySuccess:false});
+              this.props.history.push("/home/login");
+              }}>
+              <Alert variant = "filled" severity="success">
+                Username Reset
+              </Alert>
+            </Snackbar>
           </Box>
         </form>
       </div>

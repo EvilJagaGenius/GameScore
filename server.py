@@ -851,7 +851,14 @@ def apiGetScoring():
 def getPostGame(userID):
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select gameName, templateName,matchID,Game.gameID,Template.templateID FROM ActiveMatch JOIN Game using(gameID) JOIN Template using(templateID) JOIN Player using (matchID) WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1")
+    stmt = """
+SELECT gameName, templateName, matchID, Game.gameID, Template.templateID, favorited
+FROM ActiveMatch
+JOIN Game using(gameID)
+JOIN Template using(templateID)
+JOIN Player using (matchID)
+LEFT JOIN AppUserInteractTemplate ON Template.templateID=AppUserInteractTemplate.templateID
+WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1"""
     mycursor.execute(stmt,(userID,))
     myresult = mycursor.fetchone()
     mycursor.close()
@@ -862,7 +869,9 @@ def getPostGame(userID):
         mydb.close()
         return response
     else:
-        gameName,templateName,matchID,gameID,templateID = myresult
+        gameName, templateName, matchID, gameID, templateID, favorited = myresult
+        if favorited == None:
+            favorited = 0
 
         mycursor = mydb.cursor(prepared=True)
         stmt = ("select displayName FROM Player WHERE totalScore in (Select MAX(totalScore) FROM Player WHERE matchID=%s GROUP BY matchID) AND matchID=%s LIMIT 1")
@@ -878,7 +887,8 @@ def getPostGame(userID):
                         ,"gameID":"{}".format(gameID)
                         ,"templateID":"{}".format(templateID)
                         ,"scoreTable":[] 
-                        ,"numOfPlayers":[]}
+                        ,"numOfPlayers":[]
+                        ,"favorited":favorited}
 
         mycursor = mydb.cursor(prepared=True)
         stmt = ("select RANK() OVER (PARTITION BY matchID ORDER BY totalScore desc),displayName,totalScore FROM Player WHERE matchID=%s")
@@ -2712,11 +2722,15 @@ def avatarPOST():
 ##################################### Search API ########################################
 @app.route("/api/search/templates", methods=["GET"])
 def templateSearch():
+
+    userID = getUserID()
+
     # How do we get input from the search box?
     gameID = request.args.get("gid", "")
     gameIDStatement = ""
     if gameID.isnumeric():
         gameIDStatement = "WHERE gameID = " + str(gameID)
+
     
     #Create JSON framework for what we will return
     result = {"templates":[]}
@@ -2728,19 +2742,21 @@ def templateSearch():
     mycursor = mydb.cursor(prepared=True)
     if gameID == "":
         stmt = ("""
-        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName
+        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName, i.favorited
         FROM AppUser u
             INNER JOIN Template t ON u.userID = t.userID
             INNER JOIN Game g ON t.gameID = g.gameID
+            LEFT JOIN AppUserInteractTemplate i ON (t.templateID = i.templateID AND i.userID = 1)
         ORDER BY t.averageRating DESC;
         """)
         mycursor.execute(stmt)
     else:
         stmt = ("""
-        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName
+        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName, i.favorited
         FROM AppUser u
             INNER JOIN Template t ON u.userID = t.userID
             INNER JOIN Game g ON t.gameID = g.gameID
+            LEFT JOIN AppUserInteractTemplate i ON (t.templateID = i.templateID AND i.userID = 1)
         WHERE gameID = %s
         ORDER BY t.averageRating DESC;
         """)
@@ -2750,7 +2766,9 @@ def templateSearch():
 
     #For each row returned from DB: pares and create a dictionary from it
     for row in myresult:
-        userID, userName, picURL, templateName, numRatings, averageRating, gameID, templateID, gameName = row
+        userID, userName, picURL, templateName, numRatings, averageRating, gameID, templateID, gameName, favorited = row
+        if favorited == None:
+            favorited = 0
         template = {"userID":"{}".format(userID)
                     ,"userName":"{}".format(userName)
                     ,"pictureURL":"{}".format(picURL)
@@ -2759,7 +2777,8 @@ def templateSearch():
                     ,"averageRating":float(averageRating)
                     ,"gameID":"{}".format(gameID)
                     ,"templateID":"{}".format(templateID)
-                    ,"gameName":"{}".format(gameName)}
+                    ,"gameName":"{}".format(gameName)
+                    ,"favorited":favorited}
         #append each new dictionary to list
         result["templates"].append(template)
 

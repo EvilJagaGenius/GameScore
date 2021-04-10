@@ -236,8 +236,9 @@ export default class Menu extends Component {
                                  templateName = {this.state.data["favoritedTemplates"][key].templateName}
                                  templateID = {this.state.data["favoritedTemplates"][key].templateID}
                                  gameID = {this.state.data["favoritedTemplates"][key].gameID}
+                                 favorited = {this.state.data["favoritedTemplates"][key].favorited}
                                  userID = {this.state.data["favoritedTemplates"][key].authorUserID}
-                                userName = {this.state.data["favoritedTemplates"][key].authorUsername}
+                                 userName = {this.state.data["favoritedTemplates"][key].authorUsername}
                                  selected = {this.isSelected(0,key)}
                                  play = {true}
                                  rep = {true}
@@ -556,6 +557,7 @@ export default class Menu extends Component {
                     templateName = {this.state.filtered[key].templateName}
                     templateID = {this.state.filtered[key].templateID}
                     gameID = {this.state.filtered[key].gameID}
+                    favorited = {this.state.filtered[key].favorited}
                     userID = {this.state.filtered[key].userID}
                     userName = {this.state.filtered[key].userName}
                     selected = {this.isSelected(key)}

@@ -35,6 +35,7 @@ export default class Menu extends Component {
             isLoggedIn: true
     };
     this.callAPI = this.callAPI.bind(this);
+    this.gameSearchButton = this.gameSearchButton.bind(this);
   };
 
   handleClick = (e, titleProps) => {
@@ -172,6 +173,14 @@ export default class Menu extends Component {
       filtered: newList
     })
   }
+  
+  gameSearchButton(gameName) {
+    console.log("Search button clicked");
+    this.setState({
+      searching: "true",
+      searchQuery: gameName
+    }, this.templateSearch)
+  }
 
   render() {
     const { activeIndex } = this.state;
@@ -227,8 +236,9 @@ export default class Menu extends Component {
                                  templateName = {this.state.data["favoritedTemplates"][key].templateName}
                                  templateID = {this.state.data["favoritedTemplates"][key].templateID}
                                  gameID = {this.state.data["favoritedTemplates"][key].gameID}
+                                 favorited = {this.state.data["favoritedTemplates"][key].favorited}
                                  userID = {this.state.data["favoritedTemplates"][key].authorUserID}
-                                userName = {this.state.data["favoritedTemplates"][key].authorUsername}
+                                 userName = {this.state.data["favoritedTemplates"][key].authorUsername}
                                  selected = {this.isSelected(0,key)}
                                  play = {true}
                                  rep = {true}
@@ -384,10 +394,27 @@ export default class Menu extends Component {
                   <> 
                     {/* Iterate through favorited templates and render the data in a tabular format */}
                     {Object.keys(this.state.data.recommendedGames).map(key => (
-                      <GameRow rowPos={key} accPos="3" 
-                      pictureURL = {this.state.data["recommendedGames"][key].pictureURL} 
-                      gameName = {this.state.data["recommendedGames"][key].gameName}
-                      />
+                      <>
+                      <TableRow onClick={()=>this.selectTemplate(3,key)}>
+                        <GameRow rowPos={key} accPos="3" 
+                        pictureURL = {this.state.data["recommendedGames"][key].pictureURL} 
+                        gameName = {this.state.data["recommendedGames"][key].gameName}
+                        selected = {this.isSelected(3,key)}
+                        />
+                      </TableRow>
+                        {this.isSelected(3,key) === true &&
+                          <>
+                          <BottomUI
+                            gameURL = {"https://www.boardgamegeek.com" + this.state.data["recommendedGames"][key].gameURL}
+                            gameName = {this.state.data["recommendedGames"][key].gameName}
+                            gameBottomUI = {true}
+                            searchFunction = {this.gameSearchButton}
+                            selected = {this.isSelected(3,key)}
+                            >
+                          </BottomUI>
+                      </>
+                        }
+                      </>
                     ))}
                   </>
                 </div>
@@ -530,6 +557,7 @@ export default class Menu extends Component {
                     templateName = {this.state.filtered[key].templateName}
                     templateID = {this.state.filtered[key].templateID}
                     gameID = {this.state.filtered[key].gameID}
+                    favorited = {this.state.filtered[key].favorited}
                     userID = {this.state.filtered[key].userID}
                     userName = {this.state.filtered[key].userName}
                     selected = {this.isSelected(key)}

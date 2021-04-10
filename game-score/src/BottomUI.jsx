@@ -20,7 +20,11 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Rating from '@material-ui/lab/Rating';
 import Favorite from '@material-ui/icons/Favorite';
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
+import Description from '@material-ui/icons/Description';
+import Search from '@material-ui/icons/Search';
 import Cookies from 'js-cookie';
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
 
 //Make Modal theme for this page
 const useStyles = makeStyles((theme) => ({
@@ -81,6 +85,8 @@ export default function BottomUI(props) {
 		const [play, setPlay] = useState(props.play || false);
 		const [edit, setEdit] = useState(props.edit || false);
 		const [del, setDel] = useState(props.del || false);
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertText, setAlertText] = useState("");
 		const [rep, setRep] = useState(props.rep || false); 
 		const [review, setReview] = useState(props.review || false);
 		const [judge, setjudge] = useState(props.judge || false);
@@ -94,6 +100,12 @@ export default function BottomUI(props) {
 
         return(
         <>
+          <Snackbar open={showAlert} autoHideDuration={3000} onClose={()=>{setShowAlert(false)}}>
+            <Alert variant = "filled">
+              {alertText}
+            </Alert>
+          </Snackbar>
+	          <>
 	            {
 	          	<>
 	          		<TableRow> 
@@ -175,12 +187,13 @@ export default function BottomUI(props) {
 									{props.rate === true &&
 										<>
 											
-                                            <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+                      <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
 												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
 
 													//Yes this should be its own function, but got to difficult to do since functional component
 
 													// Send API call to favorite or unfavorite current template
+
                                                     onClick = {()=> {
 
                                                     	if(Cookies.get("username") != null) //If logged-in
@@ -199,6 +212,7 @@ export default function BottomUI(props) {
 															.then(data => {
 																props.update();
 															})
+                              .then(setAlertText("Changed favorite status")).then(setShowAlert(true))
 														}
 														else //Send to login screen if not logged-in
 														{
@@ -206,6 +220,7 @@ export default function BottomUI(props) {
                                                 		}
 												}
                                                 }>
+
                                                     {props.favorited === 1 &&
                                                         <div style={{margin:-5}}>
                                                             
@@ -309,6 +324,42 @@ export default function BottomUI(props) {
 													</div>
 											</Button>
 										</TableCell>		
+										</>
+									}
+                  
+                  {props.gameBottomUI === true &&
+										<>
+											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+                      <a href={props.gameURL}>
+											<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+											onClick = {()=> console.log(props.gameURL)}>
+												<div style={{margin:-5}}>
+														
+														<div>
+															<Description style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															BGG Page
+														</div>
+													</div>
+											</Button>
+                      </a>
+                      </TableCell>		
+										
+											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+											<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+											onClick = {()=> props.searchFunction(props.gameName)}>
+                        {/* Need to set the searchQuery in Menu.js */}
+												<div style={{margin:-5}}>
+														<div>
+															<Search style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															Search for templates
+														</div>
+													</div>
+											</Button>
+                      </TableCell>		
 										</>
 									}
 
@@ -737,5 +788,6 @@ export default function BottomUI(props) {
 					</div>
 	          	}
 	     </>
+       </>
         );
 }

@@ -46,65 +46,68 @@ export default class ResetUsername extends Component{
    * @param {*} event: event parameter for processing the new value in the username textfield
    */
    usernameHandler=(event)=>{
-    //update the state with the current username entered in the field
+    // //update the state with the current username entered in the field
     this.setState({
       username: event.target.value
     });
     console.log("Username is " + event.target.value);
-    //create the requirements for the username
+    // //create the requirements for the username
 
-    /* Username Requirements
-    4-30 characters
-    One uppercase letter
-    One lowercase letter
-    */
+    // /* Username Requirements
+    // 4-30 characters
+    // One uppercase letter
+    // One lowercase letter
+    // */
+    var usernameRequirements = /^(?=.*[a-z])(?=.*[A-Z])/;
+    const testString = String(event.target.value);
+    var errorText = ""
+    if(!testString.match(usernameRequirements)){
+      console.log("does not meet letter")
+      errorText += "Username does not meet letter requirements";
+    }
+    if(testString.length >= 31){
+      console.log("too long")
+      errorText += "Username is too long";
+    }
+    if(testString.length <= 3){
+      console.log("too short")
+      errorText += "Username is too short";
+    }
 
-    var usernameRequirements = /^(?=.*[a-z])(?=.*[A-Z]).{4,30}/;
-    //if the string entered matches the requirements, don't trigger an error
-    if(String(event.target.value).match(usernameRequirements)){
-      this.setState({
-        usernameError: false
-      });
-      //launch an API call to check if the username is already taken or not
-      //if taken already, an error is triggered
-      const requestOptions = {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        credentials: 'include',
-        body: JSON.stringify({
-          username:event.target.value
-        })
-      };
-      fetch("/api/postCheckUsername",requestOptions)
-        .then(res => res.json()).then(newData => {
-          if(newData.usernameExists === true){
-            //declare an error, and update the error and helper text properties
-            this.setState({
-              usernameError: true,
-              usernameHelper: "Username already exists"
-            });
-          }
-          else{
-            //otherwise, turn the error off
-            this.setState({
-              usernameError: false
-          });
+    const requestOptions = {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      credentials: 'include',
+      body: JSON.stringify({
+        username:event.target.value
+      })
+    };
+    fetch("/api/postCheckUsername",requestOptions)
+      .then(res => res.json()).then(newData => {
+        if(newData.usernameExists === true){
+          //declare an error, and update the error and helper text properties
+          console.log("exists")
+          errorText = "Username already exists";
+          console.log(errorText)
+          this.setState({
+            usernameError: true,
+            usernameHelper: errorText
+          })
         }
-      });
-    }
-    //if the username is too long, trigger an error and update the needed properties
-    else if(String(event.target.value).length > 30){
+    });
+    if(errorText.length === 0){
+      console.log("No errors")
       this.setState({
-        usernameError: true,
-        usernameHelper: "Username does not meet requirements"
-      });
+        usernameError: false,
+        usernameHelper: ""
+      })
     }
-    //otherwise, remove the error
     else{
+      console.log("Errors found")
       this.setState({
         usernameError: true,
-        usernameHelper: "Username does not meet requirements"
-      });
+        usernameHelper: errorText
+      })
     }
   }
 
@@ -179,7 +182,7 @@ export default class ResetUsername extends Component{
               <Typography variant = "h3">Reset Username</Typography>
             </div>
             <div style={{marginTop: 15, marginBottom: 10}}>
-              <TextField required id="standard-required" name = "username" label="New Username" helperText={this.state.usernameHelper} onChange={this.usernameHandler} error={this.state.username}/>
+              <TextField required id="standard-required" name = "username" label="New Username" helperText={this.state.usernameHelper} onChange={this.usernameHandler} error={this.state.usernameError}/>
             </div>
             <div style={{marginTop: 15, marginBottom: 10}}>
               <Button type = "submit" variant = "contained" color = "primary" >Reset Username</Button>

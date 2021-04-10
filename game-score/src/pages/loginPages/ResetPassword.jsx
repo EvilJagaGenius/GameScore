@@ -102,25 +102,33 @@ export default class ResetPassword extends Component{
   }
 
   /**
-   * confirmPasswordHandler: function for handling password related error checking and events for the password textfield
-   * @param {*} event: event parameter for processing the new value in the password textfield
+   * confirmPasswordHandler: event handler for the confirm password textfield
+   * @param {*} event: event parameter for processing the new value in the confirm password textfield
    */
-  confirmPasswordHandler=(event)=>{
-    //update the state for confirmPassword
+   confirmPasswordHandler=(event)=>{
+    //update the value in the confirm password state
     this.setState({
       confirmPassword: event.target.value
     });
-    //if both passwords don't match, display an error by making confirmPasswordError true
+    //if both the password in the password textfield and the confirm password textfield match, don't declare an error
+    //otherwise, declare an error
     if(String(event.target.value) !== String(this.state.password)){
       this.setState({
-        confrimPasswordError: true
+        confrimPasswordError: true,
+        confirmPasswordHelper: "Passwords do not match"
       });
     }
-    //otherwise, take away the error display
     else{
       this.setState({
-        confrimPasswordError: false
+        confrimPasswordError: false,
+        confirmPasswordHelper: ""
       });
+    }
+    if(String(event.target.value).length === 0){
+      this.setState({
+        confrimPasswordError: true,
+        confirmPasswordHelper: "Password is empty"
+      })
     }
   }
 

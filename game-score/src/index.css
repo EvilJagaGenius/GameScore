@@ -46,6 +46,55 @@ background-color:rgba(225, 112, 85,1.0);
 background-color:rgba(162, 155, 254,1.0);
 }
 
+
+
+.PLAYEROUTLINE
+{
+	border:5px;
+	border-style: solid;
+}
+
+.GRAYLT{
+background-color:rgba(178, 190, 195,0.15) !important;
+border-color:rgba(178, 190, 195,1);
+}
+
+.REDLT{
+background-color:rgba(214, 48, 49,0.15) !important;
+border-color:rgba(214, 48, 49,0.4);
+}
+
+.GREENLT{
+background-color:rgba(0, 184, 148,0.15) !important;
+border-color:rgba(0, 184, 148,0.6);
+}
+
+.YELLOWLT{
+background-color:rgba(255, 234, 167,0.15) !important;
+border-color:rgba(255, 234, 167,0.6);
+}
+
+
+.PINKLT{
+background-color:rgba(253, 121, 168,0.15) !important;
+
+}
+
+.BLUELT{
+background-color:rgba(116, 185, 255,0.15) !important;
+border-color:rgba(116, 185, 255,0.6);
+}
+
+.ORANGELT{
+background-color:rgba(225, 112, 85,0.15) !important;
+}
+
+.PURPLELT
+{
+background-color:rgba(162, 155, 254,0.15) !important;
+border-color:rgba(225, 112, 85,0.15);
+}
+
 .MuiSelect-select.MuiSelect-select
 {
 padding-right:10px !important

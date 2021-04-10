@@ -516,37 +516,37 @@ def apiGetHomePage():
     #Execute sql call to get appropriate data
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor2 = mydb.cursor(prepared=True)
-    stmt = ("""
-        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName, i.rating as rating, i.favorited as favorited
-        FROM AppUser u
-            INNER JOIN Template t ON u.userID = t.userID
-            INNER JOIN Game g ON t.gameID = g.gameID
-            INNER JOIN AppUserInteractTemplate i ON (t.templateID=i.templateID AND i.userID=%s)
-        ORDER BY t.averageRating DESC LIMIT 10;
-    """)
+
+    stmt = """
+SELECT pictureURL, templateName, numRatings, averageRating, Game.gameID, Template.templateID, AppUserInteractTemplate.rating, AppUserInteractTemplate.favorited, Game.gameName,AppUser.userID,AppUser.username FROM
+Template JOIN Game ON Template.gameID=Game.gameID LEFT JOIN AppUserInteractTemplate ON (Template.templateID=AppUserInteractTemplate.templateID AND AppUserInteractTemplate.userID=%s)
+JOIN AppUser On(Template.userID=AppUser.userID)
+ORDER BY averageRating DESC LIMIT 10
+"""
     mycursor2.execute(stmt,(userID,))
+
     myresult = mycursor2.fetchall()
     mycursor2.close()
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-        authorUserID, userName, picURL, templateName, numRatings, averageRating, gameID, templateID, gameName, prevRating, favorited = row
+        picURL, templateName, numRatings, averageRating, gameID, templateID, prevRating, favorited,gameName,authorUserID,authorUsername = row
         if prevRating == None:
             prevRating = 0
         if favorited == None:
             favorited = 0
 
-        template = {"userID":"{}".format(authorUserID)
-                    ,"userName":"{}".format(userName)
-                    ,"pictureURL":"{}".format(picURL)
+        template = {"pictureURL":"{}".format(picURL)
                     ,"templateName":"{}".format(templateName)
                     ,"numRatings":numRatings
-                    ,"averageRating":round(float(averageRating),2)
+                    ,"averageRating":float(averageRating)
+                    ,"favorited":favorited
                     ,"gameID":"{}".format(gameID)
                     ,"templateID":"{}".format(templateID)
-                    ,"gameName":"{}".format(gameName)
                     ,"prevRating":"{}".format(prevRating)
-                    ,"favorited":favorited}
+                    ,"gameName":"{}".format(gameName)
+                    ,"authorUserID":authorUserID
+                    ,"authorUsername":authorUsername}
         #append each new dictionary to its appropriate list
         result["highestRated"].append(template)
 
@@ -554,16 +554,17 @@ def apiGetHomePage():
     ### Recommended Games ###
     #Execute sql call to get appropriate data
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("select pictureURL, gameName from AppUserRecommendedGame JOIN Game ON AppUserRecommendedGame.gameID=Game.gameID WHERE userID=%s LIMIT 8")
+    stmt = ("select pictureURL, gameName, gameURL from AppUserRecommendedGame JOIN Game ON AppUserRecommendedGame.gameID=Game.gameID WHERE userID=%s LIMIT 8")
     mycursor.execute(stmt,(userID,))
     myresult = mycursor.fetchall()
     mycursor.close()
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-        picURL, gameName = row
+        picURL, gameName, gameURL = row
         template = {"pictureURL":"{}".format(picURL)
-                    ,"gameName":"{}".format(gameName)}
+                    ,"gameName":"{}".format(gameName)
+                    ,"gameURL":"{}".format(gameURL)}
         #append each new dictionary to its appropriate list
         result["recommendedGames"].append(template)
 
@@ -573,36 +574,27 @@ def apiGetHomePage():
     
     #Execute sql call to get appropriate data
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("""
-        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName, a.rating
-        FROM AppUser u
-            INNER JOIN Template t ON u.userID = t.userID
-            INNER JOIN Game g ON t.gameID = g.gameID
-            INNER JOIN AppUserInteractTemplate a ON t.templateID = a.templateID
-        WHERE a.favorited=true AND a.userID=%s
-        ORDER BY t.averageRating DESC LIMIT 10;
-        """)
+    stmt = ("select pictureURL, templateName, numRatings, averageRating, Game.gameID, Template.templateID, AppUserInteractTemplate.rating,AppUserInteractTemplate.favorited,Game.gameName,AppUser.userID,AppUser.username from Template JOIN Game ON Template.gameID=Game.gameID JOIN AppUserInteractTemplate ON Template.templateID=AppUserInteractTemplate.templateID JOIN AppUser On(Template.userID=AppUser.userID) WHERE favorited=true AND AppUserInteractTemplate.userID=%s  ORDER BY averageRating DESC LIMIT 10")
     mycursor.execute(stmt,(userID,))
     myresult = mycursor.fetchall()
     mycursor.close()
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-        userID, userName, picURL, templateName, numRatings, averageRating, gameID, templateID, gameName, prevRating = row
+        picURL, templateName, numRatings, averageRating, gameID, templateID, prevRating, favorited,gameName,authorUserID,authorUsername  = row
         if prevRating == None:
             prevRating = 0
-            
-        template = {"userID":"{}".format(userID)
-                    ,"userName":"{}".format(userName)
-                    ,"pictureURL":"{}".format(picURL)
+        template = {"pictureURL":"{}".format(picURL)
                     ,"templateName":"{}".format(templateName)
                     ,"numRatings":numRatings
                     ,"averageRating":round(float(averageRating),2)
                     ,"favorited":1
                     ,"gameID":"{}".format(gameID)
                     ,"templateID":"{}".format(templateID)
+                    ,"prevRating":"{}".format(prevRating)
                     ,"gameName":"{}".format(gameName)
-                    ,"prevRating":"{}".format(prevRating)}
+                    ,"authorUserID":authorUserID
+                    ,"authorUsername":authorUsername}
         #append each new dictionary to its appropriate list
         result["favoritedTemplates"].append(template)
 
@@ -612,37 +604,31 @@ def apiGetHomePage():
     
     #Execute sql call to get appropriate data
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("""
-        SELECT u.userID as userID, u.username as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName, a.rating, a.favorited
-        FROM AppUser u
-            INNER JOIN Template t ON u.userID = t.userID
-            INNER JOIN Game g ON t.gameID = g.gameID
-            INNER JOIN AppUserInteractTemplate a ON t.templateID = a.templateID
-        WHERE a.userID=%s
-        ORDER BY a.lastPlayed DESC, averageRating DESC LIMIT 10;
-    """)
+
+    stmt = ("select pictureURL, templateName, numRatings, averageRating, Game.gameID, Template.templateID, AppUserInteractTemplate.rating, AppUserInteractTemplate.favorited, Game.gameName,AppUser.userID,AppUser.username from Template JOIN Game ON Template.gameID=Game.gameID JOIN AppUserInteractTemplate ON Template.templateID=AppUserInteractTemplate.templateID JOIN AppUser On(Template.userID=AppUser.userID) WHERE AppUserInteractTemplate.userID=%s ORDER BY lastPlayed DESC, averageRating DESC LIMIT 10")
+
     mycursor.execute(stmt,(userID,))
     myresult = mycursor.fetchall()
     mycursor.close()
 
     #For each row returned from DB: parse and create a dictionary from it
     for row in myresult:
-        userID, userName, picURL, templateName, numRatings, averageRating, gameID, templateID, gameName, prevRating, favorited = row
+        picURL, templateName, numRatings, averageRating, gameID, templateID, prevRating, favorited,gameName,authorUserID,authorUsername = row
         if prevRating == None:
             prevRating = 0
         if favorited == None:
             favorited = 0
-        template = {"userID":"{}".format(userID)
-                    ,"userName":"{}".format(userName)
-                    ,"pictureURL":"{}".format(picURL)
+        template = {"pictureURL":"{}".format(picURL)
                     ,"templateName":"{}".format(templateName)
                     ,"numRatings":numRatings
                     ,"averageRating":round(float(averageRating),2)
-                    ,"favorited":favorited
+                    ,"favorited":1
                     ,"gameID":"{}".format(gameID)
                     ,"templateID":"{}".format(templateID)
+                    ,"prevRating":"{}".format(prevRating)
                     ,"gameName":"{}".format(gameName)
-                    ,"prevRating":"{}".format(prevRating)}
+                    ,"authorUserID":authorUserID
+                    ,"authorUsername":authorUsername}
         #append each new dictionary to its appropriate list
 
         result["recentlyPlayed"].append(template)
@@ -684,7 +670,7 @@ def getScoring(userID):
     mycursor.close()
 
     if myresult == None: # if no games in DB
-        result = {"successful":False,"error":111,"errorMessage":"No active game."}
+        result = {"successful":False,"error":111,"errorMessage":"Whoah there... doesn't look like you are in an active game/using an active template."}
         response = jsonify(result)
         mydb.close()
         return response
@@ -700,7 +686,7 @@ def getScoring(userID):
 
         #Get Players info
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("select DISTINCT Player.playerID, Player.totalScore, Player.displayOrder, displayName, AppUser.userID,avatarID from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) LEFT OUTER JOIN AppUser using(userID) WHERE Player.matchID = %s")
+        stmt = ("select DISTINCT Player.playerID, Player.totalScore, Player.displayOrder, displayName, AppUser.userID,avatarID,color from ActiveMatchPlayerConditionScore RIGHT OUTER JOIN Player using(playerID) LEFT OUTER JOIN AppUser using(userID) WHERE Player.matchID = %s")
 
         mycursor.execute(stmt,(matchID,))
         myresult = mycursor.fetchall()
@@ -708,13 +694,14 @@ def getScoring(userID):
 
         #For each row returned from DB: parse and create a dictionary from it
         for row in myresult:
-            playerID, score, displayOrder, displayName, userID,avatarID = row
+            playerID, score, displayOrder, displayName, userID,avatarID,color = row
             player = {"playerID":playerID
                         ,"score":score
                         ,"displayOrder":displayOrder
                         ,"userID":userID
                         ,"displayName":"{}".format(displayName)
-                        ,"avatarID":avatarID}
+                        ,"avatarID":avatarID
+                        ,"color":"{}".format(color)}
             #append each new dictionary to its appropriate list
             result["scoringOverview"]["players"].append(player)
 
@@ -729,9 +716,7 @@ def getScoring(userID):
         #For each row returned from DB: parse and create a dictionary from it
         for row in myresult:
             conditionName, maxPerGame, conditionID= row
-            condition = {"conditionName":"{}".format(conditionName)
-                        ,"maxPerGame":maxPerGame
-                        ,"players":[]}
+
 
 
             mycursor = mydb.cursor(prepared=True)
@@ -741,6 +726,12 @@ def getScoring(userID):
             mycursor.close()
 
             sumValue, = myresult
+
+            condition = {"conditionName":"{}".format(conditionName)
+            ,"maxPerGame":maxPerGame
+            ,"players":[]
+            ,"exceedsLimit":(sumValue>maxPerGame)}
+
 
             if sumValue > maxPerGame:
                 exceededLimitIDs.append(conditionID)
@@ -844,7 +835,7 @@ def apiGetScoring():
     userID = getUserID()
 
     if userID == -1:
-        result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
+        result = {"successful":False,"error":110,"errorMessage":"Whoah there... looks like you need to login to access this page."}
         response = jsonify(result)
         response.set_cookie('credHash',"",max_age=0)
         response.set_cookie('username',"",max_age=0)
@@ -873,7 +864,7 @@ WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1"""
     mycursor.close()
 
     if myresult == None:
-        result = {"successful":False,"error":112,"errorMessage":"No game results found."}
+        result = {"successful":False,"error":112,"errorMessage":"Whoah there... doesn't look like you are in an active game/using an active template."}
         response = jsonify(result)
         mydb.close()
         return response
@@ -925,7 +916,7 @@ def apiGetPostGame():
     userID = getUserID()
 
     if userID == -1:
-        result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
+        result = {"successful":False,"error":110,"errorMessage":"Whoah there... looks like you need to login to access this page."}
         response = jsonify(result)
         response.set_cookie('credHash',"",max_age=0)
         response.set_cookie('username',"",max_age=0)
@@ -1416,7 +1407,7 @@ def apiGetInviteInfo():
     userID = getUserID()
 
     if userID == -1:
-        result = {"successful":False,"error":110,"errorMessage":"User not logged-in."}
+        result = {"successful":False,"error":110,"errorMessage":"Whoah there... looks like you need to login to access this page."}
         response = jsonify(result)
         response.set_cookie('credHash',"",max_age=0)
         response.set_cookie('username',"",max_age=0)
@@ -1430,7 +1421,7 @@ def apiGetInviteInfo():
         mycursor.close()
 
         if myresult == None:
-            result = {"successful":False,"error":111,"errorMessage":"No game found."}
+            result = {"successful":False,"error":111,"errorMessage":"Whoah there... doesn't look like you are in an active game/using an active template."}
             response = jsonify(result)
             mydb.close()
             return response
@@ -2140,6 +2131,16 @@ def postDeleteTemplate():
             mycursor.close()
 
             mycursor = mydb.cursor(prepared=True)
+            stmt = "DELETE FROM Report WHERE templateID=%s"
+            mycursor.execute(stmt,(templateID,))
+            mycursor.close();
+
+            mycursor = mydb.cursor(prepared=True)
+            stmt = "DELETE FROM AppUserInteractTemplate WHERE templateID=%s"
+            mycursor.execute(stmt,(templateID,))
+            mycursor.close();
+
+            mycursor = mydb.cursor(prepared=True)
             stmt = "DELETE FROM Template WHERE templateID=%s"
             mycursor.execute(stmt,(templateID,))
             mycursor.close()
@@ -2170,7 +2171,7 @@ def getMyTemplates():
         #Execute sql call to get appropriate data
         mydb = mysql.connector.connect(pool_name = "mypool")
         mycursor = mydb.cursor(prepared=True)
-        stmt  = "select pictureURL, templateName, numRatings, averageRating,Game.gameID,Template.templateID from Template JOIN Game ON Template.gameID=Game.gameID WHERE Template.userID=%s ORDER BY averageRating DESC"
+        stmt  = "select pictureURL, templateName, numRatings, averageRating,Game.gameID,Template.templateID from Template JOIN Game ON Template.gameID=Game.gameID WHERE Template.userID=%s ORDER BY averageRating DESC, Template.templateID ASC"
         mycursor.execute(stmt,(userID,))
         myresult = mycursor.fetchall()
         mycursor.close()
@@ -2721,7 +2722,15 @@ def avatarPOST():
 ##################################### Search API ########################################
 @app.route("/api/search/templates", methods=["GET"])
 def templateSearch():
+
     userID = getUserID()
+
+    # How do we get input from the search box?
+    gameID = request.args.get("gid", "")
+    gameIDStatement = ""
+    if gameID.isnumeric():
+        gameIDStatement = "WHERE gameID = " + str(gameID)
+
     
     #Create JSON framework for what we will return
     result = {"templates":[]}
@@ -2731,15 +2740,27 @@ def templateSearch():
     #Execute sql call to get appropriate data
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor = mydb.cursor(prepared=True)
-    stmt = ("""
-    SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName, i.favorited
-    FROM AppUser u
-        INNER JOIN Template t ON u.userID = t.userID
-        INNER JOIN Game g ON t.gameID = g.gameID
-        LEFT JOIN AppUserInteractTemplate i ON (t.templateID = i.templateID AND i.userID = 1)
-    ORDER BY t.averageRating DESC;
-    """)
-    mycursor.execute(stmt)
+    if gameID == "":
+        stmt = ("""
+        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName, i.favorited
+        FROM AppUser u
+            INNER JOIN Template t ON u.userID = t.userID
+            INNER JOIN Game g ON t.gameID = g.gameID
+            LEFT JOIN AppUserInteractTemplate i ON (t.templateID = i.templateID AND i.userID = 1)
+        ORDER BY t.averageRating DESC;
+        """)
+        mycursor.execute(stmt)
+    else:
+        stmt = ("""
+        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName, i.favorited
+        FROM AppUser u
+            INNER JOIN Template t ON u.userID = t.userID
+            INNER JOIN Game g ON t.gameID = g.gameID
+            LEFT JOIN AppUserInteractTemplate i ON (t.templateID = i.templateID AND i.userID = 1)
+        WHERE gameID = %s
+        ORDER BY t.averageRating DESC;
+        """)
+        mycursor.execute(stmt, (gameID,))
     myresult = mycursor.fetchall()
     mycursor.close()
 

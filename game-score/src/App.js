@@ -90,6 +90,7 @@ export default function App() {
         render={(props) => 
         <>
           <RejoinGame />
+          <Home {...props}></Home>
           <Finalize {...props}></Finalize>
         </> 
       }>
@@ -115,7 +116,6 @@ export default function App() {
           {Cookies.get("username")
           ? <>
               <RejoinGame/>
-              <Home {...props}></Home>
               <ConditionEditor {...props}></ConditionEditor>
             </>
           : <>

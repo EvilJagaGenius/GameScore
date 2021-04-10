@@ -205,63 +205,9 @@ export default class CreateAccount extends Component{
   }
 
   /**
-   * sendRequest: function for sending new account data to the database for the account to be created once submitted
-   */
-  async sendRequest() {
-    console.log(this.state.username);
-    console.log(this.state.email);
-    console.log(this.state.password);
-
-    // POST request using fetch with async/await
-    //create request options with username, password, and email server API parameters
-    const requestOptions = {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          username: this.state.username,
-          password: this.state.password,
-          email: this.state.email
-        })
-    };
-    //await the response from the server, and record the response in the console
-    //response will either be "true" or "false"
-    const response = await fetch('/api/postCreateAccount', requestOptions);
-    const data = await response.json();
-    this.setState({data: data.successful});   //update the state of the data property based on the server result
-    console.log(this.state.data);
-    
-    //if data is true
-    if(this.state.data)
-    {
-        //redirect the player to login if they are joining by QR code
-        if(this.props.location!=null&&this.props.location.state!=null &&this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
-        {
-            this.props.history.push({
-            pathname:"/home/login",
-            state:{joinCodeQR:this.props.location.state.joinCodeQR}
-            });
-        }
-        //otherwise, take them to the login screen if they haven't joined a game
-        else
-        {
-          this.props.history.push("/home/login");
-        }
-    }
-    //if false is received, display an error message
-    else{
-      this.setState({
-        displayAlert: true,
-        alertText: "Unable to create account",
-        alertSeverity: "error"
-      });
-    }
-  }
-
-  /**
    * confirmSubmission: event handler for handling submission events once the form is submitted
-   * @param {*} e: event related to the submission once the submit button is clicked
    */
-  confirmSubmission = e =>{
+   confirmSubmission(){
     var userCheck = false   //boolean for checking if the username is good to submit
     var emailCheck = false    //boolean for checking if the email is good to submit
     var passCheck = false   //boolean for checking if the password is good to submit
@@ -321,6 +267,59 @@ export default class CreateAccount extends Component{
   }
 
   /**
+   * sendRequest: function for sending new account data to the database for the account to be created once submitted
+   */
+  async sendRequest() {
+    console.log(this.state.username);
+    console.log(this.state.email);
+    console.log(this.state.password);
+
+    // POST request using fetch with async/await
+    //create request options with username, password, and email server API parameters
+    const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          username: this.state.username,
+          password: this.state.password,
+          email: this.state.email
+        })
+    };
+    //await the response from the server, and record the response in the console
+    //response will either be "true" or "false"
+    const response = await fetch('/api/postCreateAccount', requestOptions);
+    const data = await response.json();
+    this.setState({data: data.successful});   //update the state of the data property based on the server result
+    console.log(this.state.data);
+    
+    //if data is true
+    if(data.successful)
+    {
+        //redirect the player to login if they are joining by QR code
+        if(this.props.location!=null&&this.props.location.state!=null &&this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
+        {
+            this.props.history.push({
+            pathname:"/home/login",
+            state:{joinCodeQR:this.props.location.state.joinCodeQR}
+            });
+        }
+        //otherwise, take them to the login screen if they haven't joined a game
+        else
+        {
+          this.props.history.push("/home/login");
+        }
+    }
+    //if false is received, display an error message
+    else{
+      this.setState({
+        displayAlert: true,
+        alertText: "Unable to create account",
+        alertSeverity: "error"
+      });
+    }
+  }
+
+  /**
    * render: function for rendering all on screen React elements
    * @returns the view to be rendered with all components
    */
@@ -351,33 +350,37 @@ export default class CreateAccount extends Component{
           <div style={{marginTop: 15, marginBottom: 10}}>
             <Typography variant="h4">Create Account</Typography>
           </div>
-          <div style={{marginTop: 15, marginBottom: 10}}>
+          <div style={{marginTop: 15}}>
             <TextField required id="standard-required" name = "username" type = "text" label="Username" helperText = {this.state.usernameHelper} onChange={this.usernameHandler} error={this.state.usernameError}/>
           </div>
-          <div style={{marginTop: 15, marginBottom: 10}}>
+          <div style={{textAlign:"center", marginTop: 5}}>
+              <Typography variant="caption">4-30 characters in length</Typography>
+          </div>
+          <div style={{textAlign:"center"}}>
+            <Typography variant="caption">At least one uppercase letter and lowercase letter</Typography>
+          </div>
+          <div style={{marginTop: 3, marginBottom: 10}}>
             <TextField required id="standard-required" name = "email" type = "email" label="Email Address" helperText={this.state.emailHelper} onChange={this.emailHandler} error={this.state.emailError}/>
           </div>
-          <div style={{marginTop: 15, marginBottom: 10}}>
+          <div style={{marginTop: 15}}>
             <TextField required id="standard-required" name = "password" label="Password" type="password" helperText = {this.state.passwordHelper} onChange={this.passwordHandler} error={this.state.passwordError}/>
           </div>
-          <div style={{marginTop: 15, marginBottom: 10}}>
+          <div style={{textAlign:"center", marginTop: 5, marginBottom: 5}}>
+            <div>
+              <Typography variant="caption">4-30 characters in length</Typography>
+            </div>
+            <div>
+              <Typography variant="caption">At least one uppercase letter and lowercase letter</Typography>
+            </div>
+            <div>
+              <Typography variant="caption">At least one number</Typography>
+            </div>
+          </div>
+          <div style={{marginTop: 1, marginBottom: 10}}>
             <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" helperText = {this.state.confirmPasswordHelper} type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
           </div>
           <div style={{marginTop: 15, marginBottom: 10}}>
-            <Button variant = "contained" color = "primary" type = "submit" onClick={()=>{this.confirmSubmission()}}>Create Account</Button>
-          </div>
-          <div style={{textAlign:"center"}}>
-            <div style={{marginTop: 15, marginBottom: 10}}>
-              <Typography variant="h6">Username Requirements</Typography>
-              <Typography>4-30 characters in length</Typography>
-              <Typography>At least one uppercase letter and lowercase letter</Typography>
-            </div>
-            <div style={{marginTop: 15, marginBottom: 10}}>
-              <Typography variant="h6">Password Requirements</Typography>
-              <Typography>4-30 characters in length</Typography>
-              <Typography>At least one uppercase letter and lowercase letter</Typography>
-              <Typography>At least one number</Typography>
-            </div>
+            <Button variant = "contained" color = "primary" onClick={()=>{this.confirmSubmission()}}>Create Account</Button>
           </div>
           <Snackbar open={this.state.displayAlert} autoHideDuration={3000} onClose={()=>{this.setState({displayAlert:false})}}>
             <Alert variant = "filled" severity="warning">

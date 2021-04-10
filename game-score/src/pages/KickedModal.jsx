@@ -38,8 +38,6 @@ export default class KickedModal extends React.Component {
     }
 
 
-
-
     render()
     {
         return(
@@ -63,8 +61,7 @@ export default class KickedModal extends React.Component {
                            <div style={{ justifyContent:'center',marginTop:11,display:"flex"}}>
 
                               <Button variant = "contained" color="primary" size = "large" onClick={()=>{
-                                this.props.history.push('/home')
-
+                                this.props.history.push('/home') //Send to homescreen
                                 }}
                                 >Ok</Button>
 

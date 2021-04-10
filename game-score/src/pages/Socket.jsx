@@ -1,6 +1,8 @@
 import io from "socket.io-client";
 import Cookies from 'js-cookie';
 
+//Connects to server to handle asynchronous scoring.  Receives updated from other players.
+
 export default class MySocket
 {
 	constructor()

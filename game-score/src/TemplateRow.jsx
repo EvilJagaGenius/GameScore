@@ -1,3 +1,5 @@
+// Acts as a container to display tempaltes in a consistent format
+
 import React from 'react';
 import TableCell from '@material-ui/core/TableCell';
 import Star from '@material-ui/icons/Star';

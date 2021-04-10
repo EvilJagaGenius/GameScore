@@ -35,6 +35,7 @@ export default class Menu extends Component {
             isLoggedIn: true
     };
     this.callAPI = this.callAPI.bind(this);
+    this.gameSearchButton = this.gameSearchButton.bind(this);
   };
 
   handleClick = (e, titleProps) => {
@@ -57,7 +58,7 @@ export default class Menu extends Component {
         loaded: "True"
       });
 
-      console.log(reportResponse);
+      console.log(homeResponse);
     });
     if(Cookies.get("username")){
       console.log("logged in")
@@ -172,6 +173,14 @@ export default class Menu extends Component {
       filtered: newList
     })
   }
+  
+  gameSearchButton(gameName) {
+    console.log("Search button clicked");
+    this.setState({
+      searching: "true",
+      searchQuery: gameName
+    }, this.templateSearch)
+  }
 
   render() {
     const { activeIndex } = this.state;
@@ -227,9 +236,9 @@ export default class Menu extends Component {
                                  templateName = {this.state.data["favoritedTemplates"][key].templateName}
                                  templateID = {this.state.data["favoritedTemplates"][key].templateID}
                                  gameID = {this.state.data["favoritedTemplates"][key].gameID}
-                                 userID = {this.state.data["favoritedTemplates"][key].userID}
-                                 userName = {this.state.data["favoritedTemplates"][key].userName}
                                  favorited = {this.state.data["favoritedTemplates"][key].favorited}
+                                 userID = {this.state.data["favoritedTemplates"][key].authorUserID}
+                                 userName = {this.state.data["favoritedTemplates"][key].authorUsername}
                                  selected = {this.isSelected(0,key)}
                                  play = {true}
                                  rep = {true}
@@ -286,10 +295,8 @@ export default class Menu extends Component {
                                 templateName = {this.state.data["recentlyPlayed"][key].templateName}
                                 templateID = {this.state.data["recentlyPlayed"][key].templateID}
                                 gameID = {this.state.data["recentlyPlayed"][key].gameID}
-                                userID = {this.state.data["recentlyPlayed"][key].userID}
-                                userName = {this.state.data["recentlyPlayed"][key].userName}
-                                selected = {this.isSelected(1,key)}
-                                play = {true}
+                                userID = {this.state.data["recentlyPlayed"][key].authorUserID}
+                                userName = {this.state.data["recentlyPlayed"][key].authorUsername}
                                 rep = {true}
                                 prevRating = {this.state.data["recentlyPlayed"][key].prevRating}
                                 favorited = {this.state.data["recentlyPlayed"][key].favorited}
@@ -347,10 +354,8 @@ export default class Menu extends Component {
                                 templateName = {this.state.data["highestRated"][key].templateName}
                                 templateID = {this.state.data["highestRated"][key].templateID}
                                 gameID = {this.state.data["highestRated"][key].gameID}
-                                userID = {this.state.data["highestRated"][key].userID}
-                                userName = {this.state.data["highestRated"][key].userName}
-                                selected = {this.isSelected(2,key)}
-                                play = {true}
+                                userID = {this.state.data["highestRated"][key].authorUserID}
+                                userName = {this.state.data["highestRated"][key].authorUsername}
                                 rep = {true}
                                 prevRating = {this.state.data["highestRated"][key].prevRating}
                                 favorited = {this.state.data["highestRated"][key].favorited}
@@ -389,10 +394,27 @@ export default class Menu extends Component {
                   <> 
                     {/* Iterate through favorited templates and render the data in a tabular format */}
                     {Object.keys(this.state.data.recommendedGames).map(key => (
-                      <GameRow rowPos={key} accPos="3" 
-                      pictureURL = {this.state.data["recommendedGames"][key].pictureURL} 
-                      gameName = {this.state.data["recommendedGames"][key].gameName}
-                      />
+                      <>
+                      <TableRow onClick={()=>this.selectTemplate(3,key)}>
+                        <GameRow rowPos={key} accPos="3" 
+                        pictureURL = {this.state.data["recommendedGames"][key].pictureURL} 
+                        gameName = {this.state.data["recommendedGames"][key].gameName}
+                        selected = {this.isSelected(3,key)}
+                        />
+                      </TableRow>
+                        {this.isSelected(3,key) === true &&
+                          <>
+                          <BottomUI
+                            gameURL = {"https://www.boardgamegeek.com" + this.state.data["recommendedGames"][key].gameURL}
+                            gameName = {this.state.data["recommendedGames"][key].gameName}
+                            gameBottomUI = {true}
+                            searchFunction = {this.gameSearchButton}
+                            selected = {this.isSelected(3,key)}
+                            >
+                          </BottomUI>
+                      </>
+                        }
+                      </>
                     ))}
                   </>
                 </div>
@@ -495,7 +517,6 @@ export default class Menu extends Component {
                               reportID = {this.state.reportData["users"][key].reportID}
                               reason = {this.state.reportData["users"][key].reason}
                               selected = {this.isSelected(5,key)}
-                              review = {true}
                               judge = {true}
                               update = {this.callAPI}>
                             </BottomUI>

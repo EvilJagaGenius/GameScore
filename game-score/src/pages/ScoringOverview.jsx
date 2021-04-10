@@ -31,6 +31,10 @@ import KickedModal from './KickedModal';
 import getAvatar from './profilePages/Avatars';
 import EditIcon from '@material-ui/icons/Edit';
 
+//Yes, I wish I was able to seperate some of these lambdas into seperate functions, but the functional component made that more difficult than it was worth.
+//:)
+
+
 //Overvide Styles for Modal
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -101,12 +105,11 @@ function ScoringOverview() {
           }
         }
 
-        console.log("Overview Started")
-
         //Fetch API data
         fetch("/api/getScoring").then(res => res.json()).then(data => {
           setData(data)
           setLoaded(true)
+          console.log(data)
         });
 
         //Create handler function for when socket updates
@@ -114,12 +117,14 @@ function ScoringOverview() {
         setData(scores)
         };
 
+        //Create handler function for when game ends
         const eventHandlerGameEnd = () => {
         Socket.disconnect()
         history.push('/play/postgame')
         console.log("pushing")
         };
 
+        //Create handler function for when user is kicked
         const eventHandlerKick = (username) => {
           console.log(username)
           if(username.userName===Cookies.get('username'))
@@ -153,7 +158,22 @@ function ScoringOverview() {
       <>
         {
         loaded === true && /*Only display if data is loaded*/
-
+        <>
+          {
+          data["successful"] == false &&
+          <>
+            {
+              data["errorMessage"]!=null && 
+              <h2>{data["errorMessage"]}</h2>
+            }
+            <link>
+              
+            </link>
+            <Button onClick={()=> history.push('/home')}variant = "contained" color="primary" size = "large">Return Home</Button>
+          </> 
+          }
+        {
+         data["successful"] == true &&
         <div className={classes.root}>
 
             {/*Header Info*/}
@@ -190,7 +210,7 @@ function ScoringOverview() {
                   </TableHead>
                     {/*For each player in game*/}
                     {Object.keys((data.scoringOverview.players)).map(key => (
-                        <TableRow>
+                        <TableRow className={(data.scoringOverview.players[parseInt(key)].color)+"LT"}>
                             <TableCell>
                                 <div style={{float:"left",marginTop:4}}>
                                     {/*Display Play icon*/}
@@ -268,7 +288,7 @@ function ScoringOverview() {
                       <>
                         {/*For each global award in game*/}
                         {Object.keys(data.globalAwards).map(key => (
-                            <TableRow>
+                            <TableRow className={(data.globalAwards[parseInt(key)].exceedsLimit ? 'errorCondition' : '')}> 
 
                               {/*Add Condition Name*/}
                               <TableCell align="center">
@@ -471,6 +491,7 @@ function ScoringOverview() {
                           <Button className={classes.button}  variant = "contained" color="primary" size = "large" onClick={()=>{
                                 
                                 fetch("/api/postFinalizeScore").then(res => res.json()).then(data => {
+                                history.push('/play/postgame')
                                 })
 
                           }}>Finalize Score</Button>
@@ -571,6 +592,7 @@ function ScoringOverview() {
                                Cookies.get('username') === data.isHost  &&
                                 <Button variant = "contained" color="primary" size = "large" onClick={()=>{
 
+                                      //Request Header
                                       const requestOptions = {
                                           method: 'POST',
                                           headers: {'Content-Type': 'application/json'},
@@ -579,32 +601,35 @@ function ScoringOverview() {
                                           })
                                         };
 
-                                fetch("/api/postLeaveGame",requestOptions)
-                                  .then(res => res.json())
-                                  .then(
-                                    (result) => {
-                                      console.log(result)
-                                      history.push('/home')
-                                    },
-                                  )
+                                      // Tell server you want to leave the game (and to destroy it afterwards)
 
-                                  }}
-                                  >Disband Game</Button>
+                                      fetch("/api/postLeaveGame",requestOptions)
+                                        .then(res => res.json())
+                                        .then(
+                                          (result) => {
+                                            console.log(result)
+                                            history.push('/home')
+                                          },
+                                        )
+
+                                        }}
+                                        >Disband Game</Button>
                                 }
 
                                 {
                                Cookies.get('username') !== data.isHost  &&
                                 <Button variant = "contained" color="primary" size = "large" onClick={()=>{
 
-                                       const requestOptions = {
-                                          method: 'POST',
-                                          headers: {'Content-Type': 'application/json'},
-                                          credentials: 'include',
-                                          body: JSON.stringify({
-                                          })
-                                        };
+                                  //Request Header
+                                   const requestOptions = {
+                                      method: 'POST',
+                                      headers: {'Content-Type': 'application/json'},
+                                      credentials: 'include',
+                                      body: JSON.stringify({
+                                      })
+                                    };
 
-
+                                  //Tell server you want to leave the game
                                   fetch("/api/postLeaveGame",requestOptions) 
                                   .then(res => res.json())
                                   .then(
@@ -630,10 +655,11 @@ function ScoringOverview() {
                 }
 
 
-
+                {/* Bottom  buttons */}
                 <Table style={{ tableLayout: 'fixed',marginTop:15}}>
                     <TableRow >
                   
+                    {/* Finalize Score Button*/}
                     {
                     Cookies.get('username') === data.isHost && 
                     <>
@@ -655,6 +681,7 @@ function ScoringOverview() {
                         </>
                     }
 
+                    {/* Manage Players Button*/}
                     {
                     Cookies.get('username') === data.isHost && 
                     <>
@@ -676,6 +703,7 @@ function ScoringOverview() {
                         </>
                     }
 
+                    {/* Invite Friends Button*/}
                     {
                     Cookies.get('username') === data.isHost && 
                     <>
@@ -699,6 +727,7 @@ function ScoringOverview() {
                         </>
                     }
 
+                    {/* Disband/Leave Game Button*/}
                     {
                     <>
                         <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
@@ -724,12 +753,12 @@ function ScoringOverview() {
                         </TableCell>
                         </>
                     }
-
                 </TableRow>
               </Table>
             <KickedModal history={history} show={showKicked}></KickedModal>
         </div>
-        
+        }
+        </>
         }
       </>
     );

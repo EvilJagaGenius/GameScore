@@ -20,6 +20,7 @@ export default class SearchResults extends Component {
 
     }
 
+    //On load, get list of templates to filter through
     componentDidMount() {
 
         fetch("/api/search/templates")
@@ -36,6 +37,7 @@ export default class SearchResults extends Component {
             )
     }
 
+    //Select the tempalte from search results to show Bottom UI for
     selectTemplate(newRowPos) {
         this.setState({
             selectedTemplate: newRowPos
@@ -43,6 +45,7 @@ export default class SearchResults extends Component {
         console.log(this.state.selectedTemplate)
     }
 
+    //Check if that template is indeed selected
     isSelected(checkRowPos) {
         if(checkRowPos === this.state.selectedTemplate) {
             return true
@@ -52,6 +55,7 @@ export default class SearchResults extends Component {
         }
     }
     
+    //When search textbox changes
     handleChange = (e) => {
         this.setState({
             searchQuery: e.target.value,
@@ -60,6 +64,7 @@ export default class SearchResults extends Component {
 
     }
 
+    //Filter through results to match query
     templateSearch = () => {
         //hold original list of results
         let currentList = {};

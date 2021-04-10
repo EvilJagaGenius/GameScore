@@ -13,6 +13,8 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Typography from '@material-ui/core/Typography';
 
 
+//Provides modal to guide them through understanding the template creation paramters
+
 //Code adapted from: https://morioh.com/p/4576fa674ed8
 //Centers Modal on page
 function getModalStyle()
@@ -82,7 +84,7 @@ export default class TemplateHintModal extends React.Component {
                               <Typography variant="h6" style={{fontSize:16}}>Scoring Type</Typography>
                             </AccordionSummary>
 
-                            {/*Score Overview Rows*/}
+                            {/*Score Type Section*/}
                             <AccordionDetails>
                                 <Typography>
                                 <b>Overview:</b> <br/>
@@ -101,7 +103,8 @@ export default class TemplateHintModal extends React.Component {
                                          Use Case: <i>Scoring is simple and predictable.</i>
                                     </li>
                                     <li>
-                                         Example: <i>Each cow is worth 2 points.  Linear scoring is correct because getting the 1st cow is worth the same amount as getting the 8th cow.</i> <br/>
+                                         Example: <i>Each cow is worth 2 points.  Linear scoring is correct because getting the 1st cow 
+                                         is worth the same amount as getting the 8th cow.</i> <br/>
 
                                     </li>
                                 </ul>
@@ -115,10 +118,13 @@ export default class TemplateHintModal extends React.Component {
                                          Use Case: <i>Similar inputs can receive the same score or ranges of inputs dictate score.</i>
                                     </li>
                                     <li>
-                                         Example: <i>Having 1 cow is worth 1 point, having 2 or 3 cows is worth 2 points. Tabular is necessary since every additional cow increases the score by a different amount.</i> <br/>
+                                         Example: <i>Having 1 cow is worth 1 point, having 2 or 3 cows is worth 2 points. Tabular is 
+                                         necessary since every additional cow increases the score by a different amount.</i> <br/>
                                     </li>
                                     <li>
-                                         Details: <i> The player will receive a score specific to which range the value falls within. Ranges are specified with a min (inclusive), max value (exclusive), and acompanying score.  Ranges are checked in order of position, stopping once the player's input falls within a range.</i> <br/>
+                                         Details: <i> The player will receive a score specific to which range the value falls within. 
+                                         Ranges are specified with a min (inclusive), max value (exclusive), and acompanying score.  
+                                         Ranges are checked in order of position, stopping once the player's input falls within a range.</i> <br/>
                                     </li>
                                 </ul>
                             
@@ -134,7 +140,7 @@ export default class TemplateHintModal extends React.Component {
                               <Typography variant="h6" style={{fontSize:16}}> Point Multiplier</Typography>
                             </AccordionSummary>
 
-                            {/*Score Overview Rows*/}
+                            {/*Point Multiplier Section*/}
                             <AccordionDetails>
                                 <Typography>
                                 <b>Overview:</b> <br/>
@@ -153,7 +159,8 @@ export default class TemplateHintModal extends React.Component {
                                          Can be negative.
                                     </li>
                                     <li>
-                                         Example: <i>Each cow is worth 2 points.  A point multiplier of 2 is necessary.  When the user inputs 4 they will score (2 * 4) = 8.</i> <br/>
+                                         Example: <i>Each cow is worth 2 points.  A point multiplier of 2 is necessary.  
+                                         When the user inputs 4 they will score (2 * 4) = 8.</i> <br/>
                                     </li>
                                 </ul>
                                 </Typography>
@@ -168,7 +175,7 @@ export default class TemplateHintModal extends React.Component {
                               <Typography variant="h6" style={{fontSize:16}}>Max Per Player</Typography>
                             </AccordionSummary>
 
-                            {/*Score Overview Rows*/}
+                            {/*Max per Player Section*/}
                             <AccordionDetails>
                                 <Typography>
                                 <b>Overview:</b> <br/>
@@ -184,10 +191,12 @@ export default class TemplateHintModal extends React.Component {
                                          Use Case: <i>Good for player-based limitations and enforcing easily-forgotten rules.</i>
                                     </li>
                                     <li>
-                                         Example: <i>Each cow is worth 2 points.  However, each player can only have up to 4 cows.  Using a max per player of 4 remind users that only up to 4 cows are allowed.</i> <br/>
+                                         Example: <i>Each cow is worth 2 points.  However, each player can only have up to 4 cows. 
+                                          Using a max per player of 4 remind users that only up to 4 cows are allowed.</i> <br/>
                                     </li>
                                      <li>
-                                         If Over: <i>Conditions where the player has exceeded the maximum will be shown as red.  Additionally, a bypassable prompt will warn players when they attempt to finalize the game.</i> <br/>
+                                         If Over: <i>Conditions where the player has exceeded the maximum will be shown as red. 
+                                          Additionally, a bypassable prompt will warn players when they attempt to finalize the game.</i> <br/>
                                     </li>
                                 </ul>
 
@@ -205,7 +214,7 @@ export default class TemplateHintModal extends React.Component {
                               <Typography variant="h6" style={{fontSize:16}}>Max Per Game</Typography>
                             </AccordionSummary>
 
-                            {/*Score Overview Rows*/}
+                            {/*Max Per Game Section*/}
                             <AccordionDetails>
                                 <Typography>
                                 <b>Overview:</b> <br/>
@@ -218,14 +227,20 @@ export default class TemplateHintModal extends React.Component {
                                 <b>Details</b> <br/>
                                 <ul>
                                      <li>
-                                         Use Case: <i>Good for global awards (Longest Road, Largest Army, etc) or elements with fixed supplies (Only X of this building is allowed) .</i>
+                                         Use Case: <i>Good for global awards (Longest Road, Largest Army, etc) or elements with fixed supplies 
+                                         (Only X of this building is allowed) .</i>
                                     </li>
                                     <li>
-                                         Example: <i>Three awards worth 5 points are given for the most animals (sheep, pigs, and cows).  We call the condition 'Animal Awards'.  We set the max per game to 3 (because of three animal types) and the point multiplier to 5.  If a player has the most pigs and sheep, they would enter 2 - giving them 10 points.  The other player may only have the most cows - giving them 5 points.</i> <br/>
+                                         Example: <i>Three awards worth 5 points are given for the most animals (sheep, pigs, and cows). 
+                                          We call the condition 'Animal Awards'.  We set the max per game to 3 (because of three animal types)
+                                           and the point multiplier to 5.  If a player has the most pigs and sheep, they would enter 2 - giving them 10 points.  
+                                           The other player may only have the most cows - giving them 5 points.</i> <br/>
                                     </li>
                                      <li>
-                                         If Over: <i>Conditions where the lobby of players has exceeded the maximum will be shown as red.  Additionally, a bypassable prompt will warn players when they attempt to finalize the game.</i> <br/>
+                                         If Over: <i>Conditions where the lobby of players has exceeded the maximum will be shown as red.  
+                                         Additionally, a bypassable prompt will warn players when they attempt to finalize the game.</i> <br/>
                                     </li>
+
                                 </ul>
 
   

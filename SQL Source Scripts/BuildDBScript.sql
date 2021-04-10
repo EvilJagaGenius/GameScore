@@ -93,8 +93,7 @@ creationTime DateTime default now(),
 active BOOLEAN DEFAULT true,
 joinCode VARCHAR(15),
 PRIMARY KEY(matchID),
-CONSTRAINT fk_activematch_gameID_game FOREIGN KEY(gameID) REFERENCES Game(gameID),
-CONSTRAINT fk_activematch_templateID_template FOREIGN KEY(templateID) REFERENCES Template(templateID));
+CONSTRAINT fk_activematch_gameID_game FOREIGN KEY(gameID) REFERENCES Game(gameID));
 
 CREATE TABLE Player (
 playerID INT NOT NULL AUTO_INCREMENT,
@@ -159,7 +158,6 @@ score FLOAT,
 value FLOAT,
 PRIMARY KEY(matchID,playerID,conditionID,gameID,templateID),
 CONSTRAINT fk_activematchplayerconditionscore_gameID_game FOREIGN KEY(gameID) REFERENCES Game(gameID),
-CONSTRAINT fk_activematchplayerconditionscore_templateID_template FOREIGN KEY(templateID) REFERENCES Template(templateID),
 CONSTRAINT fk_activematchplayerconditionscore_matchID_activematch FOREIGN KEY(matchID) REFERENCES ActiveMatch(matchID),
 CONSTRAINT fk_activematchplayerconditionscore_conditionID_scoringcondition FOREIGN KEY(conditionID) REFERENCES ScoringCondition(conditionID),
 CONSTRAINT fk_activematchplayerconditionscore_playerID_player FOREIGN KEY(playerID) REFERENCES Player(playerID));

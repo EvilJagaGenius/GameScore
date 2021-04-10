@@ -5,7 +5,6 @@ import { Button } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
 
-//create component
 export default class JoinGame extends React.Component {
 
    //Basic Constructor
@@ -24,35 +23,39 @@ export default class JoinGame extends React.Component {
     {
       console.log(this.props.location.search.indexOf("="))
       console.log(this.state.sentQR)
+
+      //If was redirected because of QR code
     	if(this.props.location.search.indexOf("=")!==-1 && this.state.sentQR === false)
     	{
 
           //Check if no game exists
           const requestOptions = {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          credentials: 'include',
-          body: JSON.stringify({
-          })
-        }
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'include',
+            body: JSON.stringify({
+            })
+          }
 
-         //API Call
-         fetch("/api/postInGame",requestOptions).then(res => res.json()).then(data => {
-            if(data.successful === true && data.inGame===true)
-            {
-               //Do Nothing for now
-            }
-            else
-            {
-                //Try Join with QR
-              var token = this.props.location.search.substr(this.props.location.search.indexOf("=")+1)
-               this.setState({
-               sentQR:true //Make sure not called multiple times
-               });
-               this.joinGameAPICall(token,true)
-            }
-  	  
-          })
+          //API Call
+          fetch("/api/postInGame",requestOptions).then(res => res.json()).then(data => {
+
+          //If Already in game don't join via QR
+          if(data.successful === true && data.inGame===true)
+          {
+             //Do Nothing for now
+          }
+          else //if not already in game
+          {
+             //Try Join with QR
+             var token = this.props.location.search.substr(this.props.location.search.indexOf("=")+1)
+             this.setState({
+             sentQR:true //Make sure not called multiple times
+             });
+             this.joinGameAPICall(token,true)
+          }
+	  
+        })
        }
     }
 
@@ -157,6 +160,7 @@ export default class JoinGame extends React.Component {
 	    });
    }
 
+  //Render Component
   render() {
   	return(
 	  <>

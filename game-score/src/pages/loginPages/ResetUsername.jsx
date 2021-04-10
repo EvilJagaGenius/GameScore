@@ -131,7 +131,7 @@ export default class ResetUsername extends Component{
         })
     };
     //await the response from the server, and update the state with whatever the server sends back
-    const response = await fetch('api/postResetUsername', requestOptions);
+    const response = await fetch('/api/postResetUsername', requestOptions);
     const data = await response.json();
     this.setState({data: data.successful});
     console.log(this.state.data);

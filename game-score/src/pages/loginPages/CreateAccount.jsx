@@ -422,7 +422,7 @@ export default class CreateAccount extends Component{
           <div style={{marginTop: 1, marginBottom: 10}}>
             <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" helperText = {this.state.confirmPasswordHelper} type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
           </div>
-          <div style={{marginTop: 15, marginBottom: 10}}>
+          <div style={{marginTop: 15, marginBottom: 15}}>
             <Button variant = "contained" color = "primary" onClick={()=>{this.confirmSubmission()}}>Create Account</Button>
           </div>
           <Snackbar open={this.state.displayAlert} autoHideDuration={3000} onClose={()=>{this.setState({displayAlert:false})}}>

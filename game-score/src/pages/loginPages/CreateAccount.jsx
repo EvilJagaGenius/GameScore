@@ -240,6 +240,12 @@ export default class CreateAccount extends Component{
         confirmPasswordHelper: ""
       });
     }
+    if(String(event.target.value).length === 0){
+      this.setState({
+        confrimPasswordError: true,
+        confirmPasswordHelper: "Password is empty"
+      })
+    }
   }
 
   /**

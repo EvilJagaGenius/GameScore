@@ -205,7 +205,7 @@ export default class ForgetLogin extends Component{
           <TextField required id="standard-required" label="Username" onChange={this.usernameHandler} error={this.state.usernameError}/>
         </div>
         <div style={{marginTop: 15, marginBottom: 10}}>
-          <Button variant = "contained" color="primary" onClick={()=>{this.confirmSubmission("password")}}>Reset</Button>
+          <Button variant = "contained" color="primary" onClick={()=>{this.confirmSubmission("password")}}>Reset Password</Button>
         </div>
         <div style={{marginTop: 15, marginBottom: 10}}>
           <Typography variant="h4">Reset Username</Typography>
@@ -214,7 +214,7 @@ export default class ForgetLogin extends Component{
           <TextField required id="standard-required" label="Email Address" onChange={this.emailHandler} error={this.state.emailError}/>
         </div>
         <div style={{marginTop: 15, marginBottom: 10}}>
-          <Button variant = "contained" color="primary" onClick={()=>{this.confirmSubmission("email")}}>Reset</Button>
+          <Button variant = "contained" color="primary" onClick={()=>{this.confirmSubmission("email")}}>Reset Username</Button>
         </div>
         <Snackbar open={this.state.displayNameAlert} autoHideDuration={3000} onClose={()=>{this.setState({displayNameAlert:false})}}>
           <Alert variant = "filled" severity="warning">

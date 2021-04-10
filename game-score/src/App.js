@@ -14,10 +14,10 @@ import TemplateCreator from './pages/TemplateCreator';
 import TemplateEditor from './pages/TemplateEditor';
 import Profile from './pages/profilePages/Profile';
 import Login from './pages/loginPages/Login';
-import ForgetPassword from './pages/loginPages/ForgetPassword';
+import ForgetLogin from './pages/loginPages/ForgetLogin';
 import CreateAccount from './pages/loginPages/CreateAccount';
 import ResetPasswordUsername from './pages/loginPages/ResetPassword';
-import ResetUsernameEmail from './pages/loginPages/ForgetUsername';
+import ResetUsernameEmail from './pages/loginPages/ResetUsername';
 import EditAccount from './pages/profilePages/EditAccount';
 import EditAvatar from './pages/profilePages/EditAvatar';
 import InviteFriends from './pages/InviteFriends';
@@ -27,13 +27,6 @@ import Cookies from 'js-cookie';
 import {Alert} from "@material-ui/lab";
 
 export default function App() {
-  const isLoggedIn = Cookies.get("username");
-  if(isLoggedIn){
-    console.log("Logged in");
-  }
-  else{
-    console.log("Not logged in");
-  }
   return (
     <Switch>
       <Redirect exact from="/" to="/home" />
@@ -48,7 +41,7 @@ export default function App() {
       <Route path="/profile/editaccount" 
         render={(props) =>
           <>
-        {isLoggedIn 
+        {Cookies.get("username") 
           ? <>
           <RejoinGame/>
           <Home {...props}></Home>
@@ -65,7 +58,7 @@ export default function App() {
       <Route path="/profile/editavatar" 
         render={(props) => 
         <>
-          {isLoggedIn 
+          {Cookies.get("username")
           ? <>
           <RejoinGame/>
           <Home {...props}></Home>
@@ -120,7 +113,7 @@ export default function App() {
       <Route path="/mytemplates/conditioneditor" 
         render={(props) => 
         <>
-          {isLoggedIn 
+          {Cookies.get("username")
           ? <>
               <RejoinGame/>
               <ConditionEditor {...props}></ConditionEditor>
@@ -136,7 +129,7 @@ export default function App() {
       <Route path="/mytemplates/creator"
         render={(props) => 
         <>
-          {isLoggedIn 
+          {Cookies.get("username")
           ? <>
               <RejoinGame/>
               <Home {...props}></Home>
@@ -153,7 +146,7 @@ export default function App() {
       <Route path="/mytemplates/editor"
         render={(props) => 
         <>
-          {isLoggedIn 
+          {Cookies.get("username")
           ? <>
               <RejoinGame/>
               <Home {...props}></Home>
@@ -191,11 +184,11 @@ export default function App() {
         </> 
       }>
       </Route>
-      <Route path="/login/forgetpassword"
+      <Route path="/login/forgetlogin"
         render={(props) => 
         <>
           <Home {...props}></Home>
-          <ForgetPassword {...props}></ForgetPassword>
+          <ForgetLogin {...props}></ForgetLogin>
         </> 
       }>
       </Route>

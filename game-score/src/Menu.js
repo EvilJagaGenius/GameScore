@@ -64,7 +64,7 @@ constructor(props) {
         loaded: "True"
       });
 
-      console.log(reportResponse);
+      console.log(homeResponse);
     });
       
       this.setState({

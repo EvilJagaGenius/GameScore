@@ -12,7 +12,10 @@ export default function TemplateRow(props) {
                 <TableCell align="left" style={{padding:5,width:"calc(100% - 130px)"}}>
                   <p style={{marginLeft:-55,fontSize:17}}>{props.templateName}</p>
                 </TableCell>
+                
                 <TableCell align="right" style={{padding:5,width:80}}>
+                  { (props.averageRating !== null) && (props.numRatings !== null) &&
+                    <>
                     <div>
                      <div style ={{float:"right"}}>
                        <Star  style={{marginTop:2,position:"relative",width:32,height:32}} alt = "tempAlt" fontsize = "medium"></Star >
@@ -22,6 +25,8 @@ export default function TemplateRow(props) {
                         <p style={{fontSize:12, marginTop:0}}>({props.numRatings})</p>
                       </div>
                     </div>
+                    </>
+                  }
                 </TableCell>
           </>
         );

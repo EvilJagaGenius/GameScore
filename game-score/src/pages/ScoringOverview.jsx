@@ -29,6 +29,7 @@ import MySocket from './Socket';
 import Cookies from 'js-cookie';
 import KickedModal from './KickedModal';
 import getAvatar from './profilePages/Avatars';
+import EditIcon from '@material-ui/icons/Edit';
 
 //Overvide Styles for Modal
 const useStyles = makeStyles((theme) => ({
@@ -182,7 +183,9 @@ function ScoringOverview() {
                   <TableHead>
                       <TableRow>
                         <TableCell align="left">Name</TableCell>
-                        <TableCell align="center">Score</TableCell>
+                        <TableCell  align="right">
+                          <div style={{paddingRight:25}}>Score</div>
+                        </TableCell>
                       </TableRow>
                   </TableHead>
                     {/*For each player in game*/}
@@ -198,10 +201,19 @@ function ScoringOverview() {
                                     <Typography style={{fontSize:17}}className={classes.heading}>{data.scoringOverview.players[key].displayName}</Typography>
                                 </div>
                             </TableCell>
-                           <TableCell align="center">
+                           <TableCell align="right">
                               {/*Display Score*/}
-                              <Link to={{pathname: "/play/individualscoring" , state:{message: 'Called',individualPlayerID:data.scoringOverview.players[key].playerID,data:data,playerNum:key}}} className={classes.column} style={{fontSize:17}}>
-                               {Math.round(data.scoringOverview.players[key].score/0.01)*0.01}
+                              
+                               <Link to={{pathname: "/play/individualscoring" , state:{message: 'Called',individualPlayerID:data.scoringOverview.players[key].playerID,data:data,playerNum:key}}} className={classes.column} style={{fontSize:17}}>
+                                <div style={{position:"relative"}}>
+                                 <div style={{paddingRight:25}}>
+                                     {Math.round(data.scoringOverview.players[key].score/0.01)*0.01}
+                                  </div>
+                                  <div style={{paddingLeft:10,position:"absolute",right:-7,top:0}}>
+                                    <EditIcon></EditIcon>
+                                  </div>
+
+                                </div>
                               </Link>
                             </TableCell>
                         </TableRow>
@@ -329,7 +341,7 @@ function ScoringOverview() {
                                     {/*Kick Player Button*/}
                                     {
                                        //Cannot Kick Host/Yourself
-                                        key !==0 && 
+                                        key !=0 && 
                                         <IconButton style={{display:"inlineFlex",width:30,height:30,float:"right",marginLeft:-40,marginRight:-10}}><CloseIcon onClick={()=>{
                                               
                                                setShowKicking(true)

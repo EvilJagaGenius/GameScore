@@ -177,7 +177,7 @@ export default class TemplateEditor extends Component {
 
                                         ({this.state.data.gameName})
                                 </div>
-                              <div style={{paddingLeft:0,right:10,top:10,position:"absolute"}} align="left">
+                              <div style={{paddingLeft:0,right:5,top:5,position:"absolute"}} align="left">
                                   {/*Back Button*/}
                                       <IconButton onClick={()=>{
                                         this.setState({
@@ -186,7 +186,7 @@ export default class TemplateEditor extends Component {
                                     }}
 
                                     >
-                                     <HelpOutlineIcon></HelpOutlineIcon>
+                                     <HelpOutlineIcon style={{fontSize:30}}></HelpOutlineIcon>
                                     </IconButton>
                               </div>
                             </div>

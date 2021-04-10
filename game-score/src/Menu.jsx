@@ -1,11 +1,12 @@
 /**
- * Menu.js-Jonathan Beels
+ * Menu.jsx-Jonathan Beels/Jonathon Lannon
  */
 
 import React, { Component } from 'react'
-import { Accordion, Icon } from 'semantic-ui-react'
+import { Accordion, AccordionPanel, Icon } from 'semantic-ui-react'
 import GameRow from "./GameRow"
 import TemplateRow from "./TemplateRow"
+import UserRow from "./UserRow"
 import BottomUI from "./BottomUI"
 import Table from '@material-ui/core/Table';
 import TableContainer from '@material-ui/core/TableContainer';
@@ -14,90 +15,85 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Cookies from 'js-cookie';
 import Typography from '@material-ui/core/Typography';
-
-function getCookieValue(name) {
-  let result = document.cookie.match("(^|[^;]+)\\s*" + name + "\\s*=\\s*([^;]+)")
-  return result ? result.pop() : ""
-}
+import { Link } from 'react-router-dom';
+import {Button} from "@material-ui/core";
 
 export default class Menu extends Component {
-
-constructor(props) {
+  constructor(props) {
     super(props);
     this.state = { activeIndex: 0,
             data:{},
             loaded:"False",
             selectedTemplate:{accPos:0,rowPos:-1},
-            usernameData: getCookieValue("username"),
+            usernameData: Cookies.get("username"),
             searchQuery: "",
             searching: "false",
             filtered: {},
-            searchData: {}
-
-          };
-    this.callAPI = this.callAPI.bind(this);
+            searchData: {},
+            reportData: {},
+            admin: {},
+            isLoggedIn: true
     };
-
-  
+    this.callAPI = this.callAPI.bind(this);
+  };
 
   handleClick = (e, titleProps) => {
     const { index } = titleProps
     const { activeIndex } = this.state
     const newIndex = activeIndex === index ? -1 : index
-
     this.setState({ activeIndex: newIndex,selectedTemplate:{accPos:index,rowPos:-1} })
   }
-
 
   componentDidMount() {
     Promise.all([
       fetch("/api/getHomePage").then(res => res.json()),
-      fetch("/api/search/templates").then(res => res.json())
-    ]).then(([homeResponse, searchResponse]) => {
+      fetch("/api/search/templates").then(res => res.json()),
+      fetch("/api/listReports").then(res => res.json())
+    ]).then(([homeResponse, searchResponse, reportResponse]) => {
       this.setState({
         data: homeResponse,
         searchData: searchResponse.templates,
+        reportData: reportResponse,
         loaded: "True"
       });
 
-      console.log(searchResponse);
+      console.log(reportResponse);
     });
-    /*
-    fetch("/api/getHomePage")
-      .then(res => res.json())
-      .then(
-        (result) => {
-          this.setState({
-            data: result,
-            loaded: "True"
-          }
-          );
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-      );
-      */
+    if(Cookies.get("username")){
+      console.log("logged in")
       this.setState({
-        usernameData: getCookieValue("username")
-      });
+        isLoggedIn: true
+      })
+    }
+    else{
+      console.log("else hit agian")
+      this.setState({
+        isLoggedIn: false
+      })
+    }
+    console.log(Cookies.get("username"))
   }
+
   
   callAPI() {
-    fetch("/api/getHomePage")
-      .then(res => res.json())
-      .then(
-        (result) => {
-          this.setState({
-            data: result,
-            loaded: "True"
-          }
-          );
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-      );
+    Promise.all([
+      fetch("/api/getHomePage").then(res => res.json()),
+      fetch("/api/search/templates").then(res => res.json()),
+      fetch("/api/listReports").then(res => res.json())
+    ]).then(([homeResponse, searchResponse, reportResponse]) => {
+      this.setState({
+        data: homeResponse,
+        searchData: searchResponse.templates,
+        reportData: reportResponse,
+        loaded: "True"
+      });
+
+      console.log(reportResponse);
+    });
+      
+      this.setState({
+        usernameData: Cookies.get("username")
+      });
   }
 
   selectTemplate(newAccPos,newRowPos)
@@ -178,11 +174,18 @@ constructor(props) {
   }
 
   render() {
-    const { activeIndex } = this.state
+    const { activeIndex } = this.state;
     return (
     <div>
+      <div style={{textAlign:"center",display:"inlineBlock",marginTop:15,marginBottom:5}} align="center" textAlign= "center">
+        {/*Login Button*/}
+        {this.state.isLoggedIn
+          ? null
+          : <Link to = "/home/login"><Button variant="outlined" color="primary">Click here to log in for full functionality</Button></Link>
+        }
+      </div>
       {/* Search Bar */}
-      <TextField id="outlined-basic" label="Search Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} style={{width:"90%",marginLeft:"5%", marginTop:"1%",marginBottom:"1%"}}/>
+      <TextField id="outlined-basic" label="Search All Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} style={{width:"90%",marginLeft:"5%", marginTop:"1%",marginBottom:"1%"}}/>
 
       {/* Wipe out accordians if the user is actively searching */}
       { this.state.searching === "false" &&
@@ -200,66 +203,68 @@ constructor(props) {
           Favorited Templates
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 0}>
-        <TableContainer component={Paper}>
-         <Table>
-                {
-                  this.state.loaded === "True" && Cookies.get("username") != null &&
-                    <> 
-                      {Object.keys(this.state.data.favoritedTemplates).map(key => (
-                          <>
-                            <TableRow onClick={()=>this.selectTemplate(0,key)}>
-                              <TemplateRow 
-                              pictureURL = {this.state.data["favoritedTemplates"][key].pictureURL} 
-                              templateName = {this.state.data["favoritedTemplates"][key].templateName}
-                              numRatings = {this.state.data["favoritedTemplates"][key].numRatings}
-                              averageRating = {this.state.data["favoritedTemplates"][key].averageRating}
-                              />
-                            </TableRow>
-                              {
-                              this.isSelected(0,key) === true &&
-                              <>
-                                <BottomUI
-                                  templateName = {this.state.data["favoritedTemplates"][key].templateName}
-                                  templateID = {this.state.data["favoritedTemplates"][key].templateID}
-                                  gameID = {this.state.data["favoritedTemplates"][key].gameID}
-                                  prevRating = {this.state.data["favoritedTemplates"][key].prevRating}
-                                  favorited = {this.state.data["favoritedTemplates"][key].favorited}
-                                  selected = {this.isSelected(0,key)}
-                                  play = {true}
-                                  update = {this.callAPI}
-                                  rate= {true}>
-                                  </BottomUI>
-                              </>
-                            }
-                        </>
-                      ))}
-                    </>
-                }
-            </Table>
-          </TableContainer>
-          
-            {
-              this.state.loaded === "True" && Cookies.get("username") == null &&
-                <Typography style={{marginLeft:20}}>Login for full functionality.</Typography>
-            } 
-          
+        {/*Start conditional rendering*/}
+        {this.state.isLoggedIn
+        ? <TableContainer component={Paper}>
+        <Table>
+               {
+                 this.state.loaded === "True" && Cookies.get("username") != null &&
+                   <> 
+                     {Object.keys(this.state.data.favoritedTemplates).map(key => (
+                         <>
+                           <TableRow onClick={()=>this.selectTemplate(0,key)}>
+                             <TemplateRow 
+                             pictureURL = {this.state.data["favoritedTemplates"][key].pictureURL} 
+                             templateName = {this.state.data["favoritedTemplates"][key].templateName}
+                             numRatings = {this.state.data["favoritedTemplates"][key].numRatings}
+                             averageRating = {this.state.data["favoritedTemplates"][key].averageRating}
+                             />
+                           </TableRow>
+                             {
+                             this.isSelected(0,key) === true &&
+                             <>
+                               <BottomUI
+                                 templateName = {this.state.data["favoritedTemplates"][key].templateName}
+                                 templateID = {this.state.data["favoritedTemplates"][key].templateID}
+                                 gameID = {this.state.data["favoritedTemplates"][key].gameID}
+                                 userID = {this.state.data["favoritedTemplates"][key].userID}
+                                 userName = {this.state.data["favoritedTemplates"][key].userName}
+                                 selected = {this.isSelected(0,key)}
+                                 play = {true}
+                                 rep = {true}
+                                 update = {this.callAPI}
+                                 rate= {true}>
+                                 </BottomUI>
+                             </>
+                           }
+                       </>
+                     ))}
+                   </>
+               }
+           </Table>
+         </TableContainer>
+        : <Typography>Log in for full functionality.</Typography>
+        }
+        {/*End conditional rendering*/}
         </Accordion.Content>
+        
 
         {/* Recently Played */}
-        <Accordion.Title
-          active={activeIndex === 1}
-          index={1}
-          onClick={this.handleClick}
-        >
+        <Accordion.Title active={activeIndex === 1} index={1} onClick={this.handleClick}>
           <Icon name='dropdown' />
           Recently Played
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 1}>
+        
+        {/*Start conditional rendering*/}
+        {this.state.isLoggedIn
+        ? 
         <TableContainer component={Paper}>
           <Table size="small">
                 {
                 this.state.loaded === "True" &&
                   <> 
+                    {console.log(this.state.loaded)}
                     {Object.keys(this.state.data.recentlyPlayed).map(key => (
                         <>
                           <TableRow onClick={()=>this.selectTemplate(1,key)}>
@@ -280,6 +285,11 @@ constructor(props) {
                                 templateName = {this.state.data["recentlyPlayed"][key].templateName}
                                 templateID = {this.state.data["recentlyPlayed"][key].templateID}
                                 gameID = {this.state.data["recentlyPlayed"][key].gameID}
+                                userID = {this.state.data["recentlyPlayed"][key].userID}
+                                userName = {this.state.data["recentlyPlayed"][key].userName}
+                                selected = {this.isSelected(1,key)}
+                                play = {true}
+                                rep = {true}
                                 prevRating = {this.state.data["recentlyPlayed"][key].prevRating}
                                 favorited = {this.state.data["recentlyPlayed"][key].favorited}
                                 selected = {this.isSelected(1,key)}
@@ -296,10 +306,9 @@ constructor(props) {
               }
           </Table>
           </TableContainer>
-            {
-              this.state.loaded === "True" && Cookies.get("username") == null &&
-                <Typography style={{marginLeft:20}}>Login for full functionality.</Typography>
-            } 
+        : <Typography>Log in for full functionality.</Typography>
+        }
+        {/*End conditional rendering*/}
         </Accordion.Content>
 
         {/* Highest Rated Templates accordian */}
@@ -330,20 +339,25 @@ constructor(props) {
                             selected = {this.isSelected(2,key)}
                             />
                           </TableRow>
-                            {
+                          {
                             this.isSelected(2,key) === true &&
                             <>
                               <BottomUI
                                 templateName = {this.state.data["highestRated"][key].templateName}
                                 templateID = {this.state.data["highestRated"][key].templateID}
                                 gameID = {this.state.data["highestRated"][key].gameID}
+                                userID = {this.state.data["highestRated"][key].userID}
+                                userName = {this.state.data["highestRated"][key].userName}
+                                selected = {this.isSelected(2,key)}
+                                play = {true}
+                                rep = {true}
                                 prevRating = {this.state.data["highestRated"][key].prevRating}
                                 favorited = {this.state.data["highestRated"][key].favorited}
                                 selected = {this.isSelected(2,key)}
                                 play = {true}
                                 update = {this.callAPI}
                                 rate= {true}>
-                                </BottomUI>
+                              </BottomUI>
                             </>
                           }
                       </>
@@ -389,7 +403,114 @@ constructor(props) {
                 <Typography style={{marginLeft:20}}>Login for full functionality.</Typography>
             } 
         </Accordion.Content>
-      </Accordion>
+        
+        {/* Displays only when user is admin */}
+        { this.state.reportData.admin === 1 &&
+        <>
+
+          {/* Reported Templates */}
+          <Accordion.Title
+            active={activeIndex === 4}
+            index={4}
+            onClick={this.handleClick}
+          >
+            <Icon name='dropdown' />
+            Reported Templates
+          </Accordion.Title>
+          <Accordion.Content active={activeIndex === 4}>
+            <TableContainer component={Paper}>
+              <Table size="small">
+                {/* Table displays reported templates */}
+                { this.state.loaded === "True" &&
+                  <div className="ReportedTemplates">
+                    <>
+                      {/* Iterated through the list of reported templates */}
+                      {Object.keys(this.state.reportData.templates).map(key => (
+                        <>
+                        <TableRow onClick={()=>this.selectTemplate(4, key)}>
+                          <TemplateRow 
+                            pictureURL = {this.state.reportData["templates"][key].pictureURL}
+                            templateName = {this.state.reportData["templates"][key].templateName}
+                            averageRating = {null}
+                            numRatings = {null}
+                          />
+                        </TableRow>
+                        {
+                            this.isSelected(4,key) === true &&
+                            <>
+                              <BottomUI
+                                templateID = {this.state.reportData["templates"][key].templateID}
+                                userID = {this.state.reportData["templates"][key].userID}
+                                reportID = {this.state.reportData["templates"][key].reportID}
+                                reason = {this.state.reportData["templates"][key].reason}
+                                gameID = {this.state.reportData["templates"][key].gameID}
+                                selected = {this.isSelected(4,key)}
+                                review = {true}
+                                judge = {true}
+                                update = {this.callAPI}>
+                              </BottomUI>
+                            </>
+                          }
+                        </>
+                      ))}
+                    </>
+                  </div>
+                }
+              </Table>
+            </TableContainer>
+          </Accordion.Content> 
+
+          {/* Reported Users */}
+          <Accordion.Title
+            active={activeIndex === 5}
+            index={5}
+            onClick={this.handleClick}
+          >
+            <Icon name='dropdown' />
+            Reported Users
+          </Accordion.Title>
+          <Accordion.Content active={activeIndex === 5}>
+            <TableContainer component={Paper}>
+              <Table size="small">
+                {/* Table displays reports users */}
+                {this.state.loaded === "True" &&
+                  <div className="ReportedUsers">
+                    <>
+                      {/* Iterated through the list of reported users */}
+                      {Object.keys(this.state.reportData.users).map(key => (
+                        <>
+                        <TableRow onClick={()=>this.selectTemplate(5, key)}>
+                          <UserRow
+                            avatarID = {this.state.reportData["users"][key].avatarID}
+                            userName = {this.state.reportData["users"][key].username}
+                          />
+                        </TableRow>
+                        {
+                          this.isSelected(5,key) === true &&
+                          <>
+                            <BottomUI
+                              templateID = {this.state.reportData["users"][key].templateID}
+                              userID = {this.state.reportData["users"][key].userID}
+                              reportID = {this.state.reportData["users"][key].reportID}
+                              reason = {this.state.reportData["users"][key].reason}
+                              selected = {this.isSelected(5,key)}
+                              review = {true}
+                              judge = {true}
+                              update = {this.callAPI}>
+                            </BottomUI>
+                          </>
+                        }
+                        </>
+                      ))}
+                    </>
+                  </div>
+                }
+              </Table>
+            </TableContainer>
+          </Accordion.Content>
+        </>
+        }
+      </Accordion> 
       </>
       }
 
@@ -415,8 +536,11 @@ constructor(props) {
                     templateID = {this.state.filtered[key].templateID}
                     gameID = {this.state.filtered[key].gameID}
                     favorited = {this.state.filtered[key].favorited}
+                    userID = {this.state.filtered[key].userID}
+                    userName = {this.state.filtered[key].userName}
                     selected = {this.isSelected(key)}
                     play = {true}
+                    rep = {true}
                     update = {this.callAPI}
                     rate= {true}>
                     </BottomUI>

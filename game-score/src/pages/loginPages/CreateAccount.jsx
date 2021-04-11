@@ -61,65 +61,73 @@ export default class CreateAccount extends Component{
    * @param {*} event: event parameter for processing the new value in the username textfield
    */
   usernameHandler=(event)=>{
-    //update the state with the current username entered in the field
+    // //update the state with the current username entered in the field
     this.setState({
       username: event.target.value
     });
     console.log("Username is " + event.target.value);
-    //create the requirements for the username
+    // //create the requirements for the username
 
-    /* Username Requirements
-    4-30 characters
-    One uppercase letter
-    One lowercase letter
-    */
+    // /* Username Requirements
+    // 4-30 characters
+    // One uppercase letter
+    // One lowercase letter
+    // */
+    var usernameRequirements = /^(?=.*[a-z])(?=.*[A-Z])/;
+    var usernameExists = false;
+    const testString = String(event.target.value);
+    var errorText = ""
+    if(!testString.match(usernameRequirements)){
+      errorText += "Username does not meet letter requirements";
+    }
+    if(testString.length >= 31){
+      errorText += "Username is too long";
+    }
+    if(testString.length <= 3){
+      errorText += "Username is too short";
+    }
 
-    var usernameRequirements = /^(?=.*[a-z])(?=.*[A-Z]).{4,30}/;
-    //if the string entered matches the requirements, don't trigger an error
-    if(String(event.target.value).match(usernameRequirements)){
-      this.setState({
-        usernameError: false
-      });
-      //launch an API call to check if the username is already taken or not
-      //if taken already, an error is triggered
-      const requestOptions = {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        credentials: 'include',
-        body: JSON.stringify({
-          username:event.target.value
-        })
-      };
-      fetch("/api/postCheckUsername",requestOptions)
-        .then(res => res.json()).then(newData => {
-          if(newData.usernameExists === true){
-            //declare an error, and update the error and helper text properties
-            this.setState({
-              usernameError: true,
-              usernameHelper: "Username already exists"
-            });
-          }
-          else{
-            //otherwise, turn the error off
-            this.setState({
-              usernameError: false
-          });
+    const requestOptions = {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      credentials: 'include',
+      body: JSON.stringify({
+        username:event.target.value
+      })
+    };
+    fetch("/api/postCheckUsername",requestOptions)
+      .then(res => res.json()).then(newData => {
+        if(newData.usernameExists === true){
+          //declare an error, and update the error and helper text properties
+          console.log("exists")
+          errorText += "Username already exists"
+          console.log(errorText)
+          this.setState({
+            usernameError: true,
+            usernameHelper: errorText
+          })
         }
-      });
+        else{
+          usernameExists = false;
+        }
+    });
+    if(usernameExists === true){
+      errorText += "Username already exists"
     }
-    //if the username is too long, trigger an error and update the needed properties
-    else if(String(event.target.value).length > 30){
+    if(String(event.target.value).length === 0){
+      errorText = "Username is empty. "
+    }
+    if(errorText.length === 0){
       this.setState({
-        usernameError: true,
-        usernameHelper: "Username does not meet requirements"
-      });
+        usernameError: false,
+        usernameHelper: ""
+      })
     }
-    //otherwise, remove the error
     else{
       this.setState({
         usernameError: true,
-        usernameHelper: "Username does not meet requirements"
-      });
+        usernameHelper: errorText
+      })
     }
   }
 
@@ -137,7 +145,14 @@ export default class CreateAccount extends Component{
       this.setState({
         email: "",
         emailError: true,
-        emailHelper: "Invalid email entered"
+        emailHelper: "Invalid email entered."
+      })
+    }
+    if(email.length === 0){
+      this.setState({
+        email: "",
+        emailError: true,
+        emailHelper: "Email is empty."
       })
     }
     //otherwise, remove any errors
@@ -158,10 +173,33 @@ export default class CreateAccount extends Component{
   passwordHandler=(event)=>{
     console.log(event.target.value);
     //create a special string for checking the password requirements
-    var pass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{4,30}/;
+    var pass1 = /^(?=.*[a-z])(?=.*[A-Z])/;
+    var pass2 = /^(?=.*[0-9])/;
     //if the requirements are met, don't create an error
     //otherwise, create an onscreen error by updating the textfield properties
-    if(String(event.target.value).match(pass)){
+    var errorText = "";
+    //check for letter requirements
+    if(!String(event.target.value).match(pass1)){
+      errorText += "Password letter requirements not met. ";
+    }
+    //check for number requirement
+    if(!String(event.target.value).match(pass2)){
+      errorText += "Password is missing a number. "
+    }
+    //check for length requirements
+    //too long
+    if(String(event.target.value).length > 30){
+      errorText += "Password is too long. "
+    }
+    //too short
+    if(String(event.target.value).length < 4){
+      errorText += "Password is too short. "
+    }
+    if(String(event.target.value).length === 0){
+      errorText = "Password is empty. "
+    }
+    //final error checking
+    if(errorText.length === 0){
       this.setState({
         passwordError: false,
         password: event.target.value,
@@ -170,12 +208,12 @@ export default class CreateAccount extends Component{
       console.log("requirements met");
     }
     else{
-      console.log("requirments not met")
       this.setState({
         password: event.target.value,
         passwordError: true,
-        passwordHelper: "Password requirements not met"
+        passwordHelper: errorText
       });
+      console.log("requirements not met");
     }
   }
 
@@ -202,6 +240,12 @@ export default class CreateAccount extends Component{
         confirmPasswordHelper: ""
       });
     }
+    if(String(event.target.value).length === 0){
+      this.setState({
+        confrimPasswordError: true,
+        confirmPasswordHelper: "Password is empty"
+      })
+    }
   }
 
   /**
@@ -213,56 +257,61 @@ export default class CreateAccount extends Component{
     var passCheck = false   //boolean for checking if the password is good to submit
 
     //if the username field is blank, display an error
-    var currentText = this.state.alertText;
-    if(this.state.username === ""){
+    var currentText = "";
+    if(this.state.username === "" || this.state.usernameError === true){
+      currentText += "Problem found with username";
       this.setState({
-        displayAlert: true,
-        alertText: "No username entered",
-        alertSeverity: "warning",
         usernameError: true
       });
     }
     //otherwise, the username is declared as being ok to submit
     else{
       userCheck = true
-    }
-
-    currentText += this.state.alertText;
-    //if the email field is blank, display an error
-    if(this.state.email===""){
       this.setState({
-        displayAlert: true,
-        alertText: "No email address entered",
-        alertSeverity: "warning",
+        usernameError: false
+      });
+    }
+    //if the email field is blank, display an error
+    if(this.state.email=== "" || this.state.emailError === true){
+      currentText += "No email address entered";
+      this.setState({
         emailError: true
       });
     }
     //otherwise, the email is declared as being ok to submit
     else{
       emailCheck = true
-    }
-
-    currentText += this.state.alertText;
-    //if there are any errors relating to the password, display an alert
-    if(this.state.passwordError === true && this.state.confrimPasswordError === true){
       this.setState({
-        displayAlert: true,
-        alertText: "Password error found",
-        alertSeverity: "warning"
-      })
+        emailError: false
+      });
+    }
+    //if there are any errors relating to the password, display an alert
+    if((this.state.passwordError === true && this.state.confrimPasswordError === true) || ((this.state.password==="" && this.state.confirmPassword === ""))){
+      currentText += "Password error found";
+      this.setState({
+        passwordError: true,
+        confrimPasswordError: true
+      });
     }
     //otherwise, the password is declared as being ok to submit
     else{
       passCheck = true
+      this.setState({
+        passwordError: false,
+        confrimPasswordError: false
+      });
     }
-
-    this.setState({
-      alertText: currentText
-    });
 
     //if the username, password, and email are ok submit, call the send request function to contact the server
     if(userCheck && emailCheck && passCheck){
       this.sendRequest();
+    }
+    else{
+      this.setState({
+        displayAlert: true,
+        alertText: currentText,
+        alertSeverity: "warning"
+      })
     }
   }
 
@@ -379,7 +428,7 @@ export default class CreateAccount extends Component{
           <div style={{marginTop: 1, marginBottom: 10}}>
             <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" helperText = {this.state.confirmPasswordHelper} type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
           </div>
-          <div style={{marginTop: 15, marginBottom: 10}}>
+          <div style={{marginTop: 15, marginBottom: 15}}>
             <Button variant = "contained" color = "primary" onClick={()=>{this.confirmSubmission()}}>Create Account</Button>
           </div>
           <Snackbar open={this.state.displayAlert} autoHideDuration={3000} onClose={()=>{this.setState({displayAlert:false})}}>

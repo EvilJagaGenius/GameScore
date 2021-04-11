@@ -51,7 +51,7 @@ export default class CreateAccount extends Component{
       confirmPasswordHelper: "",
       displayAlert: false,
       alertText: "",
-      alertSeverity: "",
+      displaySuccess: false,
       data: false
     }
   }
@@ -259,7 +259,12 @@ export default class CreateAccount extends Component{
     //if the username field is blank, display an error
     var currentText = "";
     if(this.state.username === "" || this.state.usernameError === true){
-      currentText += "Problem found with username";
+      if(this.state.username === ""){
+        currentText += "No username entered. ";
+      }
+      else{
+        currentText += "Problem found with username. ";
+      }
       this.setState({
         usernameError: true
       });
@@ -273,7 +278,7 @@ export default class CreateAccount extends Component{
     }
     //if the email field is blank, display an error
     if(this.state.email=== "" || this.state.emailError === true){
-      currentText += "No email address entered";
+      currentText += "No email address entered. ";
       this.setState({
         emailError: true
       });
@@ -287,7 +292,12 @@ export default class CreateAccount extends Component{
     }
     //if there are any errors relating to the password, display an alert
     if((this.state.passwordError === true && this.state.confrimPasswordError === true) || ((this.state.password==="" && this.state.confirmPassword === ""))){
-      currentText += "Password error found";
+      if(this.state.password === "" && this.state.confirmPassword === ""){
+        currentText += "No password entered. ";
+      }
+      else{
+        currentText += "Password error found. ";
+      }
       this.setState({
         passwordError: true,
         confrimPasswordError: true
@@ -309,8 +319,7 @@ export default class CreateAccount extends Component{
     else{
       this.setState({
         displayAlert: true,
-        alertText: currentText,
-        alertSeverity: "warning"
+        alertText: currentText
       })
     }
   }
@@ -344,19 +353,9 @@ export default class CreateAccount extends Component{
     //if data is true
     if(data.successful)
     {
-        //redirect the player to login if they are joining by QR code
-        if(this.props.location!=null&&this.props.location.state!=null &&this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
-        {
-            this.props.history.push({
-            pathname:"/home/login",
-            state:{joinCodeQR:this.props.location.state.joinCodeQR}
-            });
-        }
-        //otherwise, take them to the login screen if they haven't joined a game
-        else
-        {
-          this.props.history.push("/home/login");
-        }
+        this.setState({
+          displaySuccess: true
+        })
     }
     //if false is received, display an error message
     else{
@@ -434,6 +433,26 @@ export default class CreateAccount extends Component{
           <Snackbar open={this.state.displayAlert} autoHideDuration={3000} onClose={()=>{this.setState({displayAlert:false})}}>
             <Alert variant = "filled" severity="warning">
               {this.state.alertText}
+            </Alert>
+          </Snackbar>
+          <Snackbar open={this.state.displaySuccess} autoHideDuration={3000} onClose={()=>{
+            this.setState({displaySuccess:false});
+            //redirect the player to login if they are joining by QR code
+            if(this.props.location!=null&&this.props.location.state!=null &&this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
+            {
+                this.props.history.push({
+                pathname:"/home/login",
+                state:{joinCodeQR:this.props.location.state.joinCodeQR}
+                });
+            }
+            //otherwise, take them to the login screen if they haven't joined a game
+            else
+            {
+              this.props.history.push("/home/login");
+            }
+            }}>
+            <Alert variant = "filled" severity="success">
+              Account created
             </Alert>
           </Snackbar>
         </Box>

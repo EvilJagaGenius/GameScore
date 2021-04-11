@@ -81,13 +81,13 @@ export default class EditAccount extends React.Component{
     const testString = String(event.target.value);
     var errorText = ""
     if(!testString.match(usernameRequirements)){
-      errorText += "Username does not meet letter requirements";
+      errorText += "Username does not meet letter requirements. ";
     }
     if(testString.length >= 31){
-      errorText += "Username is too long";
+      errorText += "Username is too long. ";
     }
     if(testString.length <= 3){
-      errorText += "Username is too short";
+      errorText += "Username is too short. ";
     }
 
     const requestOptions = {
@@ -103,7 +103,7 @@ export default class EditAccount extends React.Component{
         if(newData.usernameExists === true){
           //declare an error, and update the error and helper text properties
           console.log("exists")
-          errorText += "Username already exists"
+          errorText += "Username already exists."
           console.log(errorText)
           this.setState({
             usernameError: true,
@@ -115,7 +115,7 @@ export default class EditAccount extends React.Component{
         }
     });
     if(usernameExists === true){
-      errorText += "Username already exists"
+      errorText += "Username already exists."
     }
     if(errorText.length === 0){
       this.setState({

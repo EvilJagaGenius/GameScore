@@ -23,8 +23,16 @@ import Cookies from 'js-cookie';
  * password: string for the new password entered by the user
  * usernameError: boolean for determining whether or not to activate the error property for the username textfield
  * emailError: boolean for determining whether or not to activate the error property for the email textfield
+ * emailHelper: string for holding helper text for the confirm password textfield
  * passwordError: boolean for determining whether or not to activate the error property for the password textfield
+ * confirmPasswordHelper: string for holding helper text for the confirm password textfield
  * confirmPasswordError: boolean for determining whether or not to activate the error property for the confirm password textfield
+ * editSuccessUsername: boolean for triggering the alert to tell users their username was updated
+ * editFailureUsername: boolean for triggering the alert that tells users their username couldn't be updated
+ * editSuccessEmail: boolean for triggering the alert to tell users their email was updated
+ * editFailureEmail: boolean for triggering the alert that tells users their email couldn't be updated
+ * editSuccessPassword: boolean for triggering the alert to tell users their password was updated
+ * editFailurePassword: boolean for triggering the alert that tells users their password couldn't be updated
  */
 export default class EditAccount extends React.Component{
     constructor(props){
@@ -37,7 +45,10 @@ export default class EditAccount extends React.Component{
             password: "",
             confirmPassword: "",
             emailError: false,
+            emailHelper: "",
             passwordError: false,
+            passwordHelper: "",
+            confirmPasswordHelper: "",
             confirmPasswordError: false,
             editSuccessUsername: false,
             editFailureUsername: false,
@@ -124,18 +135,32 @@ export default class EditAccount extends React.Component{
    * emailHandler
    * @param {*} event 
    */
-  emailHandler=(event)=>{
+   emailHandler=(event)=>{
+    //create an email text string
     let email = String(event.target.value);
-    if(!(email.includes("@")) && (!(email.includes(".")))){
+    //create a special string that contains the requirements for email validation
+    var regex = /^.+@.+\..+/
+    //if the email doesn't match the requirements, declare an error by updating states accordingly
+    if(!email.match(regex)){
       this.setState({
         email: "",
-        emailError: true
+        emailError: true,
+        emailHelper: "Invalid email entered."
       })
     }
+    if(email.length === 0){
+      this.setState({
+        email: "",
+        emailError: true,
+        emailHelper: "Email is empty."
+      })
+    }
+    //otherwise, remove any errors
     else{
       this.setState({
         email: event.target.value,
-        emailError: false
+        emailError: false,
+        emailHelper: ""
       })
     }
   }
@@ -145,22 +170,50 @@ export default class EditAccount extends React.Component{
    * passwordHandler
    * @param {*} event 
    */
-  passwordHandler=(event)=>{
-    console.log(event.target.value)
-    var pass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{4,30}/
-    if(String(event.target.value).match(pass)){
+   passwordHandler=(event)=>{
+    console.log(event.target.value);
+    //create a special string for checking the password requirements
+    var pass1 = /^(?=.*[a-z])(?=.*[A-Z])/;
+    var pass2 = /^(?=.*[0-9])/;
+    //if the requirements are met, don't create an error
+    //otherwise, create an onscreen error by updating the textfield properties
+    var errorText = "";
+    //check for letter requirements
+    if(!String(event.target.value).match(pass1)){
+      errorText += "Password letter requirements not met. ";
+    }
+    //check for number requirement
+    if(!String(event.target.value).match(pass2)){
+      errorText += "Password is missing a number. "
+    }
+    //check for length requirements
+    //too long
+    if(String(event.target.value).length > 30){
+      errorText += "Password is too long. "
+    }
+    //too short
+    if(String(event.target.value).length < 4){
+      errorText += "Password is too short. "
+    }
+    if(String(event.target.value).length === 0){
+      errorText = "Password is empty. "
+    }
+    //final error checking
+    if(errorText.length === 0){
       this.setState({
         passwordError: false,
-        password: event.target.value
+        password: event.target.value,
+        passwordHelper: ""
       });
       console.log("requirements met");
     }
     else{
-      console.log("requirments not met")
       this.setState({
         password: event.target.value,
-        passwordError: true
+        passwordError: true,
+        passwordHelper: errorText
       });
+      console.log("requirements not met");
     }
   }
 
@@ -172,10 +225,17 @@ export default class EditAccount extends React.Component{
     this.setState({
       confirmPassword: event.target.value
     });
-    if(String(event.target.value) !== String(this.state.password)){
+    if((String(event.target.value) !== String(this.state.password)) || (String(event.target.value).length === 0)){
       this.setState({
-        confrimPasswordError: true
+        confrimPasswordError: true,
+        confirmPasswordHelper: "Passwords do not match"
       });
+      if(String(event.target.value).length === 0){
+        this.setState({
+          confrimPasswordError: true,
+          confirmPasswordHelper: "Password is empty"
+        })
+      }
     }
     else{
       this.setState({
@@ -337,13 +397,13 @@ export default class EditAccount extends React.Component{
                       <Button variant = "contained" color = "primary" onClick={()=>{this.confirmUsernameSubmission()}}>Change Username</Button>
                     </div>
                     <div style={{marginTop: 15, marginBottom: 10}}>
-                      <TextField size = "medium" required id="standard-required" name = "email" label="Email Address" onChange={this.emailHandler} error={this.state.emailError}/>
+                      <TextField size = "medium" required id="standard-required" name = "email" label="Email Address" onChange={this.emailHandler} error={this.state.emailError} helperText={this.state.emailHelper}/>
                     </div>
                     <div style={{marginTop: 15, marginBottom: 10}}>
                       <Button variant = "contained" color = "primary" onClick={()=>{this.confirmEmailSubmission()}}>Change Email</Button> 
                     </div>
                     <div style={{marginTop: 15}}>
-                      <TextField size = "medium" required id="standard-required" name = "password" label="New Password" type="password" onChange={this.passwordHandler} error={this.state.passwordError}/>
+                      <TextField size = "medium" required id="standard-required" name = "password" label="New Password" type="password" onChange={this.passwordHandler} error={this.state.passwordError} helperText={this.state.passwordHelper}/>
                     </div>
                     <div style={{textAlign:"center", marginTop: 5, marginBottom: 5}}>
                       <div>
@@ -357,7 +417,7 @@ export default class EditAccount extends React.Component{
                       </div>
                     </div>
                     <div style={{marginTop: 3, marginBottom: 10}}>
-                      <TextField size = "medium" required id="standard-required" name = "confirmpassword" label="Confirm New Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
+                      <TextField size = "medium" required id="standard-required" name = "confirmpassword" label="Confirm New Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError} helperText={this.state.confirmPasswordHelper}/>
                     </div>
                     <div style={{marginTop: 15, marginBottom: 10}}>
                       <Button variant = "contained" color = "primary" onClick={()=>{this.confirmPasswordSubmission()}}>Change Password</Button>

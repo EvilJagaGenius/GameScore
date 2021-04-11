@@ -142,7 +142,12 @@ class Profile extends React.Component{
                     <Button size = "large" variant = "contained"><Link to="/profile/editaccount">Edit Account</Link></Button>
                 </div>
                 <div style={{marginTop: 15, marginBottom: 10}}>
-                    <Button size = "large" variant = "contained"><Link to="/profile/editavatar">Edit Avatar</Link></Button>
+                    <Button size = "large" variant = "contained"><Link to={{
+                        pathname: "/profile/editavatar",
+                        avatarProps:{
+                            avatarID: this.state.avatarID
+                        }
+                }}>Edit Avatar</Link></Button>
                 </div>
                 <div style={{marginTop: 15, marginBottom: 10}}>
                     <Button size = "large" variant = "contained" color="primary" onClick={()=>{this.sendSignOutRequest()}}>Sign Out</Button>

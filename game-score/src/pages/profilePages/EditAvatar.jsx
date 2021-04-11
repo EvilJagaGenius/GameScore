@@ -37,52 +37,26 @@ export default class EditAvatar extends React.Component{
     async componentDidMount(){
         //create request options
         //no information is being posted, so this will be a GET request
-        const requestOptions = {
-            method: 'GET',
-            headers: {'Content-Type': 'application/json'}
-        };
-        //await the response
-        const response = await fetch('/api/profile/avatar', requestOptions);
-        const data = await response.json();
-        //update the state of the avatarID based on the server's response
-        this.setState({avatar: data.avatarID});
-        console.log(this.state.avatar);
+        const {avatarID} = this.props.location.avatarProps;
+        console.log(avatarID);
         //generate the image now that the avatarID is set
-        if(this.state.avatar === 0){
+        if(avatarID === 0){
             buttonOutline1 = "outlined";
         }
-        else{
-            buttonOutline1 = "";
-        }
-        if(this.state.avatar === 1){
+        if(avatarID === 1){
             buttonOutline2 = "outlined";
         }
-        else{
-            buttonOutline2 = "";
-        }
-        if(this.state.avatar === 2){
+        if(avatarID === 2){
             buttonOutline3 = "outlined";
         }
-        else{
-            buttonOutline3 = "";
-        }
-        if(this.state.avatar === 3){
+        if(avatarID === 3){
             buttonOutline4 = "outlined";
         }
-        else{
-            buttonOutline4 = "";
-        }
-        if(this.state.avatar === 4){
+        if(avatarID === 4){
             buttonOutline5 = "outlined";
         }
-        else{
-            buttonOutline5 = "";
-        }
-        if(this.state.avatar === 5){
+        if(avatarID === 5){
             buttonOutline6 = "outlined";
-        }
-        else{
-            buttonOutline6 = "";
         }
     }
 

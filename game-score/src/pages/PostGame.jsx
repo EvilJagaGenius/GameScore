@@ -49,6 +49,13 @@
         setLoaded(true)
     });
 	  }, []);
+      
+   const updateButtons = (() => {
+       fetch("/api/getPostGame").then(res => res.json()).then(data => {
+        setPostGameData(data)
+        setLoaded(true)
+       });
+   });
 
    //Return Structure
    return(
@@ -133,7 +140,8 @@
                 rate = {true}
                 playagain = {true}
                 numPlayers = {postGameData.numOfPlayers}
-                favorited = {postGameData.favorited}>
+                favorited = {postGameData.favorited}
+                update = {updateButtons}>
                 </BottomUI>
 
                </>

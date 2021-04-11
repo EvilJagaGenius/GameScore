@@ -37,52 +37,26 @@ export default class EditAvatar extends React.Component{
     async componentDidMount(){
         //create request options
         //no information is being posted, so this will be a GET request
-        const requestOptions = {
-            method: 'GET',
-            headers: {'Content-Type': 'application/json'}
-        };
-        //await the response
-        const response = await fetch('/api/profile/avatar', requestOptions);
-        const data = await response.json();
-        //update the state of the avatarID based on the server's response
-        this.setState({avatar: data.avatarID});
-        console.log(this.state.avatar);
+        const {avatarID} = this.props.location.avatarProps;
+        console.log(avatarID);
         //generate the image now that the avatarID is set
-        if(this.state.avatar === 0){
+        if(avatarID === 0){
             buttonOutline1 = "outlined";
         }
-        else{
-            buttonOutline1 = "";
-        }
-        if(this.state.avatar === 1){
+        if(avatarID === 1){
             buttonOutline2 = "outlined";
         }
-        else{
-            buttonOutline2 = "";
-        }
-        if(this.state.avatar === 2){
+        if(avatarID === 2){
             buttonOutline3 = "outlined";
         }
-        else{
-            buttonOutline3 = "";
-        }
-        if(this.state.avatar === 3){
+        if(avatarID === 3){
             buttonOutline4 = "outlined";
         }
-        else{
-            buttonOutline4 = "";
-        }
-        if(this.state.avatar === 4){
+        if(avatarID === 4){
             buttonOutline5 = "outlined";
         }
-        else{
-            buttonOutline5 = "";
-        }
-        if(this.state.avatar === 5){
+        if(avatarID === 5){
             buttonOutline6 = "outlined";
-        }
-        else{
-            buttonOutline6 = "";
         }
     }
 
@@ -129,12 +103,12 @@ export default class EditAvatar extends React.Component{
                         this.setState({
                             avatar: 0
                         });
-                        if(this.state.avatar === 0){
-                            buttonOutline1 = "outlined";
-                        }
-                        else{
-                            buttonOutline1 = "";
-                        }
+                        buttonOutline1 = "outlined"
+                        buttonOutline2 = ""
+                        buttonOutline3 = ""
+                        buttonOutline4 = ""
+                        buttonOutline5 = ""
+                        buttonOutline6 = ""
                     }}>
                         <img src={Hacker} alt="Avatar 1" width="130" height="130"></img>
                     </Button>
@@ -142,12 +116,12 @@ export default class EditAvatar extends React.Component{
                         this.setState({
                             avatar: 1
                         });
-                        if(this.state.avatar === 1){
-                            buttonOutline2 = "outlined";
-                        }
-                        else{
-                            buttonOutline2 = ""
-                        }
+                        buttonOutline1 = ""
+                        buttonOutline2 = "outlined"
+                        buttonOutline3 = ""
+                        buttonOutline4 = ""
+                        buttonOutline5 = ""
+                        buttonOutline6 = ""
                     }}>
                         <img src={Programmer} alt="Avatar 2" width="130" height="130"></img>
                     </Button>
@@ -155,12 +129,12 @@ export default class EditAvatar extends React.Component{
                         this.setState({
                             avatar: 2
                         });
-                        if(this.state.avatar === 2){
-                            buttonOutline3 = "outlined"
-                        }
-                        else{
-                            buttonOutline3 = ""
-                        }
+                        buttonOutline1 = ""
+                        buttonOutline2 = ""
+                        buttonOutline3 = "outlined"
+                        buttonOutline4 = ""
+                        buttonOutline5 = ""
+                        buttonOutline6 = ""
                     }}>
                         <img src={Astronaut} alt="Avatar 3" width="130" height="130"></img>
                     </Button>
@@ -170,12 +144,12 @@ export default class EditAvatar extends React.Component{
                         this.setState({
                             avatar: 3
                         });
-                        if(this.state.avatar === 3){
-                            buttonOutline4 = "outlined"
-                        }
-                        else{
-                            buttonOutline4 = ""
-                        }
+                        buttonOutline1 = ""
+                        buttonOutline2 = ""
+                        buttonOutline3 = ""
+                        buttonOutline4 = "outlined"
+                        buttonOutline5 = ""
+                        buttonOutline6 = ""
                     }}>
                         <img src={Lawyer} alt="Avatar 4" width="130" height="130"></img>
                     </Button>
@@ -183,12 +157,12 @@ export default class EditAvatar extends React.Component{
                         this.setState({
                             avatar: 4
                         });
-                        if(this.state.avatar === 4){
-                            buttonOutline5 = "outlined"
-                        }
-                        else{
-                            buttonOutline5 = ""
-                        }
+                        buttonOutline1 = ""
+                        buttonOutline2 = ""
+                        buttonOutline3 = ""
+                        buttonOutline4 = ""
+                        buttonOutline5 = "outlined"
+                        buttonOutline6 = ""
                     }}>
                         <img src={BusinessMan} alt="Avatar 5" width="130" height="130"></img>
                     </Button>
@@ -196,12 +170,12 @@ export default class EditAvatar extends React.Component{
                         this.setState({
                             avatar: 5
                         });
-                        if(this.state.avatar === 5){
-                            buttonOutline6 = "outlined"
-                        }
-                        else{
-                            buttonOutline6 = ""
-                        }
+                        buttonOutline1 = ""
+                        buttonOutline2 = ""
+                        buttonOutline3 = ""
+                        buttonOutline4 = ""
+                        buttonOutline5 = ""
+                        buttonOutline6 = "outlined"
                     }}>
                         <img src={Woman} alt="Avatar 6" width="130" height="130"></img>
                     </Button>
@@ -210,7 +184,10 @@ export default class EditAvatar extends React.Component{
                     <Button size = "large" variant = "contained" color = "primary" onClick={()=>{this.updateAvatar()}}>Save Avatar</Button>
                 </div>
                 </Box>
-                <Snackbar open={this.state.avatarSuccess} autoHideDuration={3000} onClose={()=>{this.setState({avatarSuccess:false})}}>
+                <Snackbar open={this.state.avatarSuccess} autoHideDuration={3000} onClose={()=>{
+                    this.setState({avatarSuccess:false})
+                    this.props.history.push("/profile")
+                    }}>
                     <Alert variant = "filled" severity="success">Avatar Change Successful</Alert>
                 </Snackbar>
                 <Snackbar open={this.state.avatarFailure} autoHideDuration={3000} onClose={()=>{this.setState({avatarFailure:false})}}>

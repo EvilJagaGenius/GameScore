@@ -11,6 +11,8 @@ import {Button, Typography} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import { Component } from "react";
 import Logo from '../../images/GameScore App Logo.png';
+import {Alert} from "@material-ui/lab";
+import Snackbar from '@material-ui/core/Snackbar';
 
 /**
  * ResetPassword class: React component for resetting the user's password
@@ -30,6 +32,9 @@ export default class ResetPassword extends Component{
       confirmPassword: "",
       passwordError: false,
       confrimPasswordError: false,
+      passwordHelper: "",
+      confirmPasswordHelper: "",
+      displaySuccess: false,
       token: "",
       data: ""
     }
@@ -46,61 +51,84 @@ export default class ResetPassword extends Component{
   }
 
   /**
-   * passwordHandler: function for handling password related error checking and events for the password textfield
+   * passwordHandler: event handler for the password textfield
    * @param {*} event: event parameter for processing the new value in the password textfield
    */
-  passwordHandler=(event)=>{
-    console.log(event.target.value)
-    //string for handling the password requirements
-
-    /* Requirements are:
-        at least one number
-        at least one lowercase letter
-        at least one uppercase letter
-        4-30 characters in length
-    */
-    var passRequirements = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{4,30}/;
-
-    //if the string matches the requirements, make sure the error property is set to false for the textfield
-    //update the state for the password value
-    if(String(event.target.value).match(passRequirements)){
+   passwordHandler=(event)=>{
+    console.log(event.target.value);
+    //create a special string for checking the password requirements
+    var pass1 = /^(?=.*[a-z])(?=.*[A-Z])/;
+    var pass2 = /^(?=.*[0-9])/;
+    //if the requirements are met, don't create an error
+    //otherwise, create an onscreen error by updating the textfield properties
+    var errorText = "";
+    //check for letter requirements
+    if(!String(event.target.value).match(pass1)){
+      errorText += "Password letter requirements not met. ";
+    }
+    //check for number requirement
+    if(!String(event.target.value).match(pass2)){
+      errorText += "Password is missing a number. "
+    }
+    //check for length requirements
+    //too long
+    if(String(event.target.value).length > 30){
+      errorText += "Password is too long. "
+    }
+    //too short
+    if(String(event.target.value).length < 4){
+      errorText += "Password is too short. "
+    }
+    if(String(event.target.value).length === 0){
+      errorText = "Password is empty. "
+    }
+    //final error checking
+    if(errorText.length === 0){
       this.setState({
         passwordError: false,
-        password: event.target.value
+        password: event.target.value,
+        passwordHelper: ""
       });
       console.log("requirements met");
     }
-    //else, enable the error property for the password textfield
-    //update the state for the password value
     else{
-      console.log("requirments not met")
       this.setState({
         password: event.target.value,
-        passwordError: true
+        passwordError: true,
+        passwordHelper: errorText
       });
+      console.log("requirements not met");
     }
   }
 
   /**
-   * confirmPasswordHandler: function for handling password related error checking and events for the password textfield
-   * @param {*} event: event parameter for processing the new value in the password textfield
+   * confirmPasswordHandler: event handler for the confirm password textfield
+   * @param {*} event: event parameter for processing the new value in the confirm password textfield
    */
-  confirmPasswordHandler=(event)=>{
-    //update the state for confirmPassword
+   confirmPasswordHandler=(event)=>{
+    //update the value in the confirm password state
     this.setState({
       confirmPassword: event.target.value
     });
-    //if both passwords don't match, display an error by making confirmPasswordError true
+    //if both the password in the password textfield and the confirm password textfield match, don't declare an error
+    //otherwise, declare an error
     if(String(event.target.value) !== String(this.state.password)){
       this.setState({
-        confrimPasswordError: true
+        confrimPasswordError: true,
+        confirmPasswordHelper: "Passwords do not match"
       });
     }
-    //otherwise, take away the error display
     else{
       this.setState({
-        confrimPasswordError: false
+        confrimPasswordError: false,
+        confirmPasswordHelper: ""
       });
+    }
+    if(String(event.target.value).length === 0){
+      this.setState({
+        confrimPasswordError: true,
+        confirmPasswordHelper: "Password is empty"
+      })
     }
   }
 
@@ -118,17 +146,21 @@ export default class ResetPassword extends Component{
           token: this.state.token   //the unique token generated
         })
     };
-    const response = await fetch('api/postResetPassword', requestOptions);
+    const response = await fetch('/api/postResetPassword', requestOptions);
     const data = await response.json();     //wait for the response from the server
     this.setState({data: data.successful});   //update the data state so it can be accessed
     console.log(this.state.data);
 
     //display an alert on whether or not the reset worked
     if(this.state.data === true){
-      alert("Password reset successful");
+      this.setState({
+        displaySuccess: true
+      });
     }
     else{
-      alert("Unable to reset password");
+      this.setState({
+        displayError: true
+      })
     }
   }
 
@@ -137,10 +169,11 @@ export default class ResetPassword extends Component{
    */
   confirmSubmission(){
     //check if no password is entered, if not alert the user
-    if(this.state.password === ""){
-      alert("No password entered");
+    if((this.state.passwordError === true || this.state.confrimPasswordError === true) || ((this.state.password==="" || this.state.confirmPassword === ""))){
       this.setState({
-        passwordError: true
+        passwordError: true,
+        confrimPasswordError: true,
+        displayWarning: true
       });
     }
     //all tests passed
@@ -174,15 +207,33 @@ export default class ResetPassword extends Component{
             <Typography>Reset Password</Typography>
           </div>
           <div style={{marginTop: 15, marginBottom: 10}}>
-            <TextField required id="standard-required" name = "password" label="Password" type="password" onChange={this.passwordHandler}  error={this.state.passwordError}/>
+            <TextField required id="standard-required" name = "password" label="Password" type="password" onChange={this.passwordHandler}  error={this.state.passwordError} helperText={this.state.passwordHelper}/>
           </div>
           <div style={{marginTop: 15, marginBottom: 10}}>
-            <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError}/>
+            <TextField required id="standard-required" name = "confirmpassword" label="Confirm Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError} helperText={this.state.confirmPasswordHelper}/>
           </div>
           <div style={{marginTop: 15, marginBottom: 10}}>
-            <Button type = "submit" variant = "contained" color = "primary" onClick={()=>{this.confirmSubmission()}}>Reset Password</Button>
+            <Button variant = "contained" color = "primary" onClick={()=>{this.confirmSubmission()}}>Reset Password</Button>
           </div>
           </Box>
+          <Snackbar open={this.state.displaySuccess} autoHideDuration={3000} onClose={()=>{
+            this.setState({displaySuccess:false})
+            this.props.history.push("/home/login")
+            }}>
+            <Alert variant = "filled" severity="success">
+              Account password reset
+            </Alert>
+          </Snackbar>
+          <Snackbar open={this.state.displayWarning} autoHideDuration={3000} onClose={()=>{this.setState({displayWarning:false})}}>
+            <Alert variant = "filled" severity="warning">
+              Password error found
+            </Alert>
+          </Snackbar>
+          <Snackbar open={this.state.displayError} autoHideDuration={3000} onClose={()=>{this.setState({displayError:false})}}>
+            <Alert variant = "filled" severity="error">
+              Could not reset password
+            </Alert>
+          </Snackbar>
         </form>
       </div>
     );

@@ -9,6 +9,8 @@ import {Button, Typography} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import { Component } from "react";
 import Logo from '../../images/GameScore App Logo.png';
+import {Alert} from "@material-ui/lab";
+import Snackbar from '@material-ui/core/Snackbar';
 
 /**
  * ResetUsername class: React component for allowing users to reset their GameScore account usernames
@@ -27,7 +29,10 @@ export default class ResetUsername extends Component{
       usernameError: false,
       usernameHelper: "",
       token: "",
-      data: ""
+      data: "",
+      displayFail: false,
+      displayEmpty: false,
+      displayOther: false
     }
   }
 
@@ -46,65 +51,68 @@ export default class ResetUsername extends Component{
    * @param {*} event: event parameter for processing the new value in the username textfield
    */
    usernameHandler=(event)=>{
-    //update the state with the current username entered in the field
+    // //update the state with the current username entered in the field
     this.setState({
       username: event.target.value
     });
     console.log("Username is " + event.target.value);
-    //create the requirements for the username
+    // //create the requirements for the username
 
-    /* Username Requirements
-    4-30 characters
-    One uppercase letter
-    One lowercase letter
-    */
+    // /* Username Requirements
+    // 4-30 characters
+    // One uppercase letter
+    // One lowercase letter
+    // */
+    var usernameRequirements = /^(?=.*[a-z])(?=.*[A-Z])/;
+    const testString = String(event.target.value);
+    var errorText = ""
+    if(!testString.match(usernameRequirements)){
+      console.log("does not meet letter")
+      errorText += "Username does not meet letter requirements. ";
+    }
+    if(testString.length >= 31){
+      console.log("too long")
+      errorText += "Username is too long. ";
+    }
+    if(testString.length <= 3){
+      console.log("too short")
+      errorText += "Username is too short. ";
+    }
 
-    var usernameRequirements = /^(?=.*[a-z])(?=.*[A-Z]).{4,30}/;
-    //if the string entered matches the requirements, don't trigger an error
-    if(String(event.target.value).match(usernameRequirements)){
-      this.setState({
-        usernameError: false
-      });
-      //launch an API call to check if the username is already taken or not
-      //if taken already, an error is triggered
-      const requestOptions = {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        credentials: 'include',
-        body: JSON.stringify({
-          username:event.target.value
-        })
-      };
-      fetch("/api/postCheckUsername",requestOptions)
-        .then(res => res.json()).then(newData => {
-          if(newData.usernameExists === true){
-            //declare an error, and update the error and helper text properties
-            this.setState({
-              usernameError: true,
-              usernameHelper: "Username already exists"
-            });
-          }
-          else{
-            //otherwise, turn the error off
-            this.setState({
-              usernameError: false
-          });
+    const requestOptions = {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      credentials: 'include',
+      body: JSON.stringify({
+        username:event.target.value
+      })
+    };
+    fetch("/api/postCheckUsername",requestOptions)
+      .then(res => res.json()).then(newData => {
+        if(newData.usernameExists === true){
+          //declare an error, and update the error and helper text properties
+          console.log("exists")
+          errorText = "Username already exists";
+          console.log(errorText)
+          this.setState({
+            usernameError: true,
+            usernameHelper: errorText
+          })
         }
-      });
-    }
-    //if the username is too long, trigger an error and update the needed properties
-    else if(String(event.target.value).length > 30){
+    });
+    if(errorText.length === 0){
+      console.log("No errors")
       this.setState({
-        usernameError: true,
-        usernameHelper: "Username does not meet requirements"
-      });
+        usernameError: false,
+        usernameHelper: ""
+      })
     }
-    //otherwise, remove the error
     else{
+      console.log("Errors found")
       this.setState({
         usernameError: true,
-        usernameHelper: "Username does not meet requirements"
-      });
+        usernameHelper: errorText
+      })
     }
   }
 
@@ -123,29 +131,39 @@ export default class ResetUsername extends Component{
         })
     };
     //await the response from the server, and update the state with whatever the server sends back
-    const response = await fetch('api/postResetUsername', requestOptions);
+    const response = await fetch('/api/postResetUsername', requestOptions);
     const data = await response.json();
     this.setState({data: data.successful});
     console.log(this.state.data);
     //if successful, take the user to the login page
     if(this.state.data){
-        this.props.history.push("/home/login");
+        this.setState({
+          displaySuccess: true
+        });
     }
     //otherwise, display an alert
     else{
-        alert("Username is taken. Enter another username");
+      this.setState({
+        displayFail: true
+      });
     }
   }
 
   /**
    * confirmSubmission: function for handling submission events
    */
-  confirmSubmission = e =>{
+  confirmSubmission(){
     //if the username field is blank, display an alert
     if(this.state.username === ""){
-      alert("No username entered\nPlease enter a username");
+      console.log("empty")
       this.setState({
-        usernameError: true
+        usernameError: true,
+        displayEmpty: true
+      });
+    }
+    else if(this.state.usernameError === true){
+      this.setState({
+        displayOther: true
       });
     }
     //otherwise, send the request to the server
@@ -170,7 +188,7 @@ export default class ResetUsername extends Component{
     }));
     return (
       <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
-        <form className={classes.root} noValidate autoComplete="off" onSubmit={this.confirmSubmission}>
+        <form className={classes.root} noValidate autoComplete="off">
           <Box m={2} pt={3}>
             <div style={{marginTop: 15, marginBottom: 10}}>
               <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
@@ -179,11 +197,34 @@ export default class ResetUsername extends Component{
               <Typography variant = "h3">Reset Username</Typography>
             </div>
             <div style={{marginTop: 15, marginBottom: 10}}>
-              <TextField required id="standard-required" name = "username" label="New Username" helperText={this.state.usernameHelper} onChange={this.usernameHandler} error={this.state.username}/>
+              <TextField required id="standard-required" name = "username" label="New Username" helperText={this.state.usernameHelper} onChange={this.usernameHandler} error={this.state.usernameError}/>
             </div>
             <div style={{marginTop: 15, marginBottom: 10}}>
-              <Button type = "submit" variant = "contained" color = "primary" >Reset Username</Button>
+              <Button onClick={()=>{this.confirmSubmission()}} variant = "contained" color = "primary" >Reset Username</Button>
             </div>
+            <Snackbar open={this.state.displayFail} autoHideDuration={3000} onClose={()=>{this.setState({displayFail:false})}}>
+              <Alert variant = "filled" severity="error">
+                Username already taken
+              </Alert>
+            </Snackbar>
+            <Snackbar open={this.state.displayEmpty} autoHideDuration={3000} onClose={()=>{this.setState({displayEmpty:false})}}>
+              <Alert variant = "filled" severity="warning">
+                Username field empty
+              </Alert>
+            </Snackbar>
+            <Snackbar open={this.state.displayOther} autoHideDuration={3000} onClose={()=>{this.setState({displayOther:false})}}>
+              <Alert variant = "filled" severity="warning">
+                Username errors found
+              </Alert>
+            </Snackbar>
+            <Snackbar open={this.state.displaySuccess} autoHideDuration={3000} onClose={()=>{
+              this.setState({displaySuccess:false});
+              this.props.history.push("/home/login");
+              }}>
+              <Alert variant = "filled" severity="success">
+                Username Reset
+              </Alert>
+            </Snackbar>
           </Box>
         </form>
       </div>

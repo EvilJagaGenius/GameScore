@@ -94,7 +94,7 @@ mydb = mysql.connector.connect(
       database="gamescore",
       raise_on_warnings= True
       ,pool_name = "mypool",
-      pool_size = 16)
+      pool_size = 32)
 
 
 mycursor = mydb.cursor()
@@ -274,7 +274,7 @@ def sendPasswordEmail():
         msg['From'] = "GameScore Accounts"
         msg['To'] = userEmailAddress
         # Construct the message
-        text = """<p>You have requested to reset your GameScore password.  Click <a href="http://localhost:3000/login/resetpassword?token={}">here</a> to reset your password.</p>
+        text = """<p>You have requested to reset your GameScore password.  Click <a href="http://gamescore.gcc.edu:3000/login/resetpassword?token={}">here</a> to reset your password.</p>
 """.format(token)
         part1 = MIMEText(text,'html')
         msg.attach(part1)
@@ -288,13 +288,15 @@ def sendPasswordEmail():
         response = jsonify(result)
 
         mydb = mysql.connector.connect(pool_name = "mypool")
-        cursor = mydb.cursor(prepared=True)
-        statement = "UPDATE AppUser SET resetPasswordToken=%s WHERE username = %s"
-        cursor.execute(statement, (token,username))
-        result = cursor.fetchall()  # List of single-element tuples (in theory, only one tuple holding a single string)
-        mydb.commit()
-        mydb.close()
+        try:
+	        cursor = mydb.cursor(prepared=True)
+	        statement = "UPDATE AppUser SET resetPasswordToken=%s WHERE username = %s"
+	        cursor.execute(statement, (token,username))
+	        result = cursor.fetchall()  # List of single-element tuples (in theory, only one tuple holding a single string)
+	        mydb.commit()
 
+        finally:
+	        mydb.close()
 
         return response
     
@@ -374,7 +376,7 @@ def sendUsernameEmail():
         msg['From'] = "GameScore Accounts"
         msg['To'] = userEmailAddress
         
-        text = """<p>You have requested to reset your GameScore Username.  Click <a href="http://localhost:3000/login/resetusername?token={}">here</a> to reset your username.</p>
+        text = """<p>You have requested to reset your GameScore Username.  Click <a href="http://gamescore.gcc.edu:3000/login/resetusername?token={}">here</a> to reset your username.</p>
 """.format(token)
         part1 = MIMEText(text,'html')
         msg.attach(part1)
@@ -385,12 +387,14 @@ def sendUsernameEmail():
         print("Reset username email sent")
 
         mydb = mysql.connector.connect(pool_name = "mypool")
-        cursor = mydb.cursor(prepared=True)
-        statement = "UPDATE AppUser SET resetUsernameToken=%s WHERE email = %s"
-        cursor.execute(statement, (token,userEmailAddress))
-        result = cursor.fetchall()  # List of single-element tuples (in theory, only one tuple holding a single string)
-        mydb.commit()
-        mydb.close()
+        try:
+        	cursor = mydb.cursor(prepared=True)
+	        statement = "UPDATE AppUser SET resetUsernameToken=%s WHERE email = %s"
+	        cursor.execute(statement, (token,userEmailAddress))
+	        result = cursor.fetchall()  # List of single-element tuples (in theory, only one tuple holding a single string)
+	        mydb.commit()
+        finally:
+	        mydb.close()
 
         response = jsonify({"successful":True})
         return response
@@ -1387,7 +1391,6 @@ def apiPostUpdatePlayerName():
             changedNames = request.args.getlist("newDisplayName")
 
             for x in range(0,len(changedPlayerIDs)):
-                mydb = mysql.connector.connect(pool_name = "mypool")
                 mycursor = mydb.cursor(prepared=True)
                 stmt = ("UPDATE Player SET displayName=%s WHERE playerID=%s AND matchID=%s")
                 mycursor.execute(stmt,(str(changedNames[x]),int(changedPlayerIDs[x]),matchID))

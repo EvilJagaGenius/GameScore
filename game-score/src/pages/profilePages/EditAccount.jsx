@@ -342,14 +342,14 @@ export default class EditAccount extends React.Component{
   }
 
   confirmEmailSubmission(){
-    if(this.state.emailError === false){
-      this.sendEmailRequest();
-    }
-    else{
+    if(this.state.emailError === true || String(this.state.email).length === 0){
       this.setState({
         emailError: true,
         editFailureEmail: true
       })
+    }
+    else{
+      this.sendEmailRequest();
     }
   }
 
@@ -366,106 +366,106 @@ export default class EditAccount extends React.Component{
     }
   }
 
-    render(){
-        const classes = makeStyles((theme) => ({
-            root: {
-              '& .MuiTextField-root': {
-                margin: theme.spacing(1),
-                width: '25ch',
-              },
-            },
-          }));
-        return(
-          <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
-            <form className={classes.root} noValidate autoComplete="off">
-              <Box m={2} pt={3}>
-                <div>
-                <div style={{paddingLeft:0,left:5,top:55,position:"absolute"}} align="left">
-                {/*Back Button*/}
-                <Link to={{pathname: "/profile"}}>
-                  <Button startIcon={<BackIcon/>}>
-                  Back
-                  </Button>
-                </Link>
-                </div>
-                <div style={{marginTop: 15, marginBottom: 10}}>
-                  <Typography variant="h4">Edit Account</Typography>
-                </div>
-                <img src={Logo} alt="GameScore Logo" width="130" height="130"></img>
-                    <div style={{marginTop: 15}}>
-                      <TextField size = "medium" required id="standard-required" name = "username" label="Username" onChange={this.usernameHandler} error={this.state.usernameError} helperText={this.state.usernameHelper}/>
-                    </div>
-                    <div style={{textAlign:"center", marginTop: 5, marginBottom: 5}}>
-                      <div>
-                        <Typography variant="caption">4-30 characters in length</Typography>
-                      </div>
-                      <div>
-                        <Typography variant="caption">At least one uppercase letter and lowercase letter</Typography>
-                      </div>
+  render(){
+    const classes = makeStyles((theme) => ({
+        root: {
+          '& .MuiTextField-root': {
+            margin: theme.spacing(1),
+            width: '25ch',
+          },
+        },
+      }));
+      return(
+        <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
+          <form className={classes.root} noValidate autoComplete="off">
+            <Box m={2} pt={3}>
+              <div>
+              <div style={{paddingLeft:0,left:5,top:55,position:"absolute"}} align="left">
+              {/*Back Button*/}
+              <Link to={{pathname: "/profile"}}>
+                <Button startIcon={<BackIcon/>}>
+                Back
+                </Button>
+              </Link>
+              </div>
+              <div style={{marginTop: 15, marginBottom: 10}}>
+                <Typography variant="h4">Edit Account</Typography>
+              </div>
+              <img src={Logo} alt="GameScore Logo" width="130" height="130"></img>
+                  <div style={{marginTop: 15}}>
+                    <TextField size = "medium" required id="standard-required" name = "username" label="Username" onChange={this.usernameHandler} error={this.state.usernameError} helperText={this.state.usernameHelper}/>
                   </div>
-                    <div style={{marginTop: 10, marginBottom: 10}}>
-                      <Button variant = "contained" color = "primary" onClick={()=>{this.confirmUsernameSubmission()}}>Change Username</Button>
+                  <div style={{textAlign:"center", marginTop: 5, marginBottom: 5}}>
+                    <div>
+                      <Typography variant="caption">4-30 characters in length</Typography>
                     </div>
-                    <div style={{marginTop: 15, marginBottom: 10}}>
-                      <TextField size = "medium" required id="standard-required" name = "email" label="Email Address" onChange={this.emailHandler} error={this.state.emailError} helperText={this.state.emailHelper}/>
+                    <div>
+                      <Typography variant="caption">At least one uppercase letter and lowercase letter</Typography>
                     </div>
-                    <div style={{marginTop: 15, marginBottom: 10}}>
-                      <Button variant = "contained" color = "primary" onClick={()=>{this.confirmEmailSubmission()}}>Change Email</Button> 
-                    </div>
-                    <div style={{marginTop: 15}}>
-                      <TextField size = "medium" required id="standard-required" name = "password" label="New Password" type="password" onChange={this.passwordHandler} error={this.state.passwordError} helperText={this.state.passwordHelper}/>
-                    </div>
-                    <div style={{textAlign:"center", marginTop: 5, marginBottom: 5}}>
-                      <div>
-                        <Typography variant="caption">4-30 characters in length</Typography>
-                      </div>
-                      <div>
-                        <Typography variant="caption">At least one uppercase letter and lowercase letter</Typography>
-                      </div>
-                      <div>
-                        <Typography variant="caption">At least one number</Typography>
-                      </div>
-                    </div>
-                    <div style={{marginTop: 3, marginBottom: 10}}>
-                      <TextField size = "medium" required id="standard-required" name = "confirmpassword" label="Confirm New Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError} helperText={this.state.confirmPasswordHelper}/>
-                    </div>
-                    <div style={{marginTop: 15, marginBottom: 10}}>
-                      <Button variant = "contained" color = "primary" onClick={()=>{this.confirmPasswordSubmission()}}>Change Password</Button>
-                    </div>
-                    <Snackbar open={this.state.editSuccessUsername} autoHideDuration={3000} onClose={()=>{this.setState({editSuccessUsername:false})}}>
-                      <Alert variant = "filled" severity="success">
-                        Account Username Updated
-                      </Alert>
-                    </Snackbar>
-                    <Snackbar open={this.state.editFailureUsername} autoHideDuration={3000} onClose={()=>{this.setState({editFailureUsername:false})}}>
-                      <Alert variant = "filled" severity="warning">
-                        Error Updating Username
-                      </Alert>
-                    </Snackbar>
-                    <Snackbar open={this.state.editSuccessEmail} autoHideDuration={3000} onClose={()=>{this.setState({editSuccessEmail:false})}}>
-                      <Alert variant = "filled" severity="success">
-                        Account Email Updated
-                      </Alert>
-                    </Snackbar>
-                    <Snackbar open={this.state.editFailureEmail} autoHideDuration={3000} onClose={()=>{this.setState({editFailureEmail:false})}}>
-                      <Alert variant = "filled" severity="warning">
-                        Error Updating Email
-                      </Alert>
-                    </Snackbar>
-                    <Snackbar open={this.state.editSuccessPassword} autoHideDuration={3000} onClose={()=>{this.setState({editSuccessPassword:true})}}>
-                      <Alert variant = "filled" severity="success">
-                        Account Password Updated
-                      </Alert>
-                    </Snackbar>
-                    <Snackbar open={this.state.editFailurePassword} autoHideDuration={3000} onClose={()=>{this.setState({editFailurePassword:true})}}>
-                      <Alert variant = "filled" severity="warning">
-                        Error Updating Password
-                      </Alert>
-                    </Snackbar>
                 </div>
-                </Box>
+                  <div style={{marginTop: 10, marginBottom: 10}}>
+                    <Button variant = "contained" color = "primary" onClick={()=>{this.confirmUsernameSubmission()}}>Change Username</Button>
+                  </div>
+                  <div style={{marginTop: 15, marginBottom: 10}}>
+                    <TextField size = "medium" required id="standard-required" name = "email" label="Email Address" onChange={this.emailHandler} error={this.state.emailError} helperText={this.state.emailHelper}/>
+                  </div>
+                  <div style={{marginTop: 15, marginBottom: 10}}>
+                    <Button variant = "contained" color = "primary" onClick={()=>{this.confirmEmailSubmission()}}>Change Email</Button> 
+                  </div>
+                  <div style={{marginTop: 15}}>
+                    <TextField size = "medium" required id="standard-required" name = "password" label="New Password" type="password" onChange={this.passwordHandler} error={this.state.passwordError} helperText={this.state.passwordHelper}/>
+                  </div>
+                  <div style={{textAlign:"center", marginTop: 5, marginBottom: 5}}>
+                    <div>
+                      <Typography variant="caption">4-30 characters in length</Typography>
+                    </div>
+                    <div>
+                      <Typography variant="caption">At least one uppercase letter and lowercase letter</Typography>
+                    </div>
+                    <div>
+                      <Typography variant="caption">At least one number</Typography>
+                    </div>
+                  </div>
+                  <div style={{marginTop: 3, marginBottom: 10}}>
+                    <TextField size = "medium" required id="standard-required" name = "confirmpassword" label="Confirm New Password" type="password" onChange={this.confirmPasswordHandler} error={this.state.confrimPasswordError} helperText={this.state.confirmPasswordHelper}/>
+                  </div>
+                  <div style={{marginTop: 15, marginBottom: 10}}>
+                    <Button variant = "contained" color = "primary" onClick={()=>{this.confirmPasswordSubmission()}}>Change Password</Button>
+                  </div>
+                  <Snackbar open={this.state.editSuccessUsername} autoHideDuration={3000} onClose={()=>{this.setState({editSuccessUsername:false})}}>
+                    <Alert variant = "filled" severity="success">
+                      Account Username Updated
+                    </Alert>
+                  </Snackbar>
+                  <Snackbar open={this.state.editFailureUsername} autoHideDuration={3000} onClose={()=>{this.setState({editFailureUsername:false})}}>
+                    <Alert variant = "filled" severity="warning">
+                      Error Updating Username
+                    </Alert>
+                  </Snackbar>
+                  <Snackbar open={this.state.editSuccessEmail} autoHideDuration={3000} onClose={()=>{this.setState({editSuccessEmail:false})}}>
+                    <Alert variant = "filled" severity="success">
+                      Account Email Updated
+                    </Alert>
+                  </Snackbar>
+                  <Snackbar open={this.state.editFailureEmail} autoHideDuration={3000} onClose={()=>{this.setState({editFailureEmail:false})}}>
+                    <Alert variant = "filled" severity="warning">
+                      Error Updating Email
+                    </Alert>
+                  </Snackbar>
+                  <Snackbar open={this.state.editSuccessPassword} autoHideDuration={3000} onClose={()=>{this.setState({editSuccessPassword:true})}}>
+                    <Alert variant = "filled" severity="success">
+                      Account Password Updated
+                    </Alert>
+                  </Snackbar>
+                  <Snackbar open={this.state.editFailurePassword} autoHideDuration={3000} onClose={()=>{this.setState({editFailurePassword:true})}}>
+                    <Alert variant = "filled" severity="warning">
+                      Error Updating Password
+                    </Alert>
+                  </Snackbar>
+                </div>
+              </Box>
             </form>
-            </div>
-        );
-    }
+          </div>
+      );
+  }
 }

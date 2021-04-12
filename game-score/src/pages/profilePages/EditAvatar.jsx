@@ -110,7 +110,7 @@ export default class EditAvatar extends React.Component{
                         buttonOutline5 = ""
                         buttonOutline6 = ""
                     }}>
-                        <img src={Hacker} alt="Avatar 1" width="130" height="130"></img>
+                        <img src={Hacker} alt="Avatar 1" width="110" height="110"></img>
                     </Button>
                     <Button variant={buttonOutline2} onClick={()=>{
                         this.setState({
@@ -123,7 +123,7 @@ export default class EditAvatar extends React.Component{
                         buttonOutline5 = ""
                         buttonOutline6 = ""
                     }}>
-                        <img src={Programmer} alt="Avatar 2" width="130" height="130"></img>
+                        <img src={Programmer} alt="Avatar 2" width="110" height="110"></img>
                     </Button>
                     <Button variant={buttonOutline3} onClick={()=>{
                         this.setState({
@@ -136,7 +136,7 @@ export default class EditAvatar extends React.Component{
                         buttonOutline5 = ""
                         buttonOutline6 = ""
                     }}>
-                        <img src={Astronaut} alt="Avatar 3" width="130" height="130"></img>
+                        <img src={Astronaut} alt="Avatar 3" width="110" height="110"></img>
                     </Button>
                 </div>
                 <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
@@ -151,7 +151,7 @@ export default class EditAvatar extends React.Component{
                         buttonOutline5 = ""
                         buttonOutline6 = ""
                     }}>
-                        <img src={Lawyer} alt="Avatar 4" width="130" height="130"></img>
+                        <img src={Lawyer} alt="Avatar 4" width="110" height="110"></img>
                     </Button>
                     <Button variant={buttonOutline5} onClick={()=>{
                         this.setState({
@@ -164,7 +164,7 @@ export default class EditAvatar extends React.Component{
                         buttonOutline5 = "outlined"
                         buttonOutline6 = ""
                     }}>
-                        <img src={BusinessMan} alt="Avatar 5" width="130" height="130"></img>
+                        <img src={BusinessMan} alt="Avatar 5" width="110" height="110"></img>
                     </Button>
                     <Button variant={buttonOutline6} onClick={()=>{
                         this.setState({
@@ -177,7 +177,7 @@ export default class EditAvatar extends React.Component{
                         buttonOutline5 = ""
                         buttonOutline6 = "outlined"
                     }}>
-                        <img src={Woman} alt="Avatar 6" width="130" height="130"></img>
+                        <img src={Woman} alt="Avatar 6" width="110" height="110"></img>
                     </Button>
                 </div>
                 <div>

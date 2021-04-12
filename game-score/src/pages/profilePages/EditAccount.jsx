@@ -334,7 +334,10 @@ export default class EditAccount extends React.Component{
       this.sendUsernameRequest();
     }
     else{
-      alert("Unable to submit username");
+      this.setState({
+        usernameError: true,
+        editFailureUsername: true
+      });
     }
   }
 
@@ -343,16 +346,23 @@ export default class EditAccount extends React.Component{
       this.sendEmailRequest();
     }
     else{
-      alert("Unable to update email");
+      this.setState({
+        emailError: true,
+        editFailureEmail: true
+      })
     }
   }
 
   confirmPasswordSubmission(){
-    if(this.state.passwordError === false && this.state.confirmPasswordError === false){
+    if((this.state.passwordError === false && this.state.confrimPasswordError === false) || ((this.state.password !== "" && this.state.confirmPassword !== ""))){
       this.sendPasswordRequest();
     }
     else{
-      alert("Unable to change password");
+      this.setState({
+        editFailurePassword: true,
+        passwordError: true,
+        confrimPasswordError: true
+      });
     }
   }
 
@@ -428,7 +438,7 @@ export default class EditAccount extends React.Component{
                       </Alert>
                     </Snackbar>
                     <Snackbar open={this.state.editFailureUsername} autoHideDuration={3000} onClose={()=>{this.setState({editFailureUsername:false})}}>
-                      <Alert variant = "filled" severity="success">
+                      <Alert variant = "filled" severity="warning">
                         Error Updating Username
                       </Alert>
                     </Snackbar>
@@ -438,7 +448,7 @@ export default class EditAccount extends React.Component{
                       </Alert>
                     </Snackbar>
                     <Snackbar open={this.state.editFailureEmail} autoHideDuration={3000} onClose={()=>{this.setState({editFailureEmail:false})}}>
-                      <Alert variant = "filled" severity="error">
+                      <Alert variant = "filled" severity="warning">
                         Error Updating Email
                       </Alert>
                     </Snackbar>
@@ -448,7 +458,7 @@ export default class EditAccount extends React.Component{
                       </Alert>
                     </Snackbar>
                     <Snackbar open={this.state.editFailurePassword} autoHideDuration={3000} onClose={()=>{this.setState({editFailurePassword:true})}}>
-                      <Alert variant = "filled" severity="success">
+                      <Alert variant = "filled" severity="warning">
                         Error Updating Password
                       </Alert>
                     </Snackbar>

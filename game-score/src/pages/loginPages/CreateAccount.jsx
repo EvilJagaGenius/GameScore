@@ -361,7 +361,7 @@ export default class CreateAccount extends Component{
     else{
       this.setState({
         displayAlert: true,
-        alertText: "Unable to create account",
+        alertText: "Email address already used. Try another email",
         alertSeverity: "error"
       });
     }

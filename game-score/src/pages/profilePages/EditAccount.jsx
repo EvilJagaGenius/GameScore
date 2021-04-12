@@ -330,19 +330,29 @@ export default class EditAccount extends React.Component{
   }
 
   confirmUsernameSubmission(){
-    if(this.state.usernameError === false){
-      this.sendUsernameRequest();
-    }
-    else{
+    if(this.state.usernameError === true || String(this.state.username).length === 0){
+      if(String(this.state.username).length === 0){
+        this.setState({
+          usernameHelper: "Username is empty"
+        })
+      }
       this.setState({
         usernameError: true,
         editFailureUsername: true
       });
     }
+    else{
+      this.sendUsernameRequest();
+    }
   }
 
   confirmEmailSubmission(){
     if(this.state.emailError === true || String(this.state.email).length === 0){
+      if(String(this.state.email).length === 0){
+        this.setState({
+          emailHelper: "Email is empty"
+        })
+      }
       this.setState({
         emailError: true,
         editFailureEmail: true
@@ -358,6 +368,16 @@ export default class EditAccount extends React.Component{
       this.sendPasswordRequest();
     }
     else{
+      if(this.state.password === ""){
+        this.setState({
+          passwordHelper: "Password is empty"
+        })
+      }
+      if(this.state.confirmPassword === ""){
+        this.setState({
+          confirmPasswordHelper: "Password is empty"
+        })
+      }
       this.setState({
         editFailurePassword: true,
         passwordError: true,

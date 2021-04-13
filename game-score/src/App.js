@@ -68,7 +68,7 @@ export default function App() {
           <Alert severity="error">You must be logged in to view the Edit Avatar page</Alert>
           <Home {...props}></Home>
             </>
-        }
+          }
         </> 
       }>
       </Route>

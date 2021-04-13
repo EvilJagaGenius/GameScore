@@ -10,6 +10,8 @@ import AddIcon from '@material-ui/icons/Add';
 import { Link } from 'react-router-dom';
 import BottomUI from "../BottomUI";
 import TextField from '@material-ui/core/TextField';
+import Cookies from 'js-cookie';
+import {Alert} from "@material-ui/lab";
 
 export default class MyTemplates extends Component {
 
@@ -131,8 +133,9 @@ export default class MyTemplates extends Component {
 
   render() {
     return (
-      
       <>
+      {Cookies.get("username")
+      ? <>
         {/* Search Bar */}
         <TextField id="outlined-basic" label="Search Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} style={{width:"90%",marginLeft:"5%", marginTop:"1%",marginBottom:"1%"}} />
 
@@ -222,6 +225,11 @@ export default class MyTemplates extends Component {
               <AddIcon fontSize="large"/>
             </Fab>
           </Link>
+      </>
+      : <>
+        <Alert severity="error">You must be logged in to view the My Templates page</Alert>
+        </>
+      }
       </>
     )
   }

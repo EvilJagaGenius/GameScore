@@ -125,7 +125,9 @@ export default class EditAvatar extends React.Component{
                     }}>
                         <img src={Programmer} alt="Avatar 2" width="110" height="110"></img>
                     </Button>
-                    <Button variant={buttonOutline3} onClick={()=>{
+                </div>
+                <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
+                <   Button variant={buttonOutline3} onClick={()=>{
                         this.setState({
                             avatar: 2
                         });
@@ -138,8 +140,6 @@ export default class EditAvatar extends React.Component{
                     }}>
                         <img src={Astronaut} alt="Avatar 3" width="110" height="110"></img>
                     </Button>
-                </div>
-                <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
                     <Button variant={buttonOutline4} onClick={()=>{
                         this.setState({
                             avatar: 3
@@ -153,6 +153,8 @@ export default class EditAvatar extends React.Component{
                     }}>
                         <img src={Lawyer} alt="Avatar 4" width="110" height="110"></img>
                     </Button>
+                </div>
+                <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
                     <Button variant={buttonOutline5} onClick={()=>{
                         this.setState({
                             avatar: 4
@@ -180,6 +182,7 @@ export default class EditAvatar extends React.Component{
                         <img src={Woman} alt="Avatar 6" width="110" height="110"></img>
                     </Button>
                 </div>
+                
                 <div>
                     <Button size = "large" variant = "contained" color = "primary" onClick={()=>{this.updateAvatar()}}>Save Avatar</Button>
                 </div>

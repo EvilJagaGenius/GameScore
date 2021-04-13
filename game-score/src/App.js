@@ -119,7 +119,7 @@ export default function App() {
               <ConditionEditor {...props}></ConditionEditor>
             </>
           : <>
-              <Alert severity="error">You must be logged in to view the Edit Template page</Alert>
+              <Alert severity="error">You must be logged in to view the Edit Template Condition page</Alert>
               <Home {...props}></Home>
             </>
           }

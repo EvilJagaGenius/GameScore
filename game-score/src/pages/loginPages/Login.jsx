@@ -25,6 +25,9 @@ import BackIcon from '@material-ui/icons/ArrowBackIos';
  * passwordError: boolean value deciding whether or not the textfield error property is on, if there is an error in the password textfield
  * data: variable for storing the JSON data recieved from the server
  * loginFailedAlert: boolean value for triggering/removing the alert if a login fails
+ * displayAlert: boolean value for triggering error related alerts
+ * alertText: string for the text for the alert
+ * alertSeverity: configure the severity property for the alert
  */
 export default class Login extends Component{
   constructor(props){
@@ -35,7 +38,10 @@ export default class Login extends Component{
       usernameError: false,
       passwordError: false,
       data: false,
-      loginFailedAlert: false
+      loginFailedAlert: false,
+      displayAlert: false,
+      alertText: "",
+      alertSeverity: ""
     }
   }
 
@@ -92,11 +98,14 @@ export default class Login extends Component{
   /**
    * confirmSubmisson: function for handing submission upon clicking the login button
    */
-  confirmSubmission(){
+  confirmSubmission = e =>{
+    e.preventDefault();
     //if both the username and password fields are empty, activate both errors for both fiels, and display an alert
     if(this.state.username === "" && this.state.password === ""){
-      alert("No username and password entered\nPlease enter your login information");
       this.setState({
+        displayAlert: true,
+        alertText: "No username and password entered. Please enter your login information",
+        alertSeverity: "warning",
         usernameError: true,
         passwordError: true
       });
@@ -104,16 +113,20 @@ export default class Login extends Component{
 
     //if just the password fields is empty, update the passwordError state and display an alert to the user
     else if(this.state.password===""){
-      alert("Please enter your password");
       this.setState({
+        displayAlert: true,
+        alertText: "No password entered. Please enter your login information",
+        alertSeverity: "warning",
         passwordError: true
       });
     }
 
     //if just the username fields is empty, update the usernameError state and display an alert to the user
     else if(this.state.username===""){
-      alert("Please enter your username");
       this.setState({
+        displayAlert: true,
+        alertText: "No username entered. Please enter your login information",
+        alertSeverity: "warning",
         usernameError: true
       });
     }
@@ -128,6 +141,7 @@ export default class Login extends Component{
    * sendRequest: function for sending the login request to the server
    */
   async sendRequest() {
+    console.log("in send request")
     // POST request using fetch with async/await
     //create the request with the needed options and parameters
     const requestOptions = {
@@ -164,7 +178,8 @@ export default class Login extends Component{
         });
       }
       else{
-        this.props.history.push("/"); //push the user to the homepage
+        console.log("Proper else hit")
+        this.props.history.push("../home"); //push the user to the homepage
       }
     }
   }
@@ -185,7 +200,7 @@ export default class Login extends Component{
     }));
     return (
       <>
-      <div style={{paddingLeft:0,left:5,top:15,position:"absolute"}} align="left">
+      <div style={{paddingLeft:0,left:5,top:55,position:"absolute"}} align="left">
               {/*Back Button*/}
               <Link to={{pathname: "/home"}}>
                   <Button startIcon={<BackIcon/>}>
@@ -193,9 +208,10 @@ export default class Login extends Component{
                   </Button>
               </Link>
       </div>
+      <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
       <form className={classes.root} noValidate autoComplete="off">
-        <Box m={2} pt={3}>
-        <img src={Logo} alt="GameScore Logo" width="100" height="100"></img>
+        <Box m={3} pt={5}>
+        <img src={Logo} alt="GameScore Logo" width="130" height="130"></img>
         <h1>Login Page</h1>
         <div>
           <TextField required id="standard-required" label="Username" onChange={this.usernameHandler} value = {this.state.username} error={this.state.usernameError}/>
@@ -203,9 +219,15 @@ export default class Login extends Component{
         <div>
           <TextField required id="standard-required" label="Password" type="password" onChange={this.passwordHandler} value={this.state.password} error={this.state.passwordError}/>
         </div>
-        <Button onClick={()=>{this.confirmSubmission()}}>Login</Button>
-        <Button onClick={()=>{this.props.history.push("/login/forgetpassword")}}>Forget Login?</Button>
-        <Button onClick={()=>{
+        <div style={{textAlign:"center",display:"inlineBlock",marginTop:25,marginBottom:15}} align="center" textAlign= "center">
+        <div style={{marginTop: 15, marginBottom: 10}}>
+          <Button variant = "contained" color="primary" type="submit" onClick={this.confirmSubmission}>Login</Button>
+        </div>
+        <div style={{marginTop: 15, marginBottom: 10}}>
+          <Button variant = "contained" color="secondary" onClick={()=>{this.props.history.push("/login/forgetlogin")}}>Forget Login?</Button>
+        </div>
+        <div style={{marginTop: 15, marginBottom: 10}}>
+        <Button variant = "contained" color="secondary" onClick={()=>{
             if(this.props.location!=null&&this.props.location.state!=null&&this.props.location.state.joinCodeQR!=null) //if were redirected by QR Code/Joining
             {
                 this.props.history.push({
@@ -218,13 +240,21 @@ export default class Login extends Component{
               this.props.history.push("/login/createaccount")
             }
           }}>Create Account</Button>
+          </div>
+          </div>
           <Snackbar open={this.state.loginFailedAlert} autoHideDuration={3000} onClose={()=>{this.setState({loginFailedAlert:false})}}>
             <Alert variant = "filled" severity="error">
               Incorrect account credentials.
             </Alert>
           </Snackbar>
+          <Snackbar open={this.state.displayAlert} autoHideDuration={3000} onClose={()=>{this.setState({displayAlert:false})}}>
+            <Alert variant = "filled" severity="warning">
+              {this.state.alertText}
+            </Alert>
+          </Snackbar>
         </Box>
       </form>
+      </div>
       </>
     );
   }

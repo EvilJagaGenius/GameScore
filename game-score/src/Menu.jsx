@@ -1,5 +1,5 @@
 /**
- * Menu.js-Jonathan Beels
+ * Menu.jsx-Jonathan Beels/Jonathon Lannon
  */
 
 import React, { Component } from 'react'
@@ -15,41 +15,35 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Cookies from 'js-cookie';
 import Typography from '@material-ui/core/Typography';
-
-function getCookieValue(name) {
-  let result = document.cookie.match("(^|[^;]+)\\s*" + name + "\\s*=\\s*([^;]+)")
-  return result ? result.pop() : ""
-}
+import { Link } from 'react-router-dom';
+import {Button} from "@material-ui/core";
 
 export default class Menu extends Component {
-
-constructor(props) {
+  constructor(props) {
     super(props);
     this.state = { activeIndex: 0,
             data:{},
             loaded:"False",
             selectedTemplate:{accPos:0,rowPos:-1},
-            usernameData: getCookieValue("username"),
+            usernameData: Cookies.get("username"),
             searchQuery: "",
             searching: "false",
             filtered: {},
             searchData: {},
             reportData: {},
-            admin: {}
-          };
-    this.callAPI = this.callAPI.bind(this);
+            admin: {},
+            isLoggedIn: true
     };
-
-  
+    this.callAPI = this.callAPI.bind(this);
+    this.gameSearchButton = this.gameSearchButton.bind(this);
+  };
 
   handleClick = (e, titleProps) => {
     const { index } = titleProps
     const { activeIndex } = this.state
     const newIndex = activeIndex === index ? -1 : index
-
     this.setState({ activeIndex: newIndex,selectedTemplate:{accPos:index,rowPos:-1} })
   }
-
 
   componentDidMount() {
     Promise.all([
@@ -66,11 +60,21 @@ constructor(props) {
 
       console.log(homeResponse);
     });
-      
+    if(Cookies.get("username")){
+      console.log("logged in")
       this.setState({
-        usernameData: getCookieValue("username")
-      });
+        isLoggedIn: true
+      })
+    }
+    else{
+      console.log("else hit agian")
+      this.setState({
+        isLoggedIn: false
+      })
+    }
+    console.log(Cookies.get("username"))
   }
+
   
   callAPI() {
     Promise.all([
@@ -89,7 +93,7 @@ constructor(props) {
     });
       
       this.setState({
-        usernameData: getCookieValue("username")
+        usernameData: Cookies.get("username")
       });
   }
 
@@ -169,11 +173,26 @@ constructor(props) {
       filtered: newList
     })
   }
+  
+  gameSearchButton(gameName) {
+    console.log("Search button clicked");
+    this.setState({
+      searching: "true",
+      searchQuery: gameName
+    }, this.templateSearch)
+  }
 
   render() {
-    const { activeIndex } = this.state
+    const { activeIndex } = this.state;
     return (
     <div>
+      <div style={{textAlign:"center",display:"inlineBlock",marginTop:15,marginBottom:5}} align="center" textAlign= "center">
+        {/*Login Button*/}
+        {this.state.isLoggedIn
+          ? null
+          : <Link to = "/home/login"><Button variant="outlined" color="primary">Click here to log in for full functionality</Button></Link>
+        }
+      </div>
       {/* Search Bar */}
       <TextField id="outlined-basic" label="Search All Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} style={{width:"90%",marginLeft:"5%", marginTop:"1%",marginBottom:"1%"}}/>
 
@@ -193,68 +212,69 @@ constructor(props) {
           Favorited Templates
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 0}>
-        <TableContainer component={Paper}>
-         <Table>
-            {
-                this.state.loaded === "True" && Cookies.get("username") != null && 
-                  <> 
-                    {Object.keys(this.state.data.favoritedTemplates).map(key => (
-                        <>
-                          <TableRow onClick={()=>this.selectTemplate(0,key)}>
-                            <TemplateRow 
-                            pictureURL = {this.state.data["favoritedTemplates"][key].pictureURL} 
-                            templateName = {this.state.data["favoritedTemplates"][key].templateName}
-                            numRatings = {this.state.data["favoritedTemplates"][key].numRatings}
-                            averageRating = {this.state.data["favoritedTemplates"][key].averageRating}
-                            />
-                          </TableRow>
-                            {
-                            this.isSelected(0,key) === true &&
-                            <>
-                              <BottomUI
-                                templateName = {this.state.data["favoritedTemplates"][key].templateName}
-                                templateID = {this.state.data["favoritedTemplates"][key].templateID}
-                                gameID = {this.state.data["favoritedTemplates"][key].gameID}
-                                userID = {this.state.data["favoritedTemplates"][key].authorUserID}
-                                userName = {this.state.data["favoritedTemplates"][key].authorUsername}
-                                selected = {this.isSelected(0,key)}
-                                play = {true}
-                                rep = {true}
-                                update = {this.callAPI}
-                                rate= {true}>
-                                </BottomUI>
-                            </>
-                          }
-                      </>
-                    ))}
-                  </>
-
-              }
-          </Table>
-          </TableContainer>
-          
-            {
-              this.state.loaded === "True" && Cookies.get("username") == null &&
-                <Typography style={{marginLeft:20}}>Login for full functionality.</Typography>
-            } 
-          
+        {/*Start conditional rendering*/}
+        {this.state.isLoggedIn
+        ? <TableContainer component={Paper}>
+        <Table>
+               {
+                 this.state.loaded === "True" && Cookies.get("username") != null &&
+                   <> 
+                     {Object.keys(this.state.data.favoritedTemplates).map(key => (
+                         <>
+                           <TableRow onClick={()=>this.selectTemplate(0,key)}>
+                             <TemplateRow 
+                             pictureURL = {this.state.data["favoritedTemplates"][key].pictureURL} 
+                             templateName = {this.state.data["favoritedTemplates"][key].templateName}
+                             numRatings = {this.state.data["favoritedTemplates"][key].numRatings}
+                             averageRating = {this.state.data["favoritedTemplates"][key].averageRating}
+                             />
+                           </TableRow>
+                             {
+                             this.isSelected(0,key) === true &&
+                             <>
+                               <BottomUI
+                                 templateName = {this.state.data["favoritedTemplates"][key].templateName}
+                                 templateID = {this.state.data["favoritedTemplates"][key].templateID}
+                                 gameID = {this.state.data["favoritedTemplates"][key].gameID}
+                                 favorited = {this.state.data["favoritedTemplates"][key].favorited}
+                                 userID = {this.state.data["favoritedTemplates"][key].authorUserID}
+                                 userName = {this.state.data["favoritedTemplates"][key].authorUsername}
+                                 selected = {this.isSelected(0,key)}
+                                 play = {true}
+                                 rep = {true}
+                                 update = {this.callAPI}
+                                 rate= {true}>
+                                 </BottomUI>
+                             </>
+                           }
+                       </>
+                     ))}
+                   </>
+               }
+           </Table>
+         </TableContainer>
+        : <Typography>Log in for full functionality.</Typography>
+        }
+        {/*End conditional rendering*/}
         </Accordion.Content>
+        
 
         {/* Recently Played */}
-        <Accordion.Title
-          active={activeIndex === 1}
-          index={1}
-          onClick={this.handleClick}
-        >
+        <Accordion.Title active={activeIndex === 1} index={1} onClick={this.handleClick}>
           <Icon name='dropdown' />
           Recently Played
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 1}>
+        
+        {/*Start conditional rendering*/}
+        {this.state.isLoggedIn
+        ? 
         <TableContainer component={Paper}>
           <Table size="small">
                 {
                 this.state.loaded === "True" &&
                   <> 
+                    {console.log(this.state.loaded)}
                     {Object.keys(this.state.data.recentlyPlayed).map(key => (
                         <>
                           <TableRow onClick={()=>this.selectTemplate(1,key)}>
@@ -294,10 +314,9 @@ constructor(props) {
               }
           </Table>
           </TableContainer>
-            {
-              this.state.loaded === "True" && Cookies.get("username") == null &&
-                <Typography style={{marginLeft:20}}>Login for full functionality.</Typography>
-            } 
+        : <Typography>Log in for full functionality.</Typography>
+        }
+        {/*End conditional rendering*/}
         </Accordion.Content>
 
         {/* Highest Rated Templates accordian */}
@@ -375,10 +394,27 @@ constructor(props) {
                   <> 
                     {/* Iterate through favorited templates and render the data in a tabular format */}
                     {Object.keys(this.state.data.recommendedGames).map(key => (
-                      <GameRow rowPos={key} accPos="3" 
-                      pictureURL = {this.state.data["recommendedGames"][key].pictureURL} 
-                      gameName = {this.state.data["recommendedGames"][key].gameName}
-                      />
+                      <>
+                      <TableRow onClick={()=>this.selectTemplate(3,key)}>
+                        <GameRow rowPos={key} accPos="3" 
+                        pictureURL = {this.state.data["recommendedGames"][key].pictureURL} 
+                        gameName = {this.state.data["recommendedGames"][key].gameName}
+                        selected = {this.isSelected(3,key)}
+                        />
+                      </TableRow>
+                        {this.isSelected(3,key) === true &&
+                          <>
+                          <BottomUI
+                            gameURL = {"https://www.boardgamegeek.com" + this.state.data["recommendedGames"][key].gameURL}
+                            gameName = {this.state.data["recommendedGames"][key].gameName}
+                            gameBottomUI = {true}
+                            searchFunction = {this.gameSearchButton}
+                            selected = {this.isSelected(3,key)}
+                            >
+                          </BottomUI>
+                      </>
+                        }
+                      </>
                     ))}
                   </>
                 </div>
@@ -521,6 +557,7 @@ constructor(props) {
                     templateName = {this.state.filtered[key].templateName}
                     templateID = {this.state.filtered[key].templateID}
                     gameID = {this.state.filtered[key].gameID}
+                    favorited = {this.state.filtered[key].favorited}
                     userID = {this.state.filtered[key].userID}
                     userName = {this.state.filtered[key].userName}
                     selected = {this.isSelected(key)}

@@ -20,9 +20,13 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Rating from '@material-ui/lab/Rating';
 import Favorite from '@material-ui/icons/Favorite';
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
+import Description from '@material-ui/icons/Description';
+import Search from '@material-ui/icons/Search';
 import Cookies from 'js-cookie';
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
 
-
+//Make Modal theme for this page
 const useStyles = makeStyles((theme) => ({
 
   modal: {
@@ -49,8 +53,11 @@ function getModalStyle() {
     };
 }
 
+//Ensure number of players is a positive integer and less than 12
 function validateNumPlayers(inputVal)
 {
+	inputVal = Math.round(inputVal)
+
 	if(inputVal<=0)
 	{
 		inputVal = 1;
@@ -59,11 +66,14 @@ function validateNumPlayers(inputVal)
 	{
 		inputVal = 12;
 	}
-	inputVal = Math.round(inputVal)
+
 
 	return inputVal;
 }
 
+//Acts as a container for all actions that can be taken with a certain template.
+//Takes in booleans saying which buttons should be shown (play, edit, del, etc)
+//Also gameID, templateID, tempalteName, and whether the bottom UI is selected is also passed in.
 
 export default function BottomUI(props) {
 		const classes = useStyles();
@@ -75,6 +85,8 @@ export default function BottomUI(props) {
 		const [play, setPlay] = useState(props.play || false);
 		const [edit, setEdit] = useState(props.edit || false);
 		const [del, setDel] = useState(props.del || false);
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertText, setAlertText] = useState("");
 		const [rep, setRep] = useState(props.rep || false); 
 		const [review, setReview] = useState(props.review || false);
 		const [judge, setjudge] = useState(props.judge || false);
@@ -82,29 +94,36 @@ export default function BottomUI(props) {
         const [ratingValue, setRatingValue] = useState(props.prevRating);
         const [ratingPopup, setRatingPopup] = useState(false);
 		let history = useHistory()
+
 		const [repUser, setRepUser] = useState(false);
 		const [repTemplate, setRepTemplate] = useState(false);
 
         return(
         <>
+          <Snackbar open={showAlert} autoHideDuration={3000} onClose={()=>{setShowAlert(false)}}>
+            <Alert variant = "filled">
+              {alertText}
+            </Alert>
+          </Snackbar>
 	          <>
 	            {
 	          	<>
-	          		<TableRow>
+	          		<TableRow> 
 	          			<TableCell colSpan={10} style={{padding:4,paddingLeft:5,paddingRight:5,margin:0}}>
 	          			<Table style={{ tableLayout: 'fixed' }}>
-	          				<TableRow >
+	          				<TableRow > {/*Row of all buttons*/}
+	          					{/* Play Button*/}
 									{play === true &&
 										<>
 											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
 												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
 												onClick = {()=> {
-
+													//Creates new game if user is logged-in
 													if(Cookies.get("username") != null)
 													{
 														setCreateGamePopup(true)
 													}
-													else
+													else //If not logged-in pushes to login screen
 													{
 														history.push('/home/login')
 													}
@@ -123,14 +142,19 @@ export default function BottomUI(props) {
                                           
 									   	</>
 									}
+									{/* Play Again Button*/}
 									{props.playagain === true &&
 										<>
 											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
 												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
 												onClick = {()=> {
 
+													//Yes this should be its own function, but got to difficult to do since functional component
+
+													//If logged-in
 													if(Cookies.get("username") != null)
 													{
+														//Create new game with same number of players
 														fetch(`/api/postCreateNewGame?templateID=${props.templateID}&gameID=${props.gameID}&numOfPlayers=${props.numPlayers}`)
 									 					.then(res => res.json()).then(data => {
 									 					console.log(data)
@@ -139,10 +163,11 @@ export default function BottomUI(props) {
 														});
 														
 													}
-													else
+													else //Send to login screen if not logged-in
 													{
 														history.push('/home/login')
 													}
+
 													}}>
 													<div style={{margin:-5}}>
 														
@@ -150,7 +175,7 @@ export default function BottomUI(props) {
 															<SportsEsports style={{fontSize:35}} />
 														</div>
 														<div style={{marginTop:-10}}>
-															Play Again
+															Replay
 														</div>
 													</div>
 												</Button>
@@ -158,30 +183,44 @@ export default function BottomUI(props) {
                                           
 									   	</>
 									}
+									{/* Rate and Favorite Button*/}
 									{props.rate === true &&
 										<>
 											
-                                            <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+                      <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
 												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
 
+													//Yes this should be its own function, but got to difficult to do since functional component
+
+													// Send API call to favorite or unfavorite current template
+
                                                     onClick = {()=> {
-                                                        const requestOptions = {
-                                                            method:'POST',
-                                                            headers: { 'Content-Type': 'application/json' },
-                                                            credentials: 'include',
-                                                            body: JSON.stringify({
-                                                                templateID: props.templateID,
-                                                                gameID: props.gameID
-                                                            })
-                                                        }
-                                                        fetch('/api/favoriteTemplate', requestOptions)
-                                                        .then(res => res.json())
-														.then(data => {
-															props.update();
-														})
-                                                         
-                                                    }
+
+                                                    	if(Cookies.get("username") != null) //If logged-in
+                                                    	{
+	                                                        const requestOptions = {
+	                                                            method:'POST',
+	                                                            headers: { 'Content-Type': 'application/json' },
+	                                                            credentials: 'include',
+	                                                            body: JSON.stringify({
+	                                                                templateID: props.templateID,
+	                                                                gameID: props.gameID
+	                                                            })
+	                                                        }
+	                                                        fetch('/api/favoriteTemplate', requestOptions)
+	                                                        .then(res => res.json())
+															.then(data => {
+																props.update();
+															})
+                              .then(setAlertText("Changed favorite status")).then(setShowAlert(true))
+														}
+														else //Send to login screen if not logged-in
+														{
+															history.push('/home/login')
+                                                		}
+												}
                                                 }>
+
                                                     {props.favorited === 1 &&
                                                         <div style={{margin:-5}}>
                                                             
@@ -207,15 +246,17 @@ export default function BottomUI(props) {
 												</Button>
 											</TableCell>
 
-                        <TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+                        					<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
 												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
 												onClick = {()=> {
 
+
+													//If logged-in pull up rating screen
 													if(Cookies.get("username") != null)
 													{
 														setRatingPopup(true)
 													}
-													else
+													else //send to login if not logged-in
 													{
 														history.push('/home/login')
 													}
@@ -236,11 +277,13 @@ export default function BottomUI(props) {
 									   	</>
 									}
 
+									{/* Edit Button*/}
 									{edit === true &&
 
 										<>
 											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
 												<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+												// Send user to tempalte editor screen for this template
 												onClick = {() => {
 													console.log(props.templateID)
 													history.push({
@@ -264,6 +307,7 @@ export default function BottomUI(props) {
 										</>
 									}
 
+									{/* Delete Button*/}
 									{del === true &&
 										<>
 											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
@@ -282,12 +326,58 @@ export default function BottomUI(props) {
 										</TableCell>		
 										</>
 									}
+                  
+                  {props.gameBottomUI === true &&
+										<>
+											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+                      <a href={props.gameURL}>
+											<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+											onClick = {()=> console.log(props.gameURL)}>
+												<div style={{margin:-5}}>
+														
+														<div>
+															<Description style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															BGG Page
+														</div>
+													</div>
+											</Button>
+                      </a>
+                      </TableCell>		
+										
+											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
+											<Button style ={{height:60,width:"100%"}} variant = "contained" color="primary" size = "large"
+											onClick = {()=> props.searchFunction(props.gameName)}>
+                        {/* Need to set the searchQuery in Menu.js */}
+												<div style={{margin:-5}}>
+														<div>
+															<Search style={{fontSize:35}} />
+														</div>
+														<div style={{marginTop:-10}}>
+															Search for templates
+														</div>
+													</div>
+											</Button>
+                      </TableCell>		
+										</>
+									}
 
 									{rep === true &&
 										<>
 											<TableCell style={{margin:0,padding:0,paddingLeft:3,paddingRight:3}}>
 												<Button style={{height:60,width:"100%"}} variant = "contained" color="primary" size="large"
-													onClick = {() => setReportPopup(true)}>
+													onClick = {() => {
+														if(Cookies.get("username") != null)
+														{
+															setReportPopup(true)
+														}
+														else //send to login if not logged-in
+														{
+															history.push('/home/login')
+														}
+
+														}}>
 													<div style={{margin:-5}}>
 														<div>
 															<ReportIcon style={{fontSize:35}} />
@@ -387,6 +477,8 @@ export default function BottomUI(props) {
 	          	</>
 	          	}
 
+	          	{/* Create Game Modal*/}
+
 	          	{
 		          	<div>
 			          	<Modal
@@ -404,9 +496,12 @@ export default function BottomUI(props) {
 
 								  		</td>
 								  		<td>
-								  			<Input id="numPlayersInput" name="numPlayersInput" type="number" onChange={(e)=>{
+								  			<Input id="numPlayersInput" name="numPlayersInput" type="number" 
+
+								  				onChange={(e)=>{
 								  					setNumPlayers(e.target.value)
 								  				}}
+
 								  				onBlur={(e)=>
 								  				{
 								  					setNumPlayers(validateNumPlayers(e.target.value))
@@ -421,6 +516,11 @@ export default function BottomUI(props) {
 								  	<tr>
 								  		<td style={{paddingRight:7}}>
 								  			<Button className={classes.button} variant = "contained" color="primary" size = "large"
+								  			
+
+								  			//Yes this should be its own function, but got to difficult to do since functional component
+
+								  			// Send call to server to create game with specified number of players
 								  			onClick={()=>{
 								  				if(numPlayers>=0)
 								  				{
@@ -446,6 +546,10 @@ export default function BottomUI(props) {
 							  </div>
 						  </div>
 						</Modal>
+
+
+						{/* Rate Template Modal*/}
+
                         <Modal
 						  open={ratingPopup}
 						  aria-labelledby="simple-modal-title"
@@ -461,6 +565,10 @@ export default function BottomUI(props) {
                                                 value={ratingValue}
                                                 name="rating"
                                                 onClick={props.handleInputChange}
+
+                                                //Yes this should be its own function, but got to difficult to do since functional component
+
+                                                // Sends the tempalte rating to the server
                                                 onChange={(event, newValue) => {
                                                     setRatingValue(newValue);
                                                     const requestOptions = {
@@ -495,6 +603,9 @@ export default function BottomUI(props) {
 							  </div>
 						  </div>
 						</Modal>
+
+						{/* Delete Tempalte Modal*/}
+
 						<Modal
 							open={deletePopup}
 							aria-labelledby="simple-modal-title"
@@ -508,7 +619,13 @@ export default function BottomUI(props) {
 										<tr>
 											<td style={{paddingRight:7}}>
 												<Button className={classes.button} variant = "contained" color="primary" size = "large"
+
+												//Yes this should be its own function, but got to difficult to do since functional component
+
 												onClick={()=>{
+
+													//Request Header
+
 													console.log("flag")
 													const requestOptions = {
 														method:'POST',
@@ -518,6 +635,8 @@ export default function BottomUI(props) {
                 											templateID: props.templateID
             											})
 													}
+
+													//Deletes currently selected template
 													console.log("flag")
 													fetch('/api/postDeleteTemplate', requestOptions)
 														.then(res => res.json())
@@ -668,7 +787,7 @@ export default function BottomUI(props) {
 						</Modal>
 					</div>
 	          	}
-	          </>
 	     </>
+       </>
         );
 }

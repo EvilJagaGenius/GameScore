@@ -1,5 +1,6 @@
 
- //import resources
+//Shows the results from the recently finished game.  Shows player scores and gives a chance for users to rate the template.
+
  import React from "react";
  import { Button } from '@material-ui/core';
  import { useState, useEffect } from 'react';
@@ -48,84 +49,107 @@
         setLoaded(true)
     });
 	  }, []);
+      
+   const updateButtons = (() => {
+       fetch("/api/getPostGame").then(res => res.json()).then(data => {
+        setPostGameData(data)
+        setLoaded(true)
+       });
+   });
 
    //Return Structure
    return(
-
-     <>
-        {/*Headers*/}
-      	<div style={{display: 'flex',  justifyContent:'center',marginTop:15}}>
-          <h1>Game Results</h1>
-        </div>
-
-        <div style={{display: 'flex',  justifyContent:'center'}}>
-         <h3>{postGameData.gameName}</h3>
-        </div>
-
-        <div style={{display: 'flex',  justifyContent:'center',marginTop:25}}>
-         <h3>Congratulations {postGameData.winnerDisplayName}!</h3>
-        </div>
-
-        <div style={{display: 'flex',  justifyContent:'center',marginBottom:15,marginTop:5}}>
-         <h5 style={{fontSize:13}}>May your victory be remembered for ages!</h5>
-        </div>
-
-       {/*Player Scores Table*/}
-       <TableContainer component={Paper}>
-         <Table size="small">
-       		<TableHead>
-            	<TableRow>
-              	<TableCell align="left">#</TableCell>
-              	<TableCell align="center">Name</TableCell>
-              	<TableCell align="center">Score</TableCell>
-            	</TableRow>
-          	</TableHead>
-
-  	       	{ loaded === true && 
-    	       	Object.keys((postGameData)).length > 0 &&
-    	       	<>
-                {/*For each Player, show scores*/}
-      	       	{Object.keys((postGameData["scoreTable"])).map(key=> (
-      	              <TableRow> 
-      	                <TableCell align="left">{postGameData["scoreTable"][key].rank}</TableCell>
-      	                <TableCell align="center">{postGameData["scoreTable"][key].displayName}</TableCell>
-      	                <TableCell align="center">{postGameData["scoreTable"][key].score.toFixed(2)}</TableCell>
-      	              </TableRow>
-      	         ))}
-    	        </>
-  	        }
-        	</Table>
-        </TableContainer>
-        {
-          loaded === true && 
+    <>
+      {
+      loaded == true &&
+      <>
+         {
+          postGameData["successful"] == false &&
           <>
-            {/*Call to Action Stuffs*/}
-            <div style={{display: 'flex',  justifyContent:'center',marginTop:35,marginBottom:10}}>
-                <h5>What did you think of {postGameData.templateName}?</h5>
+            {
+              postGameData["errorMessage"]!=null && 
+              <h2>{postGameData["errorMessage"]}</h2>
+            }
+            <link>
+              
+            </link>
+            <Button onClick={()=> history.push('/home')}variant = "contained" color="primary" size = "large">Return Home</Button>
+          </> 
+          }
+
+        {
+          postGameData.successful == true &&
+         <>
+            {/*Headers*/}
+          	<div style={{display: 'flex',  justifyContent:'center',marginTop:15}}>
+              <h1>Game Results</h1>
             </div>
-            {/*Post Game Buttons*/}
-
-
-            <BottomUI
-            templateName = {postGameData.templateName}
-            templateID = {postGameData.templateID}
-            gameID = {postGameData.gameID}
-            selected = {true}
-            rate = {true}
-            playagain = {true}
-            numPlayers = {postGameData.numOfPlayers}>
-            </BottomUI>
 
             <div style={{display: 'flex',  justifyContent:'center'}}>
+             <h3>{postGameData.gameName}</h3>
+            </div>
 
-                {/*Return Home Button*/}
-                <Button className={classes.button} variant = "contained" color="primary" size = "large" style={{marginTop:12,marginLeft:8}} startIcon={<HomeIcon />}
-                  onClick={()=>
-                    history.push('/home')
-                  }> Return Home
-                </Button>
-           	</div>
-           </>
+            <div style={{display: 'flex',  justifyContent:'center',marginTop:25}}>
+             <h3>Congratulations {postGameData.winnerDisplayName}!</h3>
+            </div>
+
+            <div style={{display: 'flex',  justifyContent:'center',marginBottom:15,marginTop:5}}>
+             <h5 style={{fontSize:13}}>May your victory be remembered for ages!</h5>
+            </div>
+
+           {/*Player Scores Table*/}
+           <TableContainer component={Paper}>
+             <Table size="small">
+           		<TableHead>
+                	<TableRow>
+                  	<TableCell align="left">#</TableCell>
+                  	<TableCell align="center">Name</TableCell>
+                  	<TableCell align="center">Score</TableCell>
+                	</TableRow>
+              	</TableHead>
+
+      	       	{ loaded === true && 
+        	       	Object.keys((postGameData)).length > 0 &&
+        	       	<>
+                    {/*For each Player, show scores*/}
+          	       	{Object.keys((postGameData["scoreTable"])).map(key=> (
+          	              <TableRow> 
+          	                <TableCell align="left">{postGameData["scoreTable"][key].rank}</TableCell>
+          	                <TableCell align="center">{postGameData["scoreTable"][key].displayName}</TableCell>
+          	                <TableCell align="center">{postGameData["scoreTable"][key].score.toFixed(2)}</TableCell>
+          	              </TableRow>
+          	         ))}
+        	        </>
+      	        }
+            	</Table>
+            </TableContainer>
+            {
+              loaded === true && 
+              <>
+                {/*Call to Action Stuffs*/}
+                <div style={{display: 'flex',  justifyContent:'center',marginTop:35,marginBottom:10}}>
+                    <h5>What did you think of {postGameData.templateName}?</h5>
+                </div>
+                {/*Post Game Buttons*/}
+
+                <BottomUI
+                templateName = {postGameData.templateName}
+                templateID = {postGameData.templateID}
+                gameID = {postGameData.gameID}
+                selected = {true}
+                rate = {true}
+                playagain = {true}
+                numPlayers = {postGameData.numOfPlayers}
+                favorited = {postGameData.favorited}
+                update = {updateButtons}>
+                </BottomUI>
+
+               </>
+               }
+           
+         </>
+         }
+       </>
        }
      </>
    );

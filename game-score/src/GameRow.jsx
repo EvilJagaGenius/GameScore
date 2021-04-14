@@ -1,3 +1,5 @@
+//Styling class to ensure all games are displayed the same way
+
 import React from 'react';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';

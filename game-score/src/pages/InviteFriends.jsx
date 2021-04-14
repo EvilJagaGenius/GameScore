@@ -77,7 +77,7 @@ function InviteFriends() {
                     <h4 style={{display:"inline"}}>Invite via QR Code:</h4>
                 </div>
                 <div style={{textAlign:"center",display:"inlineBlock",marginTop:5,marginBottom:10}} align="center" textAlign= "center">
-                   <QRCode style={{width:"50%",maxWidth:250,maxHeight:250, height:"50%",textAlign:"center"}}  value={"gamescore.gcc.edu:3000/playgame?joinCode="+data.joinCode.toUpperCase()}/>
+                   <QRCode style={{width:"50%",maxWidth:250,maxHeight:250, height:"50%",textAlign:"center"}}  value={"http://gamescore.gcc.edu:3000/playgame?joinCode="+data.joinCode.toUpperCase()}/>
                 </div>
 
                  <div style={{textAlign:"center",display:"inlineBlock",marginTop:40,marginBottom:0}} align="center" textAlign= "center">

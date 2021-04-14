@@ -22,7 +22,7 @@ import Favorite from '@material-ui/icons/Favorite';
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
 import Description from '@material-ui/icons/Description';
 import Search from '@material-ui/icons/Search';
-import Cookies from 'js-cookie';
+import Cookies, { set } from 'js-cookie';
 import Alert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
 
@@ -438,7 +438,9 @@ export default function BottomUI(props) {
 															.then(res => res.json())
 															.then(data => {
 																console.log(data);
-															})
+															}).then(
+																setAlertText("Template Allowed")
+															).then(setShowAlert(true))
 
 														props.update();
 													}}>
@@ -711,6 +713,7 @@ export default function BottomUI(props) {
 																setReportPopup(false);
 																props.update();
 															})
+															.then(setAlertText("Report Filed")).then(setShowAlert(true))
 													}}>
 													Report
 												</Button>
@@ -739,7 +742,7 @@ export default function BottomUI(props) {
 								</>
 								}
 
-								{ props.reason === "Uername" &&
+								{ props.reason === "Username" &&
 								<>
 									<h3 style={{textAlign:"center"}}>Are you sure you want to change? </h3>
 									<Typography>Are sure you you want change this user's name?</Typography>
@@ -769,7 +772,9 @@ export default function BottomUI(props) {
 														.then(data => {
 															setAdminPopup(false);
 															props.update();
-														})
+														}).then(
+															(props.reason === "Template") ? setAlertText("Template Removed") : setAlertText("Username changed")
+														).then(setShowAlert(true))
 												}}>
 													Delete
 												</Button>

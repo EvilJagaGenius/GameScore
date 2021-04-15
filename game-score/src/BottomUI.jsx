@@ -582,8 +582,14 @@ export default function BottomUI(props) {
                                                         })
                                                     }
                                                     fetch('/api/rateTemplate', requestOptions)
-                                                    setRatingPopup(false)
-                                                    props.update()
+                                                    .then(setRatingPopup(false))
+                                                    .then(res => res.json())
+                                                    .then(data => {
+                                                        props.update();
+                                                    })
+                                                    .then(setAlertText("Rating submitted"))
+                                                    .then(setShowAlert(true))
+                                                    
                                                 }}
                                                 
                                             />

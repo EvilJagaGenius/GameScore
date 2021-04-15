@@ -570,7 +570,11 @@ export default function BottomUI(props) {
 
                                                 // Sends the tempalte rating to the server
                                                 onChange={(event, newValue) => {
-                                                    setRatingValue(newValue);
+                                                    if (newValue != null) {
+                                                        setRatingValue(newValue);
+                                                    } else {
+                                                        newValue = ratingValue;
+                                                    }
                                                     const requestOptions = {
                                                         method:'POST',
                                                         headers: { 'Content-Type': 'application/json' },

@@ -856,12 +856,13 @@ def getPostGame(userID):
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor = mydb.cursor(prepared=True)
     stmt = """
-SELECT gameName, templateName, matchID, Game.gameID, Template.templateID, favorited
+SELECT gameName, templateName, matchID, Game.gameID, Template.templateID, favorited, AppUser.userID, AppUser.username
 FROM ActiveMatch
 JOIN Game using(gameID)
 JOIN Template using(templateID)
 JOIN Player using (matchID)
 LEFT JOIN AppUserInteractTemplate ON Template.templateID=AppUserInteractTemplate.templateID
+LEFT JOIN AppUser ON Template.userID=AppUser.userID
 WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1"""
     mycursor.execute(stmt,(userID,))
     myresult = mycursor.fetchone()
@@ -873,7 +874,7 @@ WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1"""
         mydb.close()
         return response
     else:
-        gameName, templateName, matchID, gameID, templateID, favorited = myresult
+        gameName, templateName, matchID, gameID, templateID, favorited, authorID, authorName = myresult
         if favorited == None:
             favorited = 0
 
@@ -892,10 +893,12 @@ WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1"""
                         ,"templateID":"{}".format(templateID)
                         ,"scoreTable":[] 
                         ,"numOfPlayers":[]
-                        ,"favorited":favorited}
+                        ,"favorited":favorited
+                        ,"authorID":"{}".format(authorID)
+                        ,"authorName":"{}".format(authorName)}
 
         mycursor = mydb.cursor(prepared=True)
-        stmt = ("select RANK() OVER (PARTITION BY matchID ORDER BY totalScore desc),displayName,totalScore FROM Player WHERE matchID=%s")
+        stmt = ("select RANK() OVER (PARTITION BY matchID ORDER BY totalScore desc),displayName, totalScore, userID FROM Player WHERE matchID=%s")
         mycursor.execute(stmt,(matchID,))
         myresult = mycursor.fetchall()
         mycursor.close()
@@ -903,10 +906,12 @@ WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1"""
         result["numOfPlayers"] = len(myresult)
 
         for row in myresult:
-                rank, displayName,score = row
+                rank, displayName,score, playerID = row
                 finalScoreRow = {"rank":rank
                         ,"displayName":"{}".format(displayName)
-                        ,"score":score}
+                        ,"score":score
+                        ,"playerID":"{}".format(playerID)
+                        ,"reportPlayer":False}
                 #append each new dictionary to its appropriate list
                 result["scoreTable"].append(finalScoreRow)
         mydb.close()
@@ -2260,9 +2265,10 @@ def reportTemplate():
     content = request.json
     gameID = content["gameID"]
     templateID = content["templateID"]
-    userID = content["userID"]
+    authorID = content["authorID"]
     tReport = content["tReport"]
-    uReport = content["uReport"]
+    aReport = content["aReport"]
+    uReports = content["uReport"]
     
     mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)
@@ -2274,14 +2280,23 @@ def reportTemplate():
         """
         cursor.execute(statement, (templateID, gameID, userID))
 
-    if (uReport == True):
+    if (aReport == True):
         statement = """
         INSERT INTO Report (reason, templateID, gameID, userID)
         VALUES ('Username', %s, %s, %s)
         """
 
         cursor.execute(statement, (templateID, gameID, userID))
-    
+
+    if (uReports != None):
+        for report in uReports:
+            statement = """
+            INSERT INTO REPORT (reason, templateID, gameID, userID)
+            VALUES ('Username', %s, %s, %s)
+            """    
+
+            cursor.execute(statement, (templateID, gameID, report["userID"]))
+            
     mydb.commit()
     cursor.close()
     mydb.close()

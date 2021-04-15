@@ -238,7 +238,7 @@ export default class Menu extends Component {
                                  gameID = {this.state.data["favoritedTemplates"][key].gameID}
                                  favorited = {this.state.data["favoritedTemplates"][key].favorited}
                                  userID = {this.state.data["favoritedTemplates"][key].authorUserID}
-                                 userName = {this.state.data["favoritedTemplates"][key].authorUsername}
+                                 authorName = {this.state.data["favoritedTemplates"][key].authorUsername}
                                  selected = {this.isSelected(0,key)}
                                  play = {true}
                                  rep = {true}

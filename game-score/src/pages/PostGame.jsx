@@ -136,9 +136,13 @@
                 templateName = {postGameData.templateName}
                 templateID = {postGameData.templateID}
                 gameID = {postGameData.gameID}
+                authorID = {postGameData.authorID}
+                authorName = {postGameData.authorName}
+                players = {postGameData.scoreTable}
                 selected = {true}
                 rate = {true}
                 playagain = {true}
+                rep = {true}
                 numPlayers = {postGameData.numOfPlayers}
                 favorited = {postGameData.favorited}
                 update = {updateButtons}>

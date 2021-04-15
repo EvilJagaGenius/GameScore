@@ -295,8 +295,8 @@ export default class Menu extends Component {
                                 templateName = {this.state.data["recentlyPlayed"][key].templateName}
                                 templateID = {this.state.data["recentlyPlayed"][key].templateID}
                                 gameID = {this.state.data["recentlyPlayed"][key].gameID}
-                                userID = {this.state.data["recentlyPlayed"][key].authorUserID}
-                                userName = {this.state.data["recentlyPlayed"][key].authorUsername}
+                                authorID = {this.state.data["recentlyPlayed"][key].authorUserID}
+                                authorName = {this.state.data["recentlyPlayed"][key].authorUsername}
                                 rep = {true}
                                 prevRating = {this.state.data["recentlyPlayed"][key].prevRating}
                                 favorited = {this.state.data["recentlyPlayed"][key].favorited}

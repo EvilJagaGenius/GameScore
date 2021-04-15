@@ -99,9 +99,10 @@ export default function BottomUI(props) {
 		const [repUsers, setRepUsers] = useState({});
 		var playerReports;
 
-		if (props.players !== null) {
+		if (typeof(props.players) !== "undefined") {
+			console.log(props.players);
 			playerReports = {};
-			Object.key((props.players)).map(key =>(
+			Object.keys((props.players)).map(key =>(
 				playerReports[props.players[key].playerID] = {
 					"userID":props.players[key].playerID,
 					"report":false,
@@ -691,19 +692,23 @@ export default function BottomUI(props) {
 
 								</Checkbox>
 								<b>{props.authorName}</b>
-								
-								<h4 style={{textAlign:"Center"}}>Players</h4>
-								
-								{Object.keys((playerReports)).map(key =>(
+									
+								{props.players === "undefined" &&
 									<>
-										<Checkbox style={{marginLeft:-12,marginRight:-2, marginTop:-2}} checked={playerReports[key].report}
-											onChange={(e)=>{
-												playerReports[key].report = e.target.checked;
-											}}>
-										</Checkbox>
-										<b>{playerReports[key].displayName}</b>
+										<h4 style={{textAlign:"Center"}}>Players</h4>
+										{console.log(typeof(props.players))}
+										{Object.keys((playerReports)).map(key =>(
+										<>
+											<Checkbox style={{marginLeft:-12,marginRight:-2, marginTop:-2}} checked={playerReports[key].report}
+												onChange={(e)=>{
+													playerReports[key].report = e.target.checked;
+												}}>
+											</Checkbox>
+											<b>{playerReports[key].displayName}</b>
+										</>
+										))}
 									</>
-								))}
+								}
 								
 								<h4 style={{textAlign:"center"}}>Template</h4>
 								<Checkbox style={{marginLeft:-12, marginRight:-2,marginTop:-2}} checked={repTemplate}

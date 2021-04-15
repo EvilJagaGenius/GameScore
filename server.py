@@ -626,7 +626,7 @@ ORDER BY averageRating DESC LIMIT 10
                     ,"templateName":"{}".format(templateName)
                     ,"numRatings":numRatings
                     ,"averageRating":round(float(averageRating),2)
-                    ,"favorited":1
+                    ,"favorited":favorited
                     ,"gameID":"{}".format(gameID)
                     ,"templateID":"{}".format(templateID)
                     ,"prevRating":"{}".format(prevRating)

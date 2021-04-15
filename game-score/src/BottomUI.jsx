@@ -99,7 +99,7 @@ export default function BottomUI(props) {
 		const [repUsers, setRepUsers] = useState({});
 		var playerReports;
 
-		if (props.players !== NULL) {
+		if (props.players !== null) {
 			playerReports = {};
 			Object.key((props.players)).map(key =>(
 				playerReports[props.players[key].playerID] = {
@@ -109,7 +109,7 @@ export default function BottomUI(props) {
 				}	
 			));
 		} else {
-			playerReports = NULL;
+			playerReports = null;
 		}
 
         return(

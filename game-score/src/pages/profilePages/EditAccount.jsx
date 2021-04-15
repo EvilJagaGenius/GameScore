@@ -239,7 +239,8 @@ export default class EditAccount extends React.Component{
     }
     else{
       this.setState({
-        confrimPasswordError: false
+        confrimPasswordError: false,
+        confirmPasswordHelper: ""
       });
     }
   }
@@ -452,7 +453,10 @@ export default class EditAccount extends React.Component{
                   <div style={{marginTop: 15, marginBottom: 10}}>
                     <Button variant = "contained" color = "primary" onClick={()=>{this.confirmPasswordSubmission()}}>Change Password</Button>
                   </div>
-                  <Snackbar open={this.state.editSuccessUsername} autoHideDuration={3000} onClose={()=>{this.setState({editSuccessUsername:false})}}>
+                  <Snackbar open={this.state.editSuccessUsername} autoHideDuration={3000} onClose={()=>{
+                    this.setState({editSuccessUsername:false})
+                    this.props.history.push("/profile")
+                    }}>
                     <Alert variant = "filled" severity="success">
                       Account Username Updated
                     </Alert>
@@ -462,7 +466,10 @@ export default class EditAccount extends React.Component{
                       Error Updating Username
                     </Alert>
                   </Snackbar>
-                  <Snackbar open={this.state.editSuccessEmail} autoHideDuration={3000} onClose={()=>{this.setState({editSuccessEmail:false})}}>
+                  <Snackbar open={this.state.editSuccessEmail} autoHideDuration={3000} onClose={()=>{
+                    this.setState({editSuccessEmail:false})
+                    this.props.history.push("/profile")
+                    }}>
                     <Alert variant = "filled" severity="success">
                       Account Email Updated
                     </Alert>
@@ -472,7 +479,10 @@ export default class EditAccount extends React.Component{
                       Error Updating Email
                     </Alert>
                   </Snackbar>
-                  <Snackbar open={this.state.editSuccessPassword} autoHideDuration={3000} onClose={()=>{this.setState({editSuccessPassword:true})}}>
+                  <Snackbar open={this.state.editSuccessPassword} autoHideDuration={3000} onClose={()=>{
+                    this.setState({editSuccessPassword:true})
+                    this.props.history.push("/profile")
+                    }}>
                     <Alert variant = "filled" severity="success">
                       Account Password Updated
                     </Alert>

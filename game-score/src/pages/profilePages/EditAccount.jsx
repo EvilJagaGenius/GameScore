@@ -239,7 +239,8 @@ export default class EditAccount extends React.Component{
     }
     else{
       this.setState({
-        confrimPasswordError: false
+        confrimPasswordError: false,
+        confirmPasswordHelper: ""
       });
     }
   }

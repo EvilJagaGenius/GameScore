@@ -2773,21 +2773,21 @@ def templateSearch():
         FROM AppUser u
             INNER JOIN Template t ON u.userID = t.userID
             INNER JOIN Game g ON t.gameID = g.gameID
-            LEFT JOIN AppUserInteractTemplate i ON (t.templateID = i.templateID AND i.userID = 1)
+            LEFT JOIN AppUserInteractTemplate i ON (t.templateID = i.templateID AND i.userID = %s)
         ORDER BY t.averageRating DESC;
         """)
-        mycursor.execute(stmt)
+        mycursor.execute(stmt, (userID, ))
     else:
         stmt = ("""
         SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName, i.favorited
         FROM AppUser u
             INNER JOIN Template t ON u.userID = t.userID
             INNER JOIN Game g ON t.gameID = g.gameID
-            LEFT JOIN AppUserInteractTemplate i ON (t.templateID = i.templateID AND i.userID = 1)
+            LEFT JOIN AppUserInteractTemplate i ON (t.templateID = i.templateID AND i.userID = %s)
         WHERE gameID = %s
         ORDER BY t.averageRating DESC;
         """)
-        mycursor.execute(stmt, (gameID,))
+        mycursor.execute(stmt, (userID, gameID))
     myresult = mycursor.fetchall()
     mycursor.close()
 

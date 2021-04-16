@@ -90,7 +90,8 @@ export default class Menu extends Component {
       });
 
       console.log(reportResponse);
-    });
+      this.templateSearch();
+    })
       
       this.setState({
         usernameData: Cookies.get("username")

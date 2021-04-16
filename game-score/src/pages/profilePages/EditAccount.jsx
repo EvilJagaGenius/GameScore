@@ -132,27 +132,27 @@ export default class EditAccount extends React.Component{
   }
 
   /**
-   * emailHandler
-   * @param {*} event 
+   * emailHandler: event handler for the email textfield
+   * @param {*} event: event parameter for processing the new value in the email textfield
    */
    emailHandler=(event)=>{
     //create an email text string
     let email = String(event.target.value);
     //create a special string that contains the requirements for email validation
-    var regex = /^.+@.+\..+/
+    var emailCheck = /^.+@.+\..+/;
     //if the email doesn't match the requirements, declare an error by updating states accordingly
-    if(!email.match(regex)){
-      this.setState({
-        email: "",
-        emailError: true,
-        emailHelper: "Invalid email entered."
-      })
-    }
     if(email.length === 0){
       this.setState({
         email: "",
         emailError: true,
         emailHelper: "Email is empty."
+      })
+    }
+    if(!email.match(emailCheck)){
+      this.setState({
+        email: "",
+        emailError: true,
+        emailHelper: "Invalid email entered."
       })
     }
     //otherwise, remove any errors

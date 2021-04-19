@@ -70,10 +70,12 @@ export default class ConditionEditor extends Component {
 
         }
 
+        //Bind closing hint modal function as callback to this class
         this.closedHintModal = this.closedHintModal.bind(this)
 
     }
 
+    //Callback to close modal in state
     closedHintModal()
     {
         this.setState({
@@ -81,6 +83,111 @@ export default class ConditionEditor extends Component {
         })
     }
 
+    //When pressing trash can to delete Value Row
+    handleDeleteValueRow(e,key)
+    {
+        console.log(parseInt(key))
+        var deletedID = this.state.data["conditions"][this.state.condPos]["valueRows"][parseInt(key)].rowID
+        var newDeletedIDs = this.state.deletedRowIDs
+        newDeletedIDs.push(deletedID)
+        var newData = this.state.data
+        newData["conditions"][this.state.condPos]["valueRows"].splice(parseInt(key),1)
+
+        this.setState({
+            data:newData,
+            deletedRowIDs:newDeletedIDs,
+            madeChanges:true
+        })
+    }
+
+    //Add new Row to Tabular Scoring Condition
+    handleNewValueRow(e)
+    {
+        var newData = this.state.data
+        newData["conditions"][this.state.condPos]["valueRows"].push({
+             inputMin:0,
+             inputMax:0,
+             outputVal:0,
+             rowID:-1
+        })
+        this.setState({
+            data:newData,
+            madeChanges:true
+        })
+    }
+
+    handleSaveCondition(e)
+    {
+        //Creat Request Header, grab info from states
+        const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        credentials: 'include',
+        body: JSON.stringify({
+            conditionName:this.state.data["conditions"][this.state.condPos].conditionName,
+            scoringType:this.state.data["conditions"][this.state.condPos].scoringType,
+            pointMultiplier:this.state.data["conditions"][this.state.condPos].pointMultiplier,
+            maxPerGame:this.state.data["conditions"][this.state.condPos].maxPerGame,
+            maxPerPlayer:this.state.data["conditions"][this.state.condPos].maxPerPlayer,
+            inputType: this.state.data["conditions"][this.state.condPos].inputType,
+            description: this.state.data["conditions"][this.state.condPos].description,
+            conditionID: this.state.conditionID,
+            templateID:this.state.templateID,
+            valueRows:this.state.data["conditions"][this.state.condPos]["valueRows"],
+            deletedRowIDs:this.state.deletedRowIDs,
+            maxPerPlayerActive:this.state.data["conditions"][this.state.condPos].maxPerPlayerActive,
+            maxPerGameActive:this.state.data["conditions"][this.state.condPos].maxPerGameActive
+            })
+        };
+
+        //Call API to send updated condition to server
+        fetch("/api/postEditCondition",requestOptions)
+          .then(res => res.json())
+          .then((result) => {
+
+              console.log(result)
+              this.setState({
+                data:result,
+                loaded: true
+              })
+              ToastsStore.success("Template Name Updated");
+            
+                this.props.history.push({
+                  pathname:"/mytemplates/editor",
+                  state:{templateID:this.state.templateID}
+                });
+
+          })
+    }
+
+    //Delete condition from database
+    handleDeleteCondition(e)
+    {
+        //Request Headers
+        const requestOptions = {
+    
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        credentials: 'include',
+        body: JSON.stringify({
+            conditionID: this.state.conditionID,
+            templateID:this.state.templateID
+            })
+        };
+
+        //Delete condition from database
+        fetch("/api/postDeleteCondition",requestOptions)
+          .then(res => res.json())
+          .then((result) => {
+
+                this.props.history.push({
+                  pathname:"/mytemplates/editor",
+                  state:{templateID:this.state.templateID}
+                });
+          })        
+    }
+
+    //Validation for number textboxes to ensure correct bounds and type
     validateNumber(newVal)
     {
         if(isNaN(newVal)===true || newVal ==="")
@@ -103,33 +210,14 @@ export default class ConditionEditor extends Component {
         return newVal
     }
 
-    validateMaxNumber(newVal)
-    {
-        if(isNaN(newVal)===true || newVal ==="")
-        {
-            newVal = 0
-        }
-        else
-        {
-           
-        }
-        if(newVal>1000000)
-        {
-            newVal = 1000000
-        }
-        else if(newVal<0)
-        {
-            newVal = 0
-        }
-        newVal = Math.round(newVal)
-        return newVal
-    }
-
+    //On Load
     componentDidMount()
     {
+
         var conditionID = 0;
         var templateID = 0;
 
+        //Set state defaults based upon which template the user just came from
         if(this.props.location!=null)
         {
             this.setState({
@@ -141,8 +229,9 @@ export default class ConditionEditor extends Component {
             conditionID = this.props.location.state.conditionID
             templateID = this.props.location.state.templateID
         }
+       
 
-
+        //Request Header
         const requestOptions = {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -152,21 +241,27 @@ export default class ConditionEditor extends Component {
             })
         };
 
+        //Grab the conditions info from server for the current template
         fetch("/api/getConditions",requestOptions)
           .then(res => res.json())
           .then((result) => {
 
+            //Save Result to State
               console.log(result)
               this.setState({
                 data:result
               })
 
-
+            //Find Condition Position of current position
             console.log(conditionID)
+
+            //For Each Condition of this template
             for (var i=0;i<Object.keys((result["conditions"])).length;i++)
             {
+                //If the condition we are editing is at position i
                 if(result["conditions"][i].conditionID===conditionID)
                 {
+                    //Save condition position
                     this.setState({
                         condPos:i,
                         scoringType:result["conditions"][i].scoringType,
@@ -177,9 +272,31 @@ export default class ConditionEditor extends Component {
                 }
                 console.log(i)
             }
-
-
           },) //End Fetch
+    }
+
+    //When user changes condition name
+    handleChangeConditionName(e)
+    {
+        if(e.target.value.length<4 || e.target.value.length>30)
+        {
+            this.setState({
+            showError:true,
+            errorText:"Condition Name must be between 4 and 30 characters"
+            })
+            console.log("showing errorText")
+            e.target.value = this.state.data["conditions"][this.state.condPos].conditionName
+        }
+        else
+        {
+
+            var newData = this.state.data
+            newData["conditions"][this.state.condPos].conditionName = e.target.value
+            this.setState({
+                data:newData,
+                madeChanges:true
+            })
+        }
     }
 
 
@@ -190,34 +307,12 @@ export default class ConditionEditor extends Component {
             {
                 this.state.loaded === true && 
                 <>
-
                     
                     <div style={{whiteSpace:"nowrap"}}>
                               <div style={{textAlign:"center",display:"inlineBlock",paddingTop:2,paddingBottom:15}} align="center" textAlign= "center">
-
+                                {/* Condition Name Textbox*/}
                                 <TextField inputProps={{style: {fontSize: 25,textAlign:"center"} }} style={{width:"70%",marginTop:10}} defaultValue={this.state.data["conditions"][this.state.condPos].conditionName}
-                                onBlur={(e)=>{
-
-                                     if(e.target.value.length<4 || e.target.value.length>30)
-                                        {
-                                            this.setState({
-                                            showError:true,
-                                            errorText:"Condition Name must be between 4 and 30 characters"
-                                            })
-                                            console.log("showing errorText")
-                                            e.target.value = this.state.data["conditions"][this.state.condPos].conditionName
-                                        }
-                                        else
-                                        {
-
-                                            var newData = this.state.data
-                                            newData["conditions"][this.state.condPos].conditionName = e.target.value
-                                            this.setState({
-                                                data:newData,
-                                                madeChanges:true
-                                            })
-                                        }
-                                    }}>
+                                onBlur={(e)=>{this.handleChangeConditionName(e)}}>
                                 </TextField>
                               </div>
                               <div style={{paddingLeft:0,right:5,top:5,position:"absolute"}} align="left">
@@ -226,9 +321,7 @@ export default class ConditionEditor extends Component {
                                         this.setState({
                                             showHintModal:true
                                         })
-                                    }}
-
-                                    >
+                                       }}>
                                      <HelpOutlineIcon style={{fontSize:30}}></HelpOutlineIcon>
                                     </IconButton>
                               </div>
@@ -236,14 +329,14 @@ export default class ConditionEditor extends Component {
                                <div style={{paddingLeft:0,left:10,top:10,position:"absolute"}} align="left">
                                   {/*Back Button*/}
                                     <IconButton onClick={()=>{
-
+                                    //If user has edited something
                                     if(this.state.madeChanges === true)
                                         {
                                             this.setState({
                                                 showSaveChanges:true
                                             })
                                         }
-                                        else
+                                        else //if user has not made any changes, go back to tempalte editor screen
                                         {
                                             this.props.history.push({
                                               pathname:"/mytemplates/editor",
@@ -259,13 +352,13 @@ export default class ConditionEditor extends Component {
 
                  <TableContainer component = {Paper}> 
                     <Table>
-                        {/*Yes, in a perfect world this would be using a loop, not worth the trouble here*/}
-
+                        {/* Scoring Type Row*/}
                         <TableRow>
+                            {/* Label*/}
                             <TableCell align="left:">
                                 <div style={{marginLeft:24}}><b>Scoring Type:</b></div>
                             </TableCell>
-
+                            {/* Textbox*/}
                             <TableCell align="right">
                                 <Select style={{width:"60%",marginRight:"13%"}}id="scoringTypeInput" defaultValue={this.state.data["conditions"][this.state.condPos].scoringType}  
                                         onChange={(e)=>{
@@ -285,15 +378,19 @@ export default class ConditionEditor extends Component {
 
                         <>
                             {
-
+                            //Only draw if scoring type is linear
                             this.state.data["conditions"][this.state.condPos].scoringType === "Linear" && 
+
                             <TableRow>
+                                {/* Point Multiplier Label*/}
                                 <TableCell align="right:">
                                      <div style={{marginLeft:24}}><b>Point Multiplier:</b></div>
-                            </TableCell>
+                                </TableCell>
 
+                                {/* Point Multiplier Textbox*/}
                                 <TableCell align="right">
                                     <TextField style={{width:"60%",marginRight:"13%"}} inputProps={{style: {textAlign:"right"} }} id="pointMultiplierInput" type="number" value={this.state.data["conditions"][this.state.condPos].pointMultiplier}
+                                         //When changed, update state
                                          onChange={(e)=>{
                                             var newData = this.state.data
                                             newData["conditions"][this.state.condPos].pointMultiplier = e.target.value
@@ -303,6 +400,8 @@ export default class ConditionEditor extends Component {
                                                 madeChanges:true
                                             })
                                             }}
+
+                                         //When lose focus, validate number and set new value in state
                                          onBlur={(e)=>{
                                             var newData = this.state.data
 
@@ -318,7 +417,7 @@ export default class ConditionEditor extends Component {
                                  </TableCell>
                             </TableRow>
                             }
-
+                            {/*Tabular Table if point type is not Linear*/}
                             {
                                 this.state.data["conditions"][this.state.condPos].scoringType === "Tabular" && 
                                 <TableRow>
@@ -347,13 +446,17 @@ export default class ConditionEditor extends Component {
                                                         </TableCell>
                                                     </TableRow>
                                                 </TableHead>
-                                                {console.log(this.state.data["conditions"][this.state.condPos]["valueRows"])}
+                                                {/*For each value row of this condition*/}
                                                  {Object.keys((this.state.data["conditions"][this.state.condPos]["valueRows"])).map(key=> (
+
+                                                    //Set classname to show red row color if min is > max
                                                     <TableRow className={((parseFloat(this.state.data["conditions"][this.state.condPos]["valueRows"][parseInt(key)].inputMin)>
                                                         parseFloat(this.state.data["conditions"][this.state.condPos]["valueRows"][parseInt(key)].inputMax)) ? 'errorCondition' : '')}>
 
+                                                        {/*Input Min*/}
                                                         <TableCell style={{width:"100%"}}>
                                                             <TextField inputProps={{style: {textAlign:"center"} }} type="number" value = {this.state.data["conditions"][this.state.condPos]["valueRows"][key].inputMin}
+                                                                /*On Blur, validate and set state*/
                                                                 onBlur={(e)=>{
 
                                                                     var newData = this.state.data
@@ -363,7 +466,7 @@ export default class ConditionEditor extends Component {
                                                                         madeChanges:true
                                                                     })
                                                                     }}
-
+                                                                /*On change, set state*/
                                                                 onChange={(e)=>{
 
                                                                     var newData = this.state.data
@@ -375,8 +478,10 @@ export default class ConditionEditor extends Component {
                                                                     }}>
                                                             </TextField>
                                                         </TableCell>
+                                                        {/*Input Max*/}
                                                         <TableCell style={{width:"30%"}}>
                                                             <TextField inputProps={{style: {textAlign:"center"} }} type="number" value = {this.state.data["conditions"][this.state.condPos]["valueRows"][key].inputMax}
+                                                                    /*On Blur, validate and set state*/
                                                                     onBlur={(e)=>{
                                                                     var newData = this.state.data
                                                                     newData["conditions"][this.state.condPos]["valueRows"][key].inputMax= this.validateNumber(e.target.value)
@@ -386,6 +491,7 @@ export default class ConditionEditor extends Component {
                                                                     })
                                                                     }}
 
+                                                                    /*On change, set state*/
                                                                     onChange={(e)=>{
                                                                     var newData = this.state.data
                                                                     newData["conditions"][this.state.condPos]["valueRows"][key].inputMax= e.target.value
@@ -396,8 +502,10 @@ export default class ConditionEditor extends Component {
                                                                     }}>                                                 
                                                             </TextField>
                                                         </TableCell>
+                                                        {/*Output Value*/}
                                                         <TableCell style={{width:"50%"}}> 
                                                             <TextField inputProps={{style: {textAlign:"center"} }} type="number" value={this.state.data["conditions"][this.state.condPos]["valueRows"][key].outputVal}
+                                                                    /*On Blur, validate and set state*/
                                                                     onBlur={(e)=>{
                                                                     var newData = this.state.data
                                                                     newData["conditions"][this.state.condPos]["valueRows"][key].outputVal= this.validateNumber(e.target.value)
@@ -407,6 +515,7 @@ export default class ConditionEditor extends Component {
                                                                     })
                                                                     }}
 
+                                                                    /*On change, set state*/
                                                                     onChange={(e)=>{
                                                                     var newData = this.state.data
                                                                     newData["conditions"][this.state.condPos]["valueRows"][key].outputVal= e.target.value
@@ -417,53 +526,27 @@ export default class ConditionEditor extends Component {
                                                                     }}>
                                                             </TextField>
                                                         </TableCell>
+                                                        {/*Delete Icon*/}
                                                         <TableCell>
                                                             <IconButton style={{marginLeft:-10}}
-                                                            onClick={()=>{
-                                                                
-                                                                console.log(parseInt(key))
-                                                                var deletedID = this.state.data["conditions"][this.state.condPos]["valueRows"][parseInt(key)].rowID
-                                                                var newDeletedIDs = this.state.deletedRowIDs
-                                                                newDeletedIDs.push(deletedID)
-                                                                var newData = this.state.data
-                                                                newData["conditions"][this.state.condPos]["valueRows"].splice(parseInt(key),1)
-
-                                                                this.setState({
-                                                                    data:newData,
-                                                                    deletedRowIDs:newDeletedIDs,
-                                                                    madeChanges:true
-                                                                })
-
-                                                                }}>
+                                                            onClick={(e)=>{
+                                                                this.handleDeleteValueRow(e,key)
+                                                            }}>
                                                                 <DeleteIcon></DeleteIcon>
                                                             </IconButton>
                                                         </TableCell>
                                                             
-                                                        
-                                                        
                                                     </TableRow>
                                                 ))}
-                                                    <TableRow>
+                                                    {/*Row at bottom on table to add new Value Row*/}
+                                                    <TableRow>  
                                                         <TableCell align="center" colSpan={4}>
-                                                             <Button startIcon={<AddIcon/>} onClick={()=>{
-
-                                                                var newData = this.state.data
-                                                                newData["conditions"][this.state.condPos]["valueRows"].push({
-                                                                     inputMin:0,
-                                                                     inputMax:0,
-                                                                     outputVal:0,
-                                                                     rowID:-1
-                                                                })
-                                                                this.setState({
-                                                                    data:newData,
-                                                                    madeChanges:true
-                                                                })
-
-
+                                                             <Button startIcon={<AddIcon/>} onClick={(e)=>{
+                                                             this.handleNewValueRow(e)
                                                              }}> New Row </Button>
                                                             </TableCell>
                                                     </TableRow>
-                                            </Table>
+                                            </Table> {/*End Tabular Table*/}
                                         </TableContainer>
                                     </TableCell>
                                 </TableRow>
@@ -471,8 +554,10 @@ export default class ConditionEditor extends Component {
                         </>
 
                         <TableRow>
+                            {/* Max Per Game Label and Checkbox*/}
                             <TableCell style={{width:"50%"}} align="left:">
                                 <Checkbox style={{marginLeft:-12,marginRight:-2,marginTop:-2}} checked={this.state.data["conditions"][this.state.condPos].maxPerGameActive}
+                                     //Save Value to state when changed
                                      onChange={(e)=>{
                                         var newData = this.state.data
                                         newData["conditions"][this.state.condPos].maxPerGameActive = e.target.checked
@@ -485,12 +570,13 @@ export default class ConditionEditor extends Component {
 
                                 <b>Max Per Game:</b>
 
-
                             </TableCell>
                             
+                            {/* Max Per Game Textbox*/}
                               <TableCell align="right">
                                  
-                                <TextField style={{width:"60%",marginRight:"13%"}} inputProps={{style: {textAlign:"right"} }} id="maxPerGameInput" type="number" value={this.state.data["conditions"][this.state.condPos].maxPerGame}
+                                <TextField disabled= {this.state.data["conditions"][this.state.condPos].maxPerGameActive ==false} style={{width:"60%",marginRight:"13%"}} inputProps={{style: {textAlign:"right"} }} id="maxPerGameInput" type="number" value={this.state.data["conditions"][this.state.condPos].maxPerGame}
+                                     // Validate and then save number to state when blurred
                                      onBlur={(e)=>{
                                             var newData = this.state.data
                                             newData["conditions"][this.state.condPos].maxPerGame = this.validateNumber(e.target.value)
@@ -499,6 +585,7 @@ export default class ConditionEditor extends Component {
                                                 madeChanges:true
                                             })
                                         }}
+                                     // Save number to state when changed
                                      onChange={(e)=>{
                                             var newData = this.state.data
                                             newData["conditions"][this.state.condPos].maxPerGame = e.target.value
@@ -512,8 +599,10 @@ export default class ConditionEditor extends Component {
                         </TableRow>
 
                         <TableRow>
+                            {/* Max Per Player Label*/}
                             <TableCell style={{width:"50%"}} align="left:">
                                  <Checkbox style={{marginLeft:-12,marginRight:-2,marginTop:-2}} checked={this.state.data["conditions"][this.state.condPos].maxPerPlayerActive}
+                                     //Toggle Checkbox and save to state
                                      onChange={(e)=>{
                                         var newData = this.state.data
                                         newData["conditions"][this.state.condPos].maxPerPlayerActive = e.target.checked
@@ -525,9 +614,12 @@ export default class ConditionEditor extends Component {
                                 </Checkbox>
                                 <b>Max Per Player:</b>
                             </TableCell>
+
+                            {/* Max Per Player Textbox*/}
                              <TableCell align="right">
                                
-                                <TextField style={{width:"60%",marginRight:"13%"}} inputProps={{style: {textAlign:"right"} }} id="maxPerPlayerInput" type="number" value={this.state.data["conditions"][this.state.condPos].maxPerPlayer}
+                                <TextField disabled= {this.state.data["conditions"][this.state.condPos].maxPerPlayerActive==false} style={{width:"60%",marginRight:"13%"}} inputProps={{style: {textAlign:"right"} }} id="maxPerPlayerInput" type="number" value={this.state.data["conditions"][this.state.condPos].maxPerPlayer}
+                                     // On blur validate and save value to state
                                      onBlur={(e)=>{
                                             var newData = this.state.data
                                             newData["conditions"][this.state.condPos].maxPerPlayer = this.validateNumber(e.target.value)
@@ -536,6 +628,7 @@ export default class ConditionEditor extends Component {
                                                 madeChanges:true
                                             })
                                             }}
+                                     // On change, save to state
                                      onChange={(e)=>{
                                             var newData = this.state.data
                                             newData["conditions"][this.state.condPos].maxPerPlayer = e.target.value
@@ -571,78 +664,41 @@ export default class ConditionEditor extends Component {
                         </TableRow>
 
                     </Table>
-                  </TableContainer>
+                  </TableContainer> 
 
                   <h4 style={{marginLeft:20}}>Description:</h4>
                   <TextField variant="outlined" id="descriptionInput" multiline rows={8} style={{width:"90%",marginLeft:20}} value={this.state.data["conditions"][this.state.condPos].description} 
+                            // On change, save description to state
                             onChange={(e)=>{
-                            var newData = this.state.data
-                            newData["conditions"][this.state.condPos].description = e.target.value
-                            this.setState({
-                                data:newData,
-                                madeChanges:true
-                            })
+                                var newData = this.state.data
+                                newData["conditions"][this.state.condPos].description = e.target.value
+                                this.setState({
+                                    data:newData,
+                                    madeChanges:true
+                                })
                             }}>
-
 
                     </TextField>
 
                     <div style={{display:"flex","justifyContent":"center",paddingBottom:10}}>
+                        {/* Save Button */}
                         <Button  variant = "contained" color="primary" size = "large" style={{marginTop:12,marginRight:8}} startIcon={<SaveIcon />}
-                        onClick={()=>{
-                        //Create Game with Same number of players API call
-
-                        const requestOptions = {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        credentials: 'include',
-                        body: JSON.stringify({
-                            conditionName:this.state.data["conditions"][this.state.condPos].conditionName,
-                            scoringType:this.state.data["conditions"][this.state.condPos].scoringType,
-                            pointMultiplier:this.state.data["conditions"][this.state.condPos].pointMultiplier,
-                            maxPerGame:this.state.data["conditions"][this.state.condPos].maxPerGame,
-                            maxPerPlayer:this.state.data["conditions"][this.state.condPos].maxPerPlayer,
-                            inputType: this.state.data["conditions"][this.state.condPos].inputType,
-                            description: this.state.data["conditions"][this.state.condPos].description,
-                            conditionID: this.state.conditionID,
-                            templateID:this.state.templateID,
-                            valueRows:this.state.data["conditions"][this.state.condPos]["valueRows"],
-                            deletedRowIDs:this.state.deletedRowIDs,
-                            maxPerPlayerActive:this.state.data["conditions"][this.state.condPos].maxPerPlayerActive,
-                            maxPerGameActive:this.state.data["conditions"][this.state.condPos].maxPerGameActive
-                            })
-                        };
-
-                        console.log(requestOptions)
-
-                        fetch("/api/postEditCondition",requestOptions)
-                          .then(res => res.json())
-                          .then((result) => {
-
-                              console.log(result)
-                              this.setState({
-                                data:result,
-                                loaded: true
-                              })
-                              ToastsStore.success("Template Name Updated");
-                            this.props.history.push({
-                                  pathname:"/mytemplates/editor",
-                                  state:{templateID:this.state.templateID}
-                                });
-
-                          })
+                        onClick={(e)=>{
+                            this.handleSaveCondition(e)
                         }}> Save Condition</Button>
 
-
+                        {/* Delete Button */ }
                          <Button  variant = "contained" color="primary" size = "large" style={{marginTop:12,marginRight:8}} startIcon={<DeleteIcon />}
+                        
                         onClick={()=>{
-                        this.setState({showDeleteModal:true})
+                            this.setState({showDeleteModal:true})
                         }}> Delete</Button>
 
                     </div>
 
                 </>
             }
+                    {/* Delete Condition Modal */}
                     <Modal
                     open={this.state.showDeleteModal}
                     aria-labelledby="simple-modal-title"
@@ -657,32 +713,14 @@ export default class ConditionEditor extends Component {
 
                        <div style={{display: 'flex',  justifyContent:'center',margin:11}}>
 
-                          {/*Confirm Finalize Score*/}
-                          <Button  style={{marginRight:5}} variant = "contained" color="primary" size = "large" onClick={()=>{
+                          {/*Delete Condition*/}
+                          <Button  style={{marginRight:5}} variant = "contained" color="primary" size = "large" onClick={(e)=>{
                         
-                            const requestOptions = {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            credentials: 'include',
-                            body: JSON.stringify({
-                                conditionID: this.state.conditionID,
-                                templateID:this.state.templateID
-                                })
-                            };
-
-                            fetch("/api/postDeleteCondition",requestOptions)
-                              .then(res => res.json())
-                              .then((result) => {
-
-                                    this.props.history.push({
-                                      pathname:"/mytemplates/editor",
-                                      state:{templateID:this.state.templateID}
-                                    });
-                              })        
+                           this.handleDeleteCondition(e)
                         
                           }}>Delete</Button>
 
-                          {/*Cancel Finalize Scoring*/}
+                          {/*Cancel Deleting Condition*/}
                           <Button  style={{marginLeft:5}} variant = "contained" color="primary" size = "large" onClick={()=>this.setState({showDeleteModal:false})
                           }>Cancel</Button>
 
@@ -692,6 +730,7 @@ export default class ConditionEditor extends Component {
                     </div>
                   </Modal>
 
+                  {/* Save Changed Modal */}
                   <Modal
                     open={this.state.showSaveChanges}
                     aria-labelledby="simple-modal-title"
@@ -707,6 +746,7 @@ export default class ConditionEditor extends Component {
 
                               <Button  style={{marginRight:5}}variant = "contained" color="primary" size = "large" onClick={()=>{
                                 
+                                    //Go back to template editing page, without saving to server
                                     this.props.history.push({
                                       pathname:"/mytemplates/editor",
                                       state:{templateID:this.state.templateID}
@@ -728,11 +768,15 @@ export default class ConditionEditor extends Component {
                     </div>
                   </Modal>
                 <TemplateHintModal show={this.state.showHintModal} closeHint={this.closedHintModal}></TemplateHintModal>
+
+              {/*Error Alert*/}
                <Snackbar open={this.state.showError} autoHideDuration={3000} onClose={(e,reason)=>{
+
+                //Ensure popup always appears when using onBlur triggers
                 if(reason !== "clickaway")
                 {
-                this.setState({showError:false})
-                console.log(reason)}
+                    this.setState({showError:false})
+                    console.log(reason)}
                 }
 
                 }>
@@ -740,6 +784,8 @@ export default class ConditionEditor extends Component {
                   {this.state.errorText}
                 </Alert>
              </Snackbar>
+
+             {/*Success Alert*/}
               <Snackbar open={this.state.showSuccess} autoHideDuration={3000} onClose={()=>{this.setState({showSuccess:false})}}>
                 <Alert variant = "filled" severity="success">
                   {this.state.successText}

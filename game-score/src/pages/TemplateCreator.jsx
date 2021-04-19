@@ -9,7 +9,7 @@ import Alert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
 
 
-
+//Prevent every single game from being displayed to prevent lag
 const filterOptions = createFilterOptions({
   limit:30
 });
@@ -30,8 +30,10 @@ export default class TemplateCreator extends React.Component {
         })
     }
 
+    //On Load
     componentDidMount()
     {
+        //Grab all games and tempaltes from server
         fetch("/api/getGamesAndTemplates")
           .then(res => res.json())
           .then((result) => {
@@ -43,6 +45,64 @@ export default class TemplateCreator extends React.Component {
               })
 
           },) //End Fetch
+    }
+
+    //Checks to make sure all required pieces are present and then creates template
+    handleCreateTemplate(e)
+    {
+      if(this.state.gameID===0)
+          {
+              this.setState({
+                showError:true,
+                errorText:"No Game Selected"
+              })
+          }
+          else if(this.state.templateName==="")
+          {
+              this.setState({
+                showError:true,
+                errorText:"Template Name Missing"
+              })
+          }
+          else if(this.state.templateName.length<4 || this.state.templateName.length>30)
+          {
+            this.setState({
+                showError:true,
+                errorText:"Template Name must be between 4 and 30 characters"
+              })
+          }
+          else if(this.state.cloneID===0)
+          {
+              this.setState({
+                showError:true,
+                errorText:"Template to Clone From Missing"
+              })
+          }
+          else //If Good
+          {
+
+              const requestOptions = {
+                  method: 'POST',
+                  headers: {'Content-Type': 'application/json'},
+                  credentials: 'include',
+                  body: JSON.stringify({
+                    gameID: this.state.gameID,
+                    cloneID: this.state.cloneID,
+                    templateName: this.state.templateName
+                  })
+              };
+
+              fetch(`/api/postCreateTemplate`,requestOptions)
+                  .then(res => res.json()).then(data => {
+                  console.log(data);
+
+                    this.props.history.push({
+                    pathname:"/mytemplates/editor",
+                    state:{templateID:data.templateID}
+                  });
+              })
+
+          }
     }
 
     render()
@@ -66,11 +126,11 @@ export default class TemplateCreator extends React.Component {
                       filterOptions={filterOptions}
                       onChange={(e,newValue,reason)=>{
 
-                        if(reason ==='clear')
+                        if(reason ==='clear') //If erased, set to blank
                         {
                             this.setState({gameID:0})
                         }
-                        else if(reason ==='select-option' || reason ==='blur')
+                        else if(reason ==='select-option' || reason ==='blur') //if selected or clicked away, set to selected
                         {
                             this.setState({gameID:newValue.gameID})
                         }
@@ -90,11 +150,11 @@ export default class TemplateCreator extends React.Component {
                       getOptionLabel={(option) => option.templateName}
                       onChange={(e,newValue,reason)=>{
 
-                        if(reason ==='clear')
+                        if(reason ==='clear') //If erased, set to blank
                         {
                             this.setState({cloneID:0})
                         }
-                        else if(reason ==='select-option' || reason ==='blur')
+                        else if(reason ==='select-option' || reason ==='blur') //if selected or clicked away, set to selected
                         {
                             this.setState({cloneID:newValue.templateID})
                         }
@@ -104,66 +164,15 @@ export default class TemplateCreator extends React.Component {
                     />
 
                     <div style={{justifyContent:"center",display:"flex",marginTop:20}}>
+
+                        {/*Create Button*/}
                         <Button style={{marginRight:7}}size = "large" startIcon={<AddIcon/>} variant = "contained" color="primary"
-                        onClick={()=>{
-                        
-                            if(this.state.gameID===0)
-                            {
-                                this.setState({
-                                  showError:true,
-                                  errorText:"No Game Selected"
-                                })
-                            }
-                            else if(this.state.templateName==="")
-                            {
-                                this.setState({
-                                  showError:true,
-                                  errorText:"Template Name Missing"
-                                })
-                            }
-                            else if(this.state.templateName.length<4 || this.state.templateName.length>30)
-                            {
-                              this.setState({
-                                  showError:true,
-                                  errorText:"Template Name must be between 4 and 30 characters"
-                                })
-                            }
-                            else if(this.state.cloneID===0)
-                            {
-                                this.setState({
-                                  showError:true,
-                                  errorText:"Template to Clone From Missing"
-                                })
-                            }
-                            else //If Good
-                            {
-
-                                const requestOptions = {
-                                    method: 'POST',
-                                    headers: {'Content-Type': 'application/json'},
-                                    credentials: 'include',
-                                    body: JSON.stringify({
-                                      gameID: this.state.gameID,
-                                      cloneID: this.state.cloneID,
-                                      templateName: this.state.templateName
-                                    })
-                                };
-
-                                fetch(`/api/postCreateTemplate`,requestOptions)
-                                    .then(res => res.json()).then(data => {
-                                    console.log(data);
-
-                                      this.props.history.push({
-                                      pathname:"/mytemplates/editor",
-                                      state:{templateID:data.templateID}
-                                    });
-                                })
-
-                            }
+                        onClick={(e)=>{
+                          this.handleCreateTemplate(e)
                         }}
-
-
                         > Create</Button>
+
+                        {/*Cancel Button*/}
                         <Button style={{marginLeft:7}}size = "large" startIcon={<ClearIcon/>} variant = "contained" color="primary"
                         onClick={()=>{
                         this.props.history.goBack()
@@ -173,6 +182,11 @@ export default class TemplateCreator extends React.Component {
 
                     </div>
 
+                    <Typography style = {{fontSize:10,display:"flex",justifyContent:"center",marginTop:30,marginLeft:15,marginRight:15}}>
+                      By creating a template, you are agreeing that all board game templates within GameScore that you create will fall under a CC0 copyright policy.
+                    </Typography>
+
+                  {/*Error Alert*/}
                   <Snackbar open={this.state.showError} autoHideDuration={3000} onClose={()=>{this.setState({showError:false})}}>
                     <Alert variant = "filled" severity="error">
                       {this.state.errorText}

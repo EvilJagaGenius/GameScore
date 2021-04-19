@@ -69,8 +69,107 @@ export default class TemplateEditor extends Component {
         })
     }
 
+    handleChangeTemplateName(e)
+    {
+        if(e.target.value.length<4 || e.target.value.length>30)
+        {
+            this.setState({
+            showError:true,
+            errorText:"Template Name must be between 4 and 30 characters"
+            })
+            console.log("showing errorText")
+            e.target.value = this.state.data.templateName
+        }
+        else
+        {
+
+             const requestOptions = {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                credentials: 'include',
+                body: JSON.stringify({
+                  templateID: this.state.templateID,
+                  templateName:e.target.value
+                })
+            };
+
+            fetch("/api/postEditTemplateName",requestOptions)
+              .then(res => res.json())
+              .then((result) => {
+
+                  console.log(result)
+                  this.setState({
+                    data:result,
+                    loaded: true,
+                    showSuccess:true,
+                    successText:"Template Name Successfully Updated"
+                  })
+
+              },) //End Fetch
+        }
+    }
+
+    //Tells server to create new empty condition
+    handleAddCondition(e)
+    {
+        //Request Header
+        const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        credentials: 'include',
+        body: JSON.stringify({
+            templateID:this.state.templateID,
+            })
+        };
+
+        //Create new empty condition
+        fetch("/api/postCreateCondition",requestOptions)
+          .then(res => res.json())
+          .then((result) => {
+
+              console.log(result)
+
+              //Sends user immediately to new condition
+              this.props.history.push({
+              pathname:"/mytemplates/conditioneditor",
+              state:
+              {templateID:this.state.data.templateID,
+               conditionID:result.conditionID}
+               
+            });
+
+          })
+    }
+
+    //Deletes template from Database
+    handleDeleteTemplate(e)
+    {
+        //Request Header
+        const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        credentials: 'include',
+        body: JSON.stringify({
+            templateID:this.state.templateID
+            })
+        };
+
+        //Deletes tempalte in Database
+        fetch("/api/postDeleteTemplate",requestOptions)
+          .then(res => res.json())
+          .then((result) => {
+
+            //Sends user back to my templates screen
+            this.props.history.push({
+                  pathname:"/mytemplates"
+                });
+          })        
+    }
+
+    //On load
     componentDidMount()
     {
+        //Grab template ID from whereever the player is coming from
         var templateID = 0;
         if(this.props.location!=null)
         {
@@ -82,6 +181,7 @@ export default class TemplateEditor extends Component {
         }
 
 
+        //Request Header
          const requestOptions = {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -91,6 +191,7 @@ export default class TemplateEditor extends Component {
             })
         };
 
+        //Get All Conditions for this template from server
         fetch("/api/getConditions",requestOptions)
           .then(res => res.json())
           .then((result) => {
@@ -113,59 +214,22 @@ export default class TemplateEditor extends Component {
                 {
                 this.state.loaded === true &&
                 <>
-
-
-
+                            {/*Header*/}
                             <div style={{whiteSpace:"nowrap"}}>
                               <div style={{textAlign:"center",display:"inlineBlock",paddingTop:2,paddingBottom:5}} align="center" textAlign= "center">
 
                                  <TextField inputProps={{style: {fontSize: 25,textAlign:"center"} }} style={{width:"70%",marginTop:10}} defaultValue={this.state.data.templateName}
                                     onBlur={(e)=>{
-
-                                        if(e.target.value.length<4 || e.target.value.length>30)
-                                        {
-                                            this.setState({
-                                            showError:true,
-                                            errorText:"Template Name must be between 4 and 30 characters"
-                                            })
-                                            console.log("showing errorText")
-                                            e.target.value = this.state.data.templateName
-                                        }
-                                        else
-                                        {
-
-                                             const requestOptions = {
-                                                method: 'POST',
-                                                headers: {'Content-Type': 'application/json'},
-                                                credentials: 'include',
-                                                body: JSON.stringify({
-                                                  templateID: this.state.templateID,
-                                                  templateName:e.target.value
-                                                })
-                                            };
-
-                                            fetch("/api/postEditTemplateName",requestOptions)
-                                              .then(res => res.json())
-                                              .then((result) => {
-
-                                                  console.log(result)
-                                                  this.setState({
-                                                    data:result,
-                                                    loaded: true,
-                                                    showSuccess:true,
-                                                    successText:"Template Name Successfully Updated"
-                                                  })
-
-                                              },) //End Fetch
-                                        }
+                                        //Validate and update template name
+                                        this.handleChangeTemplateName(e)
                                     }}
-                            ></TextField>
+                                 ></TextField>
                               </div>
 
-                                 <div style={{paddingLeft:0,left:10,top:10,position:"absolute"}} align="left">
+                                 <div style={{paddingLeft:0,left:10,top:55,position:"absolute"}} align="left">
                                   {/*Back Button*/}
                                     <IconButton onClick={()=>{
-
+                                            //Go to my template page
                                             this.props.history.push({
                                               pathname:"/mytemplates"
                                             });
@@ -173,11 +237,12 @@ export default class TemplateEditor extends Component {
                                     <BackIcon></BackIcon>
                                     </IconButton>
                               </div>
+
                                 <div style={{textAlign:"center",display:"inlineBlock",paddingTop:2,paddingBottom:15}} align="center" textAlign= "center">
 
                                         ({this.state.data.gameName})
                                 </div>
-                              <div style={{paddingLeft:0,right:5,top:5,position:"absolute"}} align="left">
+                              <div style={{paddingLeft:0,right:5,top:50,position:"absolute"}} align="left">
                                   {/*Back Button*/}
                                       <IconButton onClick={()=>{
                                         this.setState({
@@ -194,20 +259,23 @@ export default class TemplateEditor extends Component {
                         {/*For each Condition, show values*/}
                         {Object.keys((this.state.data["conditions"])).map(key=> (
                               <TableContainer component = {Paper} style={{marginBottom:20}}> 
-                                <Table size="small" style={{ tableLayout: 'fixed' }}>
+                                {/*Table for each condition*/}
+                                <Table size="small" style={{ tableLayout: 'fixed' }}> 
                                     <TableHead >
                                         <TableRow style={{height:20}}>
                                             <TableCell colSpan={2} align="center" style={ (this.state.data["conditions"][key].description !== "") ? { borderBottom:'none'} : {}}>
-
-
+                                                {/*Condition Name*/}
                                                 <div style={{whiteSpace:"nowrap"}}>
                                                   <div style={{textAlign:"center",display:"inlineBlock",paddingTop:11,paddingBottom:-6}} align="center" textAlign= "center">
 
                                                      <Typography style={{fontSize:16}}><b>{this.state.data["conditions"][key].conditionName}</b></Typography>
                                                   </div>
 
+                                                 {/*Edit Icon*/}
                                                   <div style={{paddingLeft:0,right:10,marginTop:-35}} align="right">
                                                          <IconButton style={{float:"right"}}
+
+                                                        // Send user to condition editor for this condition on click
                                                         onClick={()=>{
                                                             console.log(this.state.data["conditions"][key].conditionID)
                                                             this.props.history.push({
@@ -216,7 +284,7 @@ export default class TemplateEditor extends Component {
                                                               {templateID:this.state.data.templateID,
                                                                conditionID:this.state.data["conditions"][key].conditionID}
                                                                
-                                                            });
+                                                                });
 
                                                             }}>
                                                             <CreateIcon></CreateIcon>
@@ -224,11 +292,10 @@ export default class TemplateEditor extends Component {
                                                   </div>
                                                 </div>
                                             </TableCell>
-
-                                            
                                         </TableRow>
                                     </TableHead>
 
+                                    {/*Description (if exists)*/}
                                     <>
                                         {
                                             this.state.data["conditions"][key].description !== "" &&
@@ -240,11 +307,13 @@ export default class TemplateEditor extends Component {
                                         }
                                     </>
 
+                                    {/*Scoring Type*/}
                                     <TableRow>
                                         <TableCell  align="left:"><b>Scoring Type:</b></TableCell>
                                         <TableCell align="center">{this.state.data["conditions"][key].scoringType}</TableCell>
                                     </TableRow>
 
+                                    {/*Points Multiplier or Tabular Table*/}
                                     <>
                                         {
                                         this.state.data["conditions"][key].scoringType==="Linear" &&
@@ -258,6 +327,7 @@ export default class TemplateEditor extends Component {
                                         this.state.data["conditions"][key].scoringType === "Tabular" && 
                                         <TableRow>
                                             <TableCell colSpan={2}>
+                                                {/*New Table for Tabular Scoring*/}
                                                 <TableContainer  component = {Paper}>
                                                     <Table size="small">
                                                         <TableHead>
@@ -275,6 +345,7 @@ export default class TemplateEditor extends Component {
                                                         </TableHead>
                                                         {console.log(this.state.data["conditions"][key]["valueRows"])}
                                                          {Object.keys((this.state.data["conditions"][key]["valueRows"])).map(rowNum=> (
+                                                            //For each value row, show inputMin, inputMax, and outputVal
                                                             <TableRow>
                                                                 <TableCell align="center">
                                                                     {this.state.data["conditions"][key]["valueRows"][rowNum].inputMin}
@@ -288,22 +359,24 @@ export default class TemplateEditor extends Component {
                                                             </TableRow>
                                                         ))}
                                                     </Table>
-                                                </TableContainer>
+                                                </TableContainer> {/*End Tabular Table*/}
                                             </TableCell>
                                         </TableRow>
                                         }
                                      </>
-                                     <>
+                                    {/*Show max per game if active*/}
+                                    <>
                                     {
-                                        this.state.data["conditions"][key].maxPerGameActive === true &&
+                                        this.state.data["conditions"][key].maxPerGameActive == true &&
                                         <TableRow>
                                             <TableCell align="left:"><b>Max Per Game:</b></TableCell>
                                             <TableCell align="center">{this.state.data["conditions"][key].maxPerGame}</TableCell>
                                         </TableRow>
                                     }
                                     </>
+                                    {/*Show max per player if active*/}
                                     {
-                                    this.state.data["conditions"][key].maxPerPlayerActive === true &&
+                                    this.state.data["conditions"][key].maxPerPlayerActive == true &&
                                     <TableRow>
                                         <TableCell align="left:"><b>Max Per Player:</b></TableCell>
                                         <TableCell align="center">{this.state.data["conditions"][key].maxPerPlayer}</TableCell>
@@ -320,11 +393,13 @@ export default class TemplateEditor extends Component {
                          ))}
 
                         <>
+                        {/*Alert Snackbar*/}
                         <Snackbar open={this.state.showError} autoHideDuration={3000} onClose={(e,reason)=>{
+                            //Allows snackbar to appear even on blur trigger
                             if(reason !== "clickaway")
                             {
-                            this.setState({showError:false})
-                            console.log(reason)}
+                                this.setState({showError:false})
+                                console.log(reason)}
                             }
 
                             }>
@@ -333,6 +408,7 @@ export default class TemplateEditor extends Component {
                             </Alert>
                          </Snackbar>
 
+                        {/*Success Snackbar*/}
                        <Snackbar open={this.state.showSuccess} autoHideDuration={3000} onClose={()=>{this.setState({showSuccess:false})}}>
                         <Alert variant = "filled" severity="success">
                           {this.state.successText}
@@ -344,41 +420,20 @@ export default class TemplateEditor extends Component {
 
                     <div style={{position:"fixed",marginRight: "5% auto",marginLeft: "5% auto", bottom:0,display:"flex",justifyContent:"center", left:0,right:0,backgroundColor:"white",marginTop:0}}>
                         <Button  variant = "contained" color="primary" size = "large" style={{margin:5}} startIcon={<AddIcon />}
-                        onClick={()=>{
+                        onClick={(e)=>{
 
-                        const requestOptions = {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        credentials: 'include',
-                        body: JSON.stringify({
-                            templateID:this.state.templateID,
-                            })
-                        };
-
-                        fetch("/api/postCreateCondition",requestOptions)
-                          .then(res => res.json())
-                          .then((result) => {
-
-                              console.log(result)
-                              this.props.history.push({
-                              pathname:"/mytemplates/conditioneditor",
-                              state:
-                              {templateID:this.state.data.templateID,
-                               conditionID:result.conditionID}
-                               
-                            });
-
-                          })
+                            //Create New Condition
+                            this.handleAddCondition(e)
+                    
                         }}> Add Condition</Button>
 
 
                         <Button  variant = "contained" color="primary" size = "large" style={{margin:5}} startIcon={<DeleteIcon />}
                         onClick={()=>{
                         //Create Game with Same number of players API call
-
-                        this.setState({
-                            showDeleteTemplate:true
-                        })
+                            this.setState({
+                                showDeleteTemplate:true
+                            })
                         }}> Delete Template</Button>
 
                     </div>
@@ -389,7 +444,8 @@ export default class TemplateEditor extends Component {
                         
                     </div>
 
-                    
+                    {/*Delete Template Modal*/}
+
                     <Modal
                     open={this.state.showDeleteTemplate}
                     aria-labelledby="simple-modal-title"
@@ -405,24 +461,9 @@ export default class TemplateEditor extends Component {
                        <div style={{display: 'flex',  justifyContent:'center',marginTop:11}}>
 
                           {/*Confirm Finalize Score*/}
-                          <Button  variant = "contained" color="primary" size = "large" onClick={()=>{
+                          <Button  variant = "contained" color="primary" size = "large" onClick={(e)=>{
                         
-                            const requestOptions = {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            credentials: 'include',
-                            body: JSON.stringify({
-                                templateID:this.state.templateID
-                                })
-                            };
-
-                            fetch("/api/postDeleteTemplate",requestOptions)
-                              .then(res => res.json())
-                              .then((result) => {
-                                this.props.history.push({
-                                      pathname:"/mytemplates"
-                                    });
-                              })        
+                           this.handleDeleteTemplate(e)
                         
                           }}>Delete</Button>
 

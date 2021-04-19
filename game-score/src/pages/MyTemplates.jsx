@@ -14,17 +14,18 @@ import {Alert} from "@material-ui/lab";
 
 export default class MyTemplates extends Component {
 
+  //Default Constructor to Init Component
   constructor(props)
   {
       super(props)
 
-        this.state =({
-        data:{},
-        loaded:false,
-        selectedTemplate:-1,
-        searching: "false",
-        searchQuery: "",
-        filtered: {}
+      this.state =({
+      data:{},
+      loaded:false,
+      selectedTemplate:-1,
+      searching: "false",
+      searchQuery: "",
+      filtered: {}
       })
 
       if(Cookies.get("username") !== ""){
@@ -32,12 +33,14 @@ export default class MyTemplates extends Component {
       }
   }
 
-
+  //API call gets list of my templates in JSON form for displaying list
   callAPI()
   {
+
     this.setState({
       selectedTemplate:-1})
 
+    //Create API Headers
       const requestOptions = {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -46,7 +49,8 @@ export default class MyTemplates extends Component {
       })
     };
 
-    fetch("/api/getMyTemplates",requestOptions) //Needs an actual route
+    ///Send API Call
+    fetch("/api/getMyTemplates",requestOptions)
       .then(res => res.json())
       .then(
         (result) => {
@@ -57,9 +61,9 @@ export default class MyTemplates extends Component {
           console.log(result)
         },
       )
-
   }
 
+  //On Load
   componentDidMount() 
   {
     if(Cookies.get("username") !== ""){
@@ -67,7 +71,7 @@ export default class MyTemplates extends Component {
     }
   }
 
-
+  //Select template and show bottom UI
   selectTemplate(newRowPos)
   {
     this.setState({
@@ -76,6 +80,7 @@ export default class MyTemplates extends Component {
     console.log(this.state.selectedTemplate)
   }
 
+  //Determine if certain row is selected (to show bottom UI)
   isSelected(checkRowPos)
   {
     if(checkRowPos === this.state.selectedTemplate)
@@ -88,6 +93,7 @@ export default class MyTemplates extends Component {
     }
   }
 
+  //On Search Bar Text Change
   handleChange = (e) => {
     this.setState({
         searchQuery: e.target.value,
@@ -96,6 +102,7 @@ export default class MyTemplates extends Component {
 
   }
 
+  //Event which updates search results based upon new values
   templateSearch = () => {
     //hold original list of results
     let currentList = {};
@@ -121,6 +128,7 @@ export default class MyTemplates extends Component {
 
     }
 
+    //Remove search results if search bar is empty
     if (this.state.searchQuery === "") {
       this.setState({
         searching: "false"
@@ -134,20 +142,21 @@ export default class MyTemplates extends Component {
     })
   }
 
+
   render() {
     return (
       <>
       {Cookies.get("username")
       ? <>
         {/* Search Bar */}
-        <TextField id="outlined-basic" label="Search Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} style={{width:"90%",marginLeft:"5%", marginTop:"1%",marginBottom:"1%"}} />
+        <TextField id="outlined-basic" label="Search My Templates" variant="outlined" value={this.state.searchQuery} onChange={this.handleChange} style={{width:"90%",marginLeft:"5%", marginTop:"1%",marginBottom:"1%"}} />
 
         {/* Wipe out default content when actively searching */}
         {this.state.searching === "false" &&
         <>
         <TableContainer component={Paper}>
           <Table size="small">
-                {/*Table displaying the dynamic data for the users created templates*/}
+                {/*Table displaying the dynamic data for the user's created templates*/}
                 {
                 this.state.loaded === true &&
                 <> 
@@ -172,6 +181,7 @@ export default class MyTemplates extends Component {
                             templateName = {this.state.data[key].templateName}
                             templateID = {this.state.data[key].templateID}
                             gameID = {this.state.data[key].gameID}
+                            favorited = {this.state.data[key].favorited}
                             selected = {this.isSelected(key)}
                             play ={true}
                             edit = {true}
@@ -179,7 +189,7 @@ export default class MyTemplates extends Component {
                             rate= {true}
                             update ={this.callAPI}>
 
-                            </BottomUI>
+                          </BottomUI>
                         </>
                       }
                       </>
@@ -223,6 +233,7 @@ export default class MyTemplates extends Component {
         </TableContainer>
         </>
         }
+          {/*Floating Action Button to create new template */}
           <Link to="/mytemplates/creator">
             <Fab color="primary" aria-label="add" style={{position:"fixed",right:20,bottom:20}}>
               <AddIcon fontSize="large"/>

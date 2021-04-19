@@ -2277,7 +2277,6 @@ def reportTemplate():
     authorID = content["authorID"]
     tReport = content["tReport"]
     aReport = content["aReport"]
-    uReports = content["uReports"]
     
     mydb = mysql.connector.connect(pool_name = "mypool")
     cursor = mydb.cursor(prepared=True)
@@ -2296,15 +2295,6 @@ def reportTemplate():
         """
 
         cursor.execute(statement, (templateID, gameID, authorID))
-
-    if (uReports != None):
-        for report in uReports:
-            statement = """
-            INSERT INTO REPORT (reason, templateID, gameID, userID)
-            VALUES ('Username', %s, %s, %s)
-            """    
-
-            cursor.execute(statement, (templateID, gameID, report["userID"]))
 
     mydb.commit()
     cursor.close()

@@ -96,22 +96,6 @@ export default function BottomUI(props) {
 		let history = useHistory();
 		const [repAuthor, setRepAuthor] = useState(false);
 		const [repTemplate, setRepTemplate] = useState(false);
-		const [repUsers, setRepUsers] = useState({});
-		var playerReports;
-
-		if (typeof(props.players) !== "undefined") {
-			console.log(props.players);
-			playerReports = {};
-			Object.keys((props.players)).map(key =>(
-				playerReports[props.players[key].playerID] = {
-					"userID":props.players[key].playerID,
-					"report":false,
-					"name":props.players[key].displayName
-				}	
-			));
-		} else {
-			playerReports = null;
-		}
 
         return(
         <>
@@ -702,23 +686,6 @@ export default function BottomUI(props) {
 
 								</Checkbox>
 								<b>{props.authorName}</b>
-									
-								{props.players === "undefined" &&
-									<>
-										<h4 style={{textAlign:"Center"}}>Players</h4>
-										{console.log(typeof(props.players))}
-										{Object.keys((playerReports)).map(key =>(
-										<>
-											<Checkbox style={{marginLeft:-12,marginRight:-2, marginTop:-2}} checked={playerReports[key].report}
-												onChange={(e)=>{
-													playerReports[key].report = e.target.checked;
-												}}>
-											</Checkbox>
-											<b>{playerReports[key].displayName}</b>
-										</>
-										))}
-									</>
-								}
 								
 								<h4 style={{textAlign:"center"}}>Template</h4>
 								<Checkbox style={{marginLeft:-12, marginRight:-2,marginTop:-2}} checked={repTemplate}
@@ -745,8 +712,7 @@ export default function BottomUI(props) {
 																templateID: props.templateID,
 																authorID: props.authorID,
 																tReport: repTemplate,
-																aReport: repAuthor,
-																uReports: playerReports
+																aReport: repAuthor
 															})
 														}
 														fetch('/api/report', requestOptions)
@@ -784,6 +750,8 @@ export default function BottomUI(props) {
 									<Typography>Are you sure you want to permanently delete this template?</Typography>
 								</>
 								}
+
+								{console.log(props.reason)}
 
 								{ props.reason === "Username" &&
 								<>

@@ -28,7 +28,9 @@ export default class MyTemplates extends Component {
         filtered: {}
       })
 
-      this.callAPI = this.callAPI.bind(this)
+      if(Cookies.get("username") !== ""){
+        this.callAPI = this.callAPI.bind(this)
+      }
   }
 
 

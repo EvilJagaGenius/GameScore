@@ -223,7 +223,11 @@ export default class MyTemplates extends Component {
                     templateID = {this.state.filtered[key].templateID}
                     gameID = {this.state.filtered[key].gameID}
                     selected = {this.isSelected(key)}
-                    play = {true}>
+                    play = {true}
+                    edit = {true}
+                    del = {true}
+                    rate = {true}
+                    update = {this.callAPI}>
                     </BottomUI>
                   </>
                 }

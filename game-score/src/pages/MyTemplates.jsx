@@ -28,7 +28,9 @@ export default class MyTemplates extends Component {
       filtered: {}
       })
 
-      this.callAPI = this.callAPI.bind(this)
+      if(Cookies.get("username") !== ""){
+        this.callAPI = this.callAPI.bind(this)
+      }
   }
 
   //API call gets list of my templates in JSON form for displaying list
@@ -64,7 +66,9 @@ export default class MyTemplates extends Component {
   //On Load
   componentDidMount() 
   {
-    this.callAPI()
+    if(Cookies.get("username") !== ""){
+      this.callAPI()
+    }
   }
 
   //Select template and show bottom UI

@@ -61,7 +61,9 @@ export default class MyTemplates extends Component {
 
   componentDidMount() 
   {
-    this.callAPI()
+    if(Cookies.get("username") !== ""){
+      this.callAPI()
+    }
   }
 
 

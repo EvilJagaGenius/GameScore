@@ -231,7 +231,7 @@ export default class ResetPassword extends Component{
           </Snackbar>
           <Snackbar open={this.state.displayError} autoHideDuration={3000} onClose={()=>{this.setState({displayError:false})}}>
             <Alert variant = "filled" severity="error">
-              Could not reset password
+              Cannot use your previous password
             </Alert>
           </Snackbar>
         </form>

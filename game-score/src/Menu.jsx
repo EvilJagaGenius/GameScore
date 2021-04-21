@@ -239,6 +239,7 @@ export default class Menu extends Component {
                                  favorited = {this.state.data["favoritedTemplates"][key].favorited}
                                  userID = {this.state.data["favoritedTemplates"][key].authorUserID}
                                  userName = {this.state.data["favoritedTemplates"][key].authorUsername}
+                                 prevRating = {this.state.data["favoritedTemplates"][key].prevRating}
                                  selected = {this.isSelected(0,key)}
                                  play = {true}
                                  rep = {true}
@@ -560,6 +561,7 @@ export default class Menu extends Component {
                     favorited = {this.state.filtered[key].favorited}
                     userID = {this.state.filtered[key].userID}
                     userName = {this.state.filtered[key].userName}
+                    prevRating = {this.state.filtered[key].prevRating}
                     selected = {this.isSelected(key)}
                     play = {true}
                     rep = {true}

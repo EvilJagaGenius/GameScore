@@ -6,7 +6,8 @@ import sqlite3, math, random, datetime
 import mysql.connector
 
 #USER_ID = 1
-TOP_LIMIT = 3  # Use only the top 3 games for each category
+NEAREST_USERS_LIMIT = 3  # Number of other users to draw from
+RECOMMENDATIONS_LIMIT = 1  # Number of games to recommend
 
 # Create a matrix to do math off of
 def generateMatrix():
@@ -62,7 +63,7 @@ def findNearestTastes(matrix, userID):
                     cosTheta = dotProduct / (magnitude * userVectorMagnitude)
                     results.append((cosTheta, i+1))  # Insert that other user's ID and cos(theta) into the priority queue)
                     results.sort(reverse=True)  # Sort the priority queue
-                    while (len(results) > TOP_LIMIT):  # If we have too many entries
+                    while (len(results) > NEAREST_USERS_LIMIT):  # If we have too many entries
                         results.pop()  # Remove the lowest-priority elements (the userIDs that match the least)
 
     return results
@@ -71,12 +72,12 @@ def findNearestTastes(matrix, userID):
 #print(nearestTastes)
 
 # Look through the games that user has played, see if we can find a new one to recommend
-def recommendGame(matrix, userID):
+def recommendGames(matrix, userID):
     nearestTastes = findNearestTastes(matrix, userID)
     userVector = matrix[userID-1]
     # Goal: Find games that the user has played the least and the people they share tastes with have played the most
-    maxDiff = 0
-    maxDiffIndex = 0
+    maxDiffs = [float("-inf")] * RECOMMENDATIONS_LIMIT
+    maxDiffIndices = [-1] * RECOMMENDATIONS_LIMIT
 
     for n in nearestTastes:
         nearestID = n[1]
@@ -85,11 +86,18 @@ def recommendGame(matrix, userID):
             if i < len(userVector):
                 userPlays = userVector[i]
             diff = matrix[nearestID-1][i] - userPlays
-            if diff > maxDiff:
+            """if diff > maxDiff:  # This is the line we need to change
                 maxDiff = diff
-                maxDiffIndex = i+1
+                maxDiffIndex = i+1"""
+            for j in range(RECOMMENDATIONS_LIMIT):
+                if diff > maxDiffs[j]:
+                    # Do something, Taipu
+                    maxDiffs.insert(j, diff)
+                    maxDiffIndices.insert(j, i+1)
+                    maxDiffs.pop()
+                    maxDiffIndices.pop()
             
-    return maxDiffIndex, maxDiff
+    return maxDiffIndices, maxDiffs
 
 def getRandomGameID(gameIDs):
     randomIndex = random.randint(0, len(gameIDs)-1)
@@ -115,20 +123,27 @@ def writeToDB(matrix, gameIDs):
                              user="gamescore",
                              password="GameScore2!")
     cursor = db.cursor(prepared=True)
-    statement = "SELECT userID FROM AppUserRecommendedGame"
+    """statement = "SELECT userID FROM AppUserRecommendedGame"
     cursor.execute(statement)
     usersInTable = cursor.fetchall()
-    #print(usersInTable)
+    #print(usersInTable)"""
+
+    # Clear the recommendations table
+    statement = "DELETE FROM AppUserRecommendedGame"
+    cursor.execute(statement)
     
     for userID in range(1, len(matrix)+1):
-        recommendedGameID, diff = recommendGame(matrix, userID)
-        if recommendedGameID == 0:  # We didn't find a good recommendation, make a random one
-            recommendedGameID = getRandomGameID(gameIDs)  # Might be cheaper to re-implement this
-        if (userID,) not in usersInTable:
+        recommendedGameIDs, diffs = recommendGames(matrix, userID)
+        for i in range(len(recommendedGameIDs)):
+            if recommendedGameIDs[i] == -1:  # We didn't find a good recommendation, make a random one
+                randomID = getRandomGameID(gameIDs)
+                while randomID in recommendedGameIDs:  # Make sure it's not a duplicate of something else in the list
+                    randomID = getRandomGameID(gameIDs)
+                recommendedGameIDs[i] = randomID
+                
+            #print("Recommended ID: " + str(recommendedGameIDs[i]))
             statement = "INSERT INTO AppUserRecommendedGame (gameID, userID) VALUES (%s, %s)"
-        else:
-            statement = "UPDATE AppUserRecommendedGame SET gameID = %s WHERE userID = %s"
-        cursor.execute(statement, (recommendedGameID, userID))
+            cursor.execute(statement, (recommendedGameIDs[i], userID))
         
     db.commit()
     cursor.close()

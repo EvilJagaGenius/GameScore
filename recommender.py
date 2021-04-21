@@ -1,14 +1,12 @@
 # Database tests using Python's built-in SQLite3 support.  Will need to be rewritten for MySQL, shouldn't be too hard.
 
-import sqlite3, math, random
+print("Running recommender.py")
+
+import sqlite3, math, random, datetime
 import mysql.connector
 
 #USER_ID = 1
 TOP_LIMIT = 3  # Use only the top 3 games for each category
-
-# Load the DB
-#db = sqlite3.connect("db.sqlite3")
-#cursor = db.cursor()
 
 # Create a matrix to do math off of
 def generateMatrix():
@@ -135,10 +133,20 @@ def writeToDB(matrix, gameIDs):
     db.commit()
     cursor.close()
     db.close()
-
+    
+def writeLog():
+    file = open("recommender.log", 'w')
+    file.write("recommender.py last run " + str(datetime.datetime.now()) + "\n")
+    file.close()
+    
+print("Generating matrix")
 MATRIX = generateMatrix()
+print("Collecting game IDs")
 GAME_IDS = getGameIDs()
 #for row in MATRIX:
 #    print(row)
+print("Writing to DB")
 writeToDB(MATRIX, GAME_IDS)
+print("Writing log")
+writeLog()
 print("End of program")

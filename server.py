@@ -856,7 +856,7 @@ def getPostGame(userID):
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor = mydb.cursor(prepared=True)
     stmt = """
-SELECT gameName, templateName, matchID, Game.gameID, Template.templateID, favorited, AppUser.userID, AppUser.username
+SELECT gameName, templateName, matchID, Game.gameID, Template.templateID, favorited, rating, AppUser.userID, AppUser.username
 FROM ActiveMatch
 JOIN Game using(gameID)
 JOIN Template using(templateID)
@@ -874,7 +874,9 @@ WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1"""
         mydb.close()
         return response
     else:
-        gameName, templateName, matchID, gameID, templateID, favorited, authorID, authorName = myresult
+        gameName, templateName, matchID, gameID, templateID, favorited, prevRating, authorID, authorName = myresult
+        if prevRating == None:
+            prevRating = 0
         if favorited == None:
             favorited = 0
 
@@ -894,6 +896,7 @@ WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1"""
                         ,"scoreTable":[] 
                         ,"numOfPlayers":[]
                         ,"favorited":favorited
+                        ,"prevRating":prevRating
                         ,"authorID":"{}".format(authorID)
                         ,"authorName":"{}".format(authorName)}
 
@@ -2759,7 +2762,7 @@ def templateSearch():
     mycursor = mydb.cursor(prepared=True)
     if gameID == "":
         stmt = ("""
-        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName, i.favorited
+        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName, i.favorited, i.rating
         FROM AppUser u
             INNER JOIN Template t ON u.userID = t.userID
             INNER JOIN Game g ON t.gameID = g.gameID
@@ -2769,7 +2772,7 @@ def templateSearch():
         mycursor.execute(stmt, (userID, ))
     else:
         stmt = ("""
-        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName, i.favorited
+        SELECT u.userID as userID, u.userName as userName, g.pictureURL as picURL, t.templateName as templateName, t.numRatings as numRatings, t.averageRating as averageRating, g.gameID as gameID, t.templateID as templateID, g.gameName as gameName, i.favorited, i.rating
         FROM AppUser u
             INNER JOIN Template t ON u.userID = t.userID
             INNER JOIN Game g ON t.gameID = g.gameID
@@ -2783,9 +2786,11 @@ def templateSearch():
 
     #For each row returned from DB: pares and create a dictionary from it
     for row in myresult:
-        userID, userName, picURL, templateName, numRatings, averageRating, gameID, templateID, gameName, favorited = row
+        userID, userName, picURL, templateName, numRatings, averageRating, gameID, templateID, gameName, favorited, prevRating = row
         if favorited == None:
             favorited = 0
+        if prevRating == None:
+            prevRating = 0
         template = {"userID":"{}".format(userID)
                     ,"userName":"{}".format(userName)
                     ,"pictureURL":"{}".format(picURL)
@@ -2795,7 +2800,8 @@ def templateSearch():
                     ,"gameID":"{}".format(gameID)
                     ,"templateID":"{}".format(templateID)
                     ,"gameName":"{}".format(gameName)
-                    ,"favorited":favorited}
+                    ,"favorited":favorited
+                    ,"prevRating":prevRating}
         #append each new dictionary to list
         result["templates"].append(template)
 

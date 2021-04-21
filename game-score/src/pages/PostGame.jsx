@@ -139,6 +139,7 @@
                 authorID = {postGameData.authorID}
                 authorName = {postGameData.authorName}
                 players = {postGameData.scoreTable}
+                prevRating = {postGameData.prevRating}
                 selected = {true}
                 rate = {true}
                 playagain = {true}

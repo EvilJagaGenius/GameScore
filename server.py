@@ -856,12 +856,12 @@ def getPostGame(userID):
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor = mydb.cursor(prepared=True)
     stmt = """
-SELECT gameName, templateName, matchID, Game.gameID, Template.templateID, favorited, rating, AppUser.userID, AppUser.username
+SELECT gameName, templateName, matchID, Game.gameID, Template.templateID, AppUserInteractTemplate.favorited, AppUserInteractTemplate.rating, AppUser.userID, AppUser.username
 FROM ActiveMatch
 JOIN Game using(gameID)
 JOIN Template using(templateID)
 JOIN Player using (matchID)
-LEFT JOIN AppUserInteractTemplate ON Template.templateID=AppUserInteractTemplate.templateID
+LEFT JOIN AppUserInteractTemplate ON (Template.templateID=AppUserInteractTemplate.templateID AND AppUserInteractTemplate.userID=Player.userID)
 LEFT JOIN AppUser ON Template.userID=AppUser.userID
 WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1"""
     mycursor.execute(stmt,(userID,))

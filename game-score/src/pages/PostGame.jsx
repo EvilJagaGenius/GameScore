@@ -136,7 +136,7 @@
                 templateName = {postGameData.templateName}
                 templateID = {postGameData.templateID}
                 gameID = {postGameData.gameID}
-                authorID = {postGameData.authorID}
+                userID = {postGameData.authorID}
                 authorName = {postGameData.authorName}
                 players = {postGameData.scoreTable}
                 prevRating = {postGameData.prevRating}

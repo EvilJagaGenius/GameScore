@@ -710,7 +710,7 @@ export default function BottomUI(props) {
 															body: JSON.stringify({
 																gameID: props.gameID,
 																templateID: props.templateID,
-																authorID: props.authorID,
+																authorID: props.userID,
 																tReport: repTemplate,
 																aReport: repAuthor
 															})

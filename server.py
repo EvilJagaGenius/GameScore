@@ -2448,8 +2448,9 @@ def doReports():
         if (allow == False):
             print("flag 8")
             mycursor = mydb.cursor(prepared=True)
-            stmt = ("""UPDATE AppUser SET username='User%s' WHERE userID=%s;""")
-            mycursor.execute(stmt,(userID,userID,))
+            newName = "User" + userID
+            stmt = ("""UPDATE AppUser SET username=%s WHERE userID=%s;""")
+            mycursor.execute(stmt,(newName,userID))
             mycursor.close()
 
             mycursor = mydb.cursor(prepared=True)

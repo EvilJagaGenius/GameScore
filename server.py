@@ -2183,7 +2183,7 @@ def getMyTemplates():
         mydb = mysql.connector.connect(pool_name = "mypool")
         mycursor = mydb.cursor(prepared=True)
         stmt  = """
-select pictureURL, templateName, numRatings, averageRating, Game.gameID, Template.templateID, favorited
+select pictureURL, templateName, numRatings, averageRating, Game.gameID, Template.templateID, favorited, rating
 from Template JOIN Game ON Template.gameID=Game.gameID
 LEFT JOIN AppUserInteractTemplate ON (Template.templateID=AppUserInteractTemplate.templateID AND AppUserInteractTemplate.userID=%s)
 WHERE Template.userID=%s
@@ -2200,16 +2200,19 @@ ORDER BY averageRating DESC, Template.templateID ASC
 
         #For each row returned from DB: parse and create a dictionary from it
         for row in myresult:
-            picURL, templateName, numRatings, averageRating,gameID,templateID,favorited = row
+            picURL, templateName, numRatings, averageRating,gameID,templateID,favorited, prevRating = row
             if favorited == None:
                 favorited = 0
+            if prevRating == None:
+                prevRating = 0
             template = {"pictureURL":"{}".format(picURL)
                         ,"templateName":"{}".format(templateName)
                         ,"numRatings":numRatings
                         ,"averageRating":float(averageRating)
                         ,"gameID":"{}".format(gameID)
                         ,"templateID":"{}".format(templateID)
-                        ,"favorited":favorited}
+                        ,"favorited":favorited
+                        ,"prevRating":prevRating}
             #append each new dictionary to its appropriate list
             result["templates"].append(template)
 

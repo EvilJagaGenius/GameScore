@@ -96,11 +96,12 @@ export default function BottomUI(props) {
 		let history = useHistory();
 		const [repAuthor, setRepAuthor] = useState(false);
 		const [repTemplate, setRepTemplate] = useState(false);
+		const [alertSeverity, setAlertSeverity] = useState("success");
 
         return(
         <>
           <Snackbar open={showAlert} autoHideDuration={3000} onClose={()=>{setShowAlert(false)}}>
-            <Alert variant = "filled">
+            <Alert variant = "filled" severity={alertSeverity}>
               {alertText}
             </Alert>
           </Snackbar>
@@ -211,7 +212,7 @@ export default function BottomUI(props) {
 															.then(data => {
 																props.update();
 															})
-                              .then(setAlertText("Changed favorite status")).then(setShowAlert(true))
+                              .then(setAlertText("Changed favorite status")).then(setAlertSeverity("success")).then(setShowAlert(true))
 														}
 														else //Send to login screen if not logged-in
 														{
@@ -439,7 +440,7 @@ export default function BottomUI(props) {
 																console.log(data);
 															}).then(
 																setAlertText("Template Allowed")
-															).then(setShowAlert(true))
+															).then(setAlertSeverity("success")).then(setShowAlert(true))
 
 														props.update();
 													}}>
@@ -593,6 +594,7 @@ export default function BottomUI(props) {
                                                         props.update();
                                                     })
                                                     .then(setAlertText("Rating submitted"))
+													.then(setAlertSeverity("success"))
                                                     .then(setShowAlert(true))
                                                     
                                                 }}
@@ -702,27 +704,36 @@ export default function BottomUI(props) {
 											<td style={{paddingRight:7}}>
 												<Button className={classes.button} variant = "contained" color="primary" size = "large"
 													onClick={() => {
-														console.log(props.userID)
-														const requestOptions = {
-															method:'POST',
-															headers: { 'Content-Type': 'application/json' },
-															credentials: 'include',
-															body: JSON.stringify({
-																gameID: props.gameID,
-																templateID: props.templateID,
-																authorID: props.userID,
-																tReport: repTemplate,
-																aReport: repAuthor
-															})
+														if (!(repAuthor && repTemplate)){
+															setAlertText("Must have author and/or template selected");
+															setAlertSeverity("warning");
+															setShowAlert(true);
 														}
-														fetch('/api/report', requestOptions)
-															.then(res => res.json())
-															.then(data => {
-																console.log("Report Submitted");
-																setReportPopup(false);
-																props.update();
-															})
-															.then(setAlertText("Report Filed")).then(setShowAlert(true))
+
+														else {
+															const requestOptions = {
+																method:'POST',
+																headers: { 'Content-Type': 'application/json' },
+																credentials: 'include',
+																body: JSON.stringify({
+																	gameID: props.gameID,
+																	templateID: props.templateID,
+																	authorID: props.userID,
+																	tReport: repTemplate,
+																	aReport: repAuthor
+																})
+															}
+															fetch('/api/report', requestOptions)
+																.then(res => res.json())
+																.then(data => {
+																	console.log("Report Submitted");
+																	setReportPopup(false);
+																	props.update();
+																})
+																.then(setAlertText("Report Filed"))
+																.then(setAlertSeverity("success"))
+																.then(setShowAlert(true))
+														}
 													}}>
 													Report
 												</Button>
@@ -785,7 +796,7 @@ export default function BottomUI(props) {
 															props.update();
 														}).then(
 															(props.reason === "Template") ? setAlertText("Template Removed") : setAlertText("Username changed")
-														).then(setShowAlert(true))
+														).then(setAlertSeverity("success")).then(setShowAlert(true))
 												}}>
 													Delete
 												</Button>

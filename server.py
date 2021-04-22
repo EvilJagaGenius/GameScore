@@ -2422,6 +2422,11 @@ def doReports():
             mycursor.close()
 
             mycursor = mydb.cursor(prepared=True)
+            stmt = "DELETE FROM AppUserInteractTemplate WHERE templateID=%s"
+            mycursor.execute(stmt,(templateID,))
+            mycursor.close()
+
+            mycursor = mydb.cursor(prepared=True)
             stmt = "DELETE FROM Template WHERE templateID=%s"
             mycursor.execute(stmt,(templateID,))
             mycursor.close()

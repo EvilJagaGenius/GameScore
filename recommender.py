@@ -7,7 +7,7 @@ import mysql.connector
 
 #USER_ID = 1
 NEAREST_USERS_LIMIT = 3  # Number of other users to draw from
-RECOMMENDATIONS_LIMIT = 1  # Number of games to recommend
+RECOMMENDATIONS_LIMIT = 10  # Number of games to recommend
 
 # Create a matrix to do math off of
 def generateMatrix():
@@ -82,20 +82,21 @@ def recommendGames(matrix, userID):
     for n in nearestTastes:
         nearestID = n[1]
         for i in range(len(matrix[nearestID-1])):  # Loop through the games that user has played
+            # Get the number of times the user we're recommending for has played that game
             userPlays = 0
             if i < len(userVector):
                 userPlays = userVector[i]
             diff = matrix[nearestID-1][i] - userPlays
-            """if diff > maxDiff:  # This is the line we need to change
-                maxDiff = diff
-                maxDiffIndex = i+1"""
-            for j in range(RECOMMENDATIONS_LIMIT):
-                if diff > maxDiffs[j]:
-                    # Do something, Taipu
-                    maxDiffs.insert(j, diff)
-                    maxDiffIndices.insert(j, i+1)
-                    maxDiffs.pop()
-                    maxDiffIndices.pop()
+
+            if i+1 not in maxDiffIndices:
+                # Insert the recommendation in the list
+                for j in range(RECOMMENDATIONS_LIMIT):
+                    if diff > maxDiffs[j]:
+                        maxDiffs.insert(j, diff)
+                        maxDiffIndices.insert(j, i+1)
+                        maxDiffs.pop()
+                        maxDiffIndices.pop()
+                        break
             
     return maxDiffIndices, maxDiffs
 
@@ -117,37 +118,59 @@ def getGameIDs():
     db.close()
     return results
 
+def convertIndexToGameID(matrixIndex, gameIDs):
+    return gameIDs[matrixIndex][0]
+
 def writeToDB(matrix, gameIDs):
+    print("Connecting to DB...")
     db = mysql.connector.connect(host="gamescore.gcc.edu",
                              database="gamescore",
                              user="gamescore",
                              password="GameScore2!")
-    cursor = db.cursor(prepared=True)
-    """statement = "SELECT userID FROM AppUserRecommendedGame"
-    cursor.execute(statement)
-    usersInTable = cursor.fetchall()
-    #print(usersInTable)"""
+    try:
+        cursor = db.cursor(prepared=True)
+        print("Connection established")
+        statement = "SELECT * FROM AppUserRecommendedGame"
+        cursor.execute(statement)
+        print(cursor.fetchall())
 
-    # Clear the recommendations table
-    statement = "DELETE FROM AppUserRecommendedGame"
-    cursor.execute(statement)
-    
-    for userID in range(1, len(matrix)+1):
-        recommendedGameIDs, diffs = recommendGames(matrix, userID)
-        for i in range(len(recommendedGameIDs)):
-            if recommendedGameIDs[i] == -1:  # We didn't find a good recommendation, make a random one
-                randomID = getRandomGameID(gameIDs)
-                while randomID in recommendedGameIDs:  # Make sure it's not a duplicate of something else in the list
-                    randomID = getRandomGameID(gameIDs)
-                recommendedGameIDs[i] = randomID
-                
-            #print("Recommended ID: " + str(recommendedGameIDs[i]))
-            statement = "INSERT INTO AppUserRecommendedGame (gameID, userID) VALUES (%s, %s)"
-            cursor.execute(statement, (recommendedGameIDs[i], userID))
+        # Clear the recommendations table
+        statement = "DELETE FROM AppUserRecommendedGame"
+        cursor.execute(statement)
+        print("Recommendations table cleared")
+        try:
+            for userID in range(1, len(matrix)+1):
+                #print("For loop")
+                recommendedGameIDs, diffs = recommendGames(matrix, userID)
+                print("matrixIndices for", userID, recommendedGameIDs)
+                #recommendedGameIDs = [-1] * RECOMMENDATIONS_LIMIT
+                for i in range(len(recommendedGameIDs)):
+                    if (recommendedGameIDs[i],) not in gameIDs:  # We didn't find a good recommendation, make a random one
+                        #print("Recommending random ID")
+                        randomID = getRandomGameID(gameIDs)
+                        while randomID in recommendedGameIDs:  # Make sure it's not a duplicate of something else in the list
+                            #print("randomID while loop")
+                            randomID = getRandomGameID(gameIDs)
+                        recommendedGameIDs[i] = randomID
+                    #else:
+                        #print("Converting ID", matrixIndices[i])
+                        #recommendedGameIDs[i] = convertIndexToGameID(matrixIndices[i], gameIDs)  # Maybe this conversion helps.  I believe recommendGames() just gives indices in the matrix, not actual game IDs
+                        #print("Converted ID:", recommendedGameIDs[i])
+                        
+                    #print("Recommended ID: " + str(recommendedGameIDs[i]))
+                    print("userID:", userID, "gameID:", recommendedGameIDs[i])
+                    statement = "INSERT INTO AppUserRecommendedGame (gameID, userID) VALUES (%s, %s)"
+                    cursor.execute(statement, (recommendedGameIDs[i], userID))
+
+            db.commit()
+        except Exception as e:
+            print("Error while writing to DB")
+            print(e)
+            
+        cursor.close()
         
-    db.commit()
-    cursor.close()
-    db.close()
+    finally:
+        db.close()
     
 def writeLog():
     file = open("recommender.log", 'w')
@@ -158,6 +181,7 @@ print("Generating matrix")
 MATRIX = generateMatrix()
 print("Collecting game IDs")
 GAME_IDS = getGameIDs()
+print(len(GAME_IDS))
 #for row in MATRIX:
 #    print(row)
 print("Writing to DB")

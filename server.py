@@ -856,7 +856,7 @@ def getPostGame(userID):
     mydb = mysql.connector.connect(pool_name = "mypool")
     mycursor = mydb.cursor(prepared=True)
     stmt = """
-SELECT gameName, templateName, matchID, Game.gameID, Template.templateID, favorited
+SELECT gameName, templateName, matchID, Game.gameID, Template.templateID, favorited, rating
 FROM ActiveMatch
 JOIN Game using(gameID)
 JOIN Template using(templateID)
@@ -873,7 +873,9 @@ WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1"""
         mydb.close()
         return response
     else:
-        gameName, templateName, matchID, gameID, templateID, favorited = myresult
+        gameName, templateName, matchID, gameID, templateID, favorited, prevRating = myresult
+        if prevRating == None:
+            prevRating = 0
         if favorited == None:
             favorited = 0
 
@@ -892,7 +894,8 @@ WHERE Player.userID=%s ORDER BY matchID DESC LIMIT 1"""
                         ,"templateID":"{}".format(templateID)
                         ,"scoreTable":[] 
                         ,"numOfPlayers":[]
-                        ,"favorited":favorited}
+                        ,"favorited":favorited
+                        ,"prevRating":prevRating}
 
         mycursor = mydb.cursor(prepared=True)
         stmt = ("select RANK() OVER (PARTITION BY matchID ORDER BY totalScore desc),displayName,totalScore FROM Player WHERE matchID=%s")
@@ -2175,7 +2178,7 @@ def getMyTemplates():
         mydb = mysql.connector.connect(pool_name = "mypool")
         mycursor = mydb.cursor(prepared=True)
         stmt  = """
-select pictureURL, templateName, numRatings, averageRating, Game.gameID, Template.templateID, favorited
+select pictureURL, templateName, numRatings, averageRating, Game.gameID, Template.templateID, favorited, rating
 from Template JOIN Game ON Template.gameID=Game.gameID
 LEFT JOIN AppUserInteractTemplate ON (Template.templateID=AppUserInteractTemplate.templateID AND AppUserInteractTemplate.userID=%s)
 WHERE Template.userID=%s
@@ -2192,16 +2195,19 @@ ORDER BY averageRating DESC, Template.templateID ASC
 
         #For each row returned from DB: parse and create a dictionary from it
         for row in myresult:
-            picURL, templateName, numRatings, averageRating,gameID,templateID,favorited = row
+            picURL, templateName, numRatings, averageRating,gameID,templateID,favorited,prevRating = row
             if favorited == None:
                 favorited = 0
+            if prevRating == None:
+                prevRating = 0
             template = {"pictureURL":"{}".format(picURL)
                         ,"templateName":"{}".format(templateName)
                         ,"numRatings":numRatings
                         ,"averageRating":float(averageRating)
                         ,"gameID":"{}".format(gameID)
                         ,"templateID":"{}".format(templateID)
-                        ,"favorited":favorited}
+                        ,"favorited":favorited
+                        ,"prevRating":prevRating}
             #append each new dictionary to its appropriate list
             result["templates"].append(template)
 

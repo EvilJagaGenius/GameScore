@@ -178,6 +178,7 @@ export default class MyTemplates extends Component {
                             templateID = {this.state.data[key].templateID}
                             gameID = {this.state.data[key].gameID}
                             favorited = {this.state.data[key].favorited}
+                            prevRating = {this.state.data[key].prevRating}
                             selected = {this.isSelected(key)}
                             play ={true}
                             edit = {true}

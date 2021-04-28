@@ -704,7 +704,7 @@ export default function BottomUI(props) {
 											<td style={{paddingRight:7}}>
 												<Button className={classes.button} variant = "contained" color="primary" size = "large"
 													onClick={() => {
-														if (!(repAuthor && repTemplate)){
+														if (!(repAuthor || repTemplate)){
 															setAlertText("Must have author and/or template selected");
 															setAlertSeverity("warning");
 															setShowAlert(true);
